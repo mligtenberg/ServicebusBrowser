@@ -1,0 +1,7 @@
+<div class="menu-item" (click)="toggleShowSubMenu($event)">
+    <span>{{name}}</span>
+</div>
+
+<div class="sub-menu" [ngClass]="{'show': showSubmenu }">
+    <ng-content></ng-content>
+</div>

@@ -1,0 +1,17 @@
+<app-menubar>
+    <app-menu-item name="Config">
+        <app-submenu-item name="Connect" (click)="connectPressed()"></app-submenu-item>
+    </app-menu-item>
+</app-menubar>
+
+<div class="body">
+    <app-sidebar>
+        <app-connection-plane></app-connection-plane>
+    </app-sidebar>
+    <div class="wrapper">
+        <div class="view">
+            <router-outlet></router-outlet>
+        </div>
+        <app-console [logLines]="logs"></app-console>
+    </div>
+</div>

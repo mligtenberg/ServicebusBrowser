@@ -1,0 +1,13 @@
+@import "./../../../styling/colorscheme.scss";
+@import "./../menuConfig.scss";
+
+.submenu-item {
+    padding: 0 $menu-spacing;
+    line-height: $menu-height;
+    color: darken($text-light, 10%);
+    cursor: pointer;
+
+    &:hover {
+        color: $text-light;
+    } 
+}

@@ -1,0 +1,12 @@
+<div class="consoleplane">
+    <div class="topbar" (click)="toggleOpen()">
+        <span>Console</span>
+        <div class="space"></div>
+        <fa-icon [icon]="icon" size="1x"></fa-icon>
+    </div>
+    <div class="consoletext" [ngClass]="{'open': open}" #logPlane>
+        <div class="consoleline" *ngFor="let line of logLines">
+            {{line}}
+        </div>
+    </div>
+</div>

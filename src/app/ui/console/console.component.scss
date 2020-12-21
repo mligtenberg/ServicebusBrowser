@@ -1,0 +1,51 @@
+@import "./../../../styling/colorscheme.scss";
+
+.consoleplane {
+    background: $background-lighter;
+    box-shadow: #c4c4c436 0px -5px 5px;
+
+    .topbar {
+        display: flex;
+        cursor: pointer;
+        height: 30px;
+        margin: 0 8px;
+
+        > span {
+            line-height: 30px;
+        }
+
+        > .space {
+            flex: 1;
+        }
+
+        > fa-icon {
+            color: $accent;
+            display: block;
+            margin: 7px;
+            height: 16px;
+
+            > svg {
+                height: 100%;
+            }
+        }
+    }
+
+    > .consoletext {
+        display: none;
+        &.open {
+            display: block;
+            height: 300px;
+            overflow-y: scroll;
+            background-color: $background-lightest;
+        }
+
+        > .consoleline {
+            font-family: "monospace";
+            font-size: 0.9em;
+            padding: 6px 4px;
+            &:nth-child(even) {
+                background-color: lighten($accent-light, 25%);
+            }
+        }
+    }
+}

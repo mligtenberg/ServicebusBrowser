@@ -1,0 +1,38 @@
+@import "./../../../styling/colorscheme.scss";
+@import "./../menuConfig.scss";
+
+:host {
+    display: inline-block;
+}
+
+.menu-item {
+    color: $text-light;
+    line-height: $menu-height;
+    padding: 0 $menu-spacing;
+    cursor: pointer;
+
+    > span {
+        color: darken($text-light, 10%);
+
+        &:hover {
+            color: $text-light;
+        }
+    }
+}
+
+.sub-menu {
+    display: none;
+    &.show {
+        display: block;
+        position: absolute;
+        z-index: 1;
+        width: $submenu-width;
+        background: $background-darker;
+        color: $text-light;
+
+        > * {
+            display: block;
+            width: 100%;
+        }
+    }
+}

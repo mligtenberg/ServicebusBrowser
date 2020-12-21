@@ -1,0 +1,10 @@
+@import "./../../../styling/colorscheme.scss";
+
+.sidebar {
+    background: $background-darkest;
+    height: 100%;
+    width: 300px;
+    overflow: auto;
+    padding: 6px;
+    color: $text-light;
+}

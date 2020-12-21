@@ -1,0 +1,13 @@
+$background-lightest: #f7f5f5;
+$background-lighter: darken($background-lightest, 5%);
+$background-light: darken($background-lightest, 10%);
+$background-dark: #747c7c;
+$background-darker: #464b45;
+$background-darkest: #212221;
+
+$text: #111111;
+$text-light: #f7f5f5;
+$accent: #1895e3;
+$accent-light: #93bdca;
+
+$font-family: "Helvetica", sans-serif;
