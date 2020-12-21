@@ -24,7 +24,7 @@ export class ServicebusConnectionService {
       });
     });
 
-    ipcRenderer.send('servicebus:test');
+    ipcRenderer.send('servicebus:test', connection);
     return from(promise);
   }
 }

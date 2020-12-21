@@ -18,7 +18,6 @@ function test(connection: IConnection): Promise<boolean> {
     .listQueues()
     .next()
     .then((c) => {
-      console.log(c);
       return true;
     }) as Promise<boolean>;
 }
@@ -52,14 +51,13 @@ function initAdminClient(
 }
 
 export function initServicebusHandler() {
-  ipcMain.handle("servicebus:test", async (event, ...args) => {
+  ipcMain.on("servicebus:test", (event, ...args) => {
     const connection = args[0] as IConnection;
     test(connection).then(() => {
-        ipcRenderer.send('servicebus:test.result', true);
+        event.reply('servicebus:test.result', true);
     }).catch(e => {
-        console.log(e);
         const reason = !!e.message ? e.message : "Failed because of unknown reason";
-         global.currentWindow.webContents.send('servicebus:test.result', false, reason);
+        event.reply('servicebus:test.result', false, reason);
     });
   });
 }
