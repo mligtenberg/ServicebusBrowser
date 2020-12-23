@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
 import { IConnection } from '../ngrx/connections.models';
-import { getConnections } from '../ngrx/connections.selectors';
+import { getActiveConnections } from '../ngrx/connections.selectors';
 import {SubSink} from 'subsink';
 
 @Component({
@@ -19,7 +19,7 @@ export class ConnectionPlaneComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.subs.add(this.store.select(getConnections).subscribe(c => this.connections = c));
+    this.subs.add(this.store.select(getActiveConnections).subscribe(c => this.connections = c));
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,7 @@
 <app-menubar>
-    <app-menu-item name="Config">
-        <app-submenu-item name="Connect" (click)="connectPressed()"></app-submenu-item>
+    <app-menu-item name="Open">
+        <app-submenu-item name="New..." (click)="connectPressed()"></app-submenu-item>
+        <app-submenu-item *ngFor="let connection of storedConnections" name="{{connection.name}}" (click)="openConnection(connection)"></app-submenu-item>
     </app-menu-item>
 </app-menubar>
 

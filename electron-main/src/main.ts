@@ -15,6 +15,8 @@ function createWindow(): BrowserWindow | null {
   let win: BrowserWindow | null = new BrowserWindow({
     width: 800,
     height: 600,
+    minHeight:420,
+    minWidth: 620,
     webPreferences: {
       nodeIntegration: true
     }
@@ -72,8 +74,17 @@ app.on('activate', () => {
 if (isDev) {
   app.whenReady().then(() => {
     installExtension(REDUX_DEVTOOLS)
-        .then((name) => console.log(`Added Extension:  ${name}`))
+        .then((name) => {
+          console.log(`Added Extension:  ${name}`);
+          initServicebusHandler();
+          if (global.currentWindow === null) {
+            global.currentWindow = createWindow();
+          }})
         .catch((err) => console.log('An error occurred: ', err));
-        initServicebusHandler();
+  });
+} else {
+  app.whenReady().then(() => {
+    initServicebusHandler();
+    createWindow();
   });
 }

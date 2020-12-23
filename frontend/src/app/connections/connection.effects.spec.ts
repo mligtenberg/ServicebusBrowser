@@ -2,21 +2,21 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Observable } from 'rxjs';
 
-import { ServicebusConnectionEffects } from './servicebus-connection.effects';
+import { ConnectionEffects } from './connection.effects';
 
-describe('ServicebusConnectionEffects', () => {
+describe('ConnectionEffects', () => {
   let actions$: Observable<any>;
-  let effects: ServicebusConnectionEffects;
+  let effects: ConnectionEffects;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        ServicebusConnectionEffects,
+        ConnectionEffects,
         provideMockActions(() => actions$)
       ]
     });
 
-    effects = TestBed.inject(ServicebusConnectionEffects);
+    effects = TestBed.inject(ConnectionEffects);
   });
 
   it('should be created', () => {

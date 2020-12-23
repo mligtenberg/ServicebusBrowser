@@ -1,14 +1,15 @@
 @import "./../../../styling/colorscheme.scss";
 
 .consoleplane {
-    background: $background-lighter;
     box-shadow: #c4c4c436 0px -5px 5px;
 
     .topbar {
+        color: $text-light;
+        background: $accent;
         display: flex;
         cursor: pointer;
         height: 30px;
-        margin: 0 8px;
+        padding: 0 8px;
 
         > span {
             line-height: 30px;
@@ -19,7 +20,7 @@
         }
 
         > fa-icon {
-            color: $accent;
+            color: $text-light;
             display: block;
             margin: 7px;
             height: 16px;

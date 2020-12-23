@@ -1,0 +1,4 @@
+<div>Queues <span (click)="refreshQueues()">queues</span></div>
+<div class="submenu" *ngIf="queues">
+    <div *ngFor="let queue of queues">{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
+</div>

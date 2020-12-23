@@ -4,12 +4,14 @@ import * as actions from "./connections.actions";
 import { ConnectionType, IConnection } from "./connections.models";
 
 export interface IConnectionsState {
-    connections: IConnection[];
+    activeConnections: IConnection[];
+    storedConnections: IConnection[];
     selectedConnection: IConnection | null
 }
 
 const initialState: IConnectionsState = {
-    connections: [],
+    activeConnections: [],
+    storedConnections: [],
     selectedConnection: null
 }
 
@@ -19,7 +21,7 @@ export const connectionReducer = createReducer<IConnectionsState>(
         return {
             ...state,
             selectedConnection: {
-                id: undefined,
+                id: uuidv4(),
                 name: '',
                 testSuccess: null,
                 connectionType: ConnectionType.connectionString,
@@ -38,29 +40,39 @@ export const connectionReducer = createReducer<IConnectionsState>(
     on(actions.selectConnection, (state, action) => {
         return {
             ...state,
-            selectedConnection: state.connections.find(c => c.id === action.id) ?? null
+            selectedConnection: state.activeConnections.find(c => c.id === action.id) ?? null
         }
     }),
     on(actions.deleteConnection, (state, action) => {
         return {
             ...state,
-            connections: state.connections.filter(c => c.id !== action.id)
+            connections: state.activeConnections.filter(c => c.id !== action.id)
+        }
+    }),
+    on(actions.openConnection, (state, action) => {
+        return {
+            ...state,
+            activeConnections: [
+                ...state.activeConnections.filter(c => c.id != action.connection.id),
+                action.connection
+            ]
+        }
+    }),
+    on(actions.connectionsLoadSuccess, (state, action) => {
+        return {
+            ...state,
+            storedConnections: [
+                ...action.connections.map(c => {return {...c}})
+            ]
         }
     }),
     // selected connections
-    on(actions.storeSelectedConnection, (state) => {
-        if (state.selectedConnection === null) {
-            return state;
-        }
-
+    on(actions.storeSelectedConnectionSuccess, (state) => {
         return {
             ...state,
             connections: [
-                ...state.connections.filter(c => c.id != state.selectedConnection?.id),
-                {
-                    ...state.selectedConnection,
-                    id: state.selectedConnection.id === undefined ? uuidv4() : state.selectedConnection.id
-                }
+                ...state.activeConnections.filter(c => c.id != state.selectedConnection?.id),
+                state.selectedConnection
             ],
             selectedConnection: null
         }

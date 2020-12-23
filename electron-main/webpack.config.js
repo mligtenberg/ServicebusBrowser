@@ -7,19 +7,12 @@ module.exports = {
   entry: './src/main.ts',
   target: 'electron-main',
 
-  output: [
-    {
-
-    }
-  ],
-
   plugins: [new webpack.ProgressPlugin()],
 
   module: {
     rules: [{
       test: /\.(ts|tsx)$/,
       loader: 'ts-loader',
-      include: [path.resolve(__dirname, 'src')],
       exclude: [/node_modules/]
     }]
   },

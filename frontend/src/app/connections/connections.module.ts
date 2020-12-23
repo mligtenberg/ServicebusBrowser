@@ -7,10 +7,11 @@ import { ConnectionPlaneComponent } from './connection-plane/connection-plane.co
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ConnectionPlaneItemComponent } from './connection-plane-item/connection-plane-item.component';
 import { EffectsModule } from '@ngrx/effects';
-import { ServicebusConnectionEffects } from './servicebus-connection.effects';
+import { ConnectionEffects } from './connection.effects';
 import { connectionReducer } from './ngrx/connections.reducers';
 import { StoreModule } from '@ngrx/store';
 import { LoggingModule } from '../logging/logging.module';
+import { QueuesModule } from '../queues/queues.module';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { LoggingModule } from '../logging/logging.module';
     LoggingModule,
     FontAwesomeModule,
     StoreModule.forFeature('connections', connectionReducer),
-    EffectsModule.forFeature([ServicebusConnectionEffects])
+    EffectsModule.forFeature([ConnectionEffects]),
+    QueuesModule
   ],
   exports: [
     ConnectionPlaneComponent

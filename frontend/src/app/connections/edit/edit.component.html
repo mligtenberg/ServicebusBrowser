@@ -1,7 +1,7 @@
 <div><a (click)="cancel()">Cancel</a></div>
 <div *ngIf="selectedConnection !== null">
-    <input type="text" [value]="selectedConnection.name" (change)="onNameChange($event)" />
-    <input type="text" multiple [value]="selectedConnection.connectionDetails.connectionString" (change)="onConnectionStringChange($event)" />
+    <input type="text" placeholder="Name" [value]="selectedConnection.name" (change)="onNameChange($event)" />
+    <input type="text" placeholder="Connection string" multiple [value]="selectedConnection.connectionDetails.connectionString" (change)="onConnectionStringChange($event)" />
     <button (click)="test()" [disabled]="selectedConnection.testSuccess">Test</button>
-    <button (click)="save()" [disabled]="!selectedConnection.testSuccess">Save</button>
+    <button (click)="save()" [disabled]="!selectedConnection.testSuccess">Store</button>
 </div>

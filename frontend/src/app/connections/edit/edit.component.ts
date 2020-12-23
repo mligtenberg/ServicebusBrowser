@@ -53,7 +53,6 @@ export class EditComponent implements OnInit {
 
   save() {
     this.store.dispatch(storeSelectedConnection());
-    this.router.navigateByUrl('/');
   }
 
   cancel() {

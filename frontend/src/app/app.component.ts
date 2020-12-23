@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { createConnection } from './connections/ngrx/connections.actions';
+import { SubSink } from 'subsink';
+import { createConnection, openConnection } from './connections/ngrx/connections.actions';
+import { IConnection } from './connections/ngrx/connections.models';
+import { getStoredConnections } from './connections/ngrx/connections.selectors';
 import { LogService } from './logging/log.service';
 import { addLog } from './logging/ngrx/logging.actions';
 import { LogLevel } from './logging/ngrx/logging.models';
@@ -15,23 +18,34 @@ import { State } from './ngrx.module';
 })
 export class AppComponent {
   title = 'Servicebus Browser';
-  logs = [];
+  logs: string[] = [];
+  storedConnections: IConnection[] = [];
+
+  subsink = new SubSink();
 
   constructor(
     private store: Store<State>,
     private router: Router,
     private log: LogService
   ) {
-    this.store.select(getLogMessages).subscribe(l => {
+    this.subsink.add(this.store.select(getLogMessages).subscribe(l => {
       this.logs = l;
-    });
+    }));
 
-    this.log.logInfo("Thank you for using Servicebus Browser");
-    this.log.logInfo("This app is currently in development");
+    this.subsink.add(this.store.select(getStoredConnections).subscribe(c => {
+      this.storedConnections = c;
+    }))
+
+    this.log.logInfo("Thank you for testing Servicebus Browser");
+    this.log.logInfo("This app is currently in development, many features still need to be implemented");
   }
 
   connectPressed(): void {
     this.store.dispatch(createConnection());
     this.router.navigate(["connections", "edit"]);
+  }
+
+  openConnection(connection: IConnection): void {
+    this.store.dispatch(openConnection({connection}));
   }
 }

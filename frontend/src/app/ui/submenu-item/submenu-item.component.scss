@@ -1,6 +1,11 @@
 @import "./../../../styling/colorscheme.scss";
 @import "./../menuConfig.scss";
 
+:host {
+    display: block;
+    width: 100%;
+}
+
 .submenu-item {
     padding: 0 $menu-spacing;
     line-height: $menu-height;
