@@ -1,15 +1,10 @@
-# 🚀 Welcome to your new awesome project!
+# Servicebus Browser
+This project aims to build a cross platform tool to manage Azure Servicebus instances
 
-This project has been created using **webpack scaffold**, you can now run
+## How to run
+Currently the tool is still in early stages of development. Because of this there is no prebuilt variant available.
 
-```
-npm run build
-```
-
-or
-
-```
-yarn build
-```
-
-to bundle your application
+### Manual build
+- Clone the project
+- Install the dependencies with ``npm install``
+- Build and start the app by running ``npm run start`` in the main folder
