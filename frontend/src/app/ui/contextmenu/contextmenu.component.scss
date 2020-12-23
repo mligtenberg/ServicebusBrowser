@@ -1,0 +1,10 @@
+@import '../../../styling/colorscheme.scss';
+
+:host {
+    position: absolute;
+    display: block;
+    z-index: 10;
+    background-color: $background-darker;
+    color: $text-light;
+    box-sizing: border-box;
+}

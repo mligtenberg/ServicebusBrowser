@@ -1,11 +1,14 @@
 <div class="connection">
     <app-toggle-box open="true">
-    <div class="title">
+    <div class="title" (contextmenu)="openContextMenu($event)">
         <span>{{connection?.name}}</span>
-        <a (click)="edit(connection)"><fa-icon [icon]="faEdit"></fa-icon></a>
     </div>
     <div class="body">
         <app-queue-plane [connection]="connection"></app-queue-plane>
     </div>
 </app-toggle-box>
 </div>
+
+<ng-template #contextMenu>
+    <app-contextmenu-item (click)="edit(connection)">Edit</app-contextmenu-item>
+</ng-template>

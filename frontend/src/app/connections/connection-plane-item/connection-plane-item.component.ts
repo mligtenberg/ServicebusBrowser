@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
+import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { selectConnection } from '../ngrx/connections.actions';
 import { IConnection } from '../ngrx/connections.models';
 
@@ -17,12 +18,16 @@ export class ConnectionPlaneItemComponent {
   @Input()
   connection: IConnection | undefined;
 
+  @ViewChild('contextMenu')
+  contextMenuReference: TemplateRef<any>
+
   constructor(
     private store: Store<State>,
-    private router: Router
+    private router: Router,
+    private contextMenu: ContextmenuService
   ) { }
 
-  edit(connection: IConnection | undefined) {
+  edit(connection: IConnection | undefined): void {
     if (connection === undefined) {
       return;
     }
@@ -31,5 +36,15 @@ export class ConnectionPlaneItemComponent {
       id: connection.id as string
     }));
     this.router.navigate(['connections', 'edit'])
+  }
+
+  openContextMenu($event: Event): void {
+    this.contextMenu.openContextmenu({
+      templateRef: this.contextMenuReference, 
+      target: $event.target as HTMLElement,
+      width: 300,
+    });
+  
+    $event.stopPropagation();
   }
 }

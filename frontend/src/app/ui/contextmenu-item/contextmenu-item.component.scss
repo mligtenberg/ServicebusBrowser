@@ -1,0 +1,9 @@
+@import "./../menuConfig.scss";
+
+:host {
+    display: block;
+    width: 100%;
+    line-height: $menu-height;
+    padding: 0 20px;  
+    cursor: pointer;
+}

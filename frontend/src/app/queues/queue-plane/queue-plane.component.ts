@@ -49,7 +49,6 @@ export class QueuePlaneComponent implements OnChanges, OnDestroy {
     }
     
     this.queueSubscription = this.store.select(getQueues(this.connection.id)).subscribe((queues) => {
-      console.log(queues);
       this.queues = queues;
     });
   }

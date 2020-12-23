@@ -17,7 +17,7 @@ export class ConnectionEffects implements OnInitEffects {
     private servicebusConnection: ConnectionService,
     private store: Store<State>,
   ) {  }
-  
+
   ngrxOnInitEffects(): Action {
     return actions.connectionsLoad();
   }
@@ -61,7 +61,6 @@ export class ConnectionEffects implements OnInitEffects {
     return this.actions$.pipe(
       ofType(actions.connectionsLoad),
       mergeMap(() => {
-        console.log('aaa');
         return from(this.servicebusConnection.getConnectionOptionsAsync())
         .pipe(map((connections) => actions.connectionsLoadSuccess({connections})));
       })
