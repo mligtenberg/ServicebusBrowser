@@ -3,6 +3,7 @@ import { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import { initServicebusHandler } from './services/servicebus';
 import installExtension from 'electron-devtools-installer';
 import global from './global';
+import { initSecretsHandler } from './services/secrets';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -77,6 +78,7 @@ if (isDev) {
         .then((name) => {
           console.log(`Added Extension:  ${name}`);
           initServicebusHandler();
+          initSecretsHandler();
           if (global.currentWindow === null) {
             global.currentWindow = createWindow();
           }})
@@ -85,6 +87,9 @@ if (isDev) {
 } else {
   app.whenReady().then(() => {
     initServicebusHandler();
-    createWindow();
+    initSecretsHandler();
+    if (global.currentWindow === null) {
+      global.currentWindow = createWindow();
+    }
   });
 }

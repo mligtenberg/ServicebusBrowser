@@ -66,6 +66,17 @@ export const connectionReducer = createReducer<IConnectionsState>(
             ]
         }
     }),
+    on(actions.deleteConnectionSuccess, (state, action) => {
+        return {
+            ...state,
+            storedConnections: [
+                ...state.storedConnections.filter(c => c.id !== action.id)
+            ],
+            activeConnections: [
+                ...state.activeConnections.filter(c => c.id !== action.id)
+            ]
+        }
+    }),
     // selected connections
     on(actions.storeSelectedConnectionSuccess, (state) => {
         return {

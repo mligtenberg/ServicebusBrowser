@@ -61,9 +61,19 @@ export class ConnectionEffects implements OnInitEffects {
     return this.actions$.pipe(
       ofType(actions.connectionsLoad),
       mergeMap(() => {
-        return from(this.servicebusConnection.getConnectionOptionsAsync())
+        return from(this.servicebusConnection.getStoredConnectionsAsync())
         .pipe(map((connections) => actions.connectionsLoadSuccess({connections})));
       })
     )
   });
+
+  deleteConnection$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.deleteConnection),
+      mergeMap((action) => {
+        return from(this.servicebusConnection.deleteConnectionAsync(action.id))
+        .pipe(map(() => actions.deleteConnectionSuccess({id: action.id})))
+      })
+    )
+  })
 }

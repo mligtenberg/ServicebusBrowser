@@ -6,6 +6,7 @@ export const createConnection = createAction('[Connection] create a empty connec
 export const selectConnection = createAction('[connection] load an exsiting connection as selected', props<{id: string}>());
 export const disconnectConnection = createAction('[connection] disconnect from a connection', props<{id: string}>());
 export const deleteConnection = createAction('[Connection] Delete a specified connection', props<{id: string}>());
+export const deleteConnectionSuccess = createAction('[Connection] Deleted connection successfully', props<{id: string}>());
 export const openConnection = createAction('[Connection] Open a connection', props<{connection: IConnection}>())
 export const connectionsLoad = createAction('[Connection] Load stored connections from storage')
 export const connectionsLoadSuccess = createAction('[Connection] Stored connections are loaded from storage', props<{connections: IConnection[]}>())

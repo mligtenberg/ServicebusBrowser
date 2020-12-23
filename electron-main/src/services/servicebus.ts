@@ -33,8 +33,6 @@ async function getQueues(connection: IConnection): Promise<IQueue[]> {
     finished = result.done ?? false;
   } while (finished);
 
-  console.log(queues);
-
   return queues.map(q => {
     return {
       name: q.name,
