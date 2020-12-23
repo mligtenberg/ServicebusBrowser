@@ -4,7 +4,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { selectConnection } from '../ngrx/connections.actions';
+import { disconnectConnection, selectConnection } from '../ngrx/connections.actions';
 import { IConnection } from '../ngrx/connections.models';
 
 @Component({
@@ -27,15 +27,25 @@ export class ConnectionPlaneItemComponent {
     private contextMenu: ContextmenuService
   ) { }
 
-  edit(connection: IConnection | undefined): void {
-    if (connection === undefined) {
+  edit(): void {
+    if (this.connection === undefined) {
       return;
     }
 
     this.store.dispatch(selectConnection({
-      id: connection.id as string
+      id: this.connection.id as string
     }));
     this.router.navigate(['connections', 'edit'])
+  }
+
+  disconnect(): void {
+    if (this.connection === undefined) {
+      return;
+    }
+
+    this.store.dispatch(disconnectConnection({
+      id: this.connection.id as string
+    }));
   }
 
   openContextMenu($event: Event): void {

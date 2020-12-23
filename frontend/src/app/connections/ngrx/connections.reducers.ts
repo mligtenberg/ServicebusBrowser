@@ -43,10 +43,10 @@ export const connectionReducer = createReducer<IConnectionsState>(
             selectedConnection: state.activeConnections.find(c => c.id === action.id) ?? null
         }
     }),
-    on(actions.deleteConnection, (state, action) => {
+    on(actions.disconnectConnection, (state, action) => {
         return {
             ...state,
-            connections: state.activeConnections.filter(c => c.id !== action.id)
+            activeConnections: state.activeConnections.filter(c => c.id !== action.id)
         }
     }),
     on(actions.openConnection, (state, action) => {
@@ -70,8 +70,8 @@ export const connectionReducer = createReducer<IConnectionsState>(
     on(actions.storeSelectedConnectionSuccess, (state) => {
         return {
             ...state,
-            connections: [
-                ...state.activeConnections.filter(c => c.id != state.selectedConnection?.id),
+            storedConnections: [
+                ...state.storedConnections.filter(c => c.id != state.selectedConnection?.id),
                 state.selectedConnection
             ],
             selectedConnection: null

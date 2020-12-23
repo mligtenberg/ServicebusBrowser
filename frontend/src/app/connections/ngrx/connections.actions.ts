@@ -4,6 +4,7 @@ import { IConnection } from "./connections.models";
 // basic connection operations
 export const createConnection = createAction('[Connection] create a empty connection and load it as selected');
 export const selectConnection = createAction('[connection] load an exsiting connection as selected', props<{id: string}>());
+export const disconnectConnection = createAction('[connection] disconnect from a connection', props<{id: string}>());
 export const deleteConnection = createAction('[Connection] Delete a specified connection', props<{id: string}>());
 export const openConnection = createAction('[Connection] Open a connection', props<{connection: IConnection}>())
 export const connectionsLoad = createAction('[Connection] Load stored connections from storage')
