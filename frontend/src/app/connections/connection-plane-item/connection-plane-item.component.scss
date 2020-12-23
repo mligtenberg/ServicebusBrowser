@@ -1,6 +1,11 @@
 .title {
-    display: flex;
-    .space {
-        flex: 1;
-    }
+  display: block;
+  width: 100%;
+  position: relative;
+
+  a {
+    text-align: right;
+    position: absolute;
+    right: 0;
+  }
 }

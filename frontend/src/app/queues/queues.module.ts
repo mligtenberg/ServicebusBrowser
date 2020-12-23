@@ -5,6 +5,8 @@ import { QueuesEffects } from './queues.effects';
 import { QueuePlaneComponent } from './queue-plane/queue-plane.component';
 import { StoreModule } from '@ngrx/store';
 import { queueReducer } from './ngrx/queues.reducers';
+import { UiModule } from '../ui/ui.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
@@ -13,7 +15,9 @@ import { queueReducer } from './ngrx/queues.reducers';
   imports: [
     CommonModule,
     StoreModule.forFeature('queues', queueReducer),
-    EffectsModule.forFeature([QueuesEffects])
+    EffectsModule.forFeature([QueuesEffects]),
+    UiModule,
+    FontAwesomeModule
   ],
   exports: [
     QueuePlaneComponent

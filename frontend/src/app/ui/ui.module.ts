@@ -6,6 +6,7 @@ import { SubmenuItemComponent } from './submenu-item/submenu-item.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { ConsoleComponent } from './console/console.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ToggleBoxComponent } from './toggle-box/toggle-box.component';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     MenuItemComponent,
     SubmenuItemComponent,
     SidebarComponent,
-    ConsoleComponent
+    ConsoleComponent,
+    ToggleBoxComponent
   ],
   imports: [
     CommonModule,
@@ -25,6 +27,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     SubmenuItemComponent,
     SidebarComponent,
     ConsoleComponent,
+    ToggleBoxComponent
   ]
 })
 export class UiModule { }

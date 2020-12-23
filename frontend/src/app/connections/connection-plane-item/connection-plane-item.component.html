@@ -1,8 +1,11 @@
 <div class="connection">
+    <app-toggle-box open="true">
     <div class="title">
         <span>{{connection?.name}}</span>
-        <div class="space"></div>
         <a (click)="edit(connection)"><fa-icon [icon]="faEdit"></fa-icon></a>
     </div>
-    <app-queue-plane [connection]="connection"></app-queue-plane>
+    <div class="body">
+        <app-queue-plane [connection]="connection"></app-queue-plane>
+    </div>
+</app-toggle-box>
 </div>

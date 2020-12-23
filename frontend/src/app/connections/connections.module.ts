@@ -12,6 +12,7 @@ import { connectionReducer } from './ngrx/connections.reducers';
 import { StoreModule } from '@ngrx/store';
 import { LoggingModule } from '../logging/logging.module';
 import { QueuesModule } from '../queues/queues.module';
+import { UiModule } from '../ui/ui.module';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { QueuesModule } from '../queues/queues.module';
     FontAwesomeModule,
     StoreModule.forFeature('connections', connectionReducer),
     EffectsModule.forFeature([ConnectionEffects]),
-    QueuesModule
+    QueuesModule,
+    UiModule
   ],
   exports: [
     ConnectionPlaneComponent

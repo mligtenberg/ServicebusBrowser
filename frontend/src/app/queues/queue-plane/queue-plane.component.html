@@ -1,4 +1,6 @@
-<div>Queues <span (click)="refreshQueues()">queues</span></div>
-<div class="submenu" *ngIf="queues">
-    <div *ngFor="let queue of queues">{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
-</div>
+<app-toggle-box open="true">
+    <span class="title">Queues <span class="refresh" (click)="refreshQueues($event)"><fa-icon [icon]="refreshIcon" size="1x"></fa-icon></span></span>>
+    <span class="body">
+        <div *ngFor="let queue of queues">{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
+    </span>
+</app-toggle-box>
