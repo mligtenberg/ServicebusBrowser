@@ -14,6 +14,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { LoggingModule } from './logging/logging.module';
+import { TopicsModule } from './topics/topics.module';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { LoggingModule } from './logging/logging.module';
     StoreDevtoolsModule.instrument({ name: "Servicebus Browser", maxAge: 25, logOnly: environment.production }),
     EffectsModule.forRoot([]),
     StoreRouterConnectingModule.forRoot(),
-    LoggingModule
+    LoggingModule,
+    TopicsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -3,6 +3,7 @@ import {
   ServiceBusClient,
   ServiceBusAdministrationClient,
   QueueRuntimeProperties,
+  TopicRuntimeProperties,
 } from "@azure/service-bus";
 import {
   ConnectionType,
@@ -10,6 +11,7 @@ import {
   IConnectionStringConnectionDetails,
 } from "../../../ipcModels/IConnection";
 import { IQueue } from "../../../ipcModels/IQueue";
+import { ITopic } from "../../../ipcModels/ITopic";
 import { serviceBusChannels } from "../../../ipcModels/channels";
 
 async function test(connection: IConnection): Promise<boolean> {
@@ -40,6 +42,25 @@ async function getQueues(connection: IConnection): Promise<IQueue[]> {
       deadLetterMessages: q.deadLetterMessageCount,
       scheduledMessages: q.scheduledMessageCount
     } as IQueue
+  })
+}
+
+async function getTopics(connection: IConnection): Promise<ITopic[]> {
+  const client = initAdminClient(connection);
+
+  let finished = false;
+  const topics: TopicRuntimeProperties[] = [];
+
+  do {
+    const result = await client.listTopicsRuntimeProperties().next();
+    topics.push(result.value);
+    finished = result.done ?? false;
+  } while (finished);
+
+  return topics.map(q => {
+    return {
+      name: q.name,
+    } as ITopic
   })
 }
 
@@ -96,6 +117,19 @@ export function initServicebusHandler() {
         ? e.message
         : "Failed because of unknown reason";
       event.reply(serviceBusChannels.GET_QUEUES_RESPONSE, false, reason);
+    }
+  });
+
+  ipcMain.on(serviceBusChannels.GET_TOPICS, async (event, ...args) => {
+    const connection = args[0] as IConnection;
+    try {
+      var topics = await getTopics(connection);
+      event.reply(serviceBusChannels.GET_TOPICS_REPONSE, true, topics);
+    } catch (e) {
+      const reason = !!e.message
+        ? e.message
+        : "Failed because of unknown reason";
+      event.reply(serviceBusChannels.GET_TOPICS_REPONSE, false, reason);
     }
   });
 }

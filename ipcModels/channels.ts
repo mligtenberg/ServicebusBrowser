@@ -3,6 +3,8 @@ export module serviceBusChannels {
     export const TEST_RESPONSE = "servicebus:test.response";
     export const GET_QUEUES = "servicebus:getQueues";
     export const GET_QUEUES_RESPONSE = "servicebus:getQueues.response";
+    export const GET_TOPICS = "servicebus:getTopics";
+    export const GET_TOPICS_REPONSE = "servicebus:getTopics.reponse";
 }
 
 export module secretsChannels {

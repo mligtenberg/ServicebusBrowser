@@ -5,7 +5,6 @@ import * as keytar from 'keytar';
 import { SERVICE_NAME } from "../constants";
 
 export function initSecretsHandler() {
-  console.info('INIT Secrets handler');
     ipcMain.on(secretsChannels.ADD_SECRET, (event, ...args) => {
       if (args.length < 2) {
         event.reply(secretsChannels.ADD_SECRET_REPONSE, false, 'Not enough arguments')
