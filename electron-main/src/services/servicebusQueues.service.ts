@@ -1,6 +1,6 @@
 import { QueueRuntimeProperties } from "@azure/service-bus";
-import { IConnection, IQueue } from "../../../ipcModels";
-import { getAdminClient } from "./servicebusConnections.service";
+import { IConnection, IMessage, IQueue } from "../../../ipcModels";
+import { getAdminClient, getClient } from "./servicebusConnections.service";
 
 export async function getQueues(connection: IConnection): Promise<IQueue[]> {
   const client = getAdminClient(connection);
@@ -22,4 +22,20 @@ export async function getQueues(connection: IConnection): Promise<IQueue[]> {
       scheduledMessages: q.scheduledMessageCount,
     } as IQueue;
   });
+}
+
+export async function getQueuesMessages(connection:IConnection, queueName: string, numberOfMessages: number): Promise<IMessage[]> {
+    const client = getClient(connection);
+    const receiver = client.createReceiver(queueName);
+    const messages = await receiver.peekMessages(numberOfMessages);
+
+    receiver.close();
+    client.close();
+
+    return messages.map(m => {
+        return {
+            subject: m.subject,
+            body: m.body,
+        } as IMessage;
+    });
 }

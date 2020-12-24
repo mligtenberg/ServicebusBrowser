@@ -4,6 +4,11 @@ import * as topicsService from "../services/servicebusTopics.service";
 
 export function initServicebusTopicsHandler() {
   ipcMain.on(servicebusTopicsChannels.GET_TOPICS, async (event, ...args) => {
+    if (args.length !== 1) {
+        event.reply(servicebusTopicsChannels.GET_TOPICS, false, `expected 1 argument got ${args.length}`)
+        console.log(args);
+    }
+
     const connection = args[0] as IConnection;
     try {
       var topics = await topicsService.getTopics(connection);

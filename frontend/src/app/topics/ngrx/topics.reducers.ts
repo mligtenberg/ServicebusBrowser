@@ -12,7 +12,7 @@ const initialState: ITopicsState = {
 
 export const topicReducer = createReducer<ITopicsState>(
     initialState,
-    on  (actions.refreshTopicsSuccess, (state, action) => {
+    on(actions.refreshTopicsSuccess, (state, action) => {
         return {
             ...state,
             topicConnectionSets: [

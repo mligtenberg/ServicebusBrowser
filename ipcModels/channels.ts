@@ -6,6 +6,8 @@ export module servicebusConnectionsChannels {
 export module servicebusQueuesChannels {
     export const GET_QUEUES = "servicebus:getQueues";
     export const GET_QUEUES_RESPONSE = "servicebus:getQueues.response";
+    export const GET_QUEUES_MESSAGES = "servicebus:getQueuesMessages";
+    export const GET_QUEUES_MESSAGES_RESPONSE = "servicebus:getQueuesMessages.response";
 }
 
 export module servicebusTopicsChannels {

@@ -3,8 +3,7 @@ import { from, Observable } from 'rxjs';
 import { LogService } from '../logging/log.service';
 import { IConnection } from './ngrx/connections.models';
 import { ipcRenderer } from 'electron';
-import { serviceBusChannels, secretsChannels } from '../../../../ipcModels/channels';
-import { ISecret } from '../../../../ipcModels/ISecret';
+import { servicebusConnectionsChannels, secretsChannels, ISecret } from '../../../../ipcModels';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +13,7 @@ export class ConnectionService {
 
   testConnection(connection: IConnection): Observable<boolean> {
     var promise = new Promise<boolean>((resolve, reject) => {
-      ipcRenderer.once(serviceBusChannels.TEST_RESPONSE, (event, ...args) => {
+      ipcRenderer.once(servicebusConnectionsChannels.TEST_RESPONSE, (event, ...args) => {
         const successfull = args[0];
         if (successfull) {
           this.log.logInfo('Connection established, test successfull');
@@ -27,7 +26,7 @@ export class ConnectionService {
       });
     });
 
-    ipcRenderer.send(serviceBusChannels.TEST, connection);
+    ipcRenderer.send(servicebusConnectionsChannels.TEST, connection);
     return from(promise);
   }
 
@@ -76,7 +75,6 @@ export class ConnectionService {
         
         if (success) {
           const secrets = args[1] as ISecret[];
-          console.log(secrets);
           resolve(secrets.map(s => JSON.parse(s.value) as IConnection));
         } else {
           const reason = args[1] as string;

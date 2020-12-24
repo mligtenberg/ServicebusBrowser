@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ipcRenderer } from 'electron';
 import { from, Observable } from 'rxjs';
-import { serviceBusChannels } from '../../../../ipcModels/channels';
+import { servicebusTopicsChannels } from '../../../../ipcModels';
 import { IConnection } from '../../../../ipcModels/IConnection';
 import { LogService } from '../logging/log.service';
 import { ITopic } from './ngrx/topics.models';
@@ -18,7 +18,7 @@ export class TopicsService {
 
     var promise = new Promise<ITopic[]>((resolve, reject) => {
       ipcRenderer.once(
-        serviceBusChannels.GET_TOPICS_REPONSE,
+        servicebusTopicsChannels.GET_TOPICS_REPONSE,
         (event, ...args) => {
           const successfull = args[0];
 
@@ -36,7 +36,7 @@ export class TopicsService {
       );
     });
 
-    ipcRenderer.send(serviceBusChannels.GET_TOPICS, connection);
+    ipcRenderer.send(servicebusTopicsChannels.GET_TOPICS, connection);
     return from(promise);
   }
 }
