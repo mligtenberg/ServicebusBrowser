@@ -1,8 +1,14 @@
-export module serviceBusChannels {
+export module servicebusConnectionsChannels {
     export const TEST = "servicebus:test";
     export const TEST_RESPONSE = "servicebus:test.response";
+}
+
+export module servicebusQueuesChannels {
     export const GET_QUEUES = "servicebus:getQueues";
     export const GET_QUEUES_RESPONSE = "servicebus:getQueues.response";
+}
+
+export module servicebusTopicsChannels {
     export const GET_TOPICS = "servicebus:getTopics";
     export const GET_TOPICS_REPONSE = "servicebus:getTopics.reponse";
 }
