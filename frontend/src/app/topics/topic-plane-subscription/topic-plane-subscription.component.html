@@ -1,5 +1,4 @@
-<div (contextmenu)="openContextMenu($event)"
->{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.transferedDeadletterMessages}})</div>
+<div (contextmenu)="openContextMenu($event)">{{ subscription.name }} ({{subscription.queuedMessages}}, {{subscription.deadLetterMessages}}, {{subscription.transferedDeadletterMessages}})</div>
 
 <ng-template #contextMenu>
     <app-contextmenu-item (click)="getMessages(false)">Peek messages</app-contextmenu-item>

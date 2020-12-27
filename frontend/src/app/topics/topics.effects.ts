@@ -42,4 +42,31 @@ export class TopicsEffects {
       })
     )
   });
+
+  getSubscriptions$ = createEffect(() => {
+    return this.actions$.pipe(
+      // listen for the type of testConnection
+      ofType(actions.refreshSubscriptions),
+      // retreive the currently selected connection
+      withLatestFrom(this.store.select(getActiveConnections)),
+
+      // execute the test and return the result
+      mergeMap(([action, connections]) => {
+        if (!connections || connections.length === 0) {
+          return of(actions.refreshSubscriptionsFailed({connectionId: action.connectionId, topicName: action.topicName, reason: 'No connections present'}))
+        }
+        
+        const connection = connections.find(c => c.id === action.connectionId);
+        if (!connection) {
+          return of(actions.refreshSubscriptionsFailed({connectionId: action.connectionId, topicName: action.topicName, reason: `Connection with id ${action.connectionId} not found`}))
+        }
+
+        return this.topicsService.getTopicSubscriptions(connection, action.topicName)
+        .pipe(
+          map((result) => actions.refreshSubscriptionsSuccess({connectionId: connection.id, topicName: action.topicName, subscriptions: result})),
+          catchError(error => of(actions.refreshSubscriptionsFailed({ connectionId: connection.id, topicName: action.topicName, reason: error as string })))
+        )
+      })
+    )
+  });
 }

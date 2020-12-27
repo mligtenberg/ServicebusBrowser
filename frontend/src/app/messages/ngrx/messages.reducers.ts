@@ -22,5 +22,17 @@ export const messagesReducer = createReducer<IMessagesState>(
                 messages: action.messages
             }
         }
+    }),
+    on(actions.getSubscriptionMessagesSuccess, (state, action) => {
+        return {
+            ...state,
+            openedMessages: {
+                connectionId: action.connectionId,
+                origin: MessageOrigin.Subscription,
+                topicName: action.topicName,
+                subscriptionName: action.subscriptionName,
+                messages: action.messages
+            }
+        }
     })
 )

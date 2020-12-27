@@ -30,3 +30,36 @@ export const getQueueMessagesFailure = createAction(
     reason: string;
   }>()
 );
+
+export const getSubscriptionMessages = createAction(
+  '[Messages/Topic/Subscription] Retreive messages from subscription',
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    deadletter: boolean;
+    numberOfMessages: number;
+  }>()
+);
+
+export const getSubscriptionMessagesSuccess = createAction(
+  '[Messages/Topic/Subscription/Response] Retreived messages successfully',
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    deadletter: boolean;
+    messages: IMessage[];
+  }>()
+);
+
+export const getSubscriptionMessagesFailure = createAction(
+  '[Messages/Topic/Subscription/Response] Failed to retreive messages',
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    deadletter: boolean;
+    reason: string;
+  }>()
+);

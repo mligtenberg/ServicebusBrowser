@@ -9,5 +9,5 @@ export interface IMessage {
 export enum MessagesChannel {
     regular,
     deadletter,
-    scheduled
+    transferedDeadletters
 }

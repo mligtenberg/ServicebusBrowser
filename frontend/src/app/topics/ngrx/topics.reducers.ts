@@ -1,13 +1,15 @@
 import { createReducer, on } from "@ngrx/store";
 import * as actions from "./topics.actions";
-import { ITopicConnectionSet } from "./topics.models";
+import { ISubscriptionTopicSet, ITopicConnectionSet } from "./topics.models";
 
 export interface ITopicsState {
-    topicConnectionSets: ITopicConnectionSet[]
+    topicConnectionSets: ITopicConnectionSet[],
+    subscriptionSets: ISubscriptionTopicSet[]
 }
 
 const initialState: ITopicsState = {
-    topicConnectionSets: []
+    topicConnectionSets: [],
+    subscriptionSets: []
 }
 
 export const topicReducer = createReducer<ITopicsState>(
@@ -20,6 +22,19 @@ export const topicReducer = createReducer<ITopicsState>(
                 {
                     connectionId: action.connectionId,
                     topics: action.topics
+                }
+            ]
+        }
+    }),
+    on(actions.refreshSubscriptionsSuccess, (state, action) => {
+        return {
+            ...state,
+            subscriptionSets: [
+                ...state.subscriptionSets.filter(c => c.connectionId !== action.connectionId || c.topicName !== action.topicName),
+                {
+                    connectionId: action.connectionId,
+                    topicName: action.topicName,
+                    subscriptions: action.subscriptions
                 }
             ]
         }

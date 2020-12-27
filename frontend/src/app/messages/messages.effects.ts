@@ -71,4 +71,60 @@ export class MessagesEffects {
     },
     { dispatch: false }
   );
+
+  getSubscriptionMessages$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.getSubscriptionMessages),
+      mergeMap((action) => {
+        return this.store
+          .select(getActiveConnectionById(action.connectionId))
+          .pipe(
+            first(),
+            mergeMap((connection) => {
+              return from(
+                this.messages.getSubscriptionMessages(
+                  connection,
+                  action.topicName,
+                  action.subscriptionName,
+                  action.numberOfMessages,
+                  action.deadletter
+                )
+              ).pipe(
+                map(
+                  (messages: IMessage[]) =>
+                    actions.getSubscriptionMessagesSuccess({
+                      connectionId: action.connectionId,
+                      topicName: action.topicName,
+                      subscriptionName: action.subscriptionName,
+                      deadletter: action.deadletter,
+                      messages,
+                    }),
+                  catchError((reason) =>
+                    of(
+                      actions.getSubscriptionMessagesFailure({
+                        connectionId: action.connectionId,
+                        topicName: action.topicName,
+                        subscriptionName: action.subscriptionName,
+                        deadletter: action.deadletter,
+                        reason: reason as string,
+                      })
+                    )
+                  )
+                )
+              );
+            })
+          );
+      })
+    );
+  });
+
+  getSubscriptionSuccess$ = createEffect(
+    () => {
+      return this.actions$.pipe(
+        ofType(actions.getSubscriptionMessagesSuccess),
+        tap(() => this.router.navigateByUrl('/messages/view'))
+      );
+    },
+    { dispatch: false }
+  );
 }

@@ -1,6 +1,6 @@
 <app-toggle-box open="true">
     <span class="title">Topics <span class="refresh" (click)="refreshTopics($event)"><fa-icon [icon]="refreshIcon" size="1x"></fa-icon></span></span>>
     <span class="body">
-        <div *ngFor="let topic of topics">{{topic.name}}</div>
+        <app-topics-plane-item *ngFor="let topic of topics" [connectionId]="connection.id" [topic]="topic"></app-topics-plane-item>
     </span>
 </app-toggle-box>

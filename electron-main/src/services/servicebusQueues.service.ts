@@ -22,7 +22,7 @@ export async function getQueues(connection: IConnection): Promise<IQueue[]> {
       name: q.name,
       queuedMessages: q.activeMessageCount,
       deadLetterMessages: q.deadLetterMessageCount,
-      scheduledMessages: q.scheduledMessageCount,
+      transferedDeadletterMessages: q.transferDeadLetterMessageCount,
     } as IQueue;
   });
 }

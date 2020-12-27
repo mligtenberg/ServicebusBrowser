@@ -1,0 +1,11 @@
+<app-toggle-box [open]="false" (bodyOpened)="refreshSubscriptions()">
+    <span class="title">{{topic.name}} <span class="refresh" (click)="refreshSubscriptions($event)"><fa-icon [icon]="refreshIcon" size="1x"></fa-icon></span></span>>
+    <span class="body">
+        <app-topic-plane-subscription 
+        *ngFor="let sub of subscriptions" 
+        [connectionId]="connectionId"
+        [topicName]="topic.name"
+        [subscription]="sub"
+        ></app-topic-plane-subscription>
+    </span>
+</app-toggle-box>
