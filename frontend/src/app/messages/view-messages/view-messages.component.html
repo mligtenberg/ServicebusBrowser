@@ -39,14 +39,6 @@
                 </div>
             </ng-container>
             <ng-container *ngIf="selectedMessage">
-                <div class="property-line">
-                    <span class="property-name" title="Message Id">Message Id</span>
-                    <span class="property-value" [title]="selectedMessage.id">{{ selectedMessage.id }}</span>
-                </div>
-                <div class="property-line">
-                    <span class="property-name" title="Subject">Subject</span>
-                    <span class="property-value" [title]="selectedMessage.subject">{{ selectedMessage.subject }}</span>
-                </div>
                 <div class="property-line" *ngFor="let line of selectedMessage.properties | keyvalue">
                     <span class="property-name" [title]="line.key">{{ line.key }}</span>
                     <span class="property-value" [title]="line.value">{{ line.value }}</span>

@@ -54,10 +54,31 @@ export async function getQueuesMessages(
     message.properties.set("ContentType", m.contentType ?? "");
     message.properties.set("correlationId", m.correlationId?.toString() ?? "");
 
+    for (const propertyName in m._rawAmqpMessage.deliveryAnnotations) {
+      message.properties.set(
+        propertyName,
+        (m._rawAmqpMessage.deliveryAnnotations as any)[propertyName]
+      );
+    }
+
     for (const propertyName in m._rawAmqpMessage.properties) {
       message.properties.set(
         propertyName,
         (m._rawAmqpMessage.properties as any)[propertyName]
+      );
+    }
+
+    for (const propertyName in m._rawAmqpMessage.messageAnnotations) {
+      message.properties.set(
+        propertyName,
+        (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
+      );
+    }
+
+    for (const propertyName in m._rawAmqpMessage.footer) {
+      message.properties.set(
+        propertyName,
+        (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
       );
     }
 
