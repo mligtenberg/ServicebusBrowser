@@ -34,5 +34,11 @@ export const messagesReducer = createReducer<IMessagesState>(
                 messages: action.messages
             }
         }
+    }),
+    on(actions.getQueueMessages, actions.getSubscriptionMessages, (state) => {
+        return {
+            ...state,
+            openedMessages: null
+        }
     })
 )
