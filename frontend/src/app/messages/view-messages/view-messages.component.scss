@@ -1,0 +1,172 @@
+@import "../../../styling/colorscheme.scss";
+
+/* setup grid */
+.container {
+  display: grid;
+  height: 100%;
+  min-height: 1000px;
+
+  @media all and (min-width: $large-layout) {
+    grid-template-areas:
+      "title title backlink"
+      "messages-selection messages-selection properties"
+      "message-body message-body custom-properties"
+      "message-body message-body custom-properties";
+    grid-template-rows: 15px 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    min-height: 600px;
+  }
+
+  grid-template-areas:
+    "title backlink"
+    "messages-selection messages-selection"
+    "message-body message-body"
+    "message-body message-body"
+    "properties properties"
+    "custom-properties custom-properties";
+
+  grid-template-rows: 15px 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  > .backlink {
+    grid-area: backlink;
+  }
+
+  > .title {
+    grid-area: title;
+  }
+
+  > .messages-selection {
+    grid-area: messages-selection;
+  }
+
+  > .message-body {
+    grid-area: message-body;
+  }
+
+  > .properties {
+    grid-area: properties;
+  }
+
+  > .custom-properties {
+    grid-area: custom-properties;
+  }
+
+  > .connection-details {
+    grid-area: connection-details;
+  }
+}
+
+/* styling */
+.box {
+  background-color: $background-lightest;
+  box-shadow: 0px 1px 3px 0px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%),
+    0px 2px 1px -1px rgb(0 0 0 / 12%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .box-title {
+    font-weight: bold;
+    border-bottom: solid 1px $background-dark;
+    line-height: 30px;
+    padding: 0 10px;
+  }
+
+  .box-body {
+    flex: 1;
+    overflow-y: auto;
+
+    &.scroll {
+      overflow-y: scroll;
+    }
+  }
+}
+
+.messages-selection {
+  max-height: 100%;
+
+  .message-header {
+    font-weight: bold;
+    border-bottom: solid 1px $background-dark;
+  }
+
+  .message-option,
+  .message-header {
+    line-height: 30px;
+    cursor: pointer;
+    display: flex;
+
+    &:nth-child(even) {
+      background-color: $background-lighter;
+    }
+
+    .message-id {
+      width: 300px;
+      padding: 0 10px;
+    }
+
+    .message-subject {
+      flex: 1;
+      text-overflow: ellipsis;
+      padding: 0 10px;
+
+      /* Required for text-overflow to do anything */
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+}
+
+.message-body .box-body {
+  overflow-y: hidden;
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    overflow: scroll;
+    padding: 10px;
+    border: none;
+  }
+}
+
+.backlink {
+  text-align: right;
+}
+
+.properties,
+.custom-properties {
+  .property-line {
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+
+    &:nth-child(odd) {
+        background-color: $background-lighter;
+      }
+
+    > .property-name {
+      display: inline-block;
+      width: 40%;
+      padding: 0 10px;
+      text-overflow: ellipsis;
+
+      /* Required for text-overflow to do anything */
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    > .property-value {
+      display: inline-block;
+      width: 60%;
+      padding: 0 10px;
+      text-overflow: ellipsis;
+
+      /* Required for text-overflow to do anything */
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+}

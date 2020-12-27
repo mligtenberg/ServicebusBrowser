@@ -3,7 +3,7 @@ import { IMessagesState } from "./messages.reducers";
 
 const getMessagesFeatureState = createFeatureSelector<IMessagesState>('messages');
 
-export const getMessages = (connectionId: string) => createSelector(
+export const getMessages = createSelector(
     getMessagesFeatureState,
     (state) => state.openedMessages
 )

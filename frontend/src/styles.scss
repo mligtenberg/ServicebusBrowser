@@ -2,12 +2,16 @@
 
 /* You can add global styles to this file, and also import other style files */
 body {
-    background-color: $background-lightest;
+    background-color: $background-lighter;
     margin: 0;
     padding: 0;
     font-family: $font-family;
+    height: 100vh;
+    width: 100vh;
+    *user-select: none;
 }
 
 * {
     box-sizing: border-box;
+    user-select: none;
 }

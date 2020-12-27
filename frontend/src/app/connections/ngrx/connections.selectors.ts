@@ -6,14 +6,19 @@ const getConnectionsFeatureState = createFeatureSelector<IConnectionsState>('con
 export const getActiveConnections = createSelector(
     getConnectionsFeatureState,
     state => state.activeConnections
-)
+);
 
 export const getStoredConnections = createSelector(
     getConnectionsFeatureState,
     state => state.storedConnections
-)
+);
 
 export const getSelectedConnection = createSelector(
     getConnectionsFeatureState,
     state => state.selectedConnection
-)
+);
+
+export const getActiveConnectionById = (connectionId: string) => createSelector(
+    getConnectionsFeatureState,
+    state => state.activeConnections.find(c => c.id === connectionId)
+);

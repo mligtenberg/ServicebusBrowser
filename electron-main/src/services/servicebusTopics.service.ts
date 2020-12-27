@@ -8,11 +8,14 @@ export async function getTopics(connection: IConnection): Promise<ITopic[]> {
     let finished = false;
     const topics: TopicRuntimeProperties[] = [];
   
+    const iterator = client.listTopicsRuntimeProperties();
     do {
-      const result = await client.listTopicsRuntimeProperties().next();
-      topics.push(result.value);
-      finished = result.done ?? false;
-    } while (finished);
+      const result = await iterator.next();
+      if (result.value) {
+        topics.push(result.value);
+      }
+      finished = result.done ?? true;
+    } while (!finished);
   
     return topics.map(q => {
       return {

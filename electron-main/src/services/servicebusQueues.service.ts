@@ -8,11 +8,14 @@ export async function getQueues(connection: IConnection): Promise<IQueue[]> {
   let finished = false;
   const queues: QueueRuntimeProperties[] = [];
 
+  const iterator = client.listQueuesRuntimeProperties();
   do {
-    const result = await client.listQueuesRuntimeProperties().next();
-    queues.push(result.value);
+    const result = await iterator.next();
+    if (result.value) {
+      queues.push(result.value);
+    }
     finished = result.done ?? false;
-  } while (finished);
+  } while (!finished);
 
   return queues.map((q) => {
     return {
@@ -33,9 +36,14 @@ export async function getQueuesMessages(connection:IConnection, queueName: strin
     client.close();
 
     return messages.map(m => {
-        return {
-            subject: m.subject,
-            body: m.body,
+        const message = {
+          id: m.messageId,
+          subject: m.subject,
+          body: `${m.body}`,
+          properties: new Map<string, string>(),
+          customProperties: new Map<string, string>(),
         } as IMessage;
+
+        return message;
     });
 }

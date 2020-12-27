@@ -1,0 +1,68 @@
+<div class="container">
+    <div class="backlink" routerLink="/">Back</div>
+    <div class="title">Messages</div>
+    <div class="messages-selection box">
+        <div class="box-title">Messages</div>
+        <div class="box-body scroll" *ngIf="messageSet">
+            <div class="message-header">
+                <span class="message-id">Id</span>
+                <span class="message-subject">Subject</span>
+            </div>
+            <div class="message-option" *ngFor="let message of messageSet.messages" (click)="selectMessage(message)">
+                <span class="message-id">{{ message.id }}</span>
+                <span class="message-subject" [title]="message.subject">{{ message.subject }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="message-body box">
+        <div class="box-title">Body</div>
+        <div class="box-body">
+            <textarea disabled>{{ selectedMessage ? selectedMessage.body : '' }}</textarea>
+        </div>
+    </div>
+    <div class="properties box">
+        <div class="box-title">Properties</div>
+        <div class="box-body scroll">
+            <ng-container *ngIf="messageSet">
+                <div class="property-line" *ngIf="messageSet.origin === 0">
+                    <span class="property-name" title="Queue Name">Queue Name</span>
+                    <span class="property-value" [title]="messageSet.queueName">{{ messageSet.queueName }}</span>
+                </div>
+                <div class="property-line" *ngIf="messageSet.origin === 1">
+                    <span class="property-name" title="Topic Name">Topic Name</span>
+                    <span class="property-value" [title]="messageSet.topicName">{{ messageSet.topicName }}</span>
+                </div>
+                <div class="property-line" *ngIf="messageSet.origin === 1">
+                    <span class="property-name" title="Subscription Name">Subscription Name</span>
+                    <span class="property-value" [title]="messageSet.subscriptionName">{{ messageSet.subscriptionName
+                        }}</span>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="selectedMessage">
+                <div class="property-line">
+                    <span class="property-name" title="Message Id">Message Id</span>
+                    <span class="property-value" [title]="selectedMessage.id">{{ selectedMessage.id }}</span>
+                </div>
+                <div class="property-line">
+                    <span class="property-name" title="Subject">Subject</span>
+                    <span class="property-value" [title]="selectedMessage.subject">{{ selectedMessage.subject }}</span>
+                </div>
+                <div class="property-line" *ngFor="let line of selectedMessage.properties | keyvalue">
+                    <span class="property-name" [title]="line.key">{{ line.key }}</span>
+                    <span class="property-value" [title]="line.value">{{ line.value }}</span>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+    <div class="custom-properties box">
+        <div class="box-title">Custom Properties</div>
+        <div class="box-body scroll">
+            <ng-container *ngIf="selectedMessage">
+                <div class="property-line custom" *ngFor="let line of selectedMessage.customProperties | keyvalue">
+                    <span class="property-name" [title]="line.key">{{ line.key }}</span>
+                    <span class="property-value" [title]="line.value">{{ line.value }}</span>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>

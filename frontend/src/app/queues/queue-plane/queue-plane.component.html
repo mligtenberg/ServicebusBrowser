@@ -1,6 +1,7 @@
 <app-toggle-box open="true">
     <span class="title">Queues <span class="refresh" (click)="refreshQueues($event)"><fa-icon [icon]="refreshIcon" size="1x"></fa-icon></span></span>>
     <span class="body">
-        <div *ngFor="let queue of queues">{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
+       <app-queue-plane-item *ngFor="let queue of queues" [queue]="queue" [connectionId]="connection.id"></app-queue-plane-item>
     </span>
 </app-toggle-box>
+

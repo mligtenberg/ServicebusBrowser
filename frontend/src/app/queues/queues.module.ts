@@ -7,11 +7,12 @@ import { StoreModule } from '@ngrx/store';
 import { queueReducer } from './ngrx/queues.reducers';
 import { UiModule } from '../ui/ui.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { QueuePlaneItemComponent } from './queue-plane-item/queue-plane-item.component';
 
 
 
 @NgModule({
-  declarations: [QueuePlaneComponent],
+  declarations: [QueuePlaneComponent, QueuePlaneItemComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('queues', queueReducer),

@@ -1,5 +1,5 @@
 $background-lightest: #f7f5f5;
-$background-lighter: darken($background-lightest, 5%);
+$background-lighter: #f2f2f2;
 $background-light: darken($background-lightest, 10%);
 $background-dark: #747c7c;
 $background-darker: #464b45;
@@ -11,3 +11,5 @@ $accent:#1377b5;
 $accent-light: #93bdca;
 
 $font-family: "Helvetica", sans-serif;
+
+$large-layout: 1200px;

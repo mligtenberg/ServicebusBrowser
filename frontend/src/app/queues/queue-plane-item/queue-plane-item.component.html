@@ -1,0 +1,6 @@
+<div (contextmenu)="openContextMenu($event)"
+>{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
+
+<ng-template #contextMenu>
+    <app-contextmenu-item (click)="getMessages()">Peek messages</app-contextmenu-item>
+</ng-template>
