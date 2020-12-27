@@ -5,3 +5,9 @@ export interface IMessage {
     customProperties: Map<string, string>;
     body: string;
 }
+
+export enum MessagesChannel {
+    regular,
+    deadletter,
+    scheduled
+}

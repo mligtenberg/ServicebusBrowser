@@ -2,5 +2,6 @@
 >{{queue.name}}, ({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.scheduledMessages}})</div>
 
 <ng-template #contextMenu>
-    <app-contextmenu-item (click)="getMessages()">Peek messages</app-contextmenu-item>
+    <app-contextmenu-item (click)="getMessages(false)">Peek messages</app-contextmenu-item>
+    <app-contextmenu-item (click)="getMessages(true)">Peek deadletter messages</app-contextmenu-item>
 </ng-template>

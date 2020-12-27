@@ -13,7 +13,7 @@ export class QueuesEffects {
   constructor(
     private actions$: Actions,
     private queuesService: QueuesService,
-    private store: Store<State>,
+    private store: Store<State>
     ) {}
 
   getQueues$ = createEffect(() => {

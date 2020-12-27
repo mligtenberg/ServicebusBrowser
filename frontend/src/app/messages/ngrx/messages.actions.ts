@@ -6,6 +6,7 @@ export const getQueueMessages = createAction(
   props<{
     connectionId: string;
     queueName: string;
+    deadletter: boolean;
     numberOfMessages: number;
   }>()
 );
@@ -15,6 +16,7 @@ export const getQueueMessagesSuccess = createAction(
   props<{
     connectionId: string;
     queueName: string;
+    deadletter: boolean;
     messages: IMessage[];
   }>()
 );
@@ -24,6 +26,7 @@ export const getQueueMessagesFailure = createAction(
   props<{
     connectionId: string;
     queueName: string;
+    deadletter: boolean;
     reason: string;
   }>()
 );

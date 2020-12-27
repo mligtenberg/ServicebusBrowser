@@ -1,5 +1,5 @@
 import { ipcMain } from "electron";
-import { IConnection, servicebusQueuesChannels } from "../../../ipcModels";
+import { IConnection, MessagesChannel, servicebusQueuesChannels } from "../../../ipcModels";
 import * as queuesService from "../services/servicebusQueues.service";
 
 export function initServicebusQueuesHandler() {
@@ -21,14 +21,15 @@ export function initServicebusQueuesHandler() {
   });
 
   ipcMain.on(servicebusQueuesChannels.GET_QUEUES_MESSAGES, async (event, ...args) => {
-    if (args.length !== 3) {
-        event.reply(servicebusQueuesChannels.GET_QUEUES_MESSAGES_RESPONSE, false, `expected 3 argument got ${args.length}`)
+    if (args.length !== 4) {
+        event.reply(servicebusQueuesChannels.GET_QUEUES_MESSAGES_RESPONSE, false, `expected 4 argument got ${args.length}`)
     }
     const connection = args[0] as IConnection;
     const queueName = args[1] as string;
     const numberOfMessages = args[2] as number;
+    const messagesChannel = args[3] as MessagesChannel;
     try {
-      var messages = await queuesService.getQueuesMessages(connection, queueName, numberOfMessages);
+      var messages = await queuesService.getQueuesMessages(connection, queueName, numberOfMessages, messagesChannel);
       event.reply(servicebusQueuesChannels.GET_QUEUES_MESSAGES_RESPONSE, true, messages);
     } catch (e) {
       const reason = !!e.message

@@ -1,5 +1,5 @@
 import { QueueRuntimeProperties } from "@azure/service-bus";
-import { IConnection, IMessage, IQueue } from "../../../ipcModels";
+import { IConnection, IMessage, IQueue, MessagesChannel } from "../../../ipcModels";
 import { getAdminClient, getClient } from "./servicebusConnections.service";
 
 export async function getQueues(connection: IConnection): Promise<IQueue[]> {
@@ -27,23 +27,47 @@ export async function getQueues(connection: IConnection): Promise<IQueue[]> {
   });
 }
 
-export async function getQueuesMessages(connection:IConnection, queueName: string, numberOfMessages: number): Promise<IMessage[]> {
-    const client = getClient(connection);
-    const receiver = client.createReceiver(queueName);
-    const messages = await receiver.peekMessages(numberOfMessages);
+export async function getQueuesMessages(
+  connection: IConnection,
+  queueName: string,
+  numberOfMessages: number,
+  channel: MessagesChannel
+): Promise<IMessage[]> {
+  const client = getClient(connection);
+  const receiver = client.createReceiver(queueName, {
+    subQueueType: channel === MessagesChannel.deadletter ? 'deadLetter' : undefined
+  });
+  const messages = await receiver.peekMessages(numberOfMessages);
 
-    receiver.close();
-    client.close();
+  receiver.close();
+  client.close();
 
-    return messages.map(m => {
-        const message = {
-          id: m.messageId,
-          subject: m.subject,
-          body: `${m.body}`,
-          properties: new Map<string, string>(),
-          customProperties: new Map<string, string>(),
-        } as IMessage;
+  return messages.map((m) => {
+    const message = {
+      id: m.messageId,
+      subject: m.subject,
+      body: `${m.body}`,
+      properties: new Map<string, string>(),
+      customProperties: new Map<string, string>(),
+    } as IMessage;
 
-        return message;
-    });
+    message.properties.set("ContentType", m.contentType ?? "");
+    message.properties.set("correlationId", m.correlationId?.toString() ?? "");
+
+    for (const propertyName in m._rawAmqpMessage.properties) {
+      message.properties.set(
+        propertyName,
+        (m._rawAmqpMessage.properties as any)[propertyName]
+      );
+    }
+
+    for (const propertyName in m.applicationProperties) {
+      message.customProperties.set(
+        propertyName,
+        m.applicationProperties[propertyName].toString()
+      );
+    }
+
+    return message;
+  });
 }

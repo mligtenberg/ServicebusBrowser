@@ -23,8 +23,7 @@ export class QueuePlaneItemComponent {
 
   constructor(
     private store: Store<State>,
-    private contextMenu: ContextmenuService,
-    private router: Router
+    private contextMenu: ContextmenuService
   ) {}
 
   openContextMenu($event: Event): void {
@@ -37,8 +36,7 @@ export class QueuePlaneItemComponent {
     $event.stopPropagation();
   }
 
-  getMessages() {
-    this.store.dispatch(getQueueMessages({connectionId: this.connectionId, queueName: this.queue.name, numberOfMessages: 10}));
-    this.router.navigateByUrl('/messages/view');
+  getMessages(deadletter: boolean) {
+    this.store.dispatch(getQueueMessages({connectionId: this.connectionId, queueName: this.queue.name, numberOfMessages: 10, deadletter}));
   }
 }

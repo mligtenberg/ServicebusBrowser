@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ipcRenderer } from 'electron';
-import { IConnection, IMessage, servicebusQueuesChannels } from '../../../../ipcModels';
+import { IConnection, IMessage, MessagesChannel, servicebusQueuesChannels } from '../../../../ipcModels';
 import { LogService } from '../logging/log.service';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { LogService } from '../logging/log.service';
 export class MessagesService {
   constructor(private log: LogService) {}
 
-  getQueueMessages(connection: IConnection, queueName: string, numberOfMessages: number): Promise<IMessage[]> {
+  getQueueMessages(connection: IConnection, queueName: string, numberOfMessages: number, deadletter: Boolean): Promise<IMessage[]> {
     var promise = new Promise<IMessage[]>((resolve, reject) => {
       ipcRenderer.once(
         servicebusQueuesChannels.GET_QUEUES_MESSAGES_RESPONSE,
@@ -31,7 +31,13 @@ export class MessagesService {
         }
       );
     });
-    ipcRenderer.send(servicebusQueuesChannels.GET_QUEUES_MESSAGES, connection, queueName, numberOfMessages);
+    ipcRenderer.send(
+      servicebusQueuesChannels.GET_QUEUES_MESSAGES, 
+      connection, 
+      queueName,
+      numberOfMessages,
+      deadletter ? MessagesChannel.deadletter : MessagesChannel.regular
+    );
     return promise;
   }
 }
