@@ -1,0 +1,6 @@
+<div class="dialog-container" (click)="closeDialog($event)">
+    <div class="dialog">
+        <ng-container *ngComponentOutlet="componentType; injector: customInjector">
+        </ng-container>
+    </div>
+</div>

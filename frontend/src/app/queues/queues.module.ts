@@ -8,6 +8,8 @@ import { queueReducer } from './ngrx/queues.reducers';
 import { UiModule } from '../ui/ui.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { QueuePlaneItemComponent } from './queue-plane-item/queue-plane-item.component';
+import { FormsModule } from '@angular/forms';
+import { MessagesModule } from '../messages/messages.module';
 
 
 
@@ -18,7 +20,9 @@ import { QueuePlaneItemComponent } from './queue-plane-item/queue-plane-item.com
     StoreModule.forFeature('queues', queueReducer),
     EffectsModule.forFeature([QueuesEffects]),
     UiModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    FormsModule,
+    MessagesModule
   ],
   exports: [
     QueuePlaneComponent

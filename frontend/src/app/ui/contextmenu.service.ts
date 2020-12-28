@@ -2,17 +2,13 @@ import {
   ApplicationRef,
   ComponentFactoryResolver,
   EmbeddedViewRef,
-  HostListener,
   Injectable,
   Injector,
   OnDestroy,
-  Renderer2,
-  RendererFactory2,
   TemplateRef,
 } from '@angular/core';
-import { fromEventPattern, Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { SubSink } from 'subsink';
+import { ClickService } from './click.service';
 import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 
 @Injectable({
@@ -20,20 +16,14 @@ import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 })
 export class ContextmenuService implements OnDestroy {
   private openElement: HTMLElement | null = null;
-  private destroy$ = new Subject();
   private subSink = new SubSink();
-
-  private onClick$: Observable<Event>;
 
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private appRef: ApplicationRef,
     private injector: Injector,
-    private rendererFactory2: RendererFactory2) {
-      const renderer = this.rendererFactory2.createRenderer(null, null);
-  
-      this.createOnClickObservable(renderer);
-      this.subSink.add(this.onClick$.subscribe(() => {
+    clickService: ClickService) {
+      this.subSink.add(clickService.onClick$.subscribe(() => {
         this.closeContextmenu();
       }));
     }
@@ -67,7 +57,7 @@ export class ContextmenuService implements OnDestroy {
     this.openElement = domElem;
   }
 
-  private closeContextmenu() {
+  closeContextmenu() {
     if (this.openElement != null) {
       document.body.removeChild(this.openElement);
       this.openElement = null;
@@ -75,21 +65,6 @@ export class ContextmenuService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
     this.subSink.unsubscribe();
-  }
-
-  private createOnClickObservable(renderer: Renderer2) {
-    let removeClickEventListener: () => void;
-    const createClickEventListener = (
-      handler: (e: Event) => boolean | void
-    ) => {
-      removeClickEventListener = renderer.listen("document", "click", handler);
-    };
-
-    this.onClick$ = fromEventPattern<Event>(createClickEventListener, () =>
-      removeClickEventListener()
-    ).pipe(takeUntil(this.destroy$));
   }
 }

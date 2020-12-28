@@ -9,6 +9,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ToggleBoxComponent } from './toggle-box/toggle-box.component';
 import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 import { ContextmenuItemComponent } from './contextmenu-item/contextmenu-item.component';
+import { DialogComponent } from './dialog/dialog.component';
+import { MessagesModule } from '../messages/messages.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,7 @@ import { ContextmenuItemComponent } from './contextmenu-item/contextmenu-item.co
     ToggleBoxComponent,
     ContextmenuComponent,
     ContextmenuItemComponent,
+    DialogComponent,
   ],
   imports: [
     CommonModule,

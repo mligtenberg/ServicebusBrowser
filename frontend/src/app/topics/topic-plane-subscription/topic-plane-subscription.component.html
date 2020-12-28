@@ -4,6 +4,6 @@
 </div>
 
 <ng-template #contextMenu>
-    <app-contextmenu-item (click)="getMessages(false)">Peek messages</app-contextmenu-item>
-    <app-contextmenu-item (click)="getMessages(true)">Peek deadletter messages</app-contextmenu-item>
+    <app-contextmenu-item (click)="getQueuedMessages()">Peek messages</app-contextmenu-item>
+    <app-contextmenu-item (click)="getDeadletters()">Peek deadletter messages</app-contextmenu-item>
 </ng-template>

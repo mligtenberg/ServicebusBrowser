@@ -37,6 +37,7 @@ export async function getQueuesMessages(
   const receiver = client.createReceiver(queueName, {
     subQueueType: channel === MessagesChannel.deadletter ? 'deadLetter' : undefined
   });
+  
   const messages = await receiver.peekMessages(numberOfMessages);
 
   receiver.close();

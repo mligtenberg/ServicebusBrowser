@@ -1,8 +1,12 @@
 import { TemplateRef, ViewChild, Component, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { GetMesagesDialogComponent } from 'src/app/messages/get-mesages-dialog/get-mesages-dialog.component';
 import { getSubscriptionMessages } from 'src/app/messages/ngrx/messages.actions';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
+import { DialogService } from 'src/app/ui/dialog.service';
+import { DialogRef } from 'src/app/ui/dialogRef';
 import { ISubscription } from '../ngrx/topics.models';
 
 @Component({
@@ -16,10 +20,14 @@ export class TopicPlaneSubscriptionComponent {
   @Input() subscription: ISubscription;
 
   @ViewChild('contextMenu')
-  contextMenuReference: TemplateRef<any>
+  contextMenuReference: TemplateRef<any>;
+
+  dialogRef: DialogRef<unknown>;
+  dialogSubscription: Subscription;
 
   constructor(
     private store: Store<State>,
+    private dialog: DialogService,
     private contextMenu: ContextmenuService
   ) {}
 
@@ -32,13 +40,55 @@ export class TopicPlaneSubscriptionComponent {
   
     $event.stopPropagation();
   }
+
+  getQueuedMessages($event: Event) {
+    this.contextMenu.closeContextmenu();
+
+    this.openDialog();
+    this.subscribe(false);
+
+    $event.stopPropagation();
+  }
   
-  getMessages(deadletter: boolean) {
+  getDeadletters($event: Event) {
+    this.contextMenu.closeContextmenu();
+
+    this.openDialog();
+    this.subscribe(true);
+
+    $event.stopPropagation();
+  }
+
+  private openDialog() {
+    this.dialogRef = this.dialog.openDialog(GetMesagesDialogComponent);
+  }
+
+  private subscribe(deadletter: boolean) {
+    this.unsubscribe();
+
+    this.dialogSubscription = this.dialogRef.afterClosed().subscribe((messages: number) => {
+      this.getMessages(deadletter, messages);
+      this.unsubscribe();
+    });
+  }
+
+  private unsubscribe() {
+    if (this.dialogSubscription) {
+      this.dialogSubscription.unsubscribe();
+      this.dialogSubscription = null;
+    }
+  }
+
+  private getMessages(deadletter: boolean, amountOfMessages: number) {
     this.store.dispatch(getSubscriptionMessages({
       connectionId: this.connectionId,
        topicName: this.topicName,
        subscriptionName: this.subscription.name,
-       numberOfMessages: 10,
+       numberOfMessages: amountOfMessages,
        deadletter}));
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
   }
 }
