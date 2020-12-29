@@ -42,9 +42,9 @@ function createWindow(): BrowserWindow | null {
     win = null
   })
 
- //if (isDev) {
+ if (isDev) {
     win.webContents.openDevTools();
- //}
+ }
 
   return win;
 }
