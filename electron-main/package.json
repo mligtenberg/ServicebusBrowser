@@ -1,8 +1,8 @@
 {
-  "name": "servicebusexplorer",
+  "name": "servicebusbrowser",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "./dist/main.js",
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
@@ -30,5 +30,12 @@
     "@types/electron-devtools-installer": "^2.2.0",
     "electron-devtools-installer": "^3.1.1",
     "keytar": "^7.3.0"
+  },
+  "build": {
+    "files": [
+      "dist/",
+      "node_modules/",
+      "../frontend/dist/"
+    ]
   }
 }

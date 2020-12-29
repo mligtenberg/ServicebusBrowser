@@ -31,7 +31,7 @@ function createWindow(): BrowserWindow | null {
     win.loadURL("http://127.0.0.1:4200")
   } else {
     // and load the index.html of the app.
-    win.loadFile('../frontend/dist/explorer/index.html')
+    win.loadFile('../frontend/index.html')
   }
 
   // Emitted when the window is closed.
@@ -42,9 +42,9 @@ function createWindow(): BrowserWindow | null {
     win = null
   })
 
-  if (isDev) {
+ //if (isDev) {
     win.webContents.openDevTools();
-  }
+ //}
 
   return win;
 }

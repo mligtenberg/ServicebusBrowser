@@ -1,14 +1,49 @@
 {
   "name": "servicebus-browser",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "main": "./temp/main/main.js",
   "scripts": {
+    "install:angular": "cd frontend && npm i",
+    "install:main": "cd electron-main && npm i",
+    "install:builder-deps": "electron-builder install-app-deps",
+    "postinstall": "npm run install:builder-deps && npm run install:main && npm run install:angular",
+    "clean": "rimraf dist",
     "build:frontend": "cd frontend && npm run build",
     "build:electron": "cd electron-main && npm run build",
     "build": "npm run build:frontend && npm run build:electron",
     "prestart": "npm run build",
     "start": "cd electron-main && npm run start:nobuild",
-    "start:ngServe": "cd electron-main && npm run start:ngServe"
+    "start:ngServe": "cd electron-main && npm run start:ngServe",
+    "copy:main": "cd ./electron-main/dist/ && copyfiles ** ../../temp/main",
+    "copy:frontend": "cd ./frontend/dist/explorer/ && copyfiles ** ../../../temp/frontend",
+    "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend",
+    "package": "electron-builder",
+    "release": "npm run build && npm run package",
+    "postrelease": "rimraf temp"
   },
   "author": "Martin Ligtenberg",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "copyfiles": "^2.4.1",
+    "electron": "^11.1.1",
+    "electron-builder": "^22.9.1",
+    "rimraf": "^3.0.2"
+  },
+  "build": {
+    "appId": "digital.ligtenberg.servicebusbrowser",
+    "productName": "Servicebus browser",
+    "copyright": "Copyright © 2020 Martin Ligtenberg",
+    "files": [
+      "temp/"
+    ],
+    "extraResources": [
+      {
+        "from": "temp/frontend",
+        "to": "frontend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
 }
