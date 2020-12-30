@@ -1,3 +1,4 @@
+@import "../../../styling/colorscheme.scss";
 @import "./../menuConfig.scss";
 
 :host {
@@ -6,4 +7,9 @@
     line-height: $menu-height;
     padding: 0 20px;  
     cursor: pointer;
+    color: darken($text-light, 10%);
+
+    &:hover {
+        color: $text-light;
+    }
 }

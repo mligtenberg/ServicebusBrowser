@@ -9,6 +9,9 @@
     width: 100%;
     resize: none;
     display: block;
+    border: solid #CCCCCC 1px;
+    padding: 6px;
+    box-sizing: border-box;
   }
 
   .radio-option {
