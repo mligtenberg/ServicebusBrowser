@@ -1,4 +1,12 @@
-<div class="consoleplane">
+<div class="consoleplane"
+mwlResizable
+[enableGhostResize]="true"
+[ngStyle]="{'height': open ? height + 'px' : 'inherit'}"
+(resizeEnd)="onResizeEnd($event)">
+    <div class="scrollborder"
+    *ngIf="open"
+    mwlResizeHandle
+    [resizeEdges]="{ top: true }"></div>
     <div class="topbar" (click)="toggleOpen()">
         <span>Console</span>
         <div class="space"></div>

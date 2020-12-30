@@ -1,6 +1,6 @@
-import { Component, ViewEncapsulation, ChangeDetectionStrategy, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { faChevronDown, faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
-
+import { ResizeEvent } from 'angular-resizable-element';
 @Component({
   selector: 'app-console',
   templateUrl: './console.component.html',
@@ -17,6 +17,8 @@ export class ConsoleComponent implements OnChanges, AfterViewInit {
 
   @ViewChild('logPlane', {static: true})
   public logPlane: ElementRef | undefined;
+
+  public height = 300;
 
   public get icon(): IconDefinition { 
     return this.open ? faChevronDown : faChevronLeft;
@@ -38,5 +40,9 @@ export class ConsoleComponent implements OnChanges, AfterViewInit {
 
   public toggleOpen(): void {
     this.open = !this.open;
+  }
+
+  public onResizeEnd($event: ResizeEvent): void {
+    this.height = $event.rectangle.height;
   }
 }

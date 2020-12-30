@@ -2,6 +2,13 @@
 
 .consoleplane {
     box-shadow: #c4c4c436 0px -5px 5px;
+    height: 30px;
+
+    .scrollborder {
+        height: 3px;
+        background-color: darken($accent, 5%);
+        cursor: ns-resize;
+    }
 
     .topbar {
         color: $text-light;
@@ -35,7 +42,7 @@
         display: none;
         &.open {
             display: block;
-            height: 300px;
+            flex: 1;
             overflow-y: scroll;
             background-color: $background-lightest;
         }

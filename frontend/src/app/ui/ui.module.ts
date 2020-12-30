@@ -10,7 +10,7 @@ import { ToggleBoxComponent } from './toggle-box/toggle-box.component';
 import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 import { ContextmenuItemComponent } from './contextmenu-item/contextmenu-item.component';
 import { DialogComponent } from './dialog/dialog.component';
-import { MessagesModule } from '../messages/messages.module';
+import { ResizableModule } from 'angular-resizable-element';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,8 @@ import { MessagesModule } from '../messages/messages.module';
   ],
   imports: [
     CommonModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    ResizableModule
   ],
   exports: [
     MenubarComponent,
