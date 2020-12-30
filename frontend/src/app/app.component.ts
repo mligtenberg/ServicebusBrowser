@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { SubSink } from 'subsink';
@@ -16,8 +16,7 @@ import { State } from './ngrx.module';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'Servicebus Browser';
+export class AppComponent implements OnInit, OnDestroy {
   logs: string[] = [];
   storedConnections: IConnection[] = [];
 
@@ -28,6 +27,9 @@ export class AppComponent {
     private router: Router,
     private log: LogService
   ) {
+  }
+
+  ngOnInit(): void {
     this.subsink.add(this.store.select(getLogMessages).subscribe(l => {
       this.logs = l;
     }));
@@ -47,5 +49,9 @@ export class AppComponent {
 
   openConnection(connection: IConnection): void {
     this.store.dispatch(openConnection({connection}));
+  }
+
+  ngOnDestroy(): void {
+    this.subsink.unsubscribe();
   }
 }

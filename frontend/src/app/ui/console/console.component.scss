@@ -3,10 +3,12 @@
 .consoleplane {
     box-shadow: #c4c4c436 0px -5px 5px;
     height: 30px;
+    display: flex;
+    flex-direction: column;
 
     .scrollborder {
         height: 3px;
-        background-color: darken($accent, 5%);
+        background-color: $accent;
         cursor: ns-resize;
     }
 
