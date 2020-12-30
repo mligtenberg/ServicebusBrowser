@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { LogService } from 'src/app/logging/log.service';
@@ -20,9 +19,8 @@ export class TopicsPlaneComponent implements OnChanges {
   connection: IConnection;
   topics: ITopic[];
 
-  refreshIcon = faSyncAlt;
   topicsSubscription: Subscription;
-
+  loading: boolean = false;
 
   constructor(
     private store: Store<State>,
@@ -50,12 +48,14 @@ export class TopicsPlaneComponent implements OnChanges {
     
     this.topicsSubscription = this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
       this.topics = topics;
+      this.loading = false;
     });
   }
 
   refreshTopics($event: Event | null) {
     if (this.connection) {
       this.store.dispatch(refreshTopics({connectionId: this.connection.id}));
+      this.loading = true;
     } else {
       this.topics = [];
     }

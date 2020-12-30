@@ -7,7 +7,6 @@ import { IConnection } from '../../../../../ipcModels/IConnection';
 import { refreshQueues } from '../ngrx/queues.actions';
 import { IQueue } from '../ngrx/queues.models';
 import { getQueues } from '../ngrx/queues.selectors';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: 'app-queue-plane',
@@ -19,10 +18,8 @@ export class QueuePlaneComponent implements OnChanges, OnDestroy {
   @Input()
   connection: IConnection;
   queues: IQueue[];
-
-  refreshIcon = faSyncAlt;
   queueSubscription: Subscription;
-
+  loading: boolean = false;
 
   constructor(
     private store: Store<State>,
@@ -49,12 +46,14 @@ export class QueuePlaneComponent implements OnChanges, OnDestroy {
     }
     
     this.queueSubscription = this.store.select(getQueues(this.connection.id)).subscribe((queues) => {
+      this.loading = false;
       this.queues = queues;
     });
   }
 
   refreshQueues($event: Event | null) {
     if (this.connection) {
+      this.loading = true;
       this.store.dispatch(refreshQueues({connectionId: this.connection.id}));
     } else {
       this.queues = [];

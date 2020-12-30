@@ -1,0 +1,18 @@
+:host {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+fa-icon {
+    height: 16px;
+    width: 16px;
+    margin: 2px;
+    display: block;
+
+    &.loading {
+        animation:spin 2s linear infinite;
+    }
+}
+
+@keyframes spin { 100% { transform:rotate(360deg); } }

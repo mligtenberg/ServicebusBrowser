@@ -11,6 +11,7 @@ import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 import { ContextmenuItemComponent } from './contextmenu-item/contextmenu-item.component';
 import { DialogComponent } from './dialog/dialog.component';
 import { ResizableModule } from 'angular-resizable-element';
+import { RefreshButtonComponent } from './refresh-button/refresh-button.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { ResizableModule } from 'angular-resizable-element';
     ContextmenuComponent,
     ContextmenuItemComponent,
     DialogComponent,
+    RefreshButtonComponent,
   ],
   imports: [
     CommonModule,
@@ -36,7 +38,8 @@ import { ResizableModule } from 'angular-resizable-element';
     SidebarComponent,
     ConsoleComponent,
     ToggleBoxComponent,
-    ContextmenuItemComponent
+    ContextmenuItemComponent,
+    RefreshButtonComponent
   ]
 })
 export class UiModule { }
