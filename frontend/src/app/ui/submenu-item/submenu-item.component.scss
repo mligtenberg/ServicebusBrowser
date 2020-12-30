@@ -11,6 +11,12 @@
     line-height: $menu-height;
     color: darken($text-light, 10%);
     cursor: pointer;
+    display: block;
+    text-overflow: ellipsis;
+
+    /* Required for text-overflow to do anything */
+    white-space: nowrap;
+    overflow: hidden;
 
     &:hover {
         color: $text-light;
