@@ -1,6 +1,6 @@
 {
   "name": "servicebus-browser",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "./temp/main/main.js",
   "scripts": {
     "install:angular": "cd frontend && npm i",
