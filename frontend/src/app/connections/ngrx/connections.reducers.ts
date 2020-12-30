@@ -102,8 +102,7 @@ export const connectionReducer = createReducer<IConnectionsState>(
                     ...state.selectedConnection,
                     isNew: false
                 }
-            ],
-            selectedConnection: null
+            ]
         }
     }),
     on(actions.updateSelectedConnection, (state, action) => {
