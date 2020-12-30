@@ -2,6 +2,7 @@ import { createReducer, on } from "@ngrx/store";
 import { v4 as uuidv4 } from 'uuid';
 import * as actions from "./connections.actions";
 import { ConnectionType, IConnection } from "./connections.models";
+import * as _ from 'lodash';
 
 export interface IConnectionsState {
     activeConnections: IConnection[];
@@ -27,7 +28,8 @@ export const connectionReducer = createReducer<IConnectionsState>(
                 connectionType: ConnectionType.connectionString,
                 connectionDetails: {
                     connectionString: ''
-                }
+                },
+                isNew: true
             }
         }
     }),
@@ -78,17 +80,33 @@ export const connectionReducer = createReducer<IConnectionsState>(
         }
     }),
     // selected connections
+    on(actions.openSelectedConnection, (state) => {
+        return {
+            ...state,
+            selectedConnection: null,
+            activeConnections: [
+                ...state.activeConnections.filter(c => !c.id || c.id != state.selectedConnection.id),
+                {
+                    ...state.selectedConnection,
+                    isNew: false
+                }
+            ]
+        }
+    }),
     on(actions.storeSelectedConnectionSuccess, (state) => {
         return {
             ...state,
             storedConnections: [
                 ...state.storedConnections.filter(c => c.id != state.selectedConnection?.id),
-                state.selectedConnection
+                {
+                    ...state.selectedConnection,
+                    isNew: false
+                }
             ],
             selectedConnection: null
         }
     }),
-    on(actions.setSelectedConnectionName, (state, action) => {
+    on(actions.updateSelectedConnection, (state, action) => {
         if (state.selectedConnection === null) {
             return state;
         }
@@ -97,24 +115,10 @@ export const connectionReducer = createReducer<IConnectionsState>(
             ...state,
             selectedConnection: {
                 ...state.selectedConnection,
-                name: action.name
-            }
-        }
-    }),
-    on(actions.setSelectedConnectionConnectionString, (state, action) => {
-        if (state.selectedConnection === null || state.selectedConnection.connectionType !== ConnectionType.connectionString) {
-            return state;
-        }
-
-        return {
-            ...state,
-            selectedConnection: {
-                ...state.selectedConnection,
-                testSuccess: null,
-                connectionDetails: {
-                    ...state.selectedConnection.connectionDetails,
-                    connectionString: action.connectionString
-                }
+                name: action.connection.name,
+                connectionDetails: action.connection.connectionDetails,
+                connectionType: action.connection.connectionType,
+                testSuccess: state.selectedConnection.testSuccess && _.isEqual(state.selectedConnection.connectionDetails, action.connection.connectionDetails)
             }
         }
     }),

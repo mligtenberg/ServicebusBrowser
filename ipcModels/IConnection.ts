@@ -3,7 +3,8 @@ export interface IConnection {
     name: string;
     testSuccess: boolean | null;
     connectionType: ConnectionType;
-    connectionDetails: IConnectionStringConnectionDetails | IAADTokenCredentialsConnectionDetails
+    connectionDetails: IConnectionStringConnectionDetails | IAADTokenCredentialsConnectionDetails,
+    isNew: boolean
 }
 
 export enum ConnectionType {

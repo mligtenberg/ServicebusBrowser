@@ -16,6 +16,7 @@ import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { LoggingModule } from './logging/logging.module';
 import { TopicsModule } from './topics/topics.module';
 import { MessagesModule } from './messages/messages.module';
+import { MainEffectsEffects } from './main-effects.effects';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { MessagesModule } from './messages/messages.module';
     StoreRouterConnectingModule.forRoot(),
     LoggingModule,
     TopicsModule,
-    MessagesModule
+    MessagesModule,
+    EffectsModule.forRoot([MainEffectsEffects])
   ],
   providers: [],
   bootstrap: [AppComponent]

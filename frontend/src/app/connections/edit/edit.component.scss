@@ -1,0 +1,27 @@
+@import '../../../styling/forms.scss';
+
+.form-container {
+    width:100%;
+    height:100%;
+    display: grid;
+
+    grid-template: 
+    'title cancel'
+    'form form';
+
+    grid-template-rows: 30px 1fr;
+
+    > .title {
+        grid-area: title;
+    }
+
+    > .cancel {
+        grid-area: cancel;
+        text-align: right;
+        cursor: pointer;
+    }
+
+    > .form {
+        grid-area: form;
+    }
+}

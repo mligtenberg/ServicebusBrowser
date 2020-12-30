@@ -14,6 +14,7 @@ import { LoggingModule } from '../logging/logging.module';
 import { QueuesModule } from '../queues/queues.module';
 import { UiModule } from '../ui/ui.module';
 import { TopicsModule } from '../topics/topics.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { TopicsModule } from '../topics/topics.module';
     EffectsModule.forFeature([ConnectionEffects]),
     QueuesModule,
     TopicsModule,
-    UiModule
+    UiModule,
+    ReactiveFormsModule
   ],
   exports: [
     ConnectionPlaneComponent

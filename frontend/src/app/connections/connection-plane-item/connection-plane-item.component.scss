@@ -1,16 +1,21 @@
-.title {
-  display: block;
+.connection {
   width: 100%;
-  position: relative;
-
-  a {
-    text-align: right;
-    position: absolute;
-    right: 0;
-  }
+  display: flex;
 }
 
-app-queue-plane, app-topic-plane {
+.title {
+  display: block;
+  flex: 1;
+  position: relative;
+  text-overflow: ellipsis;
+
+  /* Required for text-overflow to do anything */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+app-queue-plane,
+app-topic-plane {
   margin: 16px 0;
   display: block;
 }

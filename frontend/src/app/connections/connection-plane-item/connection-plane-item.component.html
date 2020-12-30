@@ -1,8 +1,6 @@
 <div class="connection">
     <app-toggle-box open="true">
-    <div class="title" (contextmenu)="openContextMenu($event)">
-        <span>{{connection?.name}}</span>
-    </div>
+    <span class="title" (contextmenu)="openContextMenu($event)" [title]="connection?.name">{{connection?.name}}</span>
     <div class="body">
         <app-queue-plane [connection]="connection"></app-queue-plane>
         <app-topics-plane [connection]="connection"></app-topics-plane>

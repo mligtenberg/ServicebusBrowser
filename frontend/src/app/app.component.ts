@@ -24,7 +24,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store<State>,
-    private router: Router,
     private log: LogService
   ) {
   }
@@ -44,7 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   connectPressed(): void {
     this.store.dispatch(createConnection());
-    this.router.navigate(["connections", "edit"]);
   }
 
   openConnection(connection: IConnection): void {

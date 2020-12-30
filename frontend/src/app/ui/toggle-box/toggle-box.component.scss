@@ -1,3 +1,8 @@
+:host {
+    width: 100%;
+    display: block;
+}
+
 .toggle-box-title {
     width: 100%;
 }
@@ -20,6 +25,7 @@
 
     .title-box-content {
         flex: 1;
+        overflow: hidden;
     }
 }
 

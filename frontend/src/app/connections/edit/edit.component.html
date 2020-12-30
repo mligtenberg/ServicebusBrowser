@@ -1,7 +1,25 @@
-<div><a (click)="cancel()">Cancel</a></div>
-<div *ngIf="selectedConnection !== null">
-    <input type="text" placeholder="Name" [value]="selectedConnection.name" (change)="onNameChange($event)" />
-    <input type="text" placeholder="Connection string" multiple [value]="selectedConnection.connectionDetails.connectionString" (change)="onConnectionStringChange($event)" />
-    <button (click)="test()" [disabled]="selectedConnection.testSuccess">Test</button>
-    <button (click)="save()" [disabled]="!selectedConnection.testSuccess">Store</button>
+<div class="form-container">
+    <div class="title">{{isNew ? "New connection" : "Edit connection"}}</div>
+    <div class="cancel"><a (click)="cancel()">Cancel</a></div>
+    <div class="form">
+        <form [formGroup]="connectionForm">
+            <div class="formcontrol">
+                <label for="name">Name</label>
+                <input type="text" formControlName="name" />
+            </div>
+            <div class="formcontrol">
+                <label for="connectionType">Connection type</label>
+                <div class="radio-option">
+                    <input type="radio" formControlName="type" value="connectionString" />Connection string
+                </div>
+            </div>
+            <div *ngIf="connectionForm.value.type === 'connectionString'" class="formcontrol">
+                <label for="connectionString">Connection string</label>
+                <textarea type="text" formControlName="connectionString"></textarea>
+                <button (click)="test()" [disabled]="!connectionForm.value.connectionString || connectionForm.value.tested">Test</button>
+            </div>
+            <button [disabled]="!connectionForm.valid" (click)="storeConnection()">Store</button>
+            <button [disabled]="!connectionForm.valid" (click)="onSubmit()">Open</button>
+        </form>
+    </div>
 </div>
