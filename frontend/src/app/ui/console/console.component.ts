@@ -1,31 +1,43 @@
-import { Component, ChangeDetectionStrategy, Input, Output, OnChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, Output, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { faChevronDown, faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { Store } from '@ngrx/store';
 import { ResizeEvent } from 'angular-resizable-element';
+import { ILogItem, LogLevel } from 'src/app/logging/ngrx/logging.models';
+import { getLogs } from 'src/app/logging/ngrx/logging.selectors';
+import { State } from 'src/app/ngrx.module';
+import { SubSink } from 'subsink';
 @Component({
   selector: 'app-console',
   templateUrl: './console.component.html',
-  styleUrls: ['./console.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./console.component.scss']
 })
-export class ConsoleComponent implements OnChanges, AfterViewInit {
+export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input()
   @Output()
-  public open: boolean = true;
+  open: boolean = true;
 
-  @Input()
-  public logLines: string[] = [];
+  logLines: ILogItem[] = [];
 
   @ViewChild('logPlane', {static: true})
   public logPlane: ElementRef | undefined;
 
-  public height = 300;
+  height = 300;
+  subSink = new SubSink();
 
-  public get icon(): IconDefinition { 
-    return this.open ? faChevronDown : faChevronLeft;
+
+  constructor(
+    private store: Store<State>
+  ) {}
+
+  ngOnInit(): void {
+    this.subSink.add(this.store.select(getLogs).subscribe(l => {
+      this.logLines = l;
+      this.scrollToBottom();
+    }));
   }
 
-  ngOnChanges(): void {
-    this.scrollToBottom();
+  get icon(): IconDefinition { 
+    return this.open ? faChevronDown : faChevronLeft;
   }
 
   ngAfterViewInit(): void {
@@ -38,11 +50,28 @@ export class ConsoleComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  public toggleOpen(): void {
+  toggleOpen(): void {
     this.open = !this.open;
   }
 
-  public onResizeEnd($event: ResizeEvent): void {
+  onResizeEnd($event: ResizeEvent): void {
     this.height = $event.rectangle.height;
+  }
+
+  getLevelString(logLevel: LogLevel): string {
+    switch (logLevel) {
+      case LogLevel.verbose:
+        return "Verbose";
+      case LogLevel.info:
+        return "Info";
+      case LogLevel.warning:
+        return "Warning";
+      case LogLevel.error:
+        return "Error";
+    }
+  }
+
+  ngOnDestroy() {
+    this.subSink.unsubscribe();
   }
 }

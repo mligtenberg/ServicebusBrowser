@@ -1,14 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { SubSink } from 'subsink';
 import { createConnection, openConnection } from './connections/ngrx/connections.actions';
 import { IConnection } from './connections/ngrx/connections.models';
 import { getStoredConnections } from './connections/ngrx/connections.selectors';
 import { LogService } from './logging/log.service';
-import { addLog } from './logging/ngrx/logging.actions';
-import { LogLevel } from './logging/ngrx/logging.models';
-import { getLogMessages } from './logging/ngrx/logging.selectors';
 import { State } from './ngrx.module';
 
 @Component({
@@ -29,16 +25,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subsink.add(this.store.select(getLogMessages).subscribe(l => {
-      this.logs = l;
-    }));
-
     this.subsink.add(this.store.select(getStoredConnections).subscribe(c => {
       this.storedConnections = c;
     }))
 
     this.log.logInfo("Thank you for testing Servicebus Browser");
-    this.log.logInfo("This app is currently in development, many features still need to be implemented");
+    this.log.logVerbose("This app is currently in development, many features still need to be implemented");
   }
 
   connectPressed(): void {

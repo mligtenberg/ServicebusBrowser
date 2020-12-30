@@ -13,8 +13,8 @@ mwlResizable
         <fa-icon [icon]="icon" size="1x"></fa-icon>
     </div>
     <div class="consoletext" [ngClass]="{'open': open}" #logPlane>
-        <div class="consoleline" *ngFor="let line of logLines">
-            {{line}}
+        <div class="consoleline" *ngFor="let line of logLines" [ngClass]="getLevelString(line.level)">
+            <span>{{getLevelString(line.level)}}:</span> {{line.message}}
         </div>
     </div>
 </div>
