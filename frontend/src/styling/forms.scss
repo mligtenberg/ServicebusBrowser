@@ -1,17 +1,22 @@
+@import "./colorscheme.scss";
+
 .formcontrol {
   label {
     font-size: 0.9rem;
     width: 100%;
     display: block;
+    color: lighten($text, 5%);
   }
 
   input, textarea {
+    background: $background-lightest;
     width: 100%;
     resize: none;
     display: block;
     border: solid #CCCCCC 1px;
     padding: 6px;
     box-sizing: border-box;
+    font-size: 1rem;
   }
 
   .radio-option {
