@@ -21,6 +21,7 @@ export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('logPlane', {static: true})
   public logPlane: ElementRef | undefined;
 
+  minHeight = 60;
   height = 300;
   subSink = new SubSink();
 
@@ -55,7 +56,7 @@ export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onResizeEnd($event: ResizeEvent): void {
-    this.height = $event.rectangle.height;
+    this.height = this.minHeight < $event.rectangle.height ? $event.rectangle.height : this.minHeight;
   }
 
   getLevelString(logLevel: LogLevel): string {

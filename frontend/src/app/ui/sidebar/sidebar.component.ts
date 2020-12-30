@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ResizeEvent } from 'angular-resizable-element';
 
 @Component({
   selector: 'app-sidebar',
@@ -6,11 +7,11 @@ import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy } from '@
   styleUrls: ['./sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
+  minWidth: number = 100;
+  width: number = 300;
 
-  constructor() { }
-
-  ngOnInit(): void {
+  onResizeEnd($event: ResizeEvent): void {
+    this.width = this.minWidth < $event.rectangle.width ? $event.rectangle.width : this.minWidth;
   }
-
 }
