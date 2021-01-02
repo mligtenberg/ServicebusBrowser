@@ -1,32 +1,45 @@
+@import "../../../styling/colorscheme.scss";
 @import "../../../styling/boxes.scss";
 @import "../../../styling/forms.scss";
 @import "../../../styling/property-table.scss";
 
 .container {
-    display: grid;
-    gap: 12px;
-    height: 100%;
-    grid-template-areas: 
-        "name queue-settings"
-        "queue-properties queue-settings"
-        "queue-properties queue-information";
+  display: grid;
+  gap: 12px;
+  height: 100%;
+  @media all and (min-width: $large-layout) {
+    grid-template-areas:
+      "name queue-settings"
+      "queue-properties queue-settings"
+      "queue-properties queue-information";
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr 2fr;
+    min-height: 00px;
+  }
 
-    .name {
-        grid-area: name;
-    }
+  grid-template-areas:
+    "name"
+    "queue-settings"
+    "queue-properties"
+    "queue-information";
 
-    .queue-properties {
-        grid-area: queue-properties;
-    }
+  grid-template-rows: auto 1fr 2fr 2fr;
+  min-height: 1000px;
 
-    .queue-settings {
-        grid-area: queue-settings;
-    }
+  .name {
+    grid-area: name;
+  }
 
-    .queue-information {
-        grid-area: queue-information;
-    }
+  .queue-properties {
+    grid-area: queue-properties;
+  }
+
+  .queue-settings {
+    grid-area: queue-settings;
+  }
+
+  .queue-information {
+    grid-area: queue-information;
+  }
 }

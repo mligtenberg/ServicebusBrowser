@@ -36,6 +36,7 @@
     "@types/uuid": "^8.3.0",
     "angular-resizable-element": "^3.3.4",
     "lodash": "^4.17.20",
+    "moment": "^2.29.1",
     "nng": "0.0.1",
     "routing": "0.0.2",
     "rxjs": "~6.6.0",

@@ -1,0 +1,16 @@
+@import "../../../styling/forms.scss";
+
+form {
+    display: flex;
+    .formcontrol {
+        flex: 1;
+        label {
+            font-style: italic;
+        }
+    }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    display: none;
+}

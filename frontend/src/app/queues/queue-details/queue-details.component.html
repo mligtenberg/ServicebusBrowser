@@ -28,19 +28,19 @@
             </div>
             <div class="duplication-time-window formcontrol">
                 <label for="duplicateDetectionHistoryTimeWindow">Duplicate detection time window</label>
-                <input formControlName="duplicateDetectionHistoryTimeWindow" />
+                <app-duration-input formControlName="duplicateDetectionHistoryTimeWindow"></app-duration-input>
             </div>
             <div class="auto-delete-on-idle formcontrol">
                 <label for="autoDeleteOnIdle">Auto delete on idle</label>
-                <input formControlName="autoDeleteOnIdle" />
+                <app-duration-input formControlName="autoDeleteOnIdle"></app-duration-input>
             </div>
             <div class="default-message-ttl formcontrol">
                 <label for="defaultMessageTimeToLive">Default message Time To Life</label>
-                <input formControlName="defaultMessageTimeToLive" />
+                <app-duration-input formControlName="defaultMessageTimeToLive"></app-duration-input>
             </div>
             <div class="lock-duration formcontrol">
                 <label for="lockDuration">Lock duration</label>
-                <input formControlName="lockDuration" />
+                <app-duration-input formControlName="lockDuration"></app-duration-input>
             </div>
         </span>
     </div>
@@ -75,7 +75,7 @@
     </div>
     <div class="queue-information box">
         <span class="box-title">Queue information</span>
-        <span class="box-body">
+        <span class="box-body no-padding">
             <div class="property-table">
                 <div class="property-table-header">
                     <div class="property-name">Name</div>
