@@ -1,4 +1,6 @@
 @import "../../../styling/colorscheme.scss";
+@import "../../../styling/boxes.scss";
+@import "../../../styling/forms.scss";
 
 /* setup grid */
 .container {
@@ -59,31 +61,6 @@
 }
 
 /* styling */
-.box {
-  background-color: $background-lightest;
-  box-shadow: 0px 1px 3px 0px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%),
-    0px 2px 1px -1px rgb(0 0 0 / 12%);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-
-  .box-title {
-    font-weight: bold;
-    border-bottom: solid 1px $background-dark;
-    line-height: 30px;
-    padding: 0 10px;
-  }
-
-  .box-body {
-    flex: 1;
-    overflow-y: auto;
-
-    &.scroll {
-      overflow-y: scroll;
-    }
-  }
-}
-
 .messages-selection {
   max-height: 100%;
 

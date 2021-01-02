@@ -24,7 +24,10 @@
               "path": "./extra-webpack.config.js",
               "mergeStrategies": {
                 "externals": "append"
-              }
+              },
+              "allowedCommonJsDependencies": [
+                "lodash"
+             ]
             },
             "outputPath": "dist/explorer",
             "index": "src/index.html",
@@ -81,7 +84,10 @@
               "path": "./extra-webpack.config.js",
               "mergeStrategies": {
                 "externals": "append"
-              }
+              },
+              "allowedCommonJsDependencies": [
+                "lodash"
+             ]
             },
             "browserTarget": "explorer:build"
           },

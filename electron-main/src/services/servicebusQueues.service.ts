@@ -1,10 +1,72 @@
-import { QueueRuntimeProperties } from "@azure/service-bus";
+import { QueueProperties, QueueRuntimeProperties, ServiceBusAdministrationClient } from "@azure/service-bus";
 import { IConnection, IMessage, IQueue, MessagesChannel } from "../../../ipcModels";
 import { getAdminClient, getClient } from "./servicebusConnections.service";
 
 export async function getQueues(connection: IConnection): Promise<IQueue[]> {
   const client = getAdminClient(connection);
 
+  const queues = await getQueueProperties(client);
+  const queueRuntimeProperties = await getQueueRuntimeProperties(client);
+
+
+  return queues.map((q) => {
+    const runtimeProperties = queueRuntimeProperties.find(qrp => qrp.name === q.name);
+
+    return {
+      name: q.name,
+      properties: {
+        autoDeleteOnIdle: q.autoDeleteOnIdle,
+        deadLetteringOnMessageExpiration: q.deadLetteringOnMessageExpiration,
+        defaultMessageTimeToLive: q.defaultMessageTimeToLive,
+        duplicateDetectionHistoryTimeWindow: q.duplicateDetectionHistoryTimeWindow,
+        enableBatchedOperations: q.enableBatchedOperations,
+        enableExpress: q.enableExpress,
+        enablePartitioning: q.enablePartitioning,
+        lockDuration: q.lockDuration,
+        maxDeliveryCount: q.maxDeliveryCount,
+        maxSizeInMegabytes: q.maxSizeInMegabytes,
+        requiresDuplicateDetection: q.requiresDuplicateDetection,
+        requiresSession: q.requiresSession,
+        userMetadata: q.userMetadata,
+        forwardDeadLetteredMessagesTo: q.forwardDeadLetteredMessagesTo,
+        forwardTo: q.forwardTo
+      },
+      info: {
+        accessedAt: runtimeProperties?.accessedAt,
+        activeMessageCount: runtimeProperties?.activeMessageCount,
+        availabilityStatus: q.availabilityStatus,
+        createdAt: runtimeProperties?.createdAt,
+        deadLetterMessageCount: runtimeProperties?.deadLetterMessageCount,
+        modifiedAt: runtimeProperties?.modifiedAt,
+        scheduledMessageCount: runtimeProperties?.scheduledMessageCount,
+        status: q.status,
+        transferDeadLetterMessageCount: runtimeProperties?.transferDeadLetterMessageCount,
+        transferMessageCount: runtimeProperties?.transferMessageCount,
+        sizeInBytes: runtimeProperties?.sizeInBytes,
+        totalMessageCount: runtimeProperties?.totalMessageCount
+      },
+      authorizationRules: q.authorizationRules ?? []
+    } as IQueue;
+  });
+}
+
+async function getQueueProperties(client: ServiceBusAdministrationClient): Promise<QueueProperties[]> {
+  let finished = false;
+  const queues: QueueProperties[] = [];
+
+  const iterator = client.listQueues();
+  do {
+    const result = await iterator.next();
+    if (result.value) {
+      queues.push(result.value);
+    }
+    finished = result.done ?? false;
+  } while (!finished);
+
+  return queues;
+}
+
+async function getQueueRuntimeProperties(client: ServiceBusAdministrationClient): Promise<QueueRuntimeProperties[]> {
   let finished = false;
   const queues: QueueRuntimeProperties[] = [];
 
@@ -17,14 +79,7 @@ export async function getQueues(connection: IConnection): Promise<IQueue[]> {
     finished = result.done ?? false;
   } while (!finished);
 
-  return queues.map((q) => {
-    return {
-      name: q.name,
-      queuedMessages: q.activeMessageCount,
-      deadLetterMessages: q.deadLetterMessageCount,
-      transferedDeadletterMessages: q.transferDeadLetterMessageCount,
-    } as IQueue;
-  });
+  return queues;
 }
 
 export async function getQueuesMessages(

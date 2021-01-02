@@ -1,0 +1,32 @@
+@import "../../../styling/boxes.scss";
+@import "../../../styling/forms.scss";
+@import "../../../styling/property-table.scss";
+
+.container {
+    display: grid;
+    gap: 12px;
+    height: 100%;
+    grid-template-areas: 
+        "name queue-settings"
+        "queue-properties queue-settings"
+        "queue-properties queue-information";
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr 2fr;
+
+    .name {
+        grid-area: name;
+    }
+
+    .queue-properties {
+        grid-area: queue-properties;
+    }
+
+    .queue-settings {
+        grid-area: queue-settings;
+    }
+
+    .queue-information {
+        grid-area: queue-information;
+    }
+}

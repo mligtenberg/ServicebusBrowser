@@ -22,17 +22,22 @@ export class ContextmenuService implements OnDestroy {
     private componentFactoryResolver: ComponentFactoryResolver,
     private appRef: ApplicationRef,
     private injector: Injector,
-    clickService: ClickService) {
-      this.subSink.add(clickService.onClick$.subscribe(() => {
+    clickService: ClickService
+  ) {
+    this.subSink.add(
+      clickService.onClick$.subscribe(() => {
         this.closeContextmenu();
-      }));
-    }
+      })
+    );
+  }
 
   public openContextmenu(options: {
-    templateRef: TemplateRef<any>,
-    target: HTMLElement,
-    width: number,
-
+    templateRef: TemplateRef<any>;
+    mousePosition: {
+      x: number;
+      y: number;
+    };
+    width: number;
   }) {
     this.closeContextmenu();
 
@@ -47,11 +52,9 @@ export class ContextmenuService implements OnDestroy {
     const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
       .rootNodes[0] as HTMLElement;
 
-    const targetPosition = options.target.getBoundingClientRect();
-    domElem.style.top =
-      (targetPosition.top + targetPosition.height - 2).toString() + 'px';
-    domElem.style.left = (targetPosition.left + 5).toString() + 'px';
-    domElem.style.width = options.width + "px";
+    domElem.style.top = options.mousePosition.y.toString() + 'px';
+    domElem.style.left = options.mousePosition.x.toString() + 'px';
+    domElem.style.width = options.width + 'px';
 
     document.body.appendChild(domElem);
     this.openElement = domElem;

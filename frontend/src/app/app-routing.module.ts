@@ -12,6 +12,10 @@ const routes: Routes = [
     loadChildren: () => import('./connections/connections-routing.module').then(m => m.ConnectionsRoutingModule)
   },
   {
+    path: "queues",
+    loadChildren: () =>  import('./queues/queues.module').then(m => m.QueuesModule)
+  },
+  {
     path: "messages",
     loadChildren: () =>  import('./messages/messages.module').then(m => m.MessagesModule)
   }

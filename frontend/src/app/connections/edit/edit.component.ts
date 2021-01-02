@@ -7,7 +7,6 @@ import { SubSink } from 'subsink';
 import { State } from '../../ngrx.module';
 import {
   clearSelectedConnection,
-  createConnection,
   openSelectedConnection,
   storeSelectedConnection,
   testConnection,

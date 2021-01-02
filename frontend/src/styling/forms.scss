@@ -21,6 +21,10 @@
     font-size: 1rem;
   }
 
+  input[type="checkbox"] {
+    width: auto;
+  }
+
   .radio-option {
     display: inline-block;
     input[type="radio"] {

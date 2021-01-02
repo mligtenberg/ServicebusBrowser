@@ -1,6 +1,6 @@
-<div (contextmenu)="openContextMenu($event)" class="queue">
+<div (contextmenu)="openContextMenu($event)" class="queue" [routerLink]="['queues', 'view', connectionId, queue.name]">
     <span class="queuename" [title]="queue.name">{{queue.name}}</span>
-    <span class="queuespecs">({{queue.queuedMessages}},{{queue.deadLetterMessages}},{{queue.transferedDeadletterMessages}})</span>
+    <span class="queuespecs">({{queue.info.activeMessageCount}},{{queue.info.deadLetterMessageCount}},{{queue.info.transferDeadLetterMessageCount}})</span>
 </div>
 
 <ng-template #contextMenu>

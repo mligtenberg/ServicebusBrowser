@@ -31,10 +31,13 @@ export class TopicPlaneSubscriptionComponent {
     private contextMenu: ContextmenuService
   ) {}
 
-  openContextMenu($event: Event): void {
+  openContextMenu($event: MouseEvent): void {
     this.contextMenu.openContextmenu({
       templateRef: this.contextMenuReference, 
-      target: $event.target as HTMLElement,
+      mousePosition: {
+        y: $event.clientY,
+        x: $event.clientX
+      },
       width: 300,
     });
   

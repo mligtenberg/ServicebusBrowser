@@ -2,7 +2,7 @@ import { createReducer, on } from "@ngrx/store";
 import { v4 as uuidv4 } from 'uuid';
 import * as actions from "./connections.actions";
 import { ConnectionType, IConnection } from "./connections.models";
-import * as _ from 'lodash';
+import * as lodash from 'lodash';
 
 export interface IConnectionsState {
     activeConnections: IConnection[];
@@ -117,7 +117,7 @@ export const connectionReducer = createReducer<IConnectionsState>(
                 name: action.connection.name,
                 connectionDetails: action.connection.connectionDetails,
                 connectionType: action.connection.connectionType,
-                testSuccess: state.selectedConnection.testSuccess && _.isEqual(state.selectedConnection.connectionDetails, action.connection.connectionDetails)
+                testSuccess: state.selectedConnection.testSuccess && lodash.isEqual(state.selectedConnection.connectionDetails, action.connection.connectionDetails)
             }
         }
     }),

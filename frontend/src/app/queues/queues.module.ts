@@ -8,13 +8,20 @@ import { queueReducer } from './ngrx/queues.reducers';
 import { UiModule } from '../ui/ui.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { QueuePlaneItemComponent } from './queue-plane-item/queue-plane-item.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessagesModule } from '../messages/messages.module';
+import { QueueDetailsComponent } from './queue-details/queue-details.component';
+import { RouterModule, Routes } from '@angular/router';
 
+
+
+const routes: Routes = [
+  { path: 'view/:connectionId/:queueName', component: QueueDetailsComponent }
+];
 
 
 @NgModule({
-  declarations: [QueuePlaneComponent, QueuePlaneItemComponent],
+  declarations: [QueuePlaneComponent, QueuePlaneItemComponent, QueueDetailsComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('queues', queueReducer),
@@ -22,7 +29,9 @@ import { MessagesModule } from '../messages/messages.module';
     UiModule,
     FontAwesomeModule,
     FormsModule,
-    MessagesModule
+    MessagesModule,
+    RouterModule.forChild(routes),
+    ReactiveFormsModule
   ],
   exports: [
     QueuePlaneComponent
