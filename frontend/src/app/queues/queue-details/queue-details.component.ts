@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { first, tap } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { State } from 'src/app/ngrx.module';
 import { SubSink } from 'subsink';
 import { IQueue } from '../ngrx/queues.models';

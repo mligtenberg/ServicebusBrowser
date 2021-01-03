@@ -1,6 +1,8 @@
 import {
   TopicRuntimeProperties,
   SubscriptionRuntimeProperties,
+  ServiceBusAdministrationClient,
+  SubscriptionProperties,
 } from "@azure/service-bus";
 import { IConnection, IMessage, ISubscription, ITopic, MessagesChannel } from "../../../ipcModels";
 import { getAdminClient, getClient } from "./servicebusConnections.service";
@@ -33,6 +35,59 @@ export async function getSubscriptionsForTopic(
 ) {
   const client = getAdminClient(connection);
 
+  const subscriptions = await getSubscriptionProperties(client, topicName);
+  const runtimeProperties = await getSubscriptionRuntimeProperties(client, topicName);
+
+  return subscriptions.map((s) => {
+    const rp = runtimeProperties.find(rp => s.topicName === rp.topicName && s.subscriptionName === rp.subscriptionName);
+    return {
+      name: s.subscriptionName,
+      properties: {
+        autoDeleteOnIdle: s.autoDeleteOnIdle,
+        deadLetteringOnFilterEvaluationExceptions: s.deadLetteringOnFilterEvaluationExceptions,
+        deadLetteringOnMessageExpiration: s.deadLetteringOnMessageExpiration,
+        defaultMessageTimeToLive: s.defaultMessageTimeToLive,
+        enableBatchedOperations: s.enableBatchedOperations,
+        lockDuration: s.lockDuration,
+        maxDeliveryCount: s.maxDeliveryCount,
+        requiresSession: s.requiresSession,
+        forwardDeadLetteredMessagesTo: s.forwardDeadLetteredMessagesTo,
+        forwardTo: s.forwardTo,
+        userMetadata: s.userMetadata
+      },
+      info: {
+        status: s.status,
+        availabilityStatus: s.availabilityStatus,
+        accessedAt: rp?.accessedAt,
+        activeMessageCount: rp?.activeMessageCount,
+        createdAt: rp?.createdAt,
+        deadLetterMessageCount: rp?.deadLetterMessageCount,
+        modifiedAt: rp?.modifiedAt,
+        topicName: rp?.topicName,
+        totalMessageCount: rp?.totalMessageCount,
+        transferDeadLetterMessageCount: rp?.transferDeadLetterMessageCount,
+        transferMessageCount: rp?.transferMessageCount
+      }
+    } as ISubscription;
+  });
+}
+
+async function getSubscriptionProperties(client: ServiceBusAdministrationClient, topicName: string): Promise<SubscriptionProperties[]> {
+  let finished = false;
+  const subscriptions: SubscriptionProperties[] = [];
+
+  const iterator = client.listSubscriptions(topicName);
+  do {
+    const result = await iterator.next();
+    if (result.value) {
+      subscriptions.push(result.value);
+    }
+    finished = result.done ?? true;
+  } while (!finished);
+  return subscriptions;
+}
+
+async function getSubscriptionRuntimeProperties(client: ServiceBusAdministrationClient, topicName: string): Promise<SubscriptionRuntimeProperties[]> {
   let finished = false;
   const subscriptions: SubscriptionRuntimeProperties[] = [];
 
@@ -44,17 +99,8 @@ export async function getSubscriptionsForTopic(
     }
     finished = result.done ?? true;
   } while (!finished);
-
-  return subscriptions.map((s) => {
-    return {
-      name: s.subscriptionName,
-      queuedMessages: s.activeMessageCount,
-      deadLetterMessages: s.deadLetterMessageCount,
-      transferedDeadletterMessages: s.transferDeadLetterMessageCount
-    } as ISubscription;
-  });
+  return subscriptions;
 }
-
 
 export async function getSubscriptionMessages(
   connection: IConnection,

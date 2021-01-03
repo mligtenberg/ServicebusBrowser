@@ -13,12 +13,9 @@ import { MessagesModule } from '../messages/messages.module';
 import { QueueDetailsComponent } from './queue-details/queue-details.component';
 import { RouterModule, Routes } from '@angular/router';
 
-
-
 const routes: Routes = [
   { path: 'view/:connectionId/:queueName', component: QueueDetailsComponent }
 ];
-
 
 @NgModule({
   declarations: [QueuePlaneComponent, QueuePlaneItemComponent, QueueDetailsComponent],

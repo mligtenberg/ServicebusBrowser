@@ -1,0 +1,45 @@
+@import "../../../styling/colorscheme.scss";
+@import "../../../styling/boxes.scss";
+@import "../../../styling/forms.scss";
+@import "../../../styling/property-table.scss";
+
+.container {
+  display: grid;
+  gap: 12px;
+  height: 100%;
+  @media all and (min-width: $large-layout) {
+    grid-template-areas:
+      "name subscription-settings"
+      "subscription-properties subscription-settings"
+      "subscription-properties subscription-information";
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr 2fr;
+    min-height: 00px;
+  }
+
+  grid-template-areas:
+    "name"
+    "subscription-settings"
+    "subscription-properties"
+    "subscription-information";
+
+  grid-template-rows: auto 1fr 2fr 2fr;
+  min-height: 1000px;
+
+  .name {
+    grid-area: name;
+  }
+
+  .subscription-properties {
+    grid-area: subscription-properties;
+  }
+
+  .subscription-settings {
+    grid-area: subscription-settings;
+  }
+
+  .subscription-information {
+    grid-area: subscription-information;
+  }
+}

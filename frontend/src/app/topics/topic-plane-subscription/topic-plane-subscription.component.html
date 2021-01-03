@@ -1,6 +1,6 @@
-<div (contextmenu)="openContextMenu($event)" class="subscription">
+<div (contextmenu)="openContextMenu($event)" class="subscription" [routerLink]="['topics', 'view', connectionId, topicName, subscription.name]">
     <span class="subscription-name">{{ subscription.name }}</span>
-    <span class="subscription-specs">({{subscription.queuedMessages}}, {{subscription.deadLetterMessages}}, {{subscription.transferedDeadletterMessages}})</span>  
+    <span class="subscription-specs">({{subscription.info.activeMessageCount}}, {{subscription.info.deadLetterMessageCount}}, {{subscription.info.transferDeadLetterMessageCount}})</span>  
 </div>
 
 <ng-template #contextMenu>

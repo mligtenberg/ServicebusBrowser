@@ -16,6 +16,10 @@ const routes: Routes = [
     loadChildren: () =>  import('./queues/queues.module').then(m => m.QueuesModule)
   },
   {
+    path: "topics",
+    loadChildren: () =>  import('./topics/topics.module').then(m => m.TopicsModule)
+  },
+  {
     path: "messages",
     loadChildren: () =>  import('./messages/messages.module').then(m => m.MessagesModule)
   }
