@@ -14,7 +14,7 @@ import { SubSink } from 'subsink';
 export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input()
   @Output()
-  open: boolean = true;
+  open: boolean = false;
 
   logLines: ILogItem[] = [];
 

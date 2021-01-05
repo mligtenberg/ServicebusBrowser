@@ -1,5 +1,30 @@
+import { IAuthorizationRule } from './IAuthorizationRule';
+
 export interface ITopic {
-    name: string
+    name: string,
+    properties: {
+       defaultMessageTimeToLive: string;
+       maxSizeInMegabytes: number;
+       requiresDuplicateDetection: boolean;
+       duplicateDetectionHistoryTimeWindow: string;
+       enableBatchedOperations: boolean;
+       authorizationRules?: IAuthorizationRule[];
+       userMetadata: string;
+       supportOrdering: boolean;
+       autoDeleteOnIdle: string;
+       enablePartitioning: boolean;
+       enableExpress: boolean;
+    },
+    info: {
+        status: string;
+        availabilityStatus: string;
+        sizeInBytes?: number;
+        subscriptionCount?: number;
+        scheduledMessageCount: number;
+        createdAt: Date;
+        modifiedAt: Date;
+        accessedAt: Date;
+    }
 }
 
 export interface ISubscription {

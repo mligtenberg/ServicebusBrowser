@@ -8,14 +8,19 @@ export const getTopics = (connectionId: string) => createSelector(
     (state) => state.topicConnectionSets.find(c => c.connectionId === connectionId)?.topics
 )
 
+
+export const getTopic = (connectionId: string, topicName: string) => createSelector(
+    getTopics(connectionId),
+    (topics) => topics?.find(t => t.name === topicName)
+)
+
 export const getTopicSubscriptions = (connectionId: string, topicName: string) => createSelector(
     getTopicsFeatureState,
     (state) => state.subscriptionSets.find(c => c.connectionId === connectionId && c.topicName === topicName)?.subscriptions
 )
 
 export const getTopicSubscription = (connectionId: string, topicName: string, subscriptionName: string) => createSelector(
-    getTopicsFeatureState,
-    (state) => state.subscriptionSets
-        .find(c => c.connectionId === connectionId && c.topicName === topicName)?.subscriptions
+    getTopicSubscriptions(connectionId, topicName),
+    (subscriptions) => subscriptions
         .find(s => s.name === subscriptionName)
 )

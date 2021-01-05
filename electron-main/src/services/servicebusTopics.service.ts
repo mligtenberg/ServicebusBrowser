@@ -3,6 +3,7 @@ import {
   SubscriptionRuntimeProperties,
   ServiceBusAdministrationClient,
   SubscriptionProperties,
+  TopicProperties,
 } from "@azure/service-bus";
 import { IConnection, IMessage, ISubscription, ITopic, MessagesChannel } from "../../../ipcModels";
 import { getAdminClient, getClient } from "./servicebusConnections.service";
@@ -10,6 +11,55 @@ import { getAdminClient, getClient } from "./servicebusConnections.service";
 export async function getTopics(connection: IConnection): Promise<ITopic[]> {
   const client = getAdminClient(connection);
 
+  const runtimeProperties: TopicRuntimeProperties[] = await getTopicRuntimeProperties(client);
+  const topics: TopicProperties[] = await getTopicProperties(client);
+  return topics.map((t) => {
+    const rp = runtimeProperties.find(rp => t.name === rp.name);
+    return {
+      name: t.name,
+      properties: {
+        autoDeleteOnIdle: t.autoDeleteOnIdle,
+        defaultMessageTimeToLive: t.defaultMessageTimeToLive,
+        duplicateDetectionHistoryTimeWindow: t.duplicateDetectionHistoryTimeWindow,
+        enableBatchedOperations: t.enableBatchedOperations,
+        enableExpress: t.enableExpress,
+        enablePartitioning: t.enablePartitioning,
+        maxSizeInMegabytes: t.maxSizeInMegabytes,
+        requiresDuplicateDetection: t.requiresDuplicateDetection,
+        supportOrdering: t.supportOrdering,
+        userMetadata: t.userMetadata,
+        authorizationRules: t.authorizationRules
+      },
+      info: {
+        status: t.status,
+        availabilityStatus: t.availabilityStatus,
+        accessedAt: rp?.accessedAt,
+        createdAt: rp?.createdAt,
+        modifiedAt: rp?.modifiedAt,
+        scheduledMessageCount: rp?.scheduledMessageCount,
+        sizeInBytes: rp?.sizeInBytes,
+        subscriptionCount: rp?.subscriptionCount
+      }
+    } as ITopic;
+  });
+}
+
+async function getTopicProperties(client: ServiceBusAdministrationClient): Promise<TopicProperties[]> {
+  let finished = false;
+  const topics: TopicProperties[] = [];
+
+  const iterator = client.listTopics();
+  do {
+    const result = await iterator.next();
+    if (result.value) {
+      topics.push(result.value);
+    }
+    finished = result.done ?? true;
+  } while (!finished);
+  return topics;
+}
+
+async function getTopicRuntimeProperties(client: ServiceBusAdministrationClient): Promise<TopicRuntimeProperties[]> {
   let finished = false;
   const topics: TopicRuntimeProperties[] = [];
 
@@ -21,12 +71,7 @@ export async function getTopics(connection: IConnection): Promise<ITopic[]> {
     }
     finished = result.done ?? true;
   } while (!finished);
-
-  return topics.map((q) => {
-    return {
-      name: q.name,
-    } as ITopic;
-  });
+  return topics;
 }
 
 export async function getSubscriptionsForTopic(

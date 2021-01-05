@@ -1,3 +1,5 @@
+import { IAuthorizationRule } from "./IAuthorizationRule";
+
 export interface IQueue {
     name: string;
     properties: {
@@ -32,12 +34,4 @@ export interface IQueue {
         availabilityStatus: string;
     },
     authorizationRules?: IAuthorizationRule[];
-}
-
-export declare interface IAuthorizationRule {
-    claimType: string;
-    accessRights?: ("Manage" | "Send" | "Listen")[];
-    keyName: string;
-    primaryKey?: string;
-    secondaryKey?: string;
 }

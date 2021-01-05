@@ -12,13 +12,15 @@ import { TopicPlaneSubscriptionComponent } from './topic-plane-subscription/topi
 import { SubscriptionDetailsComponent } from './subscription-details/subscription-details.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+import { TopicDetailsComponent } from './topic-details/topic-details.component';
 
 const routes: Routes = [
+  { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
   { path: 'view/:connectionId/:topicName/:subscriptionName', component: SubscriptionDetailsComponent }
 ];
 
 @NgModule({
-  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent],
+  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('topics', topicReducer),

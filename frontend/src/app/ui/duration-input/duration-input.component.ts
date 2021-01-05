@@ -1,7 +1,7 @@
 import { Component, forwardRef, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as moment from 'moment';
-import { SubSink } from 'subsink';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-duration-input',
@@ -22,7 +22,7 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
   private onChange: (_: string) => void;
   private onTouched: () => void;
   private _value: moment.Duration;
-  private subSink = new SubSink();
+  private subs = new Subscription();
   
   get value(): moment.Duration {
     return this._value;
@@ -30,8 +30,12 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
 
   set value(v: moment.Duration) {
     this._value = v;
-    this.onChange(v.toISOString());
-    this.onTouched();
+    if (this.onChange) {
+      this.onChange(v.toISOString());
+    }
+    if (this.onTouched) {
+      this.onTouched();
+    }
   }
 
   constructor(formBuilder: FormBuilder) {
@@ -45,13 +49,12 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
       years: 0
     });
 
-    this.subSink.add(this.form.valueChanges.subscribe((v) => {
+    this.subs.add(this.form.valueChanges.subscribe((v) => {
       this.value = moment.duration(v);
     }));
   }
 
   writeValue(obj: any): void {
-    console.log(obj);
     this._value = moment.duration(obj as string);
     this.form.setValue({
       seconds: this._value.seconds(),
@@ -81,6 +84,6 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

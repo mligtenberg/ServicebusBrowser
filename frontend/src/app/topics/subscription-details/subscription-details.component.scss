@@ -24,8 +24,8 @@
     "subscription-properties"
     "subscription-information";
 
-  grid-template-rows: auto 1fr 2fr 2fr;
-  min-height: 1000px;
+  grid-template-rows: auto 1fr 3fr 2fr;
+  min-height: 1500px;
 
   .name {
     grid-area: name;

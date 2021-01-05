@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { State } from 'src/app/ngrx.module';
-import { SubSink } from 'subsink';
 import { ISubscription } from '../ngrx/topics.models';
 import { getTopicSubscription } from '../ngrx/topics.selectors';
 
@@ -14,7 +14,7 @@ import { getTopicSubscription } from '../ngrx/topics.selectors';
   styleUrls: ['./subscription-details.component.scss']
 })
 export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
-  private subSink = new SubSink();
+  private subs = new Subscription();
   subscription: ISubscription;
   form: FormGroup;
 
@@ -40,7 +40,7 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
-    this.subSink.add(this.activeRoute.params.subscribe(params => {
+    this.subs.add(this.activeRoute.params.subscribe(params => {
       this.store.select(getTopicSubscription(params.connectionId, params.topicName, params.subscriptionName))
       .pipe(first())
       .subscribe(s => {
@@ -64,6 +64,6 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

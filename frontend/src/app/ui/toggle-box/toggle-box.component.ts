@@ -11,6 +11,9 @@ export class ToggleBoxComponent {
 
   constructor() { }
 
+  @Input()
+  ignoreTitle: boolean = false;
+
   @Input() @Output()
   open: boolean;
 
@@ -33,5 +36,11 @@ export class ToggleBoxComponent {
     }
 
     $event.stopPropagation();
+  }
+
+  clickTitle($event: Event) {
+    if(!this.ignoreTitle) {
+      this.click($event);
+    }
   }
 }

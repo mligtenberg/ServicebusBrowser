@@ -9,37 +9,37 @@
   height: 100%;
   @media all and (min-width: $large-layout) {
     grid-template-areas:
-      "name queue-settings"
-      "queue-properties queue-settings"
-      "queue-properties queue-information";
+      "name topic-settings"
+      "topic-properties topic-settings"
+      "topic-properties topic-information";
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr 2fr;
-    min-height: 0px;
+    min-height: 00px;
   }
 
   grid-template-areas:
     "name"
-    "queue-settings"
-    "queue-properties"
-    "queue-information";
+    "topic-settings"
+    "topic-properties"
+    "topic-information";
 
   grid-template-rows: auto 1fr 3fr 2fr;
-  min-height: 1800px;
+  min-height: 1500px;
 
   .name {
     grid-area: name;
   }
 
-  .queue-properties {
-    grid-area: queue-properties;
+  .topic-properties {
+    grid-area: topic-properties;
   }
 
-  .queue-settings {
-    grid-area: queue-settings;
+  .topic-settings {
+    grid-area: topic-settings;
   }
 
-  .queue-information {
-    grid-area: queue-information;
+  .topic-information {
+    grid-area: topic-information;
   }
 }
