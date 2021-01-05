@@ -33,7 +33,7 @@ export class MessagesEffects {
                   connection,
                   action.queueName,
                   action.numberOfMessages,
-                  action.deadletter
+                  action.channel
                 )
               ).pipe(
                 map(
@@ -41,7 +41,7 @@ export class MessagesEffects {
                     actions.getQueueMessagesSuccess({
                       connectionId: action.connectionId,
                       queueName: action.queueName,
-                      deadletter: action.deadletter,
+                      channel: action.channel,
                       messages,
                     }),
                   catchError((reason) =>
@@ -49,7 +49,7 @@ export class MessagesEffects {
                       actions.getQueueMessagesFailure({
                         connectionId: action.connectionId,
                         queueName: action.queueName,
-                        deadletter: action.deadletter,
+                        channel: action.channel,
                         reason: reason as string,
                       })
                     )
@@ -87,7 +87,7 @@ export class MessagesEffects {
                   action.topicName,
                   action.subscriptionName,
                   action.numberOfMessages,
-                  action.deadletter
+                  action.channel
                 )
               ).pipe(
                 map(
@@ -96,7 +96,7 @@ export class MessagesEffects {
                       connectionId: action.connectionId,
                       topicName: action.topicName,
                       subscriptionName: action.subscriptionName,
-                      deadletter: action.deadletter,
+                      channel: action.channel,
                       messages,
                     }),
                   catchError((reason) =>
@@ -105,7 +105,7 @@ export class MessagesEffects {
                         connectionId: action.connectionId,
                         topicName: action.topicName,
                         subscriptionName: action.subscriptionName,
-                        deadletter: action.deadletter,
+                        channel: action.channel,
                         reason: reason as string,
                       })
                     )

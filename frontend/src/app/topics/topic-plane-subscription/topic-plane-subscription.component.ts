@@ -7,6 +7,7 @@ import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { DialogService } from 'src/app/ui/dialog.service';
 import { DialogRef } from 'src/app/ui/dialogRef';
+import { MessagesChannel } from '../../../../../ipcModels';
 import { ISubscription } from '../ngrx/topics.models';
 
 @Component({
@@ -38,7 +39,7 @@ export class TopicPlaneSubscriptionComponent {
         y: $event.clientY,
         x: $event.clientX
       },
-      width: 300,
+      width: 350,
     });
   
     $event.stopPropagation();
@@ -48,7 +49,7 @@ export class TopicPlaneSubscriptionComponent {
     this.contextMenu.closeContextmenu();
 
     this.openDialog();
-    this.subscribe(false);
+    this.subscribe(MessagesChannel.regular);
 
     $event.stopPropagation();
   }
@@ -57,20 +58,30 @@ export class TopicPlaneSubscriptionComponent {
     this.contextMenu.closeContextmenu();
 
     this.openDialog();
-    this.subscribe(true);
+    this.subscribe(MessagesChannel.deadletter);
 
     $event.stopPropagation();
   }
+
+  getTransferredDeadletters($event: Event) {
+    this.contextMenu.closeContextmenu();
+
+    this.openDialog();
+    this.subscribe(MessagesChannel.transferedDeadletters);
+
+    $event.stopPropagation();
+  }
+
 
   private openDialog() {
     this.dialogRef = this.dialog.openDialog(GetMesagesDialogComponent);
   }
 
-  private subscribe(deadletter: boolean) {
+  private subscribe(channel: MessagesChannel) {
     this.unsubscribe();
 
     this.dialogSubscription = this.dialogRef.afterClosed().subscribe((messages: number) => {
-      this.getMessages(deadletter, messages);
+      this.getMessages(channel, messages);
       this.unsubscribe();
     });
   }
@@ -82,13 +93,13 @@ export class TopicPlaneSubscriptionComponent {
     }
   }
 
-  private getMessages(deadletter: boolean, amountOfMessages: number) {
+  private getMessages(channel: MessagesChannel, amountOfMessages: number) {
     this.store.dispatch(getSubscriptionMessages({
       connectionId: this.connectionId,
        topicName: this.topicName,
        subscriptionName: this.subscription.name,
        numberOfMessages: amountOfMessages,
-       deadletter}));
+       channel}));
   }
 
   ngOnDestroy(): void {

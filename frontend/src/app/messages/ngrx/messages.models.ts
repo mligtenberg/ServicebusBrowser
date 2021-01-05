@@ -1,7 +1,8 @@
-import { IMessage } from '../../../../../ipcModels';
+import { IMessage, MessagesChannel } from '../../../../../ipcModels';
 
 export {
-    IMessage
+    IMessage,
+    MessagesChannel
 }
 
 export interface IMessageSet {

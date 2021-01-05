@@ -1,12 +1,12 @@
 import { createAction, props } from '@ngrx/store';
-import { IMessage } from './messages.models';
+import { IMessage, MessagesChannel } from './messages.models';
 
 export const getQueueMessages = createAction(
   '[Messages/Queue] Retreive messages from queue',
   props<{
     connectionId: string;
     queueName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     numberOfMessages: number;
   }>()
 );
@@ -16,7 +16,7 @@ export const getQueueMessagesSuccess = createAction(
   props<{
     connectionId: string;
     queueName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     messages: IMessage[];
   }>()
 );
@@ -26,7 +26,7 @@ export const getQueueMessagesFailure = createAction(
   props<{
     connectionId: string;
     queueName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     reason: string;
   }>()
 );
@@ -37,7 +37,7 @@ export const getSubscriptionMessages = createAction(
     connectionId: string;
     topicName: string;
     subscriptionName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     numberOfMessages: number;
   }>()
 );
@@ -48,7 +48,7 @@ export const getSubscriptionMessagesSuccess = createAction(
     connectionId: string;
     topicName: string;
     subscriptionName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     messages: IMessage[];
   }>()
 );
@@ -59,7 +59,7 @@ export const getSubscriptionMessagesFailure = createAction(
     connectionId: string;
     topicName: string;
     subscriptionName: string;
-    deadletter: boolean;
+    channel: MessagesChannel;
     reason: string;
   }>()
 );

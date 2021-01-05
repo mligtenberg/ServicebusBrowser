@@ -9,7 +9,7 @@ import { LogService } from '../logging/log.service';
 export class MessagesService {
   constructor(private log: LogService) {}
 
-  getQueueMessages(connection: IConnection, queueName: string, numberOfMessages: number, deadletter: Boolean): Promise<IMessage[]> {
+  getQueueMessages(connection: IConnection, queueName: string, numberOfMessages: number, channel: MessagesChannel): Promise<IMessage[]> {
     var promise = new Promise<IMessage[]>((resolve, reject) => {
       ipcRenderer.once(
         servicebusQueuesChannels.GET_QUEUES_MESSAGES_RESPONSE,
@@ -36,12 +36,12 @@ export class MessagesService {
       connection, 
       queueName,
       numberOfMessages,
-      deadletter ? MessagesChannel.deadletter : MessagesChannel.regular
+      channel
     );
     return promise;
   }
 
-  getSubscriptionMessages(connection: IConnection, topicName: string, subscriptionName: string, numberOfMessages: number, deadletter: Boolean): Promise<IMessage[]> {
+  getSubscriptionMessages(connection: IConnection, topicName: string, subscriptionName: string, numberOfMessages: number, channel: MessagesChannel): Promise<IMessage[]> {
     var promise = new Promise<IMessage[]>((resolve, reject) => {
       ipcRenderer.once(
         servicebusTopicsChannels.GET_TOPIC_SUBSCRIPTION_MESSAGES_RESPONSE(connection.id, topicName, subscriptionName),
@@ -69,7 +69,7 @@ export class MessagesService {
       topicName,
       subscriptionName,
       numberOfMessages,
-      deadletter ? MessagesChannel.deadletter : MessagesChannel.regular
+      channel
     );
     return promise;
   }
