@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { State } from 'src/app/ngrx.module';
-import { SubSink } from 'subsink';
 import { IMessage, IMessageSet } from '../ngrx/messages.models';
 import { getMessages } from '../ngrx/messages.selectors';
 
@@ -15,7 +15,7 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
   messageSet: IMessageSet;
   selectedMessage: IMessage;
 
-  private subSink = new SubSink();
+  private subs = new Subscription();
 
   constructor(
     private store: Store<State>,
@@ -23,7 +23,7 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.subSink.add(this.store.select(getMessages).subscribe(messageSet => {
+    this.subs.add(this.store.select(getMessages).subscribe(messageSet => {
       if (!messageSet) {
         this.router.navigateByUrl("/");
       }
@@ -38,6 +38,6 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

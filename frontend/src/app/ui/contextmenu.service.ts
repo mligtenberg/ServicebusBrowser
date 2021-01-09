@@ -7,7 +7,7 @@ import {
   OnDestroy,
   TemplateRef,
 } from '@angular/core';
-import { SubSink } from 'subsink';
+import { Subscription } from 'rxjs';
 import { ClickService } from './click.service';
 import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 
@@ -16,7 +16,7 @@ import { ContextmenuComponent } from './contextmenu/contextmenu.component';
 })
 export class ContextmenuService implements OnDestroy {
   private openElement: HTMLElement | null = null;
-  private subSink = new SubSink();
+  private subs = new Subscription();
 
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
@@ -24,7 +24,7 @@ export class ContextmenuService implements OnDestroy {
     private injector: Injector,
     clickService: ClickService
   ) {
-    this.subSink.add(
+    this.subs.add(
       clickService.onClick$.subscribe(() => {
         this.closeContextmenu();
       })
@@ -68,6 +68,6 @@ export class ContextmenuService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

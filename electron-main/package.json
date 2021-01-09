@@ -8,7 +8,7 @@
     "prebuild": "npm run clean",
     "build": "webpack",
     "prestart": "npm run build",
-    "start": "electron .",
+    "start": "electron . --remote-debugging-port=9223",
     "start:nobuild": "electron .",
     "start:dev": "npm run start -- dev",
     "start:ngServe": "npm run start -- dev ngServe"

@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
 import { IConnection } from '../ngrx/connections.models';
 import { getActiveConnections } from '../ngrx/connections.selectors';
-import {SubSink} from 'subsink';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-connection-plane',
@@ -12,7 +12,7 @@ import {SubSink} from 'subsink';
 })
 export class ConnectionPlaneComponent implements OnInit, OnDestroy {
   public connections: IConnection[] = [];
-  public subs = new SubSink();
+  public subs = new Subscription();
 
   constructor(
     private store: Store<State>
