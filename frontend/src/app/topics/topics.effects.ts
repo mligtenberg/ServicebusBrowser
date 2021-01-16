@@ -6,7 +6,7 @@ import { TopicsService } from './topics.service';
 import * as actions from "./ngrx/topics.actions";
 import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { getActiveConnections } from '../connections/ngrx/connections.selectors';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 
 @Injectable()
 export class TopicsEffects {
@@ -34,7 +34,7 @@ export class TopicsEffects {
           return of(actions.refreshTopicsFailed({connectionId: action.connectionId, error: `Connection with id ${action.connectionId} not found`}))
         }
 
-        return this.topicsService.getTopics(connection)
+        return from(this.topicsService.getTopics(connection))
         .pipe(
           map((result) => actions.refreshTopicsSuccess({connectionId: connection.id, topics: result})),
           catchError(error => of(actions.refreshTopicsFailed({ connectionId: connection.id, error: error as string })))
@@ -61,7 +61,7 @@ export class TopicsEffects {
           return of(actions.refreshSubscriptionsFailed({connectionId: action.connectionId, topicName: action.topicName, reason: `Connection with id ${action.connectionId} not found`}))
         }
 
-        return this.topicsService.getTopicSubscriptions(connection, action.topicName)
+        return from(this.topicsService.getTopicSubscriptions(connection, action.topicName))
         .pipe(
           map((result) => actions.refreshSubscriptionsSuccess({connectionId: connection.id, topicName: action.topicName, subscriptions: result})),
           catchError(error => of(actions.refreshSubscriptionsFailed({ connectionId: connection.id, topicName: action.topicName, reason: error as string })))

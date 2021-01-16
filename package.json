@@ -4,17 +4,21 @@
   "main": "./temp/main/main.js",
   "scripts": {
     "install:angular": "cd frontend && npm i",
+    "install:preload": "cd electron-preload && npm i",
     "install:main": "cd electron-main && npm i",
     "install:builder-deps": "electron-builder install-app-deps",
-    "postinstall": "npm run install:builder-deps && npm run install:main && npm run install:angular",
+    "postinstall": "npm run install:builder-deps && npm run install:preload && npm run install:main && npm run install:angular",
     "clean": "rimraf dist",
     "build:frontend": "cd frontend && npm run build",
+    "build:preload": "cd electron-preload && npm run build",
     "build:electron": "cd electron-main && npm run build",
-    "build": "npm run build:frontend && npm run build:electron",
+    "build": "npm run build:frontend && npm run build:preload && npm run build:electron",
     "prestart": "npm run build",
     "start": "cd electron-main && npm run start:nobuild",
+    "prestart:ngServe": "npm run build:preload",
     "start:ngServe": "cd electron-main && npm run start:ngServe",
     "copy:main": "cd ./electron-main/dist/ && copyfiles ** ../../temp/main",
+    "copy:preload": "cd ./electron-preload/dist/ && copyfiles ** ../../temp/preload",
     "copy:frontend": "cd ./frontend/dist/explorer/ && copyfiles ** ../../../temp/frontend",
     "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend",
     "package": "electron-builder",
@@ -27,7 +31,8 @@
     "copyfiles": "^2.4.1",
     "electron": "^11.1.1",
     "electron-builder": "^22.9.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "concurrently": "^5.3.0"
   },
   "build": {
     "appId": "digital.ligtenberg.servicebusbrowser",

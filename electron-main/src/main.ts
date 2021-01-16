@@ -3,9 +3,7 @@ import { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import installExtension from 'electron-devtools-installer';
 import global from './global';
 import { initSecretsHandler } from './handlers/secrets.handler';
-import { initServicebusConnectionsHandler } from './handlers/servicebusConnections.handler';
-import { initServicebusQueuesHandler } from './handlers/servicebusQueues.handler';
-import { initServicebusTopicsHandler } from './handlers/servicebusTopics.handler';
+import path from 'path';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -21,8 +19,10 @@ function createWindow(): BrowserWindow | null {
     minHeight:420,
     minWidth: 620,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+      contextIsolation: true,
+      preload: isDev ? path.join(__dirname, "../../electron-preload/dist/preload.bundled.js") : path.join(__dirname, "../preload/preload.bundled.js")
+    },
   })
 
   win.setMenu(null);
@@ -96,7 +96,4 @@ if (isDev) {
 
 function initHandlers() {
   initSecretsHandler();
-  initServicebusConnectionsHandler();
-  initServicebusQueuesHandler();
-  initServicebusTopicsHandler();
 }

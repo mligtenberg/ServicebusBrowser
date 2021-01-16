@@ -1,93 +1,50 @@
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
 import { LogService } from '../logging/log.service';
 import { IConnection } from './ngrx/connections.models';
-import { ipcRenderer } from 'electron';
-import { servicebusConnectionsChannels, secretsChannels, ISecret } from '../../../../ipcModels';
+import { ServiceBusClient, ServiceBusAdministrationClient } from '@azure/service-bus';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConnectionService {
-  constructor(private log: LogService) {}
+  constructor() {}
 
-  testConnection(connection: IConnection): Observable<boolean> {
-    var promise = new Promise<boolean>((resolve, reject) => {
-      ipcRenderer.once(servicebusConnectionsChannels.TEST_RESPONSE, (event, ...args) => {
-        const successfull = args[0];
-        if (successfull) {
-          this.log.logInfo('Connection established, test successfull');
-          resolve(true);
-        } else {
-          const reason = args[1];
-          this.log.logWarning(`Connection failed: ${reason}`)
-          reject(reason);
-        }
-      });
-    });
-
-    ipcRenderer.send(servicebusConnectionsChannels.TEST, connection);
-    return from(promise);
+  getClient(connection: IConnection): ServiceBusClient {
+    return window.servicebusConnections.getClient(connection);
+  }
+  
+  getAdminClient(
+    connection: IConnection
+  ): ServiceBusAdministrationClient {
+    return window.servicebusConnections.getAdminClient(connection);
   }
 
-  storeConnectionAsync(connection: IConnection): Promise<void> {
-    var promise = new Promise<void>((resolve, reject) => {
-
-      ipcRenderer.once(secretsChannels.ADD_SECRET_REPONSE, (event, ...args) => {
-        const success = args[0] as boolean;
-
-
-        if (success) {
-          resolve();
-        } else {
-          const reason = args[1] as string;
-          reject(reason);
-        }
-      });
-    });
-
-    ipcRenderer.send(secretsChannels.ADD_SECRET, connection.id, JSON.stringify(connection));
-    return promise;
+  async testConnection(connection: IConnection): Promise<boolean> {
+    const client = this.getAdminClient(connection);
+  
+    // try a simple operation
+    await client.listQueues().next();
+  
+    return true;
   }
 
-  deleteConnectionAsync(connectionId: string): Promise<void> {
-    var promise = new Promise<void>((resolve, reject) => {
-      ipcRenderer.once(secretsChannels.DELETE_SECRET_RESPONSE, (event, ...args) => {
-        const success = args[0] as boolean;
-        
-        if (success) {
-          resolve();
-        } else {
-          const reason = args[1] as string;
-          reject(reason);
-        }
-      });
-    });
+  async storeConnectionAsync(connection: IConnection): Promise<void> {
+    await window.secrets.saveSecret({
+      key: connection.id,
+      value: JSON.stringify(connection)
+    })
+  }
 
-    ipcRenderer.send(secretsChannels.DELETE_SECRET, connectionId);
-    return promise;
+  async deleteConnectionAsync(connectionId: string): Promise<void> {
+    await window.secrets.deleteSecret(connectionId);
   }
 
   async getStoredConnectionsAsync(): Promise<IConnection[]> {
-    var promise = new Promise<IConnection[]>((resolve, reject) => {
-      ipcRenderer.once(secretsChannels.GET_SECRETS_RESPONSE, (event, ...args) => {
-        const success = args[0] as boolean;
-        
-        if (success) {
-          const secrets = args[1] as ISecret[];
-          resolve(secrets.map(s => JSON.parse(s.value) as IConnection));
-        } else {
-          const reason = args[1] as string;
-          reject(reason);
-        }
-      });
-    });
-
-    ipcRenderer.send(secretsChannels.GET_SECRETS);
-    return promise;
-  }
-
-  async getConnectionAsync(id: string): Promise<IConnection> {
-    return JSON.parse(localStorage.getItem(id)) as IConnection
+    try {
+      const secrets = await window.secrets.getSecrets();
+      return secrets.map(s => JSON.parse(s.value) as IConnection);
+    } catch (reason) {
+      throw reason;
+    }
   }
 }
