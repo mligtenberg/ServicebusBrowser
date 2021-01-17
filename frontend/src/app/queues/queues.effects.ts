@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { of } from 'rxjs';
+import { of, from } from 'rxjs';
 import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { getActiveConnections } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
@@ -34,7 +34,7 @@ export class QueuesEffects {
           return of(actions.refreshQueuesFailed({connectionId: action.connectionId, error: `Connection with id ${action.connectionId} not found`}))
         }
 
-        return this.queuesService.getQueues(connection)
+        return from(this.queuesService.getQueues(connection))
         .pipe(
           map((result) => actions.refreshQueuesSuccess({connectionId: connection.id, queues: result})),
           catchError(error => of(actions.refreshQueuesFailed({ connectionId: connection.id, error: error as string })))

@@ -2,10 +2,8 @@ import { Injectable } from '@angular/core';
 import {
   Actions,
   createEffect,
-  Effect,
   ofType,
   OnInitEffects,
-  ROOT_EFFECTS_INIT,
 } from '@ngrx/effects';
 import { catchError, map, mergeMap, tap, withLatestFrom } from 'rxjs/operators';
 import { ConnectionService } from './connection.service';
@@ -45,7 +43,7 @@ export class ConnectionEffects implements OnInitEffects {
             })
           );
         }
-        return this.servicebusConnection.testConnection(connection).pipe(
+        return from(this.servicebusConnection.testConnection(connection)).pipe(
           map(() => actions.testConnectionSuccess()),
           catchError((error) =>
             of(actions.testConnectionFailed({ error: error as string }))

@@ -1,24 +1,3 @@
-export module servicebusConnectionsChannels {
-    export const TEST = "servicebus:test";
-    export const TEST_RESPONSE = "servicebus:test.response";
-}
-
-export module servicebusQueuesChannels {
-    export const GET_QUEUES = "servicebus:getQueues";
-    export const GET_QUEUES_RESPONSE = "servicebus:getQueues.response";
-    export const GET_QUEUES_MESSAGES = "servicebus:getQueuesMessages";
-    export const GET_QUEUES_MESSAGES_RESPONSE = "servicebus:getQueuesMessages.response";
-}
-
-export module servicebusTopicsChannels {
-    export const GET_TOPICS = "servicebus:getTopics";
-    export const GET_TOPICS_REPONSE = (connectionId: string) => `servicebus:getTopics.reponse(${connectionId})`;
-    export const GET_TOPIC_SUBSCRIPTION = "servicebus:getTopicSubscriptions";
-    export const GET_TOPIC_SUBSCRIPTION_RESPONSE = (connectionId: string, topicName: string) => `servicebus:getTopicSubscriptions.reponse(${connectionId},${topicName})`;
-    export const GET_TOPIC_SUBSCRIPTION_MESSAGES = "servicebus:getTopicSubscriptionMessages";
-    export const GET_TOPIC_SUBSCRIPTION_MESSAGES_RESPONSE = (connectionId: string, topicName: string, subscriptionName: string) => `servicebus:getTopicSubscriptionMessages.reponse(${connectionId},${topicName},${subscriptionName})`;
-}
-
 export module secretsChannels {
     export const GET_SECRETS = "secret:get_all";
     export const GET_SECRETS_RESPONSE = "secret:get_all.reponse";

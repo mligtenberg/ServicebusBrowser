@@ -69,6 +69,13 @@
     border-bottom: solid 1px $background-dark;
   }
 
+  .message-option {
+    font-style: 0.7em;
+    .message-sequence-number {
+      direction: rtl;
+    }
+  }
+
   .message-option,
   .message-header {
     line-height: 30px;
@@ -80,8 +87,25 @@
     }
 
     .message-id {
-      width: 300px;
+      flex: 1;
       padding: 0 10px;
+      max-width: 330px;
+      text-overflow: ellipsis;
+
+      /* Required for text-overflow to do anything */
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .message-sequence-number {
+      width: 160px;
+      text-align: right;
+      text-overflow: ellipsis;
+      padding: 0 10px;
+
+      /* Required for text-overflow to do anything */
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .message-subject {
@@ -121,8 +145,8 @@
     width: 100%;
 
     &:nth-child(odd) {
-        background-color: $background-lighter;
-      }
+      background-color: $background-lighter;
+    }
 
     > .property-name {
       display: inline-block;
