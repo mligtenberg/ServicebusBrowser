@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { addLog } from 'src/app/logging/ngrx/logging.actions';
 import { LogLevel } from 'src/app/logging/ngrx/logging.models';
-import { SubSink } from 'subsink';
 import { State } from '../../ngrx.module';
 import {
   clearSelectedConnection,
@@ -31,7 +31,7 @@ interface ConnectionForm {
 })
 export class EditComponent implements OnInit, OnDestroy {
   isNew = true;
-  subSink = new SubSink();
+  subs = new Subscription();
   connectionForm: FormGroup;
   init = false;
 
@@ -45,7 +45,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subSink.add(
+    this.subs.add(
       this.connectionForm.valueChanges.subscribe((v) => {
         const form = v as ConnectionForm;
         this.setSelected(this.formToConnection(form));
@@ -57,7 +57,7 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToChanges() {
-    this.subSink.add(
+    this.subs.add(
       this.store.select(getSelectedConnection).subscribe((s) => {
         if (!this.init) {
           this.init = true;
@@ -124,6 +124,6 @@ export class EditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

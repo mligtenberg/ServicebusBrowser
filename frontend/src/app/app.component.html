@@ -3,6 +3,9 @@
         <app-submenu-item name="New connection..." (click)="connectPressed()"></app-submenu-item>
         <app-submenu-item *ngFor="let connection of storedConnections" name="{{connection.name}}" (click)="openConnection(connection)"></app-submenu-item>
     </app-menu-item>
+    <!-- <app-menu-item name="Messages">
+        <app-submenu-item name="New" [routerLink]="['messages', 'queue']"></app-submenu-item>
+    </app-menu-item> -->
 </app-menubar>
 
 <div class="body">

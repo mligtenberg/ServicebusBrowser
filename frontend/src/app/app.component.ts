@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { SubSink } from 'subsink';
+import { Subscription } from 'rxjs';
 import { createConnection, openConnection } from './connections/ngrx/connections.actions';
 import { IConnection } from './connections/ngrx/connections.models';
 import { getStoredConnections } from './connections/ngrx/connections.selectors';
@@ -16,7 +16,7 @@ export class AppComponent implements OnInit, OnDestroy {
   logs: string[] = [];
   storedConnections: IConnection[] = [];
 
-  subsink = new SubSink();
+  subs = new Subscription();
 
   constructor(
     private store: Store<State>,
@@ -25,7 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subsink.add(this.store.select(getStoredConnections).subscribe(c => {
+    this.subs.add(this.store.select(getStoredConnections).subscribe(c => {
       this.storedConnections = c;
     }))
 
@@ -42,6 +42,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subsink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { SubSink } from 'subsink';
+import { Subscription } from 'rxjs';
 import { IConnection } from '../../../../ipcModels/IConnection';
 import { deleteConnection, openConnection } from '../connections/ngrx/connections.actions';
 import { getStoredConnections } from '../connections/ngrx/connections.selectors';
@@ -12,14 +12,14 @@ import { State } from '../ngrx.module';
 })
 export class MainComponent implements OnInit {
   storedConnections: IConnection[] = [];
-  subsink = new SubSink();
+  subs = new Subscription();
 
   constructor(
     private store: Store<State>
   ) { }
 
   ngOnInit(): void {
-    this.subsink.add(this.store.select(getStoredConnections).subscribe(c => {
+    this.subs.add(this.store.select(getStoredConnections).subscribe(c => {
       this.storedConnections = c;
     }))
   }

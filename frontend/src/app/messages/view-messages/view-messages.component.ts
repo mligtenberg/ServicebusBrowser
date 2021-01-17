@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { State } from 'src/app/ngrx.module';
-import { SubSink } from 'subsink';
 import { IMessage, IMessageSet } from '../ngrx/messages.models';
 import { getMessages } from '../ngrx/messages.selectors';
 
@@ -14,8 +14,17 @@ import { getMessages } from '../ngrx/messages.selectors';
 export class ViewMessagesComponent implements OnInit, OnDestroy {
   messageSet: IMessageSet;
   selectedMessage: IMessage;
+  selectedMessageBody: string;
+  editorOptions = { 
+    theme: 'vs-light',
+    readOnly: true,
+    language: 'text/plain',
+    minimap: {
+      enabled: false
+    }
+   };
 
-  private subSink = new SubSink();
+  private subs = new Subscription();
 
   constructor(
     private store: Store<State>,
@@ -23,7 +32,7 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.subSink.add(this.store.select(getMessages).subscribe(messageSet => {
+    this.subs.add(this.store.select(getMessages).subscribe(messageSet => {
       if (!messageSet) {
         this.router.navigateByUrl("/");
       }
@@ -35,9 +44,25 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
 
   selectMessage(message: IMessage): void {
     this.selectedMessage = message;
+    this.selectedMessageBody = message.body;
+    this.editorOptions = { ...this.editorOptions, language: this.mapContentTypes(message.properties.get("contentType") )};
+  }
+
+  private mapContentTypes(contentType: string) {
+    contentType = contentType.toLocaleLowerCase();
+    if (contentType.indexOf('xml') >= 0) {
+      return 'xml';
+    }
+    if (contentType.indexOf('json') >= 0) {
+      return 'json';
+    }
+    if (contentType.indexOf('yaml') >= 0 || contentType.indexOf('yml') >= 0) {
+      return 'yaml';
+    }
+    return 'text/plain';
   }
 
   ngOnDestroy(): void {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

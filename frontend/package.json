@@ -1,7 +1,6 @@
 {
   "name": "serverbus-browser-frontend",
   "version": "0.1.0",
-  "main": "main.js",
   "scripts": {
     "clean": "rimraf dist",
     "start": "ng serve",
@@ -39,11 +38,11 @@
     "angular-resizable-element": "^3.3.4",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
-    "os": "^0.1.1",
+    "ngx-monaco-editor": "9.0.0",
     "rxjs": "~6.6.0",
-    "subsink": "^1.0.2",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2",
+    "webpack-target-electron-renderer": "^0.4.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

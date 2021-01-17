@@ -2,10 +2,11 @@ import { Component, ChangeDetectionStrategy, Input, Output, ViewChild, ElementRe
 import { faChevronDown, faChevronLeft, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { ResizeEvent } from 'angular-resizable-element';
+import { Subscription } from 'rxjs';
 import { ILogItem, LogLevel } from 'src/app/logging/ngrx/logging.models';
 import { getLogs } from 'src/app/logging/ngrx/logging.selectors';
 import { State } from 'src/app/ngrx.module';
-import { SubSink } from 'subsink';
+
 @Component({
   selector: 'app-console',
   templateUrl: './console.component.html',
@@ -23,7 +24,7 @@ export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   minHeight = 60;
   height = 300;
-  subSink = new SubSink();
+  subs = new Subscription();
 
 
   constructor(
@@ -31,7 +32,7 @@ export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.subSink.add(this.store.select(getLogs).subscribe(l => {
+    this.subs.add(this.store.select(getLogs).subscribe(l => {
       this.logLines = l;
       this.scrollToBottom();
     }));
@@ -73,6 +74,6 @@ export class ConsoleComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }

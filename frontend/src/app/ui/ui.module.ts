@@ -27,7 +27,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     ContextmenuItemComponent,
     DialogComponent,
     RefreshButtonComponent,
-    DurationInputComponent,
+    DurationInputComponent
   ],
   imports: [
     CommonModule,

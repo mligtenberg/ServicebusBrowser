@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { State } from 'src/app/ngrx.module';
-import { SubSink } from 'subsink';
 import { IQueue } from '../ngrx/queues.models';
 import { getQueue } from '../ngrx/queues.selectors';
 
@@ -14,7 +14,7 @@ import { getQueue } from '../ngrx/queues.selectors';
   styleUrls: ['./queue-details.component.scss']
 })
 export class QueueDetailsComponent implements OnInit, OnDestroy {
-  private subSink = new SubSink();
+  private subs = new Subscription();
   queue: IQueue;
   form: FormGroup;
 
@@ -44,7 +44,7 @@ export class QueueDetailsComponent implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
-    this.subSink.add(this.activeRoute.params.subscribe(params => {
+    this.subs.add(this.activeRoute.params.subscribe(params => {
       this.store.select(getQueue(params.connectionId, params.queueName))
       .pipe(first())
       .subscribe(q => {
@@ -72,6 +72,6 @@ export class QueueDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subSink.unsubscribe();
+    this.subs.unsubscribe();
   }
 }
