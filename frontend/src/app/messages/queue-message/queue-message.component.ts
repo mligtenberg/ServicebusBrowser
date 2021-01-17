@@ -6,8 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./queue-message.component.scss']
 })
 export class QueueMessageComponent implements OnInit {
-  value: string = 'const a = 1;';
-  editorOptions = { theme: 'vs-dark', language: 'typescript' };
+  value: string = '{"aa": "BB"}';
+  editorOptions = { theme: 'vs-light', language: 'json' };
 
   constructor() { }
 

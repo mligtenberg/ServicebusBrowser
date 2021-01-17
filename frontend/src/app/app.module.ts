@@ -17,6 +17,8 @@ import { LoggingModule } from './logging/logging.module';
 import { TopicsModule } from './topics/topics.module';
 import { MessagesModule } from './messages/messages.module';
 import { MainEffectsEffects } from './main-effects.effects';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,7 +38,8 @@ import { MainEffectsEffects } from './main-effects.effects';
     LoggingModule,
     TopicsModule,
     MessagesModule,
-    EffectsModule.forRoot([MainEffectsEffects])
+    EffectsModule.forRoot([MainEffectsEffects]),
+    MonacoEditorModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -14,7 +14,6 @@ import { ResizableModule } from 'angular-resizable-element';
 import { RefreshButtonComponent } from './refresh-button/refresh-button.component';
 import { DurationInputComponent } from './duration-input/duration-input.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { EditorComponent } from './editor/editor.component';
 
 @NgModule({
   declarations: [
@@ -28,8 +27,7 @@ import { EditorComponent } from './editor/editor.component';
     ContextmenuItemComponent,
     DialogComponent,
     RefreshButtonComponent,
-    DurationInputComponent,
-    EditorComponent,
+    DurationInputComponent
   ],
   imports: [
     CommonModule,
@@ -46,8 +44,7 @@ import { EditorComponent } from './editor/editor.component';
     ToggleBoxComponent,
     ContextmenuItemComponent,
     RefreshButtonComponent,
-    DurationInputComponent,
-    EditorComponent
+    DurationInputComponent
   ]
 })
 export class UiModule { }

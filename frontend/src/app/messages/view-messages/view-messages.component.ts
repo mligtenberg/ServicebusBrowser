@@ -14,6 +14,15 @@ import { getMessages } from '../ngrx/messages.selectors';
 export class ViewMessagesComponent implements OnInit, OnDestroy {
   messageSet: IMessageSet;
   selectedMessage: IMessage;
+  selectedMessageBody: string;
+  editorOptions = { 
+    theme: 'vs-light',
+    readOnly: true,
+    language: 'text/plain',
+    minimap: {
+      enabled: false
+    }
+   };
 
   private subs = new Subscription();
 
@@ -35,6 +44,22 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
 
   selectMessage(message: IMessage): void {
     this.selectedMessage = message;
+    this.selectedMessageBody = message.body;
+    this.editorOptions = { ...this.editorOptions, language: this.mapContentTypes(message.properties.get("contentType") )};
+  }
+
+  private mapContentTypes(contentType: string) {
+    contentType = contentType.toLocaleLowerCase();
+    if (contentType.indexOf('xml') >= 0) {
+      return 'xml';
+    }
+    if (contentType.indexOf('json') >= 0) {
+      return 'json';
+    }
+    if (contentType.indexOf('yaml') >= 0 || contentType.indexOf('yml') >= 0) {
+      return 'yaml';
+    }
+    return 'text/plain';
   }
 
   ngOnDestroy(): void {

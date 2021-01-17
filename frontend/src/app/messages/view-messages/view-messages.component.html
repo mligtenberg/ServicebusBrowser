@@ -20,7 +20,7 @@
     <div class="message-body box">
         <div class="box-title">Body</div>
         <div class="box-body no-padding">
-            <textarea disabled>{{ selectedMessage ? selectedMessage.body : '' }}</textarea>
+            <ngx-monaco-editor [options]="editorOptions" [ngModel]="selectedMessageBody"></ngx-monaco-editor>
         </div>
     </div>
     <div class="properties box">

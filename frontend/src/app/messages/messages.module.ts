@@ -10,6 +10,7 @@ import { GetMesagesDialogComponent } from './get-mesages-dialog/get-mesages-dial
 import { FormsModule } from '@angular/forms';
 import { QueueMessageComponent } from './queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 const routes: Routes = [
   { path: 'view', component: ViewMessagesComponent },
@@ -24,7 +25,8 @@ const routes: Routes = [
     EffectsModule.forFeature([MessagesEffects]),
     RouterModule.forChild(routes),
     FormsModule,
-    UiModule
+    UiModule,
+    MonacoEditorModule
   ],
   exports: [
     GetMesagesDialogComponent
