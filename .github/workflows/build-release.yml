@@ -11,14 +11,25 @@ on:
         required: true
 
 jobs:
-  printInputs:
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        echo "Log level: ${{ github.event.inputs.logLevel }}"
-        echo "Tags: ${{ github.event.inputs.tags }}" 
-    
   createRelease:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-    
+      - name: Create a Release
+        uses: actions/create-release@v1.1.4
+        with:
+          # The name of the tag. This should come from the webhook payload, `github.GITHUB_REF` when a user pushes a new tag
+          tag_name: ${{ github.event.inputs.tagVersion }}
+          # The name of the release. For example, `Release v1.0.1`
+          release_name:  ${{ github.event.inputs.releaseTitle }}
+          commitish: master
+      - name: NPM Install
+        run: 'npm install'
+      - name: NPM Release
+        run: 'npm run release'
+      - name: Publish to release
+        uses: actions/upload-release-asset@v1.0.2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./dist/*.exe
+          asset_name: 'Servicebus Browser.exe'
+          asset_content_type: application/exe
