@@ -1,0 +1,24 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTitle:
+        description: 'Release title'     
+        required: true
+      tagVersion:
+        description: 'Tag version'     
+        required: true
+
+jobs:
+  printInputs:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo "Log level: ${{ github.event.inputs.logLevel }}"
+        echo "Tags: ${{ github.event.inputs.tags }}" 
+    
+  createRelease:
+    runs-on: ubuntu-latest
+    steps:
+    
