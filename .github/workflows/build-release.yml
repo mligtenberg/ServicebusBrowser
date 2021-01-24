@@ -30,7 +30,7 @@ jobs:
           path: dist
   linuxBuild:
       name: Build for Linux
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,7 +47,7 @@ jobs:
           path: dist
   macBuild:
       name: Build for Mac
-    runs-on: mac-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
 
   createRelease:
     name: Create the release
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     needs: [windowsBuild, linuxBuild, macBuild]
     steps:
       - name: Create a Release
