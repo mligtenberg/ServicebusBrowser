@@ -104,6 +104,8 @@ jobs:
           asset_content_type: application/exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Publish Linux build to release
         uses: actions/upload-release-asset@v1.0.2
         with:
