@@ -31,6 +31,8 @@ jobs:
         run: 'npm install'
       - name: NPM Release
         run: 'npm run release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to release
         uses: actions/upload-release-asset@v1.0.2
         with:
