@@ -12,6 +12,7 @@ on:
 
 jobs:
   windowsBuild:
+    name: Build for Windows
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -28,6 +29,7 @@ jobs:
           name: windows-release
           path: dist
   linuxBuild:
+      name: Build for Linux
     runs-on: linux-latest
     steps:
       - name: Checkout code
@@ -44,6 +46,7 @@ jobs:
           name: linux-release
           path: dist
   macBuild:
+      name: Build for Mac
     runs-on: mac-latest
     steps:
       - name: Checkout code
@@ -61,6 +64,7 @@ jobs:
           path: dist
 
   createRelease:
+    name: Create the release
     runs-on: linux-latest
     needs: [windowsBuild, linuxBuild, macBuild]
     steps:
