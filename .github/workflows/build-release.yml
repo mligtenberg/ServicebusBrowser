@@ -24,6 +24,7 @@ jobs:
           # The name of the release. For example, `Release v1.0.1`
           release_name:  ${{ github.event.inputs.releaseTitle }}
           commitish: master
+          draft: true 
       - name: dir
         run: 'dir'  
       - name: NPM Install
