@@ -37,6 +37,7 @@
   "build": {
     "appId": "digital.ligtenberg.servicebusbrowser",
     "productName": "Servicebus browser",
+    "artifactName": "Servicebus browser.${ext}",
     "copyright": "Copyright © 2020 Martin Ligtenberg",
     "files": [
       "temp/"
