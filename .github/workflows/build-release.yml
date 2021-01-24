@@ -98,32 +98,29 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Publish windows build to release
-        uses: chaosddp/upload_asset_to_release@v0.1
+        uses: actions/upload-release-asset@v1.0.2
         with:
-          repo: ServicebusBrowser
-          owner: mligtenberg
-          tag_name: ${{ github.event.inputs.tagVersion }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          asset: "dist/*.exe"
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./windows/Servicebus browser.exe
+          asset_name: "Servicebus Browser.exe"
+          asset_content_type: application/exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Linux build to release
-        uses: chaosddp/upload_asset_to_release@v0.1
+        uses: actions/upload-release-asset@v1.0.2
         with:
-          repo: ServicebusBrowser
-          owner: mligtenberg
-          tag_name: ${{ github.event.inputs.tagVersion }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          asset: "dist/*.AppImage"
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./linux/Servicebus browser.AppImage
+          asset_name: "Servicebus Browser.AppImage"
+          asset_content_type: application/appimage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Mac build to release
-        uses: chaosddp/upload_asset_to_release@v0.1
+        uses: actions/upload-release-asset@v1.0.2
         with:
-          repo: ServicebusBrowser
-          owner: mligtenberg
-          tag_name: ${{ github.event.inputs.tagVersion }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          asset: "dist/*.dmg"
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./mac/Servicebus browser.dmg
+          asset_name: "Servicebus Browser.dmg"
+          asset_content_type: application/dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
