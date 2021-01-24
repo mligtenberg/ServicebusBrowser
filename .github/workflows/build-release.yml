@@ -83,17 +83,17 @@ jobs:
       - name: Download Windows Build
         uses: actions/download-artifact@v2
         with:
-          name: windows-build
+          name: windows-release
           path: windows
       - name: Download Mac Build
         uses: actions/download-artifact@v2
         with:
-          name: mac-build
+          name: mac-release
           path: mac
       - name: Download Linux Build
         uses: actions/download-artifact@v2
         with:
-          name: linux-build
+          name: linux-release
           path: linux
       - name: Publish windows build to release
         uses: actions/upload-release-asset@v1.0.2
