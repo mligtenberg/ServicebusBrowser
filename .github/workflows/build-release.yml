@@ -61,7 +61,7 @@ jobs:
           path: dist
 
   createRelease:
-    runs-on: ubuntu-latest
+    runs-on: linux-latest
     needs: [windowsBuild, linuxBuild, macBuild]
     steps:
       - name: Create a Release
