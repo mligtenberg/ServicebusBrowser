@@ -24,7 +24,7 @@ export class ConnectionPlaneItemComponent {
   constructor(
     private store: Store<State>,
     private router: Router,
-    private contextMenu: ContextmenuService
+    private contextMenu: ContextmenuService,
   ) { }
 
   edit(): void {

@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { QueueMessageComponent } from './queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { SelectMessageTargetDialogComponent } from './select-message-target-dialog/select-message-target-dialog.component';
 
 const routes: Routes = [
   { path: 'view', component: ViewMessagesComponent },
@@ -18,7 +19,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [ViewMessagesComponent, GetMesagesDialogComponent, QueueMessageComponent],
+  declarations: [ViewMessagesComponent, GetMesagesDialogComponent, QueueMessageComponent, SelectMessageTargetDialogComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('messages', messagesReducer),

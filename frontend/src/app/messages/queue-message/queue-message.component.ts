@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { DialogService } from 'src/app/ui/dialog.service';
+import { SelectMessageTargetDialogComponent } from '../select-message-target-dialog/select-message-target-dialog.component';
 
 @Component({
   selector: 'app-queue-message',
@@ -12,7 +14,9 @@ export class QueueMessageComponent {
 
   editorOptions = { theme: 'vs-light', language: 'text/plain' };
 
-  constructor() { }
+  constructor(
+    private dialogService: DialogService
+  ) { }
 
   contentTypeUpdated() {
     this.editorOptions = {...this.editorOptions, language: this.mapContentTypes(this.contentType)}
@@ -33,6 +37,6 @@ export class QueueMessageComponent {
   }
 
   send() {
-    
+    this.dialogService.openDialog(SelectMessageTargetDialogComponent);
   }
 }

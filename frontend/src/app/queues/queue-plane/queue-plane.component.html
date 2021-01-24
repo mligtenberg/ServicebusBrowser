@@ -1,7 +1,9 @@
-<app-toggle-box open="true">
-    <span class="title">Queues <span class="refresh" (click)="refreshQueues($event)"><app-refresh-button [loading]="loading"></app-refresh-button></span></span>
-    <span class="body">
-       <app-queue-plane-item *ngFor="let queue of queues" [queue]="queue" [connectionId]="connection.id"></app-queue-plane-item>
-    </span>
-</app-toggle-box>
+<app-queue-plane-base
+    [connection]="connection"
+    (queueSelected)="onQueueSelected($event)"
+    (queueContextMenuSelected)="onQueueContextMenuSelected($event)"
+></app-queue-plane-base>
 
+<ng-template #queueContextMenu>
+    <app-queue-context-menu [connectionId]="connection.id" [queue]="queue"></app-queue-context-menu>
+</ng-template>
