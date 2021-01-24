@@ -69,6 +69,7 @@ jobs:
     needs: [windowsBuild, linuxBuild, macBuild]
     steps:
       - name: Create a Release
+        id: create_release
         uses: actions/create-release@v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,12 +80,45 @@ jobs:
           release_name: ${{ github.event.inputs.releaseTitle }}
           commitish: master
           draft: true
-      - name: Publish to release
+      - name: Download Windows Build
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-build
+          path: windows
+      - name: Download Mac Build
+        uses: actions/download-artifact@v2
+        with:
+          name: mac-build
+          path: mac
+      - name: Download Linux Build
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-build
+          path: linux
+      - name: Publish windows build to release
         uses: actions/upload-release-asset@v1.0.2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/*.exe
+          asset_path: ./windows/*.exe
           asset_name: "Servicebus Browser.exe"
           asset_content_type: application/exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Linux build to release
+        uses: actions/upload-release-asset@v1.0.2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./linux/*.AppImage
+          asset_name: "Servicebus Browser.AppImage"
+          asset_content_type: application/appimage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Mac build to release
+        uses: actions/upload-release-asset@v1.0.2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./mac/*.dmg
+          asset_name: "Servicebus Browser.dmg"
+          asset_content_type: application/dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
