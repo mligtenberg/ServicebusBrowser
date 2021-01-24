@@ -11,7 +11,7 @@ on:
         required: true
 
 jobs:
-  createRelease:
+  windowsBuild:
     runs-on: windows-latest
     steps:
       - name: Create a Release
@@ -33,6 +33,11 @@ jobs:
         run: 'npm run release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish release as artifect
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows-release
+          path: dist
       - name: Publish to release
         uses: actions/upload-release-asset@v1.0.2
         with:
@@ -40,3 +45,5 @@ jobs:
           asset_path: ./dist/*.exe
           asset_name: 'Servicebus Browser.exe'
           asset_content_type: application/exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
