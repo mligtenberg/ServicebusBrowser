@@ -13,6 +13,8 @@ import { SubscriptionDetailsComponent } from './subscription-details/subscriptio
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { TopicDetailsComponent } from './topic-details/topic-details.component';
+import { SubscriptionContextMenuComponent } from './subscription-context-menu/subscription-context-menu.component';
+import { TopicsPlaneBaseComponent } from './topics-plane-base/topics-plane-base.component';
 
 const routes: Routes = [
   { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
@@ -20,7 +22,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent],
+  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent, SubscriptionContextMenuComponent, TopicsPlaneBaseComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('topics', topicReducer),

@@ -1,12 +1,31 @@
-<app-toggle-box [open]="false" [ignoreTitle]="true">
-    <span class="title"
-    [routerLink]="['topics', 'view', connectionId, topic.name]">{{topic.name}} <span class="refresh" (click)="refreshSubscriptions($event)"><app-refresh-button [loading]="loading"></app-refresh-button></span></span>
+<ng-container *ngIf="showSubscriptions">
+    <app-toggle-box [open]="false" [ignoreTitle]="true">
+    <span class="title" *ngTemplateOutlet="title">
+    </span>
     <span class="body">
-        <app-topic-plane-subscription 
-        *ngFor="let sub of subscriptions" 
-        [connectionId]="connectionId"
-        [topicName]="topic.name"
-        [subscription]="sub"
+        <app-topic-plane-subscription
+            *ngFor="let sub of subscriptions"
+            [connectionId]="connectionId"
+            [topic]="topic"
+            [subscription]="sub"
+            (selected)="onSubscriptionSelected($event)"
+            (contextMenuSelected)="onContextMenuSubscriptionSelected($event)"
         ></app-topic-plane-subscription>
     </span>
-</app-toggle-box>
+    </app-toggle-box>
+</ng-container>
+
+<ng-container *ngIf="!showSubscriptions">
+    <div class="title" *ngTemplateOutlet="title"></div>
+</ng-container>
+
+<ng-template #title>
+  <span
+    class="title-container"
+    (click)="onSelected($event)"
+    (contextmenu)="onContextMenuSelected($event)"
+    >{{ topic.name }}
+    <span class="refresh" *ngIf="showSubscriptions" (click)="refreshSubscriptions($event)"
+      ><app-refresh-button [loading]="loading"></app-refresh-button></span
+  ></span>
+</ng-template>
