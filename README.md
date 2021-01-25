@@ -14,5 +14,4 @@ Download the Windows and Linux versions of the app here:
 ### Manual build (dev enviorment)
 - Clone the project
 - Install the dependencies with ``npm install`` in the main directory
-- Build and start the frontend by running ``npm start`` in the frontend directory
-- Build and start the electron app by running ``npm run start:ngServe`` in the electron-main directory
+- Build and start the project by running ``npm start`` in the main directory
