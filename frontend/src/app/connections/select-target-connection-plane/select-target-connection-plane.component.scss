@@ -1,0 +1,22 @@
+.connection {
+    width: 100%;
+    display: flex;
+  }
+  
+  .title {
+    display: block;
+    flex: 1;
+    position: relative;
+    text-overflow: ellipsis;
+  
+    /* Required for text-overflow to do anything */
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  app-queue-plane-base,
+  app-topic-plane-base {
+    margin: 16px 0;
+    display: block;
+  }
+  

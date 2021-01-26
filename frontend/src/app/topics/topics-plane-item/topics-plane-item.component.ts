@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 import { LogService } from 'src/app/logging/log.service';
 import { State } from 'src/app/ngrx.module';
 import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEvent';
@@ -13,7 +14,7 @@ import { getTopicSubscriptions } from '../ngrx/topics.selectors';
   templateUrl: './topics-plane-item.component.html',
   styleUrls: ['./topics-plane-item.component.scss']
 })
-export class TopicsPlaneItemComponent implements OnInit {
+export class TopicsPlaneItemComponent implements OnInit, OnDestroy {
 
   @Input()
   connectionId: string;
@@ -37,16 +38,18 @@ export class TopicsPlaneItemComponent implements OnInit {
   subscriptions: ISubscription[] = [];
   loading: boolean = false;
 
+  subs = new Subscription();
+
   constructor(
     private store: Store<State>,
     private log: LogService
   ) { }
 
   ngOnInit(): void {
-    this.store.select(getTopicSubscriptions(this.connectionId, this.topic.name)).subscribe(s => {
+    this.subs.add(this.store.select(getTopicSubscriptions(this.connectionId, this.topic.name)).subscribe(s => {
       this.loading = false;
       this.subscriptions = s;
-    });
+    }));
     this.refreshSubscriptions();
   }
 
@@ -89,5 +92,9 @@ export class TopicsPlaneItemComponent implements OnInit {
       type: TopicSelectionType.contextMenu,
       topic: this.topic
     })
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 }

@@ -9,7 +9,6 @@ import { UiModule } from '../ui/ui.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { QueuePlaneItemComponent } from './queue-plane-item/queue-plane-item.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MessagesModule } from '../messages/messages.module';
 import { QueueDetailsComponent } from './queue-details/queue-details.component';
 import { RouterModule, Routes } from '@angular/router';
 import { QueuePlaneComponent } from './queue-plane/queue-plane.component';
@@ -28,12 +27,12 @@ const routes: Routes = [
     UiModule,
     FontAwesomeModule,
     FormsModule,
-    MessagesModule,
     RouterModule.forChild(routes),
     ReactiveFormsModule
   ],
   exports: [
-    QueuePlaneComponent
+    QueuePlaneComponent,
+    QueuePlaneBaseComponent
   ]
 })
 export class QueuesModule { }

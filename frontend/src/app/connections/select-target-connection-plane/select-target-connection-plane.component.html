@@ -1,0 +1,6 @@
+<app-select-target-connection-item
+    [connection]="connection" 
+    [allowedTargets]="allowedTargets"
+    (targetSelected)="onTargetSelected($event)"
+    *ngFor="let connection of connections"
+></app-select-target-connection-item>

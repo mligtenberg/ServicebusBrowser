@@ -1,1 +1,4 @@
-<p>select-message-target-dialog works!</p>
+<app-select-target-connection-plane
+    [allowedTargets]="allowedTarget"
+    (targetSelected)="onTargetSelected($event)"
+></app-select-target-connection-plane>

@@ -15,12 +15,16 @@ import { QueuesModule } from '../queues/queues.module';
 import { UiModule } from '../ui/ui.module';
 import { TopicsModule } from '../topics/topics.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SelectTargetConnectionItemComponent } from './select-target-connection-item/select-target-connection-item.component';
+import { SelectTargetConnectionPlaneComponent } from './select-target-connection-plane/select-target-connection-plane.component';
 
 @NgModule({
   declarations: [
     EditComponent,
     ConnectionPlaneComponent,
-    ConnectionPlaneItemComponent
+    ConnectionPlaneItemComponent,
+    SelectTargetConnectionItemComponent,
+    SelectTargetConnectionPlaneComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +39,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule
   ],
   exports: [
-    ConnectionPlaneComponent
+    ConnectionPlaneComponent,
+    SelectTargetConnectionPlaneComponent
   ]
 })
 export class ConnectionsModule { }

@@ -33,7 +33,8 @@ const routes: Routes = [
     RouterModule.forChild(routes)
   ],
   exports: [
-    TopicsPlaneComponent
+    TopicsPlaneComponent,
+    TopicsPlaneBaseComponent
   ]
 })
 export class TopicsModule { }

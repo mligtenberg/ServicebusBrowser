@@ -5,8 +5,7 @@ import { IQueue } from '../ngrx/queues.models';
 @Component({
   selector: 'app-queue-plane-item',
   templateUrl: './queue-plane-item.component.html',
-  styleUrls: ['./queue-plane-item.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./queue-plane-item.component.scss']
 })
 export class QueuePlaneItemComponent {
   @Input()

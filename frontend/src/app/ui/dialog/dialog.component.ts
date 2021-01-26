@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit, Type, ValueProvider } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, Type, ValueProvider } from '@angular/core';
 import { DialogOptions } from '../dialogOptions';
 import { DialogRef } from '../dialogRef';
 
