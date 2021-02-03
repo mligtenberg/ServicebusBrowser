@@ -3,15 +3,26 @@ import * as actions from "./queues.actions";
 import { IQueueConnectionSet } from "./queues.models";
 
 export interface IQueuesState {
-    queueConnectionSets: IQueueConnectionSet[]
+    queueConnectionSets: IQueueConnectionSet[],
+    loadingQueuesFor: string[];
 }
 
 const initialState: IQueuesState = {
-    queueConnectionSets: []
+    queueConnectionSets: [],
+    loadingQueuesFor: []
 }
 
 export const queueReducer = createReducer<IQueuesState>(
     initialState,
+    on (actions.refreshQueues, (state, action) => {
+        return {
+            ...state,
+            loadingQueuesFor: [
+                ...state.loadingQueuesFor.filter(c => c !== action.connectionId),
+                action.connectionId
+            ]
+        }
+    }),
     on  (actions.refreshQueuesSuccess, (state, action) => {
         return {
             ...state,
@@ -21,7 +32,14 @@ export const queueReducer = createReducer<IQueuesState>(
                     connectionId: action.connectionId,
                     queues: action.queues
                 }
-            ]
+            ],
+            loadingQueuesFor: state.loadingQueuesFor.filter(c => c !== action.connectionId)
+        }
+    }),
+    on  (actions.refreshQueuesFailed, (state, action) => {
+        return {
+            ...state,
+            loadingQueuesFor: state.loadingQueuesFor.filter(c => c !== action.connectionId)
         }
     })
 )

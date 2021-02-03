@@ -7,7 +7,7 @@ import { IConnection } from '../../../../../ipcModels/IConnection';
 import { IQueueSelectionEvent } from '../models/IQueueSelectionEvent';
 import { refreshQueues } from '../ngrx/queues.actions';
 import { IQueue } from '../ngrx/queues.models';
-import { getQueues } from '../ngrx/queues.selectors';
+import { getQueues, getQueuesLoading } from '../ngrx/queues.selectors';
 
 @Component({
   selector: 'app-queue-plane-base',
@@ -24,7 +24,7 @@ export class QueuePlaneBaseComponent implements OnChanges, OnDestroy {
   @Output()
   queueContextMenuSelected = new EventEmitter<IQueueSelectionEvent>();
 
-  queues: IQueue[];
+  queues: IQueue[] = [];
   queueSubscription: Subscription;
   loading: boolean = false;
 
@@ -34,36 +34,36 @@ export class QueuePlaneBaseComponent implements OnChanges, OnDestroy {
   ) { }
 
   ngOnChanges(): void {
-    this.subscribe();
-    this.refreshQueues(null);
+    this.resubscribe();
   }
 
   ngOnDestroy(): void {
     this.queueSubscription.unsubscribe();
   }
 
-  subscribe() {
+  resubscribe() {
     if (this.queueSubscription) {
       this.queueSubscription.unsubscribe();
     }
+    this.queueSubscription = new Subscription();
 
     if (!this.connection) {
       this.log.logError('Cannot load queues since connection is not set');
       return;
     }
     
-    this.queueSubscription = this.store.select(getQueues(this.connection.id)).subscribe((queues) => {
-      this.loading = false;
+    this.queueSubscription.add(this.store.select(getQueues(this.connection.id)).subscribe((queues) => {
       this.queues = queues;
-    });
+    }));
+
+    this.queueSubscription.add(this.store.select(getQueuesLoading(this.connection.id)).subscribe((isLoading) => {
+      this.loading = isLoading;
+    }))
   }
 
   refreshQueues($event: Event | null) {
     if (this.connection) {
-      this.loading = true;
       this.store.dispatch(refreshQueues({connectionId: this.connection.id}));
-    } else {
-      this.queues = [];
     }
 
     $event?.stopPropagation();

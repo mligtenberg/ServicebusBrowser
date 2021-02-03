@@ -1,19 +1,33 @@
+import { state } from "@angular/animations";
 import { createReducer, on } from "@ngrx/store";
 import * as actions from "./topics.actions";
 import { ISubscriptionTopicSet, ITopicConnectionSet } from "./topics.models";
 
 export interface ITopicsState {
     topicConnectionSets: ITopicConnectionSet[],
-    subscriptionSets: ISubscriptionTopicSet[]
+    subscriptionSets: ISubscriptionTopicSet[],
+    loadingTopicsFor: string[],
+    loadingSubscriptionsFor: string[]
 }
 
 const initialState: ITopicsState = {
     topicConnectionSets: [],
-    subscriptionSets: []
+    subscriptionSets: [],
+    loadingSubscriptionsFor: [],
+    loadingTopicsFor: []
 }
 
 export const topicReducer = createReducer<ITopicsState>(
     initialState,
+    on(actions.refreshTopics, (state, action) => {
+        return {
+            ...state,
+            loadingTopicsFor: [
+                ...state.loadingTopicsFor.filter(c => c != action.connectionId),
+                action.connectionId
+            ]
+        }
+    }),
     on(actions.refreshTopicsSuccess, (state, action) => {
         return {
             ...state,
@@ -21,8 +35,24 @@ export const topicReducer = createReducer<ITopicsState>(
                 ...state.topicConnectionSets.filter(c => c.connectionId != action.connectionId),
                 {
                     connectionId: action.connectionId,
-                    topics: action.topics
+                    topics: action.topics,
                 }
+            ],
+            loadingTopicsFor: state.loadingTopicsFor.filter(c => c != action.connectionId)
+        }
+    }),
+    on(actions.refreshSubscriptionsFailed, (state, action) => {
+        return {
+            ...state,
+            loadingTopicsFor: state.loadingTopicsFor.filter(c => c != action.connectionId)
+        }
+    }),
+    on(actions.refreshSubscriptions, (state, action) => {
+        return {
+            ...state,
+            loadingSubscriptionsFor: [
+                ...state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`),
+                `${action.connectionId}/${action.topicName}`
             ]
         }
     }),
@@ -36,7 +66,14 @@ export const topicReducer = createReducer<ITopicsState>(
                     topicName: action.topicName,
                     subscriptions: action.subscriptions
                 }
-            ]
+            ],
+            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`)
+        }
+    }),
+    on(actions.refreshSubscriptionsFailed, (state, action) => {
+        return {
+            ...state,
+            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`)         
         }
     })
 )

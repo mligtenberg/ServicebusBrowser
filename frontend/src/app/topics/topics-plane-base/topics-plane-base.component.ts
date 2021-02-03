@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, OnChanges, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { LogService } from 'src/app/logging/log.service';
@@ -8,7 +8,7 @@ import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEve
 import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
 import { refreshTopics } from '../ngrx/topics.actions';
 import { ITopic } from '../ngrx/topics.models';
-import { getTopics } from '../ngrx/topics.selectors';
+import { getTopics, getTopicsLoading } from '../ngrx/topics.selectors';
 
 @Component({
   selector: 'app-topics-plane-base',
@@ -42,7 +42,6 @@ export class TopicsPlaneBaseComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(): void {
     this.resubscribe();
-    this.refreshTopics(null);
   }
 
   ngOnDestroy(): void {
@@ -54,21 +53,25 @@ export class TopicsPlaneBaseComponent implements OnChanges, OnDestroy {
       this.topicsSubscription.unsubscribe();
     }
 
+    this.topicsSubscription = new Subscription();
+
     if (!this.connection) {
       this.log.logError('Cannot load topics since connection is not set');
       return;
     }
 
-    this.topicsSubscription = this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
+    this.topicsSubscription.add(this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
       this.topics = topics;
-      this.loading = false;
-    });
+    }));
+
+    this.topicsSubscription.add(this.store.select(getTopicsLoading(this.connection.id)).subscribe((isLoading) => {
+      this.loading = isLoading;
+    }));
   }
 
   refreshTopics($event: Event | null) {
     if (this.connection) {
       this.store.dispatch(refreshTopics({connectionId: this.connection.id}));
-      this.loading = true;
     } else {
       this.topics = [];
     }

@@ -7,7 +7,7 @@ import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEve
 import { ITopicSelectionEvent, TopicSelectionType } from '../models/ITopicSelectionEvent';
 import { refreshSubscriptions } from '../ngrx/topics.actions';
 import { ISubscription, ITopic } from '../ngrx/topics.models';
-import { getTopicSubscriptions } from '../ngrx/topics.selectors';
+import { getSubscriptionsLoading, getTopicSubscriptions } from '../ngrx/topics.selectors';
 
 @Component({
   selector: 'app-topics-plane-item',
@@ -47,19 +47,17 @@ export class TopicsPlaneItemComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subs.add(this.store.select(getTopicSubscriptions(this.connectionId, this.topic.name)).subscribe(s => {
-      this.loading = false;
       this.subscriptions = s;
     }));
-    this.refreshSubscriptions();
+
+    this.subs.add(this.store.select(getSubscriptionsLoading(this.connectionId, this.topic.name)).subscribe(isLoading => {
+      this.loading = isLoading;
+    }))
   }
 
-  refreshSubscriptions($event: Event = null): void {
-    this.loading = true;
+  refreshSubscriptions($event: Event = null): void {    
     this.log.logInfo(`Refreshing topics for '${this.topic.name}'`);
-    
-    if (this.showSubscriptions) {
-      this.store.dispatch(refreshSubscriptions({connectionId: this.connectionId, topicName: this.topic.name}));
-    }
+    this.store.dispatch(refreshSubscriptions({connectionId: this.connectionId, topicName: this.topic.name}));
 
     $event?.stopPropagation();
   }
