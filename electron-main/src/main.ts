@@ -18,6 +18,7 @@ function createWindow(): BrowserWindow | null {
     height: 600,
     minHeight:420,
     minWidth: 620,
+    icon: "build/icon.png",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
