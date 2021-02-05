@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { generateUuid } from '@azure/core-http';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
 import { DialogService } from 'src/app/ui/dialog.service';
 import { ISelectedMessagesTarget } from '../models/ISelectedMessagesTarget';
 import { sendMessages } from '../ngrx/messages.actions';
+import { IMessage } from '../ngrx/messages.models';
 import { SelectMessageTargetDialogComponent } from '../select-message-target-dialog/select-message-target-dialog.component';
 
 @Component({
@@ -44,6 +45,16 @@ export class QueueMessageComponent {
 
   send() {
     const operationId = generateUuid();
+    const message =           {
+      id: operationId,
+      body: this.body,
+      customProperties: new Map<string, string>(),
+      properties: new Map<string, string>(),
+      subject: this.label
+    } as IMessage;
+
+    message.properties.set("conentType", this.contentType)
+
     const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(SelectMessageTargetDialogComponent);
     const sub = dialog.afterClosed().subscribe(target => {
       this.store.dispatch(sendMessages({
@@ -51,13 +62,7 @@ export class QueueMessageComponent {
         operationId: operationId,
         queueOrTopicName: target.queueOrTopicName,
         messages: [
-          {
-            id: operationId,
-            body: this.body,
-            customProperties: new Map<string, string>(),
-            properties: new Map<string, string>(),
-            subject: this.label
-          }
+          message
         ]
       }));
       sub.unsubscribe();

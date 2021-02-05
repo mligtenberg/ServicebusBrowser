@@ -76,6 +76,7 @@ export class MessagesService {
       return {
         subject: m.subject,
         body: m.body,
+        contentType: m.properties.has("contentType") ? m.properties["contentType"] : undefined
       } as ServiceBusMessage;
     });
 
@@ -177,12 +178,12 @@ export class MessagesService {
       const message = {
         id: m.messageId,
         subject: m.subject,
-        body: new TextDecoder('utf-8').decode(m.body),
+        body: `${m.body}`,
         properties: new Map<string, string>(),
         customProperties: new Map<string, string>(),
       } as IMessage;
 
-      message.properties.set('ContentType', m.contentType ?? '');
+      message.properties.set('contentType', m.contentType ?? '');
       message.properties.set(
         'correlationId',
         m.correlationId?.toString() ?? ''
