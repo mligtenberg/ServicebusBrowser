@@ -1,5 +1,6 @@
 import { ServiceBusClient } from "@azure/service-bus";
 import receiverTransform from "./servicebusClient/receiverTransformer";
+import senderTransformer from "./servicebusClient/senderTransformer";
 
 export default function (client: ServiceBusClient) {
     return {
@@ -10,6 +11,10 @@ export default function (client: ServiceBusClient) {
         }) => {
             const receiver = client.createReceiver(queueName, options);
             return receiverTransform(receiver);
+        },
+        createSender: (queueOrTopicName: string) => {
+            const sender = client.createSender(queueOrTopicName);
+            return senderTransformer(sender);
         },
         close: () => client.close()
     }

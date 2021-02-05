@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ITargetSelectedEvent, TargetSelectionType } from 'src/app/connections/models/ITargetSelectedEvent';
+import { DialogRef } from 'src/app/ui/dialogRef';
+import { ISelectedMessagesTarget } from '../models/ISelectedMessagesTarget';
 
 @Component({
   selector: 'app-select-message-target-dialog',
@@ -13,9 +15,14 @@ export class SelectMessageTargetDialogComponent {
     TargetSelectionType.topic
   ]
 
-  constructor() { }
+  constructor(
+    private dialog: DialogRef<ISelectedMessagesTarget>
+  ) { }
 
   onTargetSelected(event: ITargetSelectedEvent) {
-    console.log(event);
+    this.dialog.respond({
+      connectionId: event.connection.id,
+      queueOrTopicName: event.name
+    })
   }
 }
