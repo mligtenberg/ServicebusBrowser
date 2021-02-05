@@ -1,65 +1,59 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { LogService } from 'src/app/logging/log.service';
-import { State } from 'src/app/ngrx.module';
+import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { IConnection } from '../../../../../ipcModels/IConnection';
-import { refreshTopics } from '../ngrx/topics.actions';
-import { ITopic } from '../ngrx/topics.models';
-import { getTopics } from '../ngrx/topics.selectors';
+import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEvent';
+import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
+import { ISubscription, ITopic } from '../ngrx/topics.models';
 
 @Component({
   selector: 'app-topics-plane',
   templateUrl: './topics-plane.component.html',
   styleUrls: ['./topics-plane.component.scss']
 })
-export class TopicsPlaneComponent implements OnChanges {
-
+export class TopicsPlaneComponent {
   @Input()
   connection: IConnection;
+
+  @ViewChild('subscriptionContextMenu')
+  subscriptionContextMenu: TemplateRef<any>
+
+  selectedTopic: ITopic;
+  selectedSubscription: ISubscription;
+
   topics: ITopic[];
 
   topicsSubscription: Subscription;
   loading: boolean = false;
 
   constructor(
-    private store: Store<State>,
-    private log: LogService
+    private router: Router,
+    private contextMenu: ContextmenuService
   ) { }
 
-  ngOnChanges(): void {
-    this.resubscribe();
-    this.refreshTopics(null);
+  onTopicSelected($event: ITopicSelectionEvent) {
+    this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name]);
   }
 
-  ngOnDestroy(): void {
-    this.topicsSubscription.unsubscribe();
+  onSubscriptionSelected($event: ISubscriptionSelectionEvent) {
+    this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name, $event.subscription.name]);
   }
 
-  resubscribe() {
-    if (this.topicsSubscription) {
-      this.topicsSubscription.unsubscribe();
-    }
+  onSubscriptionContextMenuSelected($event: ISubscriptionSelectionEvent) {
+    // ensure previous menu has closed
+    this.contextMenu.closeContextmenu();
 
-    if (!this.connection) {
-      this.log.logError('Cannot load topics since connection is not set');
-      return;
-    }
-    
-    this.topicsSubscription = this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
-      this.topics = topics;
-      this.loading = false;
-    });
-  }
+    this.selectedTopic = $event.topic;
+    this.selectedSubscription = $event.subscription;
 
-  refreshTopics($event: Event | null) {
-    if (this.connection) {
-      this.store.dispatch(refreshTopics({connectionId: this.connection.id}));
-      this.loading = true;
-    } else {
-      this.topics = [];
-    }
-
-    $event?.stopPropagation();
+    this.contextMenu.openContextmenu({
+      templateRef: this.subscriptionContextMenu,
+      mousePosition: {
+        x: $event.clickPosition.clientX,
+        y: $event.clickPosition.clientY
+      },
+      width: 350
+    })
   }
 }

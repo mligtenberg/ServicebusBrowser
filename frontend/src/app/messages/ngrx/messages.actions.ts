@@ -31,6 +31,35 @@ export const getQueueMessagesFailure = createAction(
   }>()
 );
 
+export const sendMessages = createAction(
+  '[Messages/Send] Sending messages',
+  props<{
+    operationId: string;
+    connectionId: string;
+    queueOrTopicName: string;
+    messages: IMessage[];
+  }>()
+);
+
+export const sendMessagesFailure = createAction(
+  '[Messages/Send/Response] Could not send messages',
+  props<{
+    operationId: string;
+    connectionId: string;
+    queueOrTopicName: string;
+    reason: string;
+  }>()
+);
+
+export const sendMessagesSuccess = createAction(
+  '[Messages/Send/Response] Send messages successfully',
+  props<{
+    operationId: string;
+    connectionId: string;
+    queueOrTopicName: string;
+  }>()
+);
+
 export const getSubscriptionMessages = createAction(
   '[Messages/Topic/Subscription] Retreive messages from subscription',
   props<{

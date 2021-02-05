@@ -6,7 +6,9 @@ import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { getActiveConnections } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
 import * as actions from "./ngrx/queues.actions";
+import { openConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
+import { sendMessagesSuccess } from '../messages/ngrx/messages.actions';
 
 @Injectable()
 export class QueuesEffects {
@@ -42,4 +44,18 @@ export class QueuesEffects {
       })
     )
   });
+
+  initQueuesForConnection$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(openConnection),
+      map(action => actions.refreshQueues({connectionId: action.connection.id}))
+    )
+  })
+
+  refreshQueuesWhenMessageSendSuccesfull$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(sendMessagesSuccess),
+      map(action => actions.refreshQueues({connectionId: action.connectionId}))
+    )
+  })
 }

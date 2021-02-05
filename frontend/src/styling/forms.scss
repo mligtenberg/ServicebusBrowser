@@ -11,7 +11,14 @@
   }
 
   input, textarea {
-    background: $background-lightest;
+    &:disabled {
+      background: $background-lightest;
+    }
+    font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
+    font-feature-settings: "liga" 0, "calt" 0;
+    font-weight: normal;
+    font-size: 14px;
+    background: #FFFFFF;
     width: 100%;
     resize: none;
     display: block;

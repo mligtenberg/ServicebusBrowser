@@ -1,7 +1,6 @@
 import {
   ApplicationRef,
   ComponentFactoryResolver,
-  EmbeddedViewRef,
   Injectable,
   Injector,
   Type
@@ -34,10 +33,7 @@ export class DialogService {
 
     this.appRef.attachView(dialogRef.hostView);
 
-    const domElem = (dialogRef.hostView as EmbeddedViewRef<any>)
-      .rootNodes[0] as HTMLElement;
-
-    const dialog = new DialogRef<TResponse>(domElem);
+    const dialog = new DialogRef<TResponse>(dialogRef);
     this.openedDialog = dialog;
     dialogRef.instance.dialogRef = dialog;
 

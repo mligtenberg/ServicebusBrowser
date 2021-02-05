@@ -1,10 +1,4 @@
-<div (contextmenu)="openContextMenu($event)" class="queue" [routerLink]="['queues', 'view', connectionId, queue.name]">
+<div (contextmenu)="onContextMenu($event)" class="queue" (click)="onClick($event)">
     <span class="queuename" [title]="queue.name">{{queue.name}}</span>
     <span class="queuespecs">({{queue.info.activeMessageCount}},{{queue.info.deadLetterMessageCount}},{{queue.info.transferDeadLetterMessageCount}})</span>
 </div>
-
-<ng-template #contextMenu>
-    <app-contextmenu-item (click)="getQueuedMessages($event)">Peek messages</app-contextmenu-item>
-    <app-contextmenu-item (click)="getDeadletters($event)">Peek deadletter messages</app-contextmenu-item>
-    <app-contextmenu-item (click)="getTransferredDeadletters($event)">Peek transferred deadletter messages</app-contextmenu-item>
-</ng-template>

@@ -1,0 +1,15 @@
+<app-toggle-box open="true">
+    <span class="title">Topics <span class="refresh" (click)="refreshTopics($event)"><app-refresh-button [loading]="loading"></app-refresh-button></span></span>
+    <span class="body">
+        <app-topics-plane-item 
+            *ngFor="let topic of topics"
+            [connectionId]="connection.id"
+            [topic]="topic"
+            [showSubscriptions]="showSubscriptions"
+            (selected)="onTopicSelected($event)"
+            (contextMenuSelected)="onTopicContextMenuSelected($event)"
+            (subscriptionSelected)="onSubscriptionSelected($event)"
+            (subscriptionContextMenuSelected)="onSubscriptionContextMenuSelected($event)"
+        ></app-topics-plane-item>
+    </span>
+</app-toggle-box>

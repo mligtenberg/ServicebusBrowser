@@ -1,15 +1,5 @@
-import { Component, ComponentRef, Input, OnDestroy, TemplateRef, ViewChild, ɵComponentType } from '@angular/core';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
-import { GetMesagesDialogComponent } from 'src/app/messages/get-mesages-dialog/get-mesages-dialog.component';
-import { getQueueMessages } from 'src/app/messages/ngrx/messages.actions';
-import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
-import { State } from 'src/app/ngrx.module';
-import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { DialogService } from 'src/app/ui/dialog.service';
-import { DialogOptions } from 'src/app/ui/dialogOptions';
-import { DialogRef } from 'src/app/ui/dialogRef';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { IQueueSelectionEvent, QueueSelectionType } from '../models/IQueueSelectionEvent';
 import { IQueue } from '../ngrx/queues.models';
 
 @Component({
@@ -17,7 +7,7 @@ import { IQueue } from '../ngrx/queues.models';
   templateUrl: './queue-plane-item.component.html',
   styleUrls: ['./queue-plane-item.component.scss']
 })
-export class QueuePlaneItemComponent implements OnDestroy {
+export class QueuePlaneItemComponent {
   @Input()
   queue: IQueue;
 
@@ -27,83 +17,31 @@ export class QueuePlaneItemComponent implements OnDestroy {
   @ViewChild('contextMenu')
   contextMenuReference: TemplateRef<any>
 
-  @ViewChild('dialog')
-  dialogReference: TemplateRef<any>
+  @Output()
+  selected = new EventEmitter<IQueueSelectionEvent>();
 
-  dialogRef: DialogRef<unknown>;
-  subscription: Subscription;
+  @Output()
+  contextMenuSelected = new EventEmitter<IQueueSelectionEvent>();
 
-  constructor(
-    private store: Store<State>,
-    private contextMenu: ContextmenuService,
-    private dialog: DialogService
-  ) {}
-
-  openContextMenu($event: MouseEvent): void {
-    this.contextMenu.openContextmenu({
-      templateRef: this.contextMenuReference, 
-      mousePosition: {
-        y: $event.clientY,
-        x: $event.clientX
+  onClick($event: MouseEvent) {
+    this.selected.emit({
+      type: QueueSelectionType.click,
+      clickPosition: {
+        clientX: $event.clientX,
+        clientY: $event.clientY
       },
-      width: 350,
-    });
-  
-    $event.stopPropagation();
-  }
-
-  getQueuedMessages($event: Event) {
-    this.contextMenu.closeContextmenu();
-
-    this.openDialog();
-    this.subscribe(MessagesChannel.regular);
-
-    $event.stopPropagation();
-  }
-  
-  getDeadletters($event: Event) {
-    this.contextMenu.closeContextmenu();
-
-    this.openDialog();
-    this.subscribe(MessagesChannel.deadletter);
-
-    $event.stopPropagation();
-  }
-
-  getTransferredDeadletters($event: Event) {
-    this.contextMenu.closeContextmenu();
-
-    this.openDialog();
-    this.subscribe(MessagesChannel.transferedDeadletters);
-
-    $event.stopPropagation();
-  }
-
-  private openDialog() {
-    this.dialogRef = this.dialog.openDialog(GetMesagesDialogComponent);
-  }
-
-  private subscribe(channel: MessagesChannel) {
-    this.unsubscribe();
-
-    this.subscription = this.dialogRef.afterClosed().subscribe((messages: number) => {
-      this.getMessages(channel, messages);
-      this.unsubscribe();
+      queue: this.queue
     });
   }
 
-  private unsubscribe() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-      this.subscription = null;
-    }
-  }
-
-  private getMessages(channel: MessagesChannel, amountOfMessages: number) {
-    this.store.dispatch(getQueueMessages({connectionId: this.connectionId, queueName: this.queue.name, numberOfMessages: amountOfMessages, channel}));
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe();
+  onContextMenu($event: MouseEvent) {
+    this.contextMenuSelected.emit({
+      type: QueueSelectionType.contextMenu,
+      clickPosition: {
+        clientX: $event.clientX,
+        clientY: $event.clientY
+      },
+      queue: this.queue
+    });
   }
 }

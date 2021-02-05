@@ -1,6 +1,6 @@
 {
   "name": "servicebus-browser",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "./temp/main/main.js",
   "scripts": {
     "install:angular": "cd frontend && npm i",
@@ -18,9 +18,10 @@
     "prestart:electron": "npm run build:preload",
     "start:electron": "cd electron-main && npm run start:ngServe",
     "copy:main": "cd ./electron-main/dist/ && copyfiles ** ../../temp/main",
+    "copy:mainBuild": "cd ./electron-main/build/ && copyfiles ** ../../build",
     "copy:preload": "cd ./electron-preload/dist/ && copyfiles ** ../../temp/preload",
     "copy:frontend": "cd ./frontend/dist/explorer/ && copyfiles ** ../../../temp/frontend",
-    "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend && npm run copy:preload",
+    "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend && npm run copy:preload && npm run copy:mainBuild",
     "package": "electron-builder",
     "release": "npm run build && npm run package",
     "postrelease": "rimraf temp"
@@ -38,7 +39,7 @@
     "appId": "digital.ligtenberg.servicebusbrowser",
     "productName": "Servicebus browser",
     "artifactName": "Servicebus browser.${ext}",
-    "copyright": "Copyright © 2020 Martin Ligtenberg",
+    "copyright": "Copyright © 2021 Martin Ligtenberg",
     "files": [
       "temp/"
     ],

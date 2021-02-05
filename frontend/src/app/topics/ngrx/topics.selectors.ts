@@ -3,11 +3,20 @@ import { ITopicsState } from "./topics.reducers";
 
 const getTopicsFeatureState = createFeatureSelector<ITopicsState>('topics');
 
+export const getTopicsLoading = (connectionId: string) => createSelector(
+    getTopicsFeatureState,
+    (state) => state.loadingTopicsFor.indexOf(connectionId) >= 0
+);
+
+export const getSubscriptionsLoading = (connectionId: string, topicName: string) => createSelector(
+    getTopicsFeatureState,
+    (state) => state.loadingSubscriptionsFor.indexOf(`${connectionId}/${topicName}`) >= 0
+);
+
 export const getTopics = (connectionId: string) => createSelector(
     getTopicsFeatureState,
     (state) => state.topicConnectionSets.find(c => c.connectionId === connectionId)?.topics
 )
-
 
 export const getTopic = (connectionId: string, topicName: string) => createSelector(
     getTopics(connectionId),

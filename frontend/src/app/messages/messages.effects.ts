@@ -127,4 +127,35 @@ export class MessagesEffects {
     },
     { dispatch: false }
   );
+
+  sendMessages$ = createEffect(
+    () => {
+      return this.actions$.pipe(
+        ofType(actions.sendMessages),
+        mergeMap((action) => {
+          return this.store
+          .select(getActiveConnectionById(action.connectionId))
+          .pipe(
+            first(),
+            mergeMap((connection) => {
+              return from(this.messages.sendMessages(action.messages, connection, action.queueOrTopicName))
+              .pipe(
+                map(() => actions.sendMessagesSuccess({
+                  operationId: action.operationId,
+                  connectionId: action.connectionId,
+                  queueOrTopicName: action.queueOrTopicName
+                })),
+                catchError((reason) => of(actions.sendMessagesFailure({
+                  operationId: action.operationId,
+                  connectionId: action.connectionId,
+                  queueOrTopicName: action.queueOrTopicName,
+                  reason: reason as string
+                })))
+              )
+            })
+          )
+        })
+      )
+    }
+  )
 }

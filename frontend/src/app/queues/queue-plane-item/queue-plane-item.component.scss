@@ -1,5 +1,7 @@
 .queue {
   display: flex;
+  cursor: pointer;
+  
   .queuename {
     flex: 1;
     text-overflow: ellipsis;

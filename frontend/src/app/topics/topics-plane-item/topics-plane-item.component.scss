@@ -1,7 +1,13 @@
-.title {
+:host {
+    display: block;
+    width: 100%;
+}
+
+.title, .title-container {
     display: block;
     width: 100%;
     position: relative;
+    cursor: pointer;
 }
 
 .refresh {

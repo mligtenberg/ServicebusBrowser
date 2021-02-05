@@ -12,3 +12,8 @@ export const getQueue = (connectionId: string, queueName: string) => createSelec
     getQueues(connectionId),
     (queues) => queues.find(q => q.name === queueName)
 )
+
+export const getQueuesLoading = (connectionId: string) => createSelector(
+    getQueuesFeatureState,
+    (state) => state.loadingQueuesFor.indexOf(connectionId) >= 0
+)

@@ -3,8 +3,6 @@ import { Router } from '@angular/router';
 import { Actions, Effect, ofType, ROOT_EFFECTS_INIT } from '@ngrx/effects';
 import { map } from 'rxjs/operators';
 
-
-
 @Injectable()
 export class MainEffectsEffects {
   constructor(
