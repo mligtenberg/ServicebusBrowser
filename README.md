@@ -1,4 +1,4 @@
-<div align="center">
+<div>
     <br>
     <picture id="theme-default">
         <source srcset="assets/logo-text-dark.png" media="(prefers-color-scheme: dark)" />
