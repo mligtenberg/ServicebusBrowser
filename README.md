@@ -1,4 +1,19 @@
-# Servicebus Browser
+<style>
+html[data-color-mode="dark"] .logo-light {
+    display: none;
+}
+
+html[data-color-mode="light"] .logo-dark {
+    display: none;
+}
+</style>
+
+<div align="center">
+	<br>
+		<img class="logo-light" src="assets/logo-text.png">
+        <img class="logo-dark" src="assets/logo-text-dark.png">
+	<br>
+</div>
 
 This project aims to build a cross platform tool to manage Azure Servicebus instances.
 Currently you are able to:

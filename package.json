@@ -24,7 +24,7 @@
     "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend && npm run copy:preload && npm run copy:mainBuild",
     "package": "electron-builder",
     "release": "npm run build && npm run package",
-    "postrelease": "rimraf temp build"
+    "postrelease": "rimraf temp && rimraf build"
   },
   "author": "Martin Ligtenberg",
   "license": "MIT",
@@ -56,8 +56,12 @@
       "target": ["nsis", "appx"]
     },
     "appx": {
-      "applicationId": "digital.ligtenberg.servicebusbrowser",
-      "identityName": "digital.ligtenberg.servicebusbrowser"
+      "displayName": "Servicebus Browser",
+      "applicationId": "MartinLigtenberg.ServicebusBrowser",
+      "identityName": "2768MartinLigtenberg.ServicebusBrowser",
+      "publisher": "CN=45F007EA-0B49-402D-BFDE-77AE30963162",
+      "publisherDisplayName": "Martin Ligtenberg",
+      "addAutoLaunchExtension": false
     }
   }
 }
