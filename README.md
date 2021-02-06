@@ -3,7 +3,7 @@
     <picture id="theme-default">
         <source srcset="assets/logo-text-dark.png" media="(prefers-color-scheme: dark)" />
         <source srcset="assets/logo-text.png" media="(prefers-color-scheme: light)" />
-        <img src="assets/logo-text.png" />
+        <img src="assets/logo-text-dark.png" />
     </picture>
     <br>
 </div>
