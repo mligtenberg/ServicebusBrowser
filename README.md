@@ -1,12 +1,13 @@
-<style>
-html[data-color-mode="dark"] .logo-light {
-    display: none;
-}
+---
+title: "Reame Servicebus Browser"
+author: "Martin Ligtenberg"
+date: "06/02/2021"
+output: 
+  html_document:
+     css: readme.css
+     self_contained: no
 
-html[data-color-mode="light"] .logo-dark {
-    display: none;
-}
-</style>
+---
 
 <div align="center">
 	<br>
