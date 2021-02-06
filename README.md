@@ -1,19 +1,11 @@
----
-title: "Reame Servicebus Browser"
-author: "Martin Ligtenberg"
-date: "06/02/2021"
-output: 
-  html_document:
-     css: readme.css
-     self_contained: no
-
----
-
 <div align="center">
-	<br>
-		<img class="logo-light" src="assets/logo-text.png">
-        <img class="logo-dark" src="assets/logo-text-dark.png">
-	<br>
+    <br>
+    <picture id="theme-default">
+        <source srcset="assets/logo-text-dark.png" media="(prefers-color-scheme: dark)" />
+        <source srcset="assets/logo-text.png" media="(prefers-color-scheme: light)" />
+        <img src="assets/logo-text.png" />
+    </picture>
+    <br>
 </div>
 
 This project aims to build a cross platform tool to manage Azure Servicebus instances.

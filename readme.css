@@ -1,7 +1,0 @@
-html[data-color-mode="dark"] .logo-light {
-    display: none;
-}
-
-html[data-color-mode="light"] .logo-dark {
-    display: none;
-}
