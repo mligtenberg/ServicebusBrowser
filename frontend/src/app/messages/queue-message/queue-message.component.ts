@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { generateUuid } from '@azure/core-http';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
@@ -14,19 +15,35 @@ import { SelectMessageTargetDialogComponent } from '../select-message-target-dia
   styleUrls: ['./queue-message.component.scss']
 })
 export class QueueMessageComponent {
-  label: string = '';
-  body: string = '';
-  contentType: string = '';
-
   editorOptions = { theme: 'vs-light', language: 'text/plain' };
+
+  form: FormGroup;
 
   constructor(
     private store: Store<State>,
-    private dialogService: DialogService
-  ) { }
+    private dialogService: DialogService,
+    formBuilder: FormBuilder
+  ) { 
+    this.form = formBuilder.group({
+      body: "",
+      subject: "",
+      contentType: "",
+      customProperties: formBuilder.array([])
+    });
 
-  contentTypeUpdated() {
-    this.editorOptions = {...this.editorOptions, language: this.mapContentTypes(this.contentType)}
+    this.form.get("contentType").valueChanges.subscribe((v) => this.contentTypeUpdated(v));
+  }
+
+  getNewCustomProperty() {
+    return {
+      name: '',
+      type: '',
+      value: ''
+    }
+  }
+
+  contentTypeUpdated(newValue: string) {
+    this.editorOptions = {...this.editorOptions, language: this.mapContentTypes(newValue)}
   }
 
   private mapContentTypes(contentType: string) {
@@ -44,16 +61,18 @@ export class QueueMessageComponent {
   }
 
   send() {
+    const formValue = this.form.value;
+
     const operationId = generateUuid();
     const message =           {
       id: operationId,
-      body: this.body,
+      body: formValue.body,
       customProperties: new Map<string, string>(),
       properties: new Map<string, string>(),
-      subject: this.label
+      subject: formValue.subject
     } as IMessage;
 
-    message.properties.set("conentType", this.contentType)
+    message.properties.set("conentType", formValue.contentType)
 
     const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(SelectMessageTargetDialogComponent);
     const sub = dialog.afterClosed().subscribe(target => {

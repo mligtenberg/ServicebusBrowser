@@ -1,8 +1,9 @@
 import { Component, ComponentFactoryResolver, Injector, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { IConnection } from 'src/app/connections/ngrx/connections.models';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { IConnection, IQueue } from '../../../../../ipcModels';
 import { IQueueSelectionEvent } from '../models/IQueueSelectionEvent';
+import { IQueue } from '../ngrx/queues.models';
 import { QueueContextMenuComponent } from '../queue-context-menu/queue-context-menu.component';
 
 @Component({

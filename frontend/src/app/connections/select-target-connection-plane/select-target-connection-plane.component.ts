@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { State } from 'src/app/ngrx.module';
-import { IConnection } from '../../../../../ipcModels';
 import { ITargetSelectedEvent, TargetSelectionType } from '../models/ITargetSelectedEvent';
+import { IConnection } from '../ngrx/connections.models';
 import { getActiveConnections } from '../ngrx/connections.selectors';
 
 @Component({

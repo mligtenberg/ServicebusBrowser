@@ -1,8 +1,8 @@
 import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { IConnection } from 'src/app/connections/ngrx/connections.models';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { IConnection } from '../../../../../ipcModels/IConnection';
 import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEvent';
 import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
 import { ISubscription, ITopic } from '../ngrx/topics.models';

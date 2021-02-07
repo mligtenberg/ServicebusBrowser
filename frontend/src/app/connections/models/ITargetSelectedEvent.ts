@@ -1,4 +1,4 @@
-import { IConnection } from "../../../../../ipcModels";
+import { IConnection } from "../ngrx/connections.models";
 
 export interface ITargetSelectedEvent {
     connection: IConnection;

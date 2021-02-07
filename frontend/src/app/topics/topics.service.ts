@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { IConnection } from '../../../../ipcModels/IConnection';
 import { LogService } from '../logging/log.service';
 import { ITopic, ISubscription } from './ngrx/topics.models';
 import {
@@ -10,6 +9,7 @@ import {
   TopicProperties,
 } from "@azure/service-bus";
 import { ConnectionService } from '../connections/connection.service';
+import { IConnection } from '../connections/ngrx/connections.models';
 
 @Injectable({
   providedIn: 'root'

@@ -4,11 +4,11 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { from, of } from 'rxjs';
 import { catchError, first, map, mergeMap, tap } from 'rxjs/operators';
-import { IMessage } from '../../../../ipcModels';
 import { getActiveConnectionById } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
 import { MessagesService } from './messages.service';
 import * as actions from './ngrx/messages.actions';
+import { IMessage } from './ngrx/messages.models';
 
 @Injectable()
 export class MessagesEffects {

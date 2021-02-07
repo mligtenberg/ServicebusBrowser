@@ -3,11 +3,12 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GetMesagesDialogComponent } from 'src/app/messages/get-mesages-dialog/get-mesages-dialog.component';
 import { getQueueMessages } from 'src/app/messages/ngrx/messages.actions';
+import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { DialogService } from 'src/app/ui/dialog.service';
 import { DialogRef } from 'src/app/ui/dialogRef';
-import { IQueue, MessagesChannel } from '../../../../../ipcModels';
+import { IQueue } from '../ngrx/queues.models';
 
 @Component({
   selector: 'app-queue-context-menu',

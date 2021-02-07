@@ -1,33 +1,38 @@
-<div class="container">
+<form [formGroup]="form">
+  <div class="container">
     <div class="title">Queue new message</div>
     <div class="backlink" routerLink="/">Back</div>
     <div class="message-properties box">
-        <div class="box-title">Properties</div>
-        <div class="box-body">
-            <div class="formcontrol">
-                <label for="label">Label</label>
-                <input [(ngModel)]="label" />
-            </div>
-            <div class="formcontrol">
-                <label for="content-type">Content-Type</label>
-                <input [(ngModel)]="contentType" (change)="contentTypeUpdated()" />
-            </div>
+      <div class="box-title">Properties</div>
+      <div class="box-body">
+        <div class="formcontrol">
+          <label for="subject">subject</label>
+          <input formControlName="subject" />
         </div>
+        <div class="formcontrol">
+          <label for="content-type">Content-Type</label>
+          <input formControlName="contentType" />
+        </div>
+      </div>
     </div>
     <div class="message-body box">
-        <div class="box-title">Body</div>
-        <div class="box-body no-padding">
-            <ngx-monaco-editor [options]="editorOptions" [(ngModel)]="body"></ngx-monaco-editor>
-        </div>
+      <div class="box-title">Body</div>
+      <div class="box-body no-padding">
+        <ngx-monaco-editor
+          [options]="editorOptions"
+          formControlName="body"
+        ></ngx-monaco-editor>
+      </div>
     </div>
     <div class="message-custom-properties box">
-        <div class="box-title">Custom properties</div>
-        <div class="box-body">
-            <p>This has not been implemented yet</p>
-        </div>
+      <div class="box-title">Custom properties</div>
+      <div class="box-body">
+        <p>This has not been implemented yet</p>
+      </div>
     </div>
     <div class="controls">
-        <div class="filler"></div>
-        <button class="send" (click)="send()">Send</button>
+      <div class="filler"></div>
+      <button class="send" (click)="send()">Send</button>
     </div>
-</div>
+  </div>
+</form>

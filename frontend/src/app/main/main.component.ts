@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
-import { IConnection } from '../../../../ipcModels/IConnection';
 import { deleteConnection, openConnection } from '../connections/ngrx/connections.actions';
+import { IConnection } from '../connections/ngrx/connections.models';
 import { getStoredConnections } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
 

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
+import { IConnection } from 'src/app/connections/ngrx/connections.models';
 import { LogService } from 'src/app/logging/log.service';
 import { State } from 'src/app/ngrx.module';
-import { IConnection } from '../../../../../ipcModels/IConnection';
 import { IQueueSelectionEvent } from '../models/IQueueSelectionEvent';
 import { refreshQueues } from '../ngrx/queues.actions';
 import { IQueue } from '../ngrx/queues.models';

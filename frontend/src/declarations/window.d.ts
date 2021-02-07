@@ -1,8 +1,12 @@
-import { ISecretService, IServicebusConnectionService } from '../../../ipcModels/services';
+import { IConnection } from 'src/app/connections/ngrx/connections.models';
+import { ISecretService } from '../../../ipcModels/services';
 
 declare global {
   interface Window {
     secrets: ISecretService;
-    servicebusConnections: IServicebusConnectionService;
+    servicebusConnections: {
+      getClient(connection: IConnection): any;
+      getAdminClient(connection: IConnection): any;
+    };
   }
 }

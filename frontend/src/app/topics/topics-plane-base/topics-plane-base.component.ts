@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
+import { IConnection } from 'src/app/connections/ngrx/connections.models';
 import { LogService } from 'src/app/logging/log.service';
 import { State } from 'src/app/ngrx.module';
-import { IConnection } from '../../../../../ipcModels';
 import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEvent';
 import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
 import { refreshTopics } from '../ngrx/topics.actions';

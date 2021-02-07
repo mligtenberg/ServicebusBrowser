@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { IQueueSelectionEvent } from 'src/app/queues/models/IQueueSelectionEvent';
 import { ISubscriptionSelectionEvent } from 'src/app/topics/models/ISubscriptionSelectionEvent';
 import { ITopicSelectionEvent } from 'src/app/topics/models/ITopicSelectionEvent';
-import { IConnection } from '../../../../../ipcModels';
 import { ITargetSelectedEvent, TargetSelectionType } from '../models/ITargetSelectedEvent';
+import { IConnection } from '../ngrx/connections.models';
 
 @Component({
   selector: 'app-select-target-connection-item',

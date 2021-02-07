@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ServiceBusMessage } from '@azure/service-bus';
-import { IConnection, IMessage, MessagesChannel } from '../../../../ipcModels';
 import { ConnectionService } from '../connections/connection.service';
+import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
+import { IMessage, MessagesChannel } from './ngrx/messages.models';
 @Injectable({
   providedIn: 'root',
 })

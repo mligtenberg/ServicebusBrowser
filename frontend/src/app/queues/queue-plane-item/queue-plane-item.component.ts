@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
 import { IQueueSelectionEvent, QueueSelectionType } from '../models/IQueueSelectionEvent';
 import { IQueue } from '../ngrx/queues.models';
 
