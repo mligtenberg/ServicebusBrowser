@@ -22,7 +22,8 @@ function createWindow(): BrowserWindow | null {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
-      preload: isDev ? path.join(__dirname, "../../electron-preload/dist/preload.bundled.js") : path.join(__dirname, "../preload/preload.bundled.js")
+      preload: isDev ? path.join(__dirname, "../../electron-preload/dist/preload.bundled.js") : path.join(__dirname, "../preload/preload.bundled.js"),
+      webSecurity: false
     },
   })
 
