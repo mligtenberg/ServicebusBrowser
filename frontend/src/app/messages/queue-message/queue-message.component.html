@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form class="form" [formGroup]="form">
   <div class="container">
     <div class="title">Queue new message</div>
     <div class="backlink" routerLink="/">Back</div>
@@ -27,7 +27,32 @@
     <div class="message-custom-properties box">
       <div class="box-title">Custom properties</div>
       <div class="box-body">
-        <p>This has not been implemented yet</p>
+        <div class="items" formArrayName="customProperties">
+          <div class="item" *ngFor="let property of customProperties.controls; index as idx">
+            <form [formGroup]="property" class="custom-property-form">
+              <div class="formcontrol">
+                <label for="key">Key</label>
+                <input formControlName="key" type="text"/>
+              </div>
+              <div class="formcontrol">
+                <label for="type">Type</label>
+                <select formControlName="type">
+                  <option value="string">String</option>
+                  <option value="boolean">Boolean</option>
+                  <option value="number">Number</option>
+                  <option value="datetime">Datetime</option>
+                </select>
+              </div>
+              <div class="formcontrol">
+                <label for="value">Value</label>
+                <input formControlName="value"/>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="controls">
+          <button (click)="addCustomProperty()">Add item</button>  
+        </div>
       </div>
     </div>
     <div class="controls">

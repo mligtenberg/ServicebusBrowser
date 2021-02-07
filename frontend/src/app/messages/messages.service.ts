@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ServiceBusMessage } from '@azure/service-bus';
+import { ServiceBusMessage, ServiceBusReceivedMessage } from '@azure/service-bus';
 import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
@@ -74,11 +74,19 @@ export class MessagesService {
     const sender = client.createSender(queueOrTopicName);
 
     const serviceBusMessages = messages.map((m) => {
-      return {
-        subject: m.subject,
+      const applicationProperties = {};
+      for (const [key, value] of m.customProperties) {
+        applicationProperties[key] = value;
+      }
+
+      const message = {
+        subject: m.properties.subject,
         body: m.body,
-        contentType: m.properties.has("contentType") ? m.properties["contentType"] : undefined
+        contentType: m.properties.contentType,
+        applicationProperties: (Object as any).fromEntries(m.customProperties)
       } as ServiceBusMessage;
+
+      return message;
     });
 
     await sender.sendMessages(serviceBusMessages);
@@ -104,58 +112,7 @@ export class MessagesService {
     await receiver.close();
     await client.close();
 
-    return messages.map((m) => {
-      const message = {
-        id: m.messageId,
-        subject: m.subject,
-        body: `${m.body}`,
-        properties: new Map<string, string>(),
-        customProperties: new Map<string, string>(),
-      } as IMessage;
-
-      message.properties.set('ContentType', m.contentType ?? '');
-      message.properties.set(
-        'correlationId',
-        m.correlationId?.toString() ?? ''
-      );
-
-      for (const propertyName in m._rawAmqpMessage.deliveryAnnotations) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.deliveryAnnotations as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m._rawAmqpMessage.properties) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.properties as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m._rawAmqpMessage.messageAnnotations) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m._rawAmqpMessage.footer) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m.applicationProperties) {
-        message.customProperties.set(
-          propertyName,
-          m.applicationProperties[propertyName].toString()
-        );
-      }
-
-      return message;
-    });
+    return messages.map(m => this.mapMessage(m));
   }
 
   private async getSubscriptionMessagesInternal(
@@ -175,57 +132,32 @@ export class MessagesService {
     await receiver.close();
     await client.close();
 
-    return messages.map((m) => {
-      const message = {
-        id: m.messageId,
-        subject: m.subject,
-        body: `${m.body}`,
-        properties: new Map<string, string>(),
-        customProperties: new Map<string, string>(),
-      } as IMessage;
+    return messages.map(m => this.mapMessage(m));
+  }
 
-      message.properties.set('contentType', m.contentType ?? '');
-      message.properties.set(
-        'correlationId',
-        m.correlationId?.toString() ?? ''
-      );
+  private mapMessage(m: ServiceBusReceivedMessage): IMessage {
+    const message = {
+      id: m.messageId?.toString(),
+      body: `${m.body}`,
+      properties: {
+        contentType: m.contentType ?? '',
+        correlationId: m.correlationId?.toString(),
+        enqueueSequenceNumber: m.enqueuedSequenceNumber as number,
+        enqueueTime: m.enqueuedTimeUtc,
+        messageId: m.messageId?.toString(),
+        sequenceNumber: m.sequenceNumber,
+        subject: m.subject
+      },
+      customProperties: new Map<string, string | number | boolean | Date>()
+    };
 
-      for (const propertyName in m._rawAmqpMessage.deliveryAnnotations) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.deliveryAnnotations as any)[propertyName]
-        );
+    if (m.applicationProperties) {
+      for (const key in m.applicationProperties) {
+        const value = m.applicationProperties[key];
+        message.customProperties.set(key, value)
       }
+    }
 
-      for (const propertyName in m._rawAmqpMessage.properties) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.properties as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m._rawAmqpMessage.messageAnnotations) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m._rawAmqpMessage.footer) {
-        message.properties.set(
-          propertyName,
-          (m._rawAmqpMessage.messageAnnotations as any)[propertyName]
-        );
-      }
-
-      for (const propertyName in m.applicationProperties) {
-        message.customProperties.set(
-          propertyName,
-          m.applicationProperties[propertyName].toString()
-        );
-      }
-
-      return message;
-    });
+    return message;
   }
 }

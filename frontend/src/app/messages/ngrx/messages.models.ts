@@ -1,8 +1,15 @@
 export interface IMessage {
     id: string;
-    subject: string;
-    properties: Map<string, string>;
-    customProperties: Map<string, string>;
+    properties: {
+        subject: string;
+        contentType: string;
+        correlationId: string;
+        messageId: string;
+        sequenceNumber: Long;
+        enqueueTime: Date;
+        enqueueSequenceNumber: number;
+    },
+    customProperties: Map<string, string | boolean | number | Date>;
     body: string;
 }
 

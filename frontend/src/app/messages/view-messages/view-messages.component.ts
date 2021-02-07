@@ -45,7 +45,7 @@ export class ViewMessagesComponent implements OnInit, OnDestroy {
   selectMessage(message: IMessage): void {
     this.selectedMessage = message;
     this.selectedMessageBody = message.body;
-    this.editorOptions = { ...this.editorOptions, language: this.mapContentTypes(message.properties.get("contentType"))};
+    this.editorOptions = { ...this.editorOptions, language: this.mapContentTypes(message.properties.contentType)};
   }
 
   private mapContentTypes(contentType: string) {

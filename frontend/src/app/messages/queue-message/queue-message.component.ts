@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { generateUuid } from '@azure/core-http';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
@@ -8,38 +8,56 @@ import { ISelectedMessagesTarget } from '../models/ISelectedMessagesTarget';
 import { sendMessages } from '../ngrx/messages.actions';
 import { IMessage } from '../ngrx/messages.models';
 import { SelectMessageTargetDialogComponent } from '../select-message-target-dialog/select-message-target-dialog.component';
+import { IFormBuilder, IFormGroup, IFormArray} from "@rxweb/types"
+import { IQueueMessageCustomPropertyForm, IQueueMessageForm } from '../models/IQueueMessageForm';
+import * as moment from "moment";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-queue-message',
   templateUrl: './queue-message.component.html',
   styleUrls: ['./queue-message.component.scss']
 })
-export class QueueMessageComponent {
+export class QueueMessageComponent implements OnInit, OnDestroy {
   editorOptions = { theme: 'vs-light', language: 'text/plain' };
+  formBuilder: IFormBuilder;
 
-  form: FormGroup;
+  form: IFormGroup<IQueueMessageForm>;
+  subs = new Subscription();
+
+  get customProperties(): IFormArray<IQueueMessageCustomPropertyForm> {
+    return this.form.controls.customProperties as IFormArray<IQueueMessageCustomPropertyForm>;
+  }
 
   constructor(
     private store: Store<State>,
     private dialogService: DialogService,
     formBuilder: FormBuilder
   ) { 
-    this.form = formBuilder.group({
+    this.formBuilder = formBuilder;
+
+    this.form = this.formBuilder.group<IQueueMessageForm>({
       body: "",
       subject: "",
       contentType: "",
-      customProperties: formBuilder.array([])
+      customProperties: this.formBuilder.array<IQueueMessageCustomPropertyForm>([])
     });
-
-    this.form.get("contentType").valueChanges.subscribe((v) => this.contentTypeUpdated(v));
   }
 
-  getNewCustomProperty() {
-    return {
-      name: '',
-      type: '',
+  ngOnInit() {
+    this.subs.add(this.form.get("contentType").valueChanges.subscribe((v) => this.contentTypeUpdated(v as any as string)));
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
+  }
+
+  getNewCustomPropertyForm(): IFormGroup<IQueueMessageCustomPropertyForm> {
+    return this.formBuilder.group<IQueueMessageCustomPropertyForm>({
+      key: '',
+      type: 'string',
       value: ''
-    }
+    });
   }
 
   contentTypeUpdated(newValue: string) {
@@ -60,19 +78,45 @@ export class QueueMessageComponent {
     return 'text/plain';
   }
 
+  addCustomProperty() {
+    const array = this.customProperties;
+    array.push(this.getNewCustomPropertyForm());
+  }
+
   send() {
     const formValue = this.form.value;
 
     const operationId = generateUuid();
-    const message =           {
+    const message = {
       id: operationId,
       body: formValue.body,
-      customProperties: new Map<string, string>(),
-      properties: new Map<string, string>(),
-      subject: formValue.subject
+      properties: {
+        subject: formValue.subject,
+        contentType: formValue.contentType
+      },
+      customProperties: new Map<string, string | boolean | number | Date>()
     } as IMessage;
 
-    message.properties.set("conentType", formValue.contentType)
+    for (const propForms of this.customProperties.controls) {
+      const key = propForms.value.key;
+      let value = null;
+      switch (propForms.value.type) {
+        case "string":
+          value = propForms.value.value;
+          break;
+        case "boolean":
+          value = propForms.value.value.toLowerCase() === "true";
+          break;
+        case "number":
+          value = parseFloat(propForms.value.value);
+          break;
+        case "date":
+          value = moment(propForms.value.value);    
+          break;      
+      }
+
+      message.customProperties.set(key, value);
+    }
 
     const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(SelectMessageTargetDialogComponent);
     const sub = dialog.afterClosed().subscribe(target => {

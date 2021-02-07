@@ -10,7 +10,7 @@
     color: lighten($text, 5%);
   }
 
-  input, textarea {
+  input, textarea, select {
     &:disabled {
       background: $background-lightest;
     }

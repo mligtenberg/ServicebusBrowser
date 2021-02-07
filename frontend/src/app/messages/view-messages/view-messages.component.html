@@ -11,9 +11,9 @@
             </div>
             <div class="message-option" *ngFor="let message of messageSet.messages" (click)="selectMessage(message)">
                 <span class="message-id" [title]="message.id">{{ message.id }}</span>
-                <span class="message-sequence-number" [title]="message.properties.get('x-opt-sequence-number')">{{
-                    message.properties.get('x-opt-sequence-number') }}</span>
-                <span class="message-subject" [title]="message.subject">{{ message.subject }}</span>
+                <span class="message-sequence-number" [title]="message.properties.sequenceNumber">{{
+                    message.properties.sequenceNumber }}</span>
+                <span class="message-subject" [title]="message.properties.subject">{{ message.properties.subject }}</span>
             </div>
         </div>
     </div>
