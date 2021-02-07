@@ -3,10 +3,10 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of, from } from 'rxjs';
 import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { getActiveConnections } from '../connections/ngrx/connections.selectors';
+import { getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
 import * as actions from "./ngrx/queues.actions";
-import { openConnection } from '../connections/ngrx/connections.actions';
+import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
 import { sendMessagesSuccess } from '../messages/ngrx/messages.actions';
 
@@ -49,6 +49,14 @@ export class QueuesEffects {
     return this.actions$.pipe(
       ofType(openConnection),
       map(action => actions.refreshQueues({connectionId: action.connection.id}))
+    )
+  })
+
+  initQueuesForNewConnection$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(openSelectedConnection),
+      withLatestFrom(this.store.select(getSelectedConnection)),
+      map(([_, connection]) => actions.refreshQueues({connectionId: connection.id}))
     )
   })
 

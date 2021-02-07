@@ -98,7 +98,16 @@ export class ConnectionEffects implements OnInitEffects {
   openSelectedConnection$ = createEffect(
     () => {
       return this.actions$.pipe(
-        ofType(actions.openSelectedConnection, actions.clearSelectedConnection),
+        ofType(actions.openSelectedConnection),
+        map(() => actions.clearSelectedConnection())
+      );
+    },
+  );
+
+  clearSelectedConnection$ = createEffect(
+    () => {
+      return this.actions$.pipe(
+        ofType(actions.clearSelectedConnection),
         tap(() => this.router.navigate(['']))
       );
     },

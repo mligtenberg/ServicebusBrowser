@@ -83,7 +83,6 @@ export const connectionReducer = createReducer<IConnectionsState>(
     on(actions.openSelectedConnection, (state) => {
         return {
             ...state,
-            selectedConnection: null,
             activeConnections: [
                 ...state.activeConnections.filter(c => !c.id || c.id != state.selectedConnection.id),
                 {
