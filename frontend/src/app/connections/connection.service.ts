@@ -39,12 +39,20 @@ export class ConnectionService {
     await window.secrets.deleteSecret(connectionId);
   }
 
-  async getStoredConnectionsAsync(): Promise<IConnection[]> {
-    try {
-      const secrets = await window.secrets.getSecrets();
-      return secrets.map(s => JSON.parse(s.value) as IConnection);
-    } catch (reason) {
-      throw reason;
-    }
+  getStoredConnectionsAsync(attemped: number = 0): Promise<IConnection[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const secrets = await window.secrets.getSecrets();
+        resolve(secrets.map(s => JSON.parse(s.value) as IConnection));
+        return;
+      } catch (reason) {
+        if (attemped === 3) {
+          reject(reason);
+        }
+        setTimeout(async () => {
+          resolve(await this.getStoredConnectionsAsync(attemped++));
+        })
+      }
+    });
   }
 }
