@@ -131,7 +131,7 @@ export class MessagesService {
   }
 
   private async clearReceiverMessages(receiver: ServiceBusReceiver) {
-    this.log.logVerbose(`Clearing messages for ${receiver.entityPath}`);
+    this.log.logInfo(`Clearing messages for ${receiver.entityPath}`);
 
     let receivedMessages = [];
     do {
