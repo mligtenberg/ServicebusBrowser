@@ -13,16 +13,18 @@ export class MenuItemComponent {
   @Input()
   public name: string = "";
 
-  constructor() {
-  }
+  private lastInternalEvent: Event;
 
   @HostListener('document:click', ['$event'])
-  clickout(event: Event) {
+  clickout($event: Event) {
+    if ($event === this.lastInternalEvent) {
+      return;
+    }
     this.showSubmenu = false;
   }
 
   public toggleShowSubMenu($event: Event): void {
     this.showSubmenu = !this.showSubmenu;
-    $event.stopPropagation();
+    this.lastInternalEvent = $event;
   }
 }

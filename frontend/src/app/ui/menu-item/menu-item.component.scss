@@ -27,7 +27,8 @@
         position: absolute;
         z-index: 50;
         width: $submenu-width;
-        background: $background-darker;
+        background-color: darken($background-darkest, 2%);
+        box-shadow: 0 0 2px 1px darken($background-darkest, 5%);
         color: $text-light;
 
         > * {
