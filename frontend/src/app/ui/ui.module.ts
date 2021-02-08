@@ -14,6 +14,7 @@ import { ResizableModule } from 'angular-resizable-element';
 import { RefreshButtonComponent } from './refresh-button/refresh-button.component';
 import { DurationInputComponent } from './duration-input/duration-input.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ContextmenuDividerComponent } from './contextmenu-divider/contextmenu-divider.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     ContextmenuItemComponent,
     DialogComponent,
     RefreshButtonComponent,
-    DurationInputComponent
+    DurationInputComponent,
+    ContextmenuDividerComponent
   ],
   imports: [
     CommonModule,
@@ -44,7 +46,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     ToggleBoxComponent,
     ContextmenuItemComponent,
     RefreshButtonComponent,
-    DurationInputComponent
+    DurationInputComponent,
+    ContextmenuDividerComponent
   ]
 })
 export class UiModule { }
