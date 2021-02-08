@@ -158,4 +158,93 @@ export class MessagesEffects {
       )
     }
   )
+
+  clearQueueMessages$ = createEffect(
+    () => {
+      return this.actions$.pipe(
+        ofType(actions.clearQueueMessages),
+        mergeMap((action) => {
+          return this.store
+            .select(getActiveConnectionById(action.connectionId))
+            .pipe(
+              first(),
+              mergeMap((connection) => {
+                return from(
+                  this.messages.clearQueueMessages(
+                    connection,
+                    action.queueName,
+                    action.channel
+                  )
+                ).pipe(
+                  map(
+                    () =>
+                      actions.clearQueueMessagesSucces({
+                        connectionId: action.connectionId,
+                        queueName: action.queueName,
+                        channel: action.channel,
+                      }),
+                    catchError((reason) =>
+                      of(
+                        actions.clearQueueMessagesFailed({
+                          connectionId: action.connectionId,
+                          queueName: action.queueName,
+                          channel: action.channel,
+                          reason: reason as string,
+                        })
+                      )
+                    )
+                  )
+                );
+              })
+            );
+        })
+      )
+    }
+  )
+
+  clearSubscriptionMessages$ = createEffect(
+    () => {
+      return this.actions$.pipe(
+        ofType(actions.clearSubscriptionMessages),
+        mergeMap((action) => {
+          return this.store
+            .select(getActiveConnectionById(action.connectionId))
+            .pipe(
+              first(),
+              mergeMap((connection) => {
+                return from(
+                  this.messages.clearSubscriptionMessages(
+                    connection,
+                    action.topicName,
+                    action.subscriptionName,
+                    action.channel
+                  )
+                ).pipe(
+                  map(
+                    () =>
+                      actions.clearSubscriptionMessagesSuccesfull({
+                        connectionId: action.connectionId,
+                        topicName: action.topicName,
+                        subscriptionName: action.subscriptionName,
+                        channel: action.channel,
+                      }),
+                    catchError((reason) =>
+                      of(
+                        actions.clearSubscriptionMessagesFailed({
+                          connectionId: action.connectionId,
+                          topicName: action.topicName,
+                          subscriptionName: action.subscriptionName,
+                          channel: action.channel,
+                          reason: reason as string,
+                        })
+                      )
+                    )
+                  )
+                );
+              })
+            );
+        })
+      )
+    }
+  )
 }

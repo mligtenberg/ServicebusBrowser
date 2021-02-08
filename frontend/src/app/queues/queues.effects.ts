@@ -8,7 +8,7 @@ import { State } from '../ngrx.module';
 import * as actions from "./ngrx/queues.actions";
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
-import { sendMessagesSuccess } from '../messages/ngrx/messages.actions';
+import { clearQueueMessagesSucces, sendMessagesSuccess } from '../messages/ngrx/messages.actions';
 
 @Injectable()
 export class QueuesEffects {
@@ -63,6 +63,13 @@ export class QueuesEffects {
   refreshQueuesWhenMessageSendSuccesfull$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(sendMessagesSuccess),
+      map(action => actions.refreshQueues({connectionId: action.connectionId}))
+    )
+  })
+
+  refreshQueuesOnClearMessages$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(clearQueueMessagesSucces),
       map(action => actions.refreshQueues({connectionId: action.connectionId}))
     )
   })

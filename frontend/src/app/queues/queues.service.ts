@@ -32,7 +32,6 @@ export class QueuesService {
     const queues = await this.getQueueProperties(client);
     const queueRuntimeProperties = await this.getQueueRuntimeProperties(client);
   
-  
     return queues.map((q) => {
       const runtimeProperties = queueRuntimeProperties.find(qrp => qrp.name === q.name);
   

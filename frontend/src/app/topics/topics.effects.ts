@@ -8,7 +8,7 @@ import { catchError, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/opera
 import { getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
 import { of, from, Observable } from 'rxjs';
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
-import { sendMessagesSuccess } from '../messages/ngrx/messages.actions';
+import { clearSubscriptionMessagesSuccesfull, sendMessagesSuccess } from '../messages/ngrx/messages.actions';
 
 @Injectable()
 export class TopicsEffects {
@@ -87,12 +87,19 @@ export class TopicsEffects {
     )
   })
 
-
   initSubscriptionsForTopic$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(actions.refreshTopicsSuccess),
       mergeMap(action => {
         return action.topics.map(t => actions.refreshSubscriptions({ connectionId: action.connectionId, topicName: t.name }));
+      }));
+  })
+
+  refreshSubscriptionsForTopicOnClear$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(clearSubscriptionMessagesSuccesfull),
+      map(action => {
+        return actions.refreshSubscriptions({ connectionId: action.connectionId, topicName: action.topicName });
       }));
   })
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ServiceBusMessage, ServiceBusReceivedMessage } from '@azure/service-bus';
+import { ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
@@ -65,6 +65,41 @@ export class MessagesService {
     }
   }
 
+  async clearQueueMessages(
+    connection: IConnection,
+    queueName: string,
+    channel: MessagesChannel
+  ) {
+    const client = this.connectionService.getClient(connection);
+    const receiver = client.createReceiver(queueName, {
+      receiveMode: 'receiveAndDelete',
+      subQueueType: this.getSubQueueType(channel)
+    });
+
+    await this.clearReceiverMessages(receiver);
+
+    receiver.close();
+    client.close();
+  }
+
+  async clearSubscriptionMessages(
+    connection: IConnection,
+    topicName: string,
+    subscriptionName: string,
+    channel: MessagesChannel
+  ) {
+    const client = this.connectionService.getClient(connection);
+    const receiver = client.createReceiver(topicName, subscriptionName, {
+      receiveMode: 'receiveAndDelete',
+      subQueueType: this.getSubQueueType(channel)
+    });
+
+    await this.clearReceiverMessages(receiver);
+
+    receiver.close();
+    client.close();
+  }
+
   async sendMessages(
     messages: IMessage[],
     connection: IConnection,
@@ -95,6 +130,19 @@ export class MessagesService {
     await client.close();
   }
 
+  private async clearReceiverMessages(receiver: ServiceBusReceiver) {
+    this.log.logVerbose(`Clearing messages for ${receiver.entityPath}`);
+
+    let receivedMessages = [];
+    do {
+      receivedMessages = await receiver.receiveMessages(50, {
+        maxWaitTimeInMs: 1000
+      });
+    } while(receivedMessages.length > 0);
+
+    this.log.logInfo(`Cleared messages for ${receiver.entityPath} successfully`);
+  }
+
   private async getQueuesMessagesInternal(
     connection: IConnection,
     queueName: string,
@@ -103,8 +151,7 @@ export class MessagesService {
   ): Promise<IMessage[]> {
     const client = this.connectionService.getClient(connection);
     const receiver = client.createReceiver(queueName, {
-      subQueueType:
-        channel === MessagesChannel.deadletter ? 'deadLetter' : undefined,
+      subQueueType: this.getSubQueueType(channel)
     });
 
     const messages = await receiver.peekMessages(numberOfMessages);
@@ -124,8 +171,7 @@ export class MessagesService {
   ): Promise<IMessage[]> {
     const client = this.connectionService.getClient(connection);
     const receiver = client.createReceiver(topicName, subscriptionName, {
-      subQueueType:
-        channel === MessagesChannel.deadletter ? 'deadLetter' : undefined,
+      subQueueType: this.getSubQueueType(channel)
     });
     const messages = await receiver.peekMessages(numberOfMessages);
 
@@ -159,5 +205,16 @@ export class MessagesService {
     }
 
     return message;
+  }
+
+  private getSubQueueType(channel: MessagesChannel): "deadLetter" | "transferDeadLetter" | undefined {
+    switch(channel) {
+      case MessagesChannel.deadletter:
+        return "deadLetter";
+      case MessagesChannel.transferedDeadletters:
+          return "transferDeadLetter";
+      default:
+        return undefined
+    }
   }
 }

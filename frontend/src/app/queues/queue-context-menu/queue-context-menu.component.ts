@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, Input } from '@a
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GetMesagesDialogComponent } from 'src/app/messages/get-mesages-dialog/get-mesages-dialog.component';
-import { getQueueMessages } from 'src/app/messages/ngrx/messages.actions';
+import { clearQueueMessages, getQueueMessages } from 'src/app/messages/ngrx/messages.actions';
 import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
@@ -56,6 +56,24 @@ export class QueueContextMenuComponent implements OnDestroy {
     this.openDialog();
     this.subscribe(MessagesChannel.transferedDeadletters);
 
+    $event.stopPropagation();
+  }
+
+  clearQueuedMessages($event: Event) {
+    this.clearMessages($event, MessagesChannel.regular);
+  }
+
+  clearDeadletterMessages($event: Event) {
+    this.clearMessages($event, MessagesChannel.deadletter);
+  }
+
+  clearTransferedDeadletterMessages($event: Event) {
+    this.clearMessages($event, MessagesChannel.transferedDeadletters);
+  }
+
+  private clearMessages($event: Event, channel: MessagesChannel) {
+    this.store.dispatch(clearQueueMessages({connectionId: this.connectionId, queueName: this.queue.name, channel}));
+    this.contextMenu.closeContextmenu();
     $event.stopPropagation();
   }
 

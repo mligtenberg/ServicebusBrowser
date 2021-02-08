@@ -92,3 +92,62 @@ export const getSubscriptionMessagesFailure = createAction(
     reason: string;
   }>()
 );
+
+export const clearQueueMessages = createAction(
+  "[Messages/Queue] Delete messages of queue",
+  props<{
+    connectionId: string;
+    queueName: string;
+    channel: MessagesChannel;
+  }>()
+);
+
+export const clearQueueMessagesSucces = createAction(
+  "[Messages/Queue/Response] Deleted messages of queue succesfully",
+  props<{
+    connectionId: string;
+    queueName: string;
+    channel: MessagesChannel;
+  }>()
+);
+
+export const clearQueueMessagesFailed = createAction(
+  "[Messages/Queue/Response] Deleting messages of queue failed",
+  props<{
+    connectionId: string;
+    queueName: string;
+    channel: MessagesChannel;
+    reason: string;
+  }>()
+);
+
+export const clearSubscriptionMessages = createAction(
+  "[Messages/Topic/Subscription] Delete messages of subscription",
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    channel: MessagesChannel;
+  }>()
+);
+
+export const clearSubscriptionMessagesSuccesfull = createAction(
+  "[Messages/Topic/Subscription] Deleted messages of successfully",
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    channel: MessagesChannel;
+  }>()
+);
+
+export const clearSubscriptionMessagesFailed = createAction(
+  "[Messages/Topic/Subscription] Deleting messages of failed",
+  props<{
+    connectionId: string;
+    topicName: string;
+    subscriptionName: string;
+    channel: MessagesChannel;
+    reason: string;
+  }>()
+);
