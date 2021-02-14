@@ -9,6 +9,7 @@ import { getActiveConnectionById, getActiveConnections, getSelectedConnection } 
 import { of, from, Observable } from 'rxjs';
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { clearSubscriptionMessagesSuccesfull, sendMessagesSuccess } from '../messages/ngrx/messages.actions';
+import { MessagebarService } from '../ui/messagebar.service';
 
 @Injectable()
 export class TopicsEffects {
@@ -16,6 +17,7 @@ export class TopicsEffects {
     private actions$: Actions,
     private topicsService: TopicsService,
     private store: Store<State>,
+    private messagebar: MessagebarService,
   ) {}
 
   getTopics$ = createEffect(() => {
@@ -122,6 +124,42 @@ export class TopicsEffects {
       })
     );
   });
+
+  topicUpdateSuccess$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateTopicSuccesful),
+      map(action => this.messagebar.showMessage({
+        message: `Saved topic "${action.topic.name}"`
+      }))
+    )
+  }, {dispatch: false})
+
+  topicUpdateFailed$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateTopicFailed),
+      map(action => this.messagebar.showMessage({
+        message: `Failed to save topic "${action.topic.name}"`
+      }))
+    )
+  }, {dispatch: false})
+
+  subscriptionUpdateSuccess$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateSubscriptionSuccesful),
+      map(action => this.messagebar.showMessage({
+        message: `Saved subscription "${action.topicName}/${action.subscription.name}"`
+      }))
+    )
+  }, {dispatch: false})
+
+  subscriptionUpdateFailed$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateSubscriptionFailed),
+      map(action => this.messagebar.showMessage({
+        message: `Failed to save subscription "${action.topicName}/${action.subscription.name}"`
+      }))
+    )
+  }, {dispatch: false})
 
   initTopicsForConnection$ = createEffect(() => {
     return this.actions$.pipe(

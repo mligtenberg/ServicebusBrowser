@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ITargetSelectedEvent, TargetSelectionType } from 'src/app/connections/models/ITargetSelectedEvent';
-import { DialogRef } from 'src/app/ui/dialogRef';
+import { DialogRef } from 'src/app/ui/dialog.service';
 import { ISelectedMessagesTarget } from '../models/ISelectedMessagesTarget';
 
 @Component({

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { DialogRef } from 'src/app/ui/dialogRef';
+import { Component } from '@angular/core';
+import { DialogRef } from 'src/app/ui/dialog.service';
 
 @Component({
   selector: 'app-get-mesages-dialog',

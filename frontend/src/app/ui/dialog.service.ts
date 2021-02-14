@@ -6,8 +6,9 @@ import {
   Type
 } from '@angular/core';
 import { DialogComponent } from './dialog/dialog.component';
-import { DialogOptions } from './dialogOptions';
-import { DialogRef } from './dialogRef';
+import { DialogOptions } from './models/dialogOptions';
+import { DialogRef } from './models/dialogRef';
+export { DialogRef };
 
 @Injectable({
   providedIn: 'root',

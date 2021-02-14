@@ -7,7 +7,7 @@ import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { DialogService } from 'src/app/ui/dialog.service';
-import { DialogRef } from 'src/app/ui/dialogRef';
+import { DialogRef } from 'src/app/ui/dialog.service';
 import { ISubscription } from '../ngrx/topics.models';
 
 @Component({

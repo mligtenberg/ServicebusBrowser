@@ -76,7 +76,7 @@ export class TopicsService {
     servicebusSubscription.maxDeliveryCount = subscription.properties.maxDeliveryCount;
     servicebusSubscription.userMetadata = subscription.properties.userMetadata;
 
-    await client.updateSubscription(servicebusSubscription);
+    const result = await client.updateSubscription(servicebusSubscription);
   }
 
   private async getTopicsInternal(connection: IConnection): Promise<ITopic[]> {

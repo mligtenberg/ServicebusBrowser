@@ -1,6 +1,6 @@
 import { ComponentRef, EmbeddedViewRef } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { DialogComponent } from './dialog/dialog.component';
+import { DialogComponent } from '../dialog/dialog.component';
 
 export class DialogRef<T> {
   private closed = false;

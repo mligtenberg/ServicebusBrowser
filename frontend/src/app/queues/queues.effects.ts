@@ -9,13 +9,16 @@ import * as actions from "./ngrx/queues.actions";
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
 import { clearQueueMessagesSucces } from '../messages/ngrx/messages.actions';
+import { MessagebarService } from '../ui/messagebar.service';
+import { tap } from 'lodash';
 
 @Injectable()
 export class QueuesEffects {
   constructor(
     private actions$: Actions,
     private queuesService: QueuesService,
-    private store: Store<State>
+    private store: Store<State>,
+    private messagebar: MessagebarService,
     ) {}
 
   getQueues$ = createEffect(() => {
@@ -70,6 +73,24 @@ export class QueuesEffects {
           })
     );
   });
+
+  queueUpdateSuccess$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateQueueSuccesful),
+      map(action => this.messagebar.showMessage({
+        message: `Saved queue "${action.queue.name}"`
+      }))
+    )
+  }, {dispatch: false})
+
+  queueUpdateFailed$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(actions.updateQueueFailed),
+      map(action => this.messagebar.showMessage({
+        message: `Failed to save queue "${action.queue.name}"`
+      }))
+    )
+  }, {dispatch: false})
 
   initQueuesForConnection$ = createEffect(() => {
     return this.actions$.pipe(

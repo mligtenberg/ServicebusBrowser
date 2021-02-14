@@ -52,7 +52,10 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
       this.store.select(getTopicSubscription(params.connectionId, params.topicName, params.subscriptionName))
       .pipe(first())
       .subscribe(s => {
+        this.connectionId = params.connectionId;
+        this.topicName = params.topicName;
         this.subscription = s;
+
         this.form.setValue({
           name: s.name ?? '',
           lockDuration: s.properties.lockDuration ?? '',

@@ -1,0 +1,15 @@
+@import "../../../styling/colorscheme.scss";
+
+.messagebar {
+    display: block;
+    position: absolute;
+    background: rgba($background-darkest, 0.8);
+    top: 20px;
+    right: 5px;
+    color: $text-light;
+
+    p {
+        padding: 8px 16px;
+        margin: 0;
+    }
+}

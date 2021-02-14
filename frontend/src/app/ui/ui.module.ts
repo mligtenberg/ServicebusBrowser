@@ -15,6 +15,7 @@ import { RefreshButtonComponent } from './refresh-button/refresh-button.componen
 import { DurationInputComponent } from './duration-input/duration-input.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ContextmenuDividerComponent } from './contextmenu-divider/contextmenu-divider.component';
+import { MessagebarComponent } from './messagebar/messagebar.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { ContextmenuDividerComponent } from './contextmenu-divider/contextmenu-d
     DialogComponent,
     RefreshButtonComponent,
     DurationInputComponent,
-    ContextmenuDividerComponent
+    ContextmenuDividerComponent,
+    MessagebarComponent
   ],
   imports: [
     CommonModule,

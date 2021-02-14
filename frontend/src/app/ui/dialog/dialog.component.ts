@@ -1,6 +1,6 @@
-import { Component, Injector, OnDestroy, OnInit, Type, ValueProvider } from '@angular/core';
-import { DialogOptions } from '../dialogOptions';
-import { DialogRef } from '../dialogRef';
+import { Component, Injector, OnInit, Type, ValueProvider } from '@angular/core';
+import { DialogOptions } from '../models/dialogOptions';
+import { DialogRef } from 'src/app/ui/models/dialogRef';
 
 @Component({
   selector: 'app-dialog',
