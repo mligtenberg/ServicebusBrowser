@@ -11,10 +11,11 @@
     grid-template-areas:
       "name queue-settings"
       "queue-properties queue-settings"
-      "queue-properties queue-information";
+      "queue-properties queue-information"
+      "queue-actions queue-actions";
 
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr 2fr;
+    grid-template-rows: auto 1fr 2fr auto;
     min-height: 0px;
   }
 
@@ -22,9 +23,10 @@
     "name"
     "queue-settings"
     "queue-properties"
-    "queue-information";
+    "queue-information"
+    "queue-actions";
 
-  grid-template-rows: auto 1fr 3fr 2fr;
+  grid-template-rows: auto 1fr 3fr 2fr auto;
   min-height: 1800px;
 
   .name {
@@ -41,5 +43,9 @@
 
   .queue-information {
     grid-area: queue-information;
+  }
+
+  .queue-actions {
+    grid-area: queue-actions;
   }
 }

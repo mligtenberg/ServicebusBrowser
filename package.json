@@ -53,7 +53,10 @@
       }
     ],
     "win": {
-      "target": ["nsis", "appx"]
+      "target": [
+        "nsis",
+        "appx"
+      ]
     },
     "appx": {
       "displayName": "Servicebus Browser",
@@ -63,5 +66,8 @@
       "publisherDisplayName": "Martin Ligtenberg",
       "addAutoLaunchExtension": false
     }
+  },
+  "dependencies": {
+    "electron-updater": "^4.3.5"
   }
 }

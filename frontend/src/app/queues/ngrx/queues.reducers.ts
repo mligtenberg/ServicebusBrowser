@@ -41,5 +41,21 @@ export const queueReducer = createReducer<IQueuesState>(
             ...state,
             loadingQueuesFor: state.loadingQueuesFor.filter(c => c !== action.connectionId)
         }
+    }),
+    on(actions.updateQueueSuccesful, (state, action) => {
+        const queueSet = state.queueConnectionSets.find(q => q.connectionId === action.connectionId);
+        return {
+            ...state,
+            queueConnectionSets: [
+                ...state.queueConnectionSets.filter(q => q.connectionId !== action.connectionId),
+                {
+                    ...queueSet,
+                    queues: [
+                        ...queueSet.queues.filter(q => q.name !== action.queue.name),
+                        action.queue
+                    ]
+                }
+            ]
+        }
     })
 )

@@ -3,12 +3,12 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { of, from } from 'rxjs';
 import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
+import { getActiveConnectionById, getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
 import * as actions from "./ngrx/queues.actions";
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
-import { clearQueueMessagesSucces, sendMessagesSuccess } from '../messages/ngrx/messages.actions';
+import { clearQueueMessagesSucces } from '../messages/ngrx/messages.actions';
 
 @Injectable()
 export class QueuesEffects {
@@ -45,6 +45,32 @@ export class QueuesEffects {
     )
   });
 
+  updateQueue$ = createEffect(() => {
+    return this.actions$.pipe(
+          // listen for the type of testConnection
+          ofType(actions.updateQueue),
+          // execute the test and return the result
+          mergeMap((action) => {
+            return this.store.select(getActiveConnectionById(action.connectionId)).pipe(
+              mergeMap(connection => {
+                return of(this.queuesService.saveQueueProperties(connection, action.queue))
+                .pipe(
+                  map(() => actions.updateQueueSuccesful({
+                    connectionId: action.connectionId,
+                    queue: action.queue
+                  })),
+                  catchError((reason) => of(actions.updateQueueFailed({
+                    connectionId: action.connectionId,
+                    queue: action.queue,
+                    reason: reason
+                  })))
+                )
+              })
+            );
+          })
+    );
+  });
+
   initQueuesForConnection$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(openConnection),
@@ -57,13 +83,6 @@ export class QueuesEffects {
       ofType(openSelectedConnection),
       withLatestFrom(this.store.select(getSelectedConnection)),
       map(([_, connection]) => actions.refreshQueues({connectionId: connection.id}))
-    )
-  })
-
-  refreshQueuesWhenMessageSendSuccesfull$ = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(sendMessagesSuccess),
-      map(action => actions.refreshQueues({connectionId: action.connectionId}))
     )
   })
 

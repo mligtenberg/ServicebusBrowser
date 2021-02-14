@@ -46,6 +46,39 @@ export class TopicsService {
     }
   }
 
+  public async updateTopic(connection: IConnection, topic: ITopic): Promise<void> {
+    const client = this.connectionService.getAdminClient(connection);
+    const servicebusTopic = await client.getTopic(topic.name);
+
+    servicebusTopic.autoDeleteOnIdle = topic.properties.autoDeleteOnIdle;
+    servicebusTopic.defaultMessageTimeToLive = topic.properties.defaultMessageTimeToLive;
+    servicebusTopic.duplicateDetectionHistoryTimeWindow = topic.properties.duplicateDetectionHistoryTimeWindow;
+    servicebusTopic.enableBatchedOperations = topic.properties.enableBatchedOperations;
+    servicebusTopic.maxSizeInMegabytes = topic.properties.maxSizeInMegabytes;
+    servicebusTopic.supportOrdering = topic.properties.supportOrdering;
+    servicebusTopic.userMetadata = topic.properties.userMetadata;
+
+    await client.updateTopic(servicebusTopic);
+  }
+
+  public async updateSubscription(connection: IConnection, topicName: string, subscription: ISubscription): Promise<void> {
+    const client = this.connectionService.getAdminClient(connection);
+    const servicebusSubscription = await client.getSubscription(topicName, subscription.name);
+
+    servicebusSubscription.autoDeleteOnIdle = subscription.properties.autoDeleteOnIdle;
+    servicebusSubscription.deadLetteringOnFilterEvaluationExceptions = subscription.properties.deadLetteringOnFilterEvaluationExceptions;
+    servicebusSubscription.deadLetteringOnMessageExpiration = subscription.properties.deadLetteringOnMessageExpiration;
+    servicebusSubscription.defaultMessageTimeToLive = subscription.properties.defaultMessageTimeToLive;
+    servicebusSubscription.enableBatchedOperations = subscription.properties.enableBatchedOperations;
+    servicebusSubscription.forwardDeadLetteredMessagesTo = subscription.properties.forwardDeadLetteredMessagesTo;
+    servicebusSubscription.forwardTo = subscription.properties.forwardTo;
+    servicebusSubscription.lockDuration = subscription.properties.lockDuration;
+    servicebusSubscription.maxDeliveryCount = subscription.properties.maxDeliveryCount;
+    servicebusSubscription.userMetadata = subscription.properties.userMetadata;
+
+    await client.updateSubscription(servicebusSubscription);
+  }
+
   private async getTopicsInternal(connection: IConnection): Promise<ITopic[]> {
     const client = this.connectionService.getAdminClient(connection);
   

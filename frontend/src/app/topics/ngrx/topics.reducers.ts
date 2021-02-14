@@ -75,5 +75,21 @@ export const topicReducer = createReducer<ITopicsState>(
             ...state,
             loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`)         
         }
+    }),
+    on(actions.updateTopicSuccesful, (state, action) => {
+        const topicSet = state.topicConnectionSets.find(t => t.connectionId == action.connectionId);
+        return {
+            ...state,
+            topicConnectionSets: [
+                ...state.topicConnectionSets.filter(s => s.connectionId !== action.connectionId),
+                {
+                    ...topicSet,
+                    topics: [
+                        ...topicSet.topics.filter(t => t.name !== action.topic.name),
+                        action.topic
+                    ]
+                }
+            ]
+        }
     })
 )

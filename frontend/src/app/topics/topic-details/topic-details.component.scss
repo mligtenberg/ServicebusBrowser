@@ -11,21 +11,23 @@
     grid-template-areas:
       "name topic-settings"
       "topic-properties topic-settings"
-      "topic-properties topic-information";
+      "topic-properties topic-information"
+      "topic-actions topic-actions";
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr 2fr;
-    min-height: 00px;
+    min-height: 0px;
   }
 
   grid-template-areas:
     "name"
     "topic-settings"
     "topic-properties"
-    "topic-information";
+    "topic-information"
+    "topic-actions";
 
-  grid-template-rows: auto 1fr 3fr 2fr;
-  min-height: 1500px;
+  grid-template-rows: auto 1fr 3fr 2fr auto;
+  min-height: 1300px;
 
   .name {
     grid-area: name;
@@ -41,5 +43,9 @@
 
   .topic-information {
     grid-area: topic-information;
+  }
+
+  .topic-actions {
+    grid-area: topic-actions;
   }
 }

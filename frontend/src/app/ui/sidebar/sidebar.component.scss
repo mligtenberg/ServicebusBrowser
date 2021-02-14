@@ -1,7 +1,7 @@
 @import "./../../../styling/colorscheme.scss";
 
 .sidebar {
-    background: $background-darkest;
+    background: lighten($background-darkest, 1%);
     height: 100%;
     width: 300px;
     overflow: hidden;

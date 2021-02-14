@@ -14,7 +14,7 @@ export interface IQueue {
         enableBatchedOperations: boolean;
         forwardTo?: string;
         userMetadata: string;
-        autoDeleteOnIdle: string;
+        autoDeleteOnIdle: boolean;
         enablePartitioning: boolean;
         forwardDeadLetteredMessagesTo?: string;
         enableExpress: boolean;

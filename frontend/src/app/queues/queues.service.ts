@@ -3,7 +3,7 @@ import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
 import { IQueue } from './ngrx/queues.models';
-import { ServiceBusAdministrationClient, QueueProperties, QueueRuntimeProperties } from '@azure/service-bus';
+import { ServiceBusAdministrationClient, QueueProperties, QueueRuntimeProperties, WithResponse } from '@azure/service-bus';
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +38,6 @@ export class QueuesService {
       return {
         name: q.name,
         properties: {
-          autoDeleteOnIdle: q.autoDeleteOnIdle,
           deadLetteringOnMessageExpiration: q.deadLetteringOnMessageExpiration,
           defaultMessageTimeToLive: q.defaultMessageTimeToLive,
           duplicateDetectionHistoryTimeWindow: q.duplicateDetectionHistoryTimeWindow,
@@ -105,5 +104,24 @@ export class QueuesService {
     return queues;
   }
   
+  public async saveQueueProperties(connection: IConnection, queue: IQueue) {
+    this.log.logInfo(`Updating queue ${connection.name}/${queue.name}`)
 
+    const client = this.connectionService.getAdminClient(connection);
+    const servicebusQueue = await client.getQueue(queue.name);
+
+    servicebusQueue.deadLetteringOnMessageExpiration = queue.properties.deadLetteringOnMessageExpiration;
+    servicebusQueue.defaultMessageTimeToLive = queue.properties.defaultMessageTimeToLive;
+    servicebusQueue.duplicateDetectionHistoryTimeWindow = queue.properties.duplicateDetectionHistoryTimeWindow;
+    servicebusQueue.enableBatchedOperations = queue.properties.enableExpress;
+    servicebusQueue.forwardDeadLetteredMessagesTo = queue.properties.forwardDeadLetteredMessagesTo;
+    servicebusQueue.forwardTo = queue.properties.forwardTo;
+    servicebusQueue.lockDuration = queue.properties.lockDuration;
+    servicebusQueue.maxDeliveryCount = queue.properties.maxDeliveryCount;
+    servicebusQueue.maxSizeInMegabytes = queue.properties.maxSizeInMegabytes;
+    servicebusQueue.userMetadata = queue.properties.userMetadata;
+
+    await client.updateQueue(servicebusQueue);
+    this.log.logInfo(`Updated queue ${connection.name}/${queue.name} succesfully`)
+  }
 }

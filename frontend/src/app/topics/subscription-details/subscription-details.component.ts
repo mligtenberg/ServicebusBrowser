@@ -2,9 +2,12 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { IFormBuilder, IFormGroup } from '@rxweb/types';
 import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { State } from 'src/app/ngrx.module';
+import { ISubscriptionDetailsForm } from '../models/ISubscriptionDetailsForm';
+import { updateSubscription } from '../ngrx/topics.actions';
 import { ISubscription } from '../ngrx/topics.models';
 import { getTopicSubscription } from '../ngrx/topics.selectors';
 
@@ -16,26 +19,31 @@ import { getTopicSubscription } from '../ngrx/topics.selectors';
 export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
   private subs = new Subscription();
   subscription: ISubscription;
-  form: FormGroup;
+  form: IFormGroup<ISubscriptionDetailsForm>;
+  formBuilder: IFormBuilder;
+
+  private connectionId: string;
+  private topicName: string;
 
   constructor(
     private activeRoute: ActivatedRoute,
     private store: Store<State>,
-    private formBuilder: FormBuilder
+    formBuilder: FormBuilder
     ) { 
-      this.form = this.formBuilder.group({
+      this.formBuilder = formBuilder;
+      this.form = this.formBuilder.group<ISubscriptionDetailsForm>({
         name: new FormControl({value: '', disabled: true}),
-        lockDuration: new FormControl({value: '', disabled: true}),
+        lockDuration: new FormControl({value: ''}),
         requiresSession: new FormControl({value: false, disabled: true}),
-        defaultMessageTimeToLive: new FormControl({value: '', disabled: true}),
-        deadLetteringOnMessageExpiration: new FormControl({value: false, disabled: true}),
-        maxDeliveryCount: new FormControl({value: 1, disabled: true}),
-        enableBatchedOperations: new FormControl({value: '', disabled: true}),
-        forwardTo: new FormControl({value: '', disabled: true}),
-        userMetadata: new FormControl({value: '', disabled: true}),
-        autoDeleteOnIdle: new FormControl({value: '', disabled: true}),
-        forwardDeadLetteredMessagesTo: new FormControl({value: '', disabled: true}),
-        deadLetteringOnFilterEvaluationExceptions: new FormControl({value: '', disabled: true})
+        defaultMessageTimeToLive: new FormControl({value: ''}),
+        deadLetteringOnMessageExpiration: new FormControl({value: false}),
+        maxDeliveryCount: new FormControl({value: 1}),
+        enableBatchedOperations: new FormControl({value: false}),
+        forwardTo: new FormControl({value: ''}),
+        userMetadata: new FormControl({value: ''}),
+        autoDeleteOnIdle: new FormControl({value: ''}),
+        forwardDeadLetteredMessagesTo: new FormControl({value: ''}),
+        deadLetteringOnFilterEvaluationExceptions: new FormControl({value: false})
       });
     }
 
@@ -55,12 +63,37 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
           enableBatchedOperations: s.properties.enableBatchedOperations ?? false,
           forwardTo: s.properties.forwardTo ?? '',
           userMetadata: s.properties.userMetadata ?? '',
-          autoDeleteOnIdle: s.properties.autoDeleteOnIdle ?? false,
+          autoDeleteOnIdle: s.properties.autoDeleteOnIdle ?? '',
           forwardDeadLetteredMessagesTo: s.properties.forwardDeadLetteredMessagesTo ?? '',
           deadLetteringOnFilterEvaluationExceptions: s.properties.deadLetteringOnFilterEvaluationExceptions,
         });
       })
     }));
+  }
+
+  save() {
+    const formValue = this.form.value;
+    this.store.dispatch(updateSubscription({
+      connectionId: this.connectionId,
+      topicName: this.topicName,
+      subscription: {
+        name: this.subscription.name,
+        info: this.subscription.info,
+        properties: {
+          autoDeleteOnIdle: formValue.autoDeleteOnIdle,
+          deadLetteringOnFilterEvaluationExceptions: formValue.deadLetteringOnFilterEvaluationExceptions,
+          deadLetteringOnMessageExpiration: formValue.deadLetteringOnMessageExpiration,
+          defaultMessageTimeToLive: formValue.defaultMessageTimeToLive,
+          enableBatchedOperations: formValue.enableBatchedOperations,
+          lockDuration: formValue.lockDuration,
+          maxDeliveryCount: formValue.maxDeliveryCount,
+          requiresSession: formValue.requiresSession,
+          forwardDeadLetteredMessagesTo: formValue.forwardDeadLetteredMessagesTo,
+          forwardTo: formValue.forwardTo,
+          userMetadata: formValue.userMetadata
+        }
+      }
+    }))
   }
 
   ngOnDestroy(): void {

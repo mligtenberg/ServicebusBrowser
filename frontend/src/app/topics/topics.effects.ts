@@ -5,7 +5,7 @@ import { State } from '../ngrx.module';
 import { TopicsService } from './topics.service';
 import * as actions from "./ngrx/topics.actions";
 import { catchError, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
-import { getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
+import { getActiveConnectionById, getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
 import { of, from, Observable } from 'rxjs';
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { clearSubscriptionMessagesSuccesfull, sendMessagesSuccess } from '../messages/ngrx/messages.actions';
@@ -45,6 +45,30 @@ export class TopicsEffects {
     )
   });
 
+  updateTopic$ = createEffect(() => {
+    return this.actions$.pipe(
+          ofType(actions.updateTopic),
+          mergeMap((action) => {
+            return this.store.select(getActiveConnectionById(action.connectionId)).pipe(
+              mergeMap(connection => {
+                return of(this.topicsService.updateTopic(connection, action.topic))
+                .pipe(
+                  map(() => actions.updateTopicSuccesful({
+                    connectionId: action.connectionId,
+                    topic: action.topic
+                  })),
+                  catchError((reason) => of(actions.updateTopicFailed({
+                    connectionId: action.connectionId,
+                    topic: action.topic,
+                    reason: reason
+                  })))
+                )
+              })
+            );
+          })
+    );
+  });
+
   getSubscriptions$ = createEffect(() => {
     return this.actions$.pipe(
       // listen for the type of testConnection
@@ -70,6 +94,33 @@ export class TopicsEffects {
         )
       })
     )
+  });
+
+  updateSubscriptions$ = createEffect(() => {
+    return this.actions$.pipe(
+      // listen for the type of testConnection
+      ofType(actions.updateSubscription),
+      mergeMap((action) => {
+        return this.store.select(getActiveConnectionById(action.connectionId)).pipe(
+          mergeMap(connection => {
+            return of(this.topicsService.updateSubscription(connection, action.topicName, action.subscription))
+            .pipe(
+              map(() => actions.updateSubscriptionSuccesful({
+                connectionId: action.connectionId,
+                topicName: action.topicName,
+                subscription: action.subscription
+              })),
+              catchError((reason) => of(actions.updateSubscriptionFailed({
+                connectionId: action.connectionId,
+                topicName: action.topicName,
+                subscription: action.subscription,
+                reason: reason
+              })))
+            )
+          })
+        );
+      })
+    );
   });
 
   initTopicsForConnection$ = createEffect(() => {

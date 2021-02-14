@@ -11,20 +11,22 @@
     grid-template-areas:
       "name subscription-settings"
       "subscription-properties subscription-settings"
-      "subscription-properties subscription-information";
+      "subscription-properties subscription-information"
+      "subscription-actions subscription-actions";
 
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr 2fr;
-    min-height: 00px;
+    grid-template-rows: auto 1fr 2fr auto;
+    min-height: 0px;
   }
 
   grid-template-areas:
     "name"
     "subscription-settings"
     "subscription-properties"
-    "subscription-information";
+    "subscription-information"
+    "subscription-actions";
 
-  grid-template-rows: auto 1fr 3fr 2fr;
+  grid-template-rows: auto 1fr 3fr 2fr auto;
   min-height: 1500px;
 
   .name {
@@ -41,5 +43,9 @@
 
   .subscription-information {
     grid-area: subscription-information;
+  }
+
+  .subscription-actions {
+    grid-area: subscription-actions;
   }
 }
