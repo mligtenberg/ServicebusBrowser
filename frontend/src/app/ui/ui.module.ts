@@ -13,9 +13,13 @@ import { DialogComponent } from './dialog/dialog.component';
 import { ResizableModule } from 'angular-resizable-element';
 import { RefreshButtonComponent } from './refresh-button/refresh-button.component';
 import { DurationInputComponent } from './duration-input/duration-input.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContextmenuDividerComponent } from './contextmenu-divider/contextmenu-divider.component';
 import { MessagebarComponent } from './messagebar/messagebar.component';
+import { TextboxInputDialogComponent } from './textbox-input-dialog/textbox-input-dialog.component';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { TextboxDialogInputComponent } from './textbox-dialog-input/textbox-dialog-input.component';
+import { FirstLinePipe } from './pipes/first-line.pipe';
 
 @NgModule({
   declarations: [
@@ -31,13 +35,18 @@ import { MessagebarComponent } from './messagebar/messagebar.component';
     RefreshButtonComponent,
     DurationInputComponent,
     ContextmenuDividerComponent,
-    MessagebarComponent
+    MessagebarComponent,
+    TextboxInputDialogComponent,
+    TextboxDialogInputComponent,
+    FirstLinePipe
   ],
   imports: [
     CommonModule,
     FontAwesomeModule,
     ResizableModule,
-    ReactiveFormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    MonacoEditorModule
   ],
   exports: [
     MenubarComponent,
@@ -49,7 +58,8 @@ import { MessagebarComponent } from './messagebar/messagebar.component';
     ContextmenuItemComponent,
     RefreshButtonComponent,
     DurationInputComponent,
-    ContextmenuDividerComponent
+    ContextmenuDividerComponent,
+    TextboxDialogInputComponent
   ]
 })
 export class UiModule { }

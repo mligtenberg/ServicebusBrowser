@@ -49,3 +49,8 @@
     grid-area: queue-actions;
   }
 }
+
+.queue-actions {
+  display: flex;
+  justify-content: flex-end;
+}

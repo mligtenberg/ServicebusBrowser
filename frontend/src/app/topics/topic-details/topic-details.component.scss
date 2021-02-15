@@ -49,3 +49,8 @@
     grid-area: topic-actions;
   }
 }
+
+.topic-actions {
+  display: flex;
+  justify-content: flex-end;
+}

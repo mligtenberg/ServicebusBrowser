@@ -1,0 +1,8 @@
+@import "../../../styling/forms.scss";
+
+.textarea {
+    display: flex;
+    input {
+        flex: 1;
+    }
+}

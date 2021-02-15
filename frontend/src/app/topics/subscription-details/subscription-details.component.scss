@@ -49,3 +49,8 @@
     grid-area: subscription-actions;
   }
 }
+
+.subscription-actions {
+  display: flex;
+  justify-content: flex-end;
+}
