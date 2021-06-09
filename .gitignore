@@ -3,3 +3,4 @@ dist
 temp
 /build
 .cache
+.idea

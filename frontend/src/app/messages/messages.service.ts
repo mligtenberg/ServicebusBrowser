@@ -4,6 +4,8 @@ import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
 import { IMessage, MessagesChannel } from './ngrx/messages.models';
+import * as Long from 'Long';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,12 +29,12 @@ export class MessagesService {
         channel
       );
       this.log.logInfo(
-        `Retreived ${messages.length} messages for '${connection.name}/${queueName}'`
+        `Retrieved ${messages.length} messages for '${connection.name}/${queueName}'`
       );
       return messages;
     } catch (reason) {
       this.log.logWarning(
-        `Retreiving messages for queue '${queueName}' failed: ${reason}`
+        `Retrieving messages for queue '${queueName}' failed: ${reason}`
       );
       throw reason;
     }
@@ -54,12 +56,12 @@ export class MessagesService {
         channel
       );
       this.log.logInfo(
-        `Retreived ${messages.length} messages for '${connection.name}/${topicName}/${subscriptionName}'`
+        `Retrieved ${messages.length} messages for '${connection.name}/${topicName}/${subscriptionName}'`
       );
       return messages;
     } catch (reason) {
       this.log.logWarning(
-        `Retreiving messages for subscription '${topicName}/${subscriptionName}' failed: ${reason}`
+        `Retrieving messages for subscription '${topicName}/${subscriptionName}' failed: ${reason}`
       );
       throw reason;
     }
@@ -69,7 +71,7 @@ export class MessagesService {
     connection: IConnection,
     queueName: string,
     channel: MessagesChannel
-  ) {
+  ): Promise<void> {
     const client = this.connectionService.getClient(connection);
     const receiver = client.createReceiver(queueName, {
       receiveMode: 'receiveAndDelete',
@@ -78,8 +80,8 @@ export class MessagesService {
 
     await this.clearReceiverMessages(receiver);
 
-    receiver.close();
-    client.close();
+    await receiver.close();
+    await client.close();
   }
 
   async clearSubscriptionMessages(
@@ -87,7 +89,7 @@ export class MessagesService {
     topicName: string,
     subscriptionName: string,
     channel: MessagesChannel
-  ) {
+  ): Promise<void> {
     const client = this.connectionService.getClient(connection);
     const receiver = client.createReceiver(topicName, subscriptionName, {
       receiveMode: 'receiveAndDelete',
@@ -96,15 +98,15 @@ export class MessagesService {
 
     await this.clearReceiverMessages(receiver);
 
-    receiver.close();
-    client.close();
+    await receiver.close();
+    await client.close();
   }
 
   async sendMessages(
     messages: IMessage[],
     connection: IConnection,
     queueOrTopicName: string
-  ) {
+  ): Promise<void> {
     const client = this.connectionService.getClient(connection);
     const sender = client.createSender(queueOrTopicName);
 
@@ -114,14 +116,12 @@ export class MessagesService {
         applicationProperties[key] = value;
       }
 
-      const message = {
+      return {
         subject: m.properties.subject,
         body: m.body,
         contentType: m.properties.contentType,
         applicationProperties: (Object as any).fromEntries(m.customProperties)
       } as ServiceBusMessage;
-
-      return message;
     });
 
     await sender.sendMessages(serviceBusMessages);
@@ -130,7 +130,7 @@ export class MessagesService {
     await client.close();
   }
 
-  private async clearReceiverMessages(receiver: ServiceBusReceiver) {
+  private async clearReceiverMessages(receiver: ServiceBusReceiver): Promise<void> {
     this.log.logInfo(`Clearing messages for ${receiver.entityPath}`);
 
     let receivedMessages = [];
@@ -138,7 +138,7 @@ export class MessagesService {
       receivedMessages = await receiver.receiveMessages(50, {
         maxWaitTimeInMs: 1000
       });
-    } while(receivedMessages.length > 0);
+    } while (receivedMessages.length > 0);
 
     this.log.logInfo(`Cleared messages for ${receiver.entityPath} successfully`);
   }
@@ -173,7 +173,25 @@ export class MessagesService {
     const receiver = client.createReceiver(topicName, subscriptionName, {
       subQueueType: this.getSubQueueType(channel)
     });
-    const messages = await receiver.peekMessages(numberOfMessages);
+
+    const messages: ServiceBusReceivedMessage[] = [];
+    let lastLength = -1;
+
+    while (messages.length < numberOfMessages && messages.length !== lastLength) {
+      lastLength = messages.length;
+
+      const messagesLeft = numberOfMessages - messages.length;
+      const maxMessageCount = messagesLeft > 1000 ? 1000 : messagesLeft;
+
+      const messagesPart = await receiver.peekMessages(maxMessageCount, {
+        fromSequenceNumber: Long.fromNumber(messages.length)
+      });
+
+      messages.push(...messagesPart);
+
+      const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
+      console.log(`Loaded ${messages.length} of ${numberOfMessages}, ~${percentage}%`);
+    }
 
     await receiver.close();
     await client.close();
@@ -198,23 +216,24 @@ export class MessagesService {
     };
 
     if (m.applicationProperties) {
+      // tslint:disable-next-line:forin
       for (const key in m.applicationProperties) {
         const value = m.applicationProperties[key];
-        message.customProperties.set(key, value)
+        message.customProperties.set(key, value);
       }
     }
 
     return message;
   }
 
-  private getSubQueueType(channel: MessagesChannel): "deadLetter" | "transferDeadLetter" | undefined {
-    switch(channel) {
+  private getSubQueueType(channel: MessagesChannel): 'deadLetter' | 'transferDeadLetter' | undefined {
+    switch (channel) {
       case MessagesChannel.deadletter:
-        return "deadLetter";
+        return 'deadLetter';
       case MessagesChannel.transferedDeadletters:
-          return "transferDeadLetter";
+          return 'transferDeadLetter';
       default:
-        return undefined
+        return undefined;
     }
   }
 }
