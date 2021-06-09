@@ -190,7 +190,7 @@ export class MessagesService {
       messages.push(...messagesPart);
 
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
-      console.log(`Loaded ${messages.length} of ${numberOfMessages}, ~${percentage}%`);
+      this.log.logInfo(`Loaded ${messages.length} of ${numberOfMessages}, ~${percentage}%`);
     }
 
     await receiver.close();
