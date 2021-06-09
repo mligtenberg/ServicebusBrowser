@@ -17,11 +17,13 @@
     "start:ng": "cd frontend && npm run start",
     "prestart:electron": "npm run build:preload",
     "start:electron": "cd electron-main && npm run start:ngServe",
-    "copy:main": "cd ./electron-main/dist/ && copyfiles -E ** ../../temp/main && copyfiles -E **/* ../../temp/main",
-    "copy:mainBuild": "cd ./electron-main/build/ && copyfiles -E ** ../../build & copyfiles -E **/* ../../build",
-    "copy:preload": "cd ./electron-preload/dist/ && copyfiles -E ** ../../temp/preload && copyfiles -E **/* ../../temp/preload",
-    "copy:frontend": "cd ./frontend/dist/explorer/ && copyfiles -E ** ../../../temp/frontend && copyfiles -E **/* ../../../temp/frontend",
-    "prepackage": "npm run clean && npm run copy:main && npm run copy:frontend && npm run copy:preload && npm run copy:mainBuild",
+    "precopy": "shx mkdir temp && cd temp && shx mkdir main && shx mkdir build && shx mkdir preload && shx mkdir frontend",
+    "copy": "npm run copy:main && npm run copy:frontend && npm run copy:preload && npm run copy:mainBuild",
+    "copy:main": "cd ./electron-main/dist/ && shx cp -r . ../../temp/main",
+    "copy:mainBuild": "cd ./electron-main/build/ && shx cp -r  . ../../build",
+    "copy:preload": "cd ./electron-preload/dist/ && shx cp -r . ../../temp/preload",
+    "copy:frontend": "cd ./frontend/dist/explorer/ && shx cp -r . ../../../temp/frontend",
+    "prepackage": "npm run clean && npm run copy",
     "package": "electron-builder",
     "release": "npm run build && npm run package"
   },
@@ -29,10 +31,10 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^6.2.0",
-    "copyfiles": "^2.4.1",
     "electron": "^13.1.2",
     "electron-builder": "^22.10.5",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "shx": "^0.3.3"
   },
   "build": {
     "appId": "digital.ligtenberg.servicebusbrowser",
