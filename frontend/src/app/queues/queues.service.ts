@@ -15,13 +15,13 @@ export class QueuesService {
   ) {}
 
   public async getQueues(connection: IConnection): Promise<IQueue[]> {
-    this.log.logInfo(`Retreiving queues for connection '${connection.name}'`);
+    this.log.logInfo(`Retrieving queues for connection '${connection.name}'`);
     try {
       const queues = await this.getQueuesInternal(connection);
-      this.log.logInfo(`Retreived ${queues.length} queues for '${connection.name}'`);
+      this.log.logInfo(`Retrieved ${queues.length} queues for '${connection.name}'`);
       return queues;
     } catch (reason) {
-      this.log.logWarning(`Retreiving queues failed: ${reason}`);
+      this.log.logWarning(`Retrieving queues failed: ${reason}`);
       throw reason;
     }
   }
@@ -31,10 +31,10 @@ export class QueuesService {
 
     const queues = await this.getQueueProperties(client);
     const queueRuntimeProperties = await this.getQueueRuntimeProperties(client);
-  
+
     return queues.map((q) => {
       const runtimeProperties = queueRuntimeProperties.find(qrp => qrp.name === q.name);
-  
+
       return {
         name: q.name,
         properties: {
@@ -71,11 +71,11 @@ export class QueuesService {
       } as IQueue;
     });
   }
-  
+
   private async getQueueProperties(client: ServiceBusAdministrationClient): Promise<QueueProperties[]> {
     let finished = false;
     const queues: QueueProperties[] = [];
-  
+
     const iterator = client.listQueues();
     do {
       const result = await iterator.next();
@@ -84,14 +84,14 @@ export class QueuesService {
       }
       finished = result.done ?? false;
     } while (!finished);
-  
+
     return queues;
   }
-  
+
   private async getQueueRuntimeProperties(client: ServiceBusAdministrationClient): Promise<QueueRuntimeProperties[]> {
     let finished = false;
     const queues: QueueRuntimeProperties[] = [];
-  
+
     const iterator = client.listQueuesRuntimeProperties();
     do {
       const result = await iterator.next();
@@ -100,12 +100,12 @@ export class QueuesService {
       }
       finished = result.done ?? false;
     } while (!finished);
-  
+
     return queues;
   }
-  
-  public async saveQueueProperties(connection: IConnection, queue: IQueue) {
-    this.log.logInfo(`Updating queue ${connection.name}/${queue.name}`)
+
+  public async saveQueueProperties(connection: IConnection, queue: IQueue): Promise<void> {
+    this.log.logInfo(`Updating queue ${connection.name}/${queue.name}`);
 
     const client = this.connectionService.getAdminClient(connection);
     const servicebusQueue = await client.getQueue(queue.name);
@@ -122,6 +122,6 @@ export class QueuesService {
     servicebusQueue.userMetadata = queue.properties.userMetadata;
 
     await client.updateQueue(servicebusQueue);
-    this.log.logInfo(`Updated queue ${connection.name}/${queue.name} succesfully`)
+    this.log.logInfo(`Updated queue ${connection.name}/${queue.name} succesfully`);
   }
 }
