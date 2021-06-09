@@ -25,12 +25,11 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "aot": true,
             "assets": [
               "src/favicon.ico",
               "src/assets",
               "src/manifest.webmanifest",
-              { "glob": "**/*", "input": "node_modules/ngx-monaco-editor/assets/monaco", "output": "assets/monaco" }
+              { "glob": "**/*", "input": "node_modules/monaco-editor", "output": "assets/monaco-editor" }
             ],
             "styles": [
               "src/styles.scss"
@@ -38,7 +37,13 @@
             "scripts": [],
             "allowedCommonJsDependencies": [
               "lodash"
-           ]
+           ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -70,7 +75,8 @@
               "serviceWorker": true,
               "ngswConfigPath": "ngsw-config.json"
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
