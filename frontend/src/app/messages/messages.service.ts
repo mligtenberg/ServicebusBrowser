@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
+import {ServiceBusClient, ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver} from '@azure/service-bus';
 import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
@@ -154,12 +154,12 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    const messages = await receiver.peekMessages(numberOfMessages);
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages);
 
     await receiver.close();
     await client.close();
 
-    return messages.map(m => this.mapMessage(m));
+    return messages;
   }
 
   private async getSubscriptionMessagesInternal(
@@ -174,6 +174,15 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages);
+
+    await receiver.close();
+    await client.close();
+
+    return messages;
+  }
+
+  private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number): Promise<IMessage[]> {
     const messages: ServiceBusReceivedMessage[] = [];
     let lastLength = -1;
 
@@ -192,9 +201,6 @@ export class MessagesService {
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
       this.log.logInfo(`Loaded ${messages.length} of ${numberOfMessages} messages, ~${percentage}%`);
     }
-
-    await receiver.close();
-    await client.close();
 
     return messages.map(m => this.mapMessage(m));
   }
