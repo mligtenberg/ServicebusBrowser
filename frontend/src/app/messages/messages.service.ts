@@ -192,8 +192,11 @@ export class MessagesService {
       const messagesLeft = numberOfMessages - messages.length;
       const maxMessageCount = messagesLeft > 1000 ? 1000 : messagesLeft;
 
+      const lastSequenceNumber: Long.Long | undefined
+        = messages.length ? messages[messages.length - 1].sequenceNumber : undefined;
+
       const messagesPart = await receiver.peekMessages(maxMessageCount, {
-        fromSequenceNumber: Long.fromNumber(messages.length)
+        fromSequenceNumber: lastSequenceNumber
       });
 
       messages.push(...messagesPart);
