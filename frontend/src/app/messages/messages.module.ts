@@ -15,7 +15,7 @@ import { SelectMessageTargetDialogComponent } from './select-message-target-dial
 import { ConnectionsModule } from '../connections/connections.module';
 
 const routes: Routes = [
-  { path: 'view', component: ViewMessagesComponent },
+  { path: 'view/:messageSetId', component: ViewMessagesComponent },
   { path: 'queue', component: QueueMessageComponent }
 ];
 

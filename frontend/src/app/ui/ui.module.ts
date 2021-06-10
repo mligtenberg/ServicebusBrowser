@@ -20,6 +20,8 @@ import { TextboxInputDialogComponent } from './textbox-input-dialog/textbox-inpu
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { TextboxDialogInputComponent } from './textbox-dialog-input/textbox-dialog-input.component';
 import { FirstLinePipe } from './pipes/first-line.pipe';
+import { TabBarComponent } from './tab-bar/tab-bar.component';
+import {RouterModule} from "@angular/router";
 
 @NgModule({
   declarations: [
@@ -38,7 +40,8 @@ import { FirstLinePipe } from './pipes/first-line.pipe';
     MessagebarComponent,
     TextboxInputDialogComponent,
     TextboxDialogInputComponent,
-    FirstLinePipe
+    FirstLinePipe,
+    TabBarComponent
   ],
   imports: [
     CommonModule,
@@ -46,20 +49,22 @@ import { FirstLinePipe } from './pipes/first-line.pipe';
     ResizableModule,
     FormsModule,
     ReactiveFormsModule,
-    MonacoEditorModule
+    MonacoEditorModule,
+    RouterModule
   ],
-  exports: [
-    MenubarComponent,
-    MenuItemComponent,
-    SubmenuItemComponent,
-    SidebarComponent,
-    ConsoleComponent,
-    ToggleBoxComponent,
-    ContextmenuItemComponent,
-    RefreshButtonComponent,
-    DurationInputComponent,
-    ContextmenuDividerComponent,
-    TextboxDialogInputComponent
-  ]
+    exports: [
+        MenubarComponent,
+        MenuItemComponent,
+        SubmenuItemComponent,
+        SidebarComponent,
+        ConsoleComponent,
+        ToggleBoxComponent,
+        ContextmenuItemComponent,
+        RefreshButtonComponent,
+        DurationInputComponent,
+        ContextmenuDividerComponent,
+        TextboxDialogInputComponent,
+        TabBarComponent
+    ]
 })
 export class UiModule { }

@@ -10,34 +10,24 @@
 
   @media all and (min-width: $large-layout) {
     grid-template-areas:
-      "title title backlink"
       "messages-selection messages-selection properties"
       "message-body message-body custom-properties"
       "message-body message-body custom-properties";
-    grid-template-rows: 15px 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr;
     min-height: 600px;
   }
 
   grid-template-areas:
-    "title backlink"
     "messages-selection messages-selection"
     "message-body message-body"
     "message-body message-body"
     "properties properties"
     "custom-properties custom-properties";
 
-  grid-template-rows: 15px 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-
-  > .backlink {
-    grid-area: backlink;
-  }
-
-  > .title {
-    grid-area: title;
-  }
 
   > .messages-selection {
     grid-area: messages-selection;

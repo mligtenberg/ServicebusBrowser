@@ -14,6 +14,7 @@ export const getQueueMessages = createAction(
 export const getQueueMessagesSuccess = createAction(
   '[Messages/Queue/Response] Retreived messages successfully',
   props<{
+    messageSetId: string;
     connectionId: string;
     queueName: string;
     channel: MessagesChannel;
@@ -74,6 +75,7 @@ export const getSubscriptionMessages = createAction(
 export const getSubscriptionMessagesSuccess = createAction(
   '[Messages/Topic/Subscription/Response] Retreived messages successfully',
   props<{
+    messageSetId: string;
     connectionId: string;
     topicName: string;
     subscriptionName: string;

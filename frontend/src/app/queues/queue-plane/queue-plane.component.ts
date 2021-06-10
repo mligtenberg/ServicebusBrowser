@@ -23,7 +23,7 @@ export class QueuePlaneComponent {
   constructor(
     private router: Router,
     private contextMenu: ContextmenuService
-  ) {};
+  ) {}
 
   onQueueSelected($event: IQueueSelectionEvent) {
     this.router.navigate(['queues', 'view', this.connection.id, $event.queue.name])

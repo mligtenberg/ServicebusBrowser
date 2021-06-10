@@ -1,29 +1,29 @@
-import { createReducer, on } from "@ngrx/store";
-import * as actions from "./queues.actions";
-import { IQueueConnectionSet } from "./queues.models";
+import { createReducer, on } from '@ngrx/store';
+import * as actions from './queues.actions';
+import { IQueueConnectionSet } from './queues.models';
 
 export interface IQueuesState {
-    queueConnectionSets: IQueueConnectionSet[],
+    queueConnectionSets: IQueueConnectionSet[];
     loadingQueuesFor: string[];
 }
 
 const initialState: IQueuesState = {
     queueConnectionSets: [],
     loadingQueuesFor: []
-}
+};
 
 export const queueReducer = createReducer<IQueuesState>(
     initialState,
-    on (actions.refreshQueues, (state, action) => {
+    on(actions.refreshQueues, (state, action) => {
         return {
             ...state,
             loadingQueuesFor: [
                 ...state.loadingQueuesFor.filter(c => c !== action.connectionId),
                 action.connectionId
             ]
-        }
+        };
     }),
-    on  (actions.refreshQueuesSuccess, (state, action) => {
+    on(actions.refreshQueuesSuccess, (state, action) => {
         return {
             ...state,
             queueConnectionSets: [
@@ -34,13 +34,13 @@ export const queueReducer = createReducer<IQueuesState>(
                 }
             ],
             loadingQueuesFor: state.loadingQueuesFor.filter(c => c !== action.connectionId)
-        }
+        };
     }),
-    on  (actions.refreshQueuesFailed, (state, action) => {
+    on(actions.refreshQueuesFailed, (state, action) => {
         return {
             ...state,
             loadingQueuesFor: state.loadingQueuesFor.filter(c => c !== action.connectionId)
-        }
+        };
     }),
     on(actions.updateQueueSuccesful, (state, action) => {
         const queueSet = state.queueConnectionSets.find(q => q.connectionId === action.connectionId);
@@ -56,6 +56,6 @@ export const queueReducer = createReducer<IQueuesState>(
                     ]
                 }
             ]
-        }
+        };
     })
-)
+);

@@ -1,0 +1,58 @@
+@import "src/styling/colorscheme";
+.tab-bar {
+  font-size: 0.95rem;
+  width: 100%;
+  color: $text-light;
+  background-color: $background-dark;
+  height:2em;
+  display: flex;
+  flex-direction: row;
+}
+
+.tab {
+  display: flex;
+  font-size: 1em;
+  height: 2em;
+  max-width: 12em;
+  user-select: text;
+  cursor: pointer;
+
+  &.active {
+    background: $background-darker;
+    .title {
+      border-right: none;
+    }
+  }
+
+  .title {
+    flex: 1;
+    display: inline-block;
+    text-overflow: ellipsis;
+    padding: 0.5em 0.5em 0 1em;
+
+    /* Required for text-overflow to do anything */
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  &::after {
+    content: '';
+    background: $background-darker;
+    height: 1em;
+    width: 1px;
+    margin: 0.5em 0.2em;
+  }
+
+  button {
+    margin: 0;
+    background: none;
+    border: none;
+    color: $text-light;
+    border-radius: 0.1em;
+    padding: 0.1em 0.3em;
+
+    &:hover {
+      background: hsla(0, 0, 0, 0.2);
+    }
+  }
+}

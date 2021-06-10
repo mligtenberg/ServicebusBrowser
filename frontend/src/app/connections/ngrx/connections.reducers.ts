@@ -1,13 +1,13 @@
-import { createReducer, on } from "@ngrx/store";
+import { createReducer, on } from '@ngrx/store';
 import { v4 as uuidv4 } from 'uuid';
-import * as actions from "./connections.actions";
-import { ConnectionType, IConnection } from "./connections.models";
+import * as actions from './connections.actions';
+import { ConnectionType, IConnection } from './connections.models';
 import * as lodash from 'lodash';
 
 export interface IConnectionsState {
     activeConnections: IConnection[];
     storedConnections: IConnection[];
-    selectedConnection: IConnection | null
+    selectedConnection: IConnection | null;
 }
 
 const initialState: IConnectionsState = {

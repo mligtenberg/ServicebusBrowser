@@ -9,6 +9,7 @@ import { State } from '../ngrx.module';
 import { MessagesService } from './messages.service';
 import * as actions from './ngrx/messages.actions';
 import { IMessage } from './ngrx/messages.models';
+import {v4} from 'uuid';
 
 @Injectable()
 export class MessagesEffects {
@@ -39,6 +40,7 @@ export class MessagesEffects {
                 map(
                   (messages: IMessage[]) =>
                     actions.getQueueMessagesSuccess({
+                      messageSetId: v4(),
                       connectionId: action.connectionId,
                       queueName: action.queueName,
                       channel: action.channel,
@@ -66,7 +68,7 @@ export class MessagesEffects {
     () => {
       return this.actions$.pipe(
         ofType(actions.getQueueMessagesSuccess),
-        tap(() => this.router.navigateByUrl('/messages/view'))
+        tap((action) => this.router.navigate(['/messages/view', action.messageSetId]))
       );
     },
     { dispatch: false }
@@ -93,6 +95,7 @@ export class MessagesEffects {
                 map(
                   (messages: IMessage[]) =>
                     actions.getSubscriptionMessagesSuccess({
+                      messageSetId: v4(),
                       connectionId: action.connectionId,
                       topicName: action.topicName,
                       subscriptionName: action.subscriptionName,
@@ -122,7 +125,7 @@ export class MessagesEffects {
     () => {
       return this.actions$.pipe(
         ofType(actions.getSubscriptionMessagesSuccess),
-        tap(() => this.router.navigateByUrl('/messages/view'))
+        tap((action) => this.router.navigate(['/messages/view', action.messageSetId]))
       );
     },
     { dispatch: false }
@@ -151,13 +154,13 @@ export class MessagesEffects {
                   queueOrTopicName: action.queueOrTopicName,
                   reason: reason as string
                 })))
-              )
+              );
             })
-          )
+          );
         })
-      )
+      );
     }
-  )
+  );
 
   clearQueueMessages$ = createEffect(
     () => {
@@ -198,9 +201,9 @@ export class MessagesEffects {
               })
             );
         })
-      )
+      );
     }
-  )
+  );
 
   clearSubscriptionMessages$ = createEffect(
     () => {
@@ -244,7 +247,7 @@ export class MessagesEffects {
               })
             );
         })
-      )
+      );
     }
-  )
+  );
 }
