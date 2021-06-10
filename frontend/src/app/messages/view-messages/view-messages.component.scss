@@ -70,7 +70,7 @@
   }
 
   .message-option {
-    font-style: 0.7em;
+    font-size: 0.7em;
     .message-sequence-number {
       direction: rtl;
     }
@@ -84,6 +84,10 @@
 
     &:nth-child(even) {
       background-color: $background-lighter;
+    }
+
+    &.selected {
+      background-color: $accent-light;
     }
 
     .message-id {

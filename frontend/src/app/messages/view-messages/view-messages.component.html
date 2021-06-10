@@ -6,10 +6,10 @@
         <div class="box-body scroll no-padding" *ngIf="messageSet">
             <div class="message-header">
                 <span class="message-id">Id</span>
-                <span class="message-sequence-number">sequence-number</span>
+                <span class="message-sequence-number">Sequence number</span>
                 <span class="message-subject">Subject</span>
             </div>
-            <div class="message-option" *ngFor="let message of messageSet.messages" (click)="selectMessage(message)">
+            <div class="message-option" *ngFor="let message of messageSet.messages" (click)="selectMessage(message)" [class.selected]="selectedMessage == message">
                 <span class="message-id" [title]="message.id">{{ message.id }}</span>
                 <span class="message-sequence-number" [title]="message.properties.sequenceNumber">{{
                     message.properties.sequenceNumber }}</span>
