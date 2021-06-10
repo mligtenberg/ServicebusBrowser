@@ -3,6 +3,7 @@ import {Store} from '@ngrx/store';
 import {State} from '../../ngrx.module';
 import {getMessageSetReferences} from '../../messages/ngrx/messages.selectors';
 import {IMessageSetReference} from '../../messages/ngrx/messages.models';
+import {removeMessageSet} from "../../messages/ngrx/messages.actions";
 
 @Component({
   selector: 'app-tab-bar',
@@ -20,4 +21,9 @@ export class TabBarComponent implements OnInit {
     this.store.select(getMessageSetReferences).subscribe(tabs => this.tabs = tabs);
   }
 
+  removeMessageSet(messageSetId: string): void {
+    this.store.dispatch(removeMessageSet({
+      messageSetId
+    }));
+  }
 }

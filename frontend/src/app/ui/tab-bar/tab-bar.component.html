@@ -4,6 +4,6 @@
   </div>
   <div class="tab" *ngFor="let tab of tabs" [title]="tab.name" [routerLink]="['/messages/view', tab.messageSetId]" routerLinkActive="active">
     <span class="title">{{tab.name}}</span>
-    <button>X</button>
+    <button (click)="removeMessageSet(tab.messageSetId)">X</button>
   </div>
 </div>

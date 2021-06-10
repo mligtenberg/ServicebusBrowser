@@ -61,6 +61,13 @@ export const sendMessagesSuccess = createAction(
   }>()
 );
 
+export const removeMessageSet = createAction(
+  '[Messages/MessageSets] Remove message set',
+  props<{
+    messageSetId: string;
+  }>()
+);
+
 export const getSubscriptionMessages = createAction(
   '[Messages/Topic/Subscription] Retreive messages from subscription',
   props<{
@@ -96,7 +103,7 @@ export const getSubscriptionMessagesFailure = createAction(
 );
 
 export const clearQueueMessages = createAction(
-  "[Messages/Queue] Delete messages of queue",
+  '[Messages/Queue] Delete messages of queue',
   props<{
     connectionId: string;
     queueName: string;
@@ -105,7 +112,7 @@ export const clearQueueMessages = createAction(
 );
 
 export const clearQueueMessagesSucces = createAction(
-  "[Messages/Queue/Response] Deleted messages of queue succesfully",
+  '[Messages/Queue/Response] Deleted messages of queue succesfully',
   props<{
     connectionId: string;
     queueName: string;
@@ -114,7 +121,7 @@ export const clearQueueMessagesSucces = createAction(
 );
 
 export const clearQueueMessagesFailed = createAction(
-  "[Messages/Queue/Response] Deleting messages of queue failed",
+  '[Messages/Queue/Response] Deleting messages of queue failed',
   props<{
     connectionId: string;
     queueName: string;
@@ -124,7 +131,7 @@ export const clearQueueMessagesFailed = createAction(
 );
 
 export const clearSubscriptionMessages = createAction(
-  "[Messages/Topic/Subscription] Delete messages of subscription",
+  '[Messages/Topic/Subscription] Delete messages of subscription',
   props<{
     connectionId: string;
     topicName: string;
@@ -134,7 +141,7 @@ export const clearSubscriptionMessages = createAction(
 );
 
 export const clearSubscriptionMessagesSuccesfull = createAction(
-  "[Messages/Topic/Subscription] Deleted messages of successfully",
+  '[Messages/Topic/Subscription] Deleted messages of successfully',
   props<{
     connectionId: string;
     topicName: string;
@@ -144,7 +151,7 @@ export const clearSubscriptionMessagesSuccesfull = createAction(
 );
 
 export const clearSubscriptionMessagesFailed = createAction(
-  "[Messages/Topic/Subscription] Deleting messages of failed",
+  '[Messages/Topic/Subscription] Deleting messages of failed',
   props<{
     connectionId: string;
     topicName: string;

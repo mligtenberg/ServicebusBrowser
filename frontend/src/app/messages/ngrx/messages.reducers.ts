@@ -79,5 +79,11 @@ export const messagesReducer = createReducer<IMessagesState>(
       ...state,
       openedMessages: null
     };
+  }),
+  on(actions.removeMessageSet, (state, action) => {
+    return {
+      ...state,
+      messageSets: state.messageSets.filter(ms => ms.messageSetId !== action.messageSetId)
+    };
   })
 );
