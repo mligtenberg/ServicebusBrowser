@@ -7,7 +7,6 @@
   height:2em;
   display: flex;
   flex-direction: row;
-  overflow-x: scroll;
 }
 
 .tab {
@@ -17,6 +16,7 @@
   max-width: 12em;
   user-select: text;
   cursor: pointer;
+  margin-right: -1px;
 
   &.active {
     background: $background-darker;
@@ -41,7 +41,7 @@
     background: $background-darker;
     height: 1em;
     width: 1px;
-    margin: 0.5em 0.2em;
+    margin: 0.5em 0 0.5em 0.2em;
   }
 
   button {
