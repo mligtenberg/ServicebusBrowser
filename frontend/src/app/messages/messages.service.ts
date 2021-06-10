@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {ServiceBusClient, ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver} from '@azure/service-bus';
+import { ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver} from '@azure/service-bus';
 import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
@@ -200,6 +200,11 @@ export class MessagesService {
 
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
       this.log.logInfo(`Loaded ${messages.length} of ${numberOfMessages} messages, ~${percentage}%`);
+    }
+
+    const duplicateChecks = messages.map(m => m.sequenceNumber);
+    if (duplicateChecks.some((sn, index) => duplicateChecks.indexOf(sn) !== index)) {
+      console.log('Duplicates found!!');
     }
 
     return messages.map(m => this.mapMessage(m));
