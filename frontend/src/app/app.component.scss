@@ -1,38 +1,37 @@
 :host {
-    display: block;
-    height: 100%;
-    width: 100%;
+  display: grid;
+  height: 100%;
+  width: 100%;
+
+  grid-template-areas:
+    'menu menu'
+    'sidebar tabs'
+    'sidebar page'
+    'sidebar console';
+
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: auto 1fr;
 }
 
-.body {
-    display: flex;
-    flex: 1;
-    height: calc(100% - 30px);
+.menu {
+  grid-area: menu;
 }
 
-app-menu-bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 50;
+.sidebar {
+  grid-area: sidebar;
 }
 
-app-sidebar {
-    display: block;
-    height: 100%;
+.tabs {
+  grid-area: tabs;
+  overflow-y: auto;
 }
 
-.wrapper {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+.page {
+  grid-area: page;
+  overflow: auto;
+  padding: 0.5em;
 }
 
-.view {
-    display: block;
-    flex: 1;
-    height: 100%;
-    padding: 6px;
-    overflow-y: scroll;
-    box-sizing: border-box;
+.console {
+  grid-area: console;
 }
