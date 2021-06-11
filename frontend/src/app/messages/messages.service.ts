@@ -202,7 +202,7 @@ export class MessagesService {
       messages.push(...messagesPart);
 
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
-      this.log.logInfo(`Loaded ${messages.length} of ${numberOfMessages} messages, ~${percentage}%`);
+      this.log.logVerbose(`Loaded ${messages.length} of ${numberOfMessages} messages, ~${percentage}%`);
     }
 
     const duplicateChecks = messages.map(m => m.sequenceNumber);
