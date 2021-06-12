@@ -6,6 +6,9 @@ import { ILoggingState } from './logging/ngrx/logging.reducers';
 import { IMessagesState } from './messages/ngrx/messages.reducers';
 import { IQueuesState } from './queues/ngrx/queues.reducers';
 import { ITopicsState } from './topics/ngrx/topics.reducers';
+import {globalStateReducer, IGlobalState} from './ngrx/reducer';
+import {EffectsModule} from '@ngrx/effects';
+import {GlobalStateEffects} from './global-state.effects';
 
 export interface State {
   logging: ILoggingState;
@@ -14,14 +17,17 @@ export interface State {
   topics: ITopicsState;
   messages: IMessagesState;
   router: RouterReducerState<any>;
+  global: IGlobalState;
 }
 
 @NgModule({
   declarations: [],
   imports: [
     StoreModule.forRoot({
-      router: routerReducer
-    })
+      router: routerReducer,
+      global: globalStateReducer,
+    }),
+    EffectsModule.forFeature([GlobalStateEffects])
   ]
 })
 export class NgrxModule { }

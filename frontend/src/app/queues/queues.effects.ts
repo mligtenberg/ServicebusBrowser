@@ -5,12 +5,11 @@ import { of, from } from 'rxjs';
 import { catchError, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { getActiveConnectionById, getActiveConnections, getSelectedConnection } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
-import * as actions from "./ngrx/queues.actions";
+import * as actions from './ngrx/queues.actions';
 import { openConnection, openSelectedConnection } from '../connections/ngrx/connections.actions';
 import { QueuesService } from './queues.service';
 import { clearQueueMessagesSucces } from '../messages/ngrx/messages.actions';
 import { MessagebarService } from '../ui/messagebar.service';
-import { tap } from 'lodash';
 
 @Injectable()
 export class QueuesEffects {
@@ -33,7 +32,7 @@ export class QueuesEffects {
         if (!connections || connections.length === 0) {
           return of(actions.refreshQueuesFailed({connectionId: action.connectionId, error: 'No connections present'}))
         }
-        
+
         const connection = connections.find(c => c.id === action.connectionId);
         if (!connection) {
           return of(actions.refreshQueuesFailed({connectionId: action.connectionId, error: `Connection with id ${action.connectionId} not found`}))
@@ -65,9 +64,9 @@ export class QueuesEffects {
                   catchError((reason) => of(actions.updateQueueFailed({
                     connectionId: action.connectionId,
                     queue: action.queue,
-                    reason: reason
+                    reason
                   })))
-                )
+                );
               })
             );
           })

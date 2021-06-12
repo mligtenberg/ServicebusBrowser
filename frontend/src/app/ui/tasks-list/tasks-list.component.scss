@@ -1,0 +1,50 @@
+:host {
+  position: absolute;
+  z-index: 10000;
+  right: 0;
+  top: 0;
+}
+
+.task-list {
+  --task-width: 16em;
+
+  .open {
+
+  }
+}
+
+.task {
+  width: var(--task-width);
+  background: rgba(0, 60, 82, 0.8);
+  padding: 1em;
+  margin: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  color: #FFFFFF;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.subtitle {
+  color: #FFFFFF;
+  font-size: 0.8em;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+progress {
+  width: 100%;
+}
+
+.message {
+  color: #FFFFFF;
+  font-size: 0.6em;
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

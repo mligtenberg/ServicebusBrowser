@@ -5,6 +5,10 @@ import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
 import { IMessage, MessagesChannel } from './ngrx/messages.models';
 import * as Long from 'Long';
+import {Store} from '@ngrx/store';
+import {State} from '../ngrx.module';
+import {v4} from "uuid";
+import {createTask, finishTask, updateTaskDonePercentage} from "../ngrx/actions";
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +16,8 @@ import * as Long from 'Long';
 export class MessagesService {
   constructor(
     private connectionService: ConnectionService,
-    private log: LogService
+    private log: LogService,
+    private store: Store<State>,
   ) {}
 
   async getQueueMessages(
@@ -183,6 +188,16 @@ export class MessagesService {
   }
 
   private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number): Promise<IMessage[]> {
+    const taskId = v4();
+    const message = `Loaded 0 of ${numberOfMessages} messages, 0%`;
+    this.store.dispatch(createTask({
+      id: taskId,
+      title: 'Retrieving messages',
+      subtitle: receiver.entityPath,
+      donePercentage: 0,
+      progressBarMessage: message
+    }));
+
     const messages: ServiceBusReceivedMessage[] = [];
     let lastLength = -1;
 
@@ -202,13 +217,20 @@ export class MessagesService {
       messages.push(...messagesPart);
 
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
-      this.log.logVerbose(`Loaded ${messages.length} of ${numberOfMessages} messages, ~${percentage}%`);
+      const progressBarMessage = `Loaded ${messages.length} of ${numberOfMessages} messages, ${percentage}%`;
+      this.store.dispatch(updateTaskDonePercentage({
+        id: taskId,
+        donePercentage: percentage,
+        progressBarMessage
+      }));
+      this.log.logVerbose(progressBarMessage);
     }
 
     const duplicateChecks = messages.map(m => m.sequenceNumber);
-    if (duplicateChecks.some((sn, index) => duplicateChecks.indexOf(sn) !== index)) {
-      console.log('Duplicates found!!');
-    }
+
+    this.store.dispatch(finishTask({
+      id: taskId
+    }));
 
     return messages.map(m => this.mapMessage(m));
   }

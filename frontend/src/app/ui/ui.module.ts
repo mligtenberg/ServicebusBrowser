@@ -21,8 +21,8 @@ import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { TextboxDialogInputComponent } from './textbox-dialog-input/textbox-dialog-input.component';
 import { FirstLinePipe } from './pipes/first-line.pipe';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
-import {RouterModule} from "@angular/router";
-
+import {RouterModule} from '@angular/router';
+import { TasksListComponent } from './tasks-list/tasks-list.component';
 @NgModule({
   declarations: [
     MenubarComponent,
@@ -41,7 +41,8 @@ import {RouterModule} from "@angular/router";
     TextboxInputDialogComponent,
     TextboxDialogInputComponent,
     FirstLinePipe,
-    TabBarComponent
+    TabBarComponent,
+    TasksListComponent
   ],
   imports: [
     CommonModule,
@@ -64,7 +65,8 @@ import {RouterModule} from "@angular/router";
         DurationInputComponent,
         ContextmenuDividerComponent,
         TextboxDialogInputComponent,
-        TabBarComponent
+        TabBarComponent,
+        TasksListComponent
     ]
 })
 export class UiModule { }
