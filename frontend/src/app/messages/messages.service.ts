@@ -7,8 +7,8 @@ import { IMessage, MessagesChannel } from './ngrx/messages.models';
 import * as Long from 'long';
 import {Store} from '@ngrx/store';
 import {State} from '../ngrx.module';
-import {v4} from "uuid";
-import {createTask, finishTask, updateTaskDonePercentage} from "../ngrx/actions";
+import {v4} from 'uuid';
+import {createTask, finishTask, updateTaskDonePercentage} from '../ngrx/actions';
 
 @Injectable({
   providedIn: 'root',
@@ -225,8 +225,6 @@ export class MessagesService {
       }));
       this.log.logVerbose(progressBarMessage);
     }
-
-    const duplicateChecks = messages.map(m => m.sequenceNumber);
 
     this.store.dispatch(finishTask({
       id: taskId

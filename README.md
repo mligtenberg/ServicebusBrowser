@@ -17,10 +17,19 @@ Currently you are able to:
 
 ## How to run
 ### Installer
-Download the Windows, Mac, Linux versions of the app here:
+Download the Windows, Linux versions of the app here:
 - https://github.com/mligtenberg/ServicebusBrowser/releases
 
+For mac users a manual release is advised for now
+since the build is required to be signed.
+
 ### Manual build (release build)
+#### Requirements
+- Node V14 or V15
+    - for Apple Silicon users a x64 build of node is advised
+- NPM V6 or V7    
+
+#### Steps
 - Clone the project
 - Install the dependencies with ``npm install`` in the main directory
 - Build by running ``npm release`` in the main directory
