@@ -99,7 +99,7 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    await this.getMessagesInternal(receiver, messageCount, {
+    await this.getMessagesInternal(receiver, messageCount, false, {
       pastPerfect: 'Cleared',
       presentContinues: 'Clearing'
     });
@@ -136,7 +136,7 @@ export class MessagesService {
         break;
     }
 
-    await this.getMessagesInternal(receiver, messageCount, {
+    await this.getMessagesInternal(receiver, messageCount, false, {
       pastPerfect: 'Cleared',
       presentContinues: 'Clearing'
     });
@@ -184,7 +184,7 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    const messages = await this.getMessagesInternal(receiver, numberOfMessages, {
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
       pastPerfect: 'Retrieved',
       presentContinues: 'Retrieving'
     });
@@ -207,7 +207,7 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    const messages = await this.getMessagesInternal(receiver, numberOfMessages, {
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
       pastPerfect: 'Retrieved',
       presentContinues: 'Retrieving'
     });
@@ -219,7 +219,7 @@ export class MessagesService {
   }
 
 
-  private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number, messageWord: {
+  private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number, peek: boolean, messageWord: {
     presentContinues: string,
     pastPerfect: string
   }): Promise<IMessage[]> {
@@ -245,9 +245,10 @@ export class MessagesService {
       const lastSequenceNumber: Long.Long | undefined
         = messages.length ? messages[messages.length - 1].sequenceNumber : undefined;
 
-      const messagesPart = await receiver.peekMessages(maxMessageCount, {
-        fromSequenceNumber: lastSequenceNumber
-      });
+      const messagesPart = peek
+        ? await receiver.peekMessages(maxMessageCount, {
+          fromSequenceNumber: lastSequenceNumber?.add(1)
+        }) : await receiver.receiveMessages(maxMessageCount);
 
       messages.push(...messagesPart);
 
