@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver} from '@azure/service-bus';
-import { ConnectionService } from '../connections/connection.service';
-import { IConnection } from '../connections/ngrx/connections.models';
-import { LogService } from '../logging/log.service';
-import { IMessage, MessagesChannel } from './ngrx/messages.models';
+import {Injectable} from '@angular/core';
+import {ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver} from '@azure/service-bus';
+import {ConnectionService} from '../connections/connection.service';
+import {IConnection} from '../connections/ngrx/connections.models';
+import {LogService} from '../logging/log.service';
+import {IMessage, MessagesChannel} from './ngrx/messages.models';
 import * as Long from 'long';
 import {Store} from '@ngrx/store';
 import {State} from '../ngrx.module';
@@ -77,13 +77,32 @@ export class MessagesService {
     queueName: string,
     channel: MessagesChannel
   ): Promise<void> {
+    const adminClient = this.connectionService.getAdminClient(connection);
+    const runtimeProperties = await adminClient.getQueueRuntimeProperties(queueName);
+
+    let messageCount = 0;
+    switch (channel) {
+      case MessagesChannel.regular:
+        messageCount = runtimeProperties.activeMessageCount;
+        break;
+      case MessagesChannel.deadletter:
+        messageCount = runtimeProperties.deadLetterMessageCount;
+        break;
+      case MessagesChannel.transferedDeadletters:
+        messageCount = runtimeProperties.transferDeadLetterMessageCount;
+        break;
+    }
+
     const client = this.connectionService.getClient(connection);
     const receiver = client.createReceiver(queueName, {
       receiveMode: 'receiveAndDelete',
       subQueueType: this.getSubQueueType(channel)
     });
 
-    await this.clearReceiverMessages(receiver);
+    await this.getMessagesInternal(receiver, messageCount, {
+      pastPerfect: 'Cleared',
+      presentContinues: 'Clearing'
+    });
 
     await receiver.close();
     await client.close();
@@ -101,7 +120,26 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    await this.clearReceiverMessages(receiver);
+    const adminClient = this.connectionService.getAdminClient(connection);
+    const runtimeProperties = await adminClient.getSubscriptionRuntimeProperties(topicName, subscriptionName);
+
+    let messageCount = 0;
+    switch (channel) {
+      case MessagesChannel.regular:
+        messageCount = runtimeProperties.activeMessageCount;
+        break;
+      case MessagesChannel.deadletter:
+        messageCount = runtimeProperties.deadLetterMessageCount;
+        break;
+      case MessagesChannel.transferedDeadletters:
+        messageCount = runtimeProperties.transferDeadLetterMessageCount;
+        break;
+    }
+
+    await this.getMessagesInternal(receiver, messageCount, {
+      pastPerfect: 'Cleared',
+      presentContinues: 'Clearing'
+    });
 
     await receiver.close();
     await client.close();
@@ -135,19 +173,6 @@ export class MessagesService {
     await client.close();
   }
 
-  private async clearReceiverMessages(receiver: ServiceBusReceiver): Promise<void> {
-    this.log.logInfo(`Clearing messages for ${receiver.entityPath}`);
-
-    let receivedMessages = [];
-    do {
-      receivedMessages = await receiver.receiveMessages(50, {
-        maxWaitTimeInMs: 1000
-      });
-    } while (receivedMessages.length > 0);
-
-    this.log.logInfo(`Cleared messages for ${receiver.entityPath} successfully`);
-  }
-
   private async getQueuesMessagesInternal(
     connection: IConnection,
     queueName: string,
@@ -159,7 +184,10 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    const messages = await this.getMessagesInternal(receiver, numberOfMessages);
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages, {
+      pastPerfect: 'Retrieved',
+      presentContinues: 'Retrieving'
+    });
 
     await receiver.close();
     await client.close();
@@ -179,7 +207,10 @@ export class MessagesService {
       subQueueType: this.getSubQueueType(channel)
     });
 
-    const messages = await this.getMessagesInternal(receiver, numberOfMessages);
+    const messages = await this.getMessagesInternal(receiver, numberOfMessages, {
+      pastPerfect: 'Retrieved',
+      presentContinues: 'Retrieving'
+    });
 
     await receiver.close();
     await client.close();
@@ -187,12 +218,16 @@ export class MessagesService {
     return messages;
   }
 
-  private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number): Promise<IMessage[]> {
+
+  private async getMessagesInternal(receiver: ServiceBusReceiver, numberOfMessages: number, messageWord: {
+    presentContinues: string,
+    pastPerfect: string
+  }): Promise<IMessage[]> {
     const taskId = v4();
-    const message = `Loaded 0 of ${numberOfMessages} messages, 0%`;
+    const message = `${messageWord.pastPerfect} 0 of ${numberOfMessages} messages, 0%`;
     this.store.dispatch(createTask({
       id: taskId,
-      title: 'Retrieving messages',
+      title: `${messageWord.presentContinues} messages`,
       subtitle: receiver.entityPath,
       donePercentage: 0,
       progressBarMessage: message
@@ -217,7 +252,7 @@ export class MessagesService {
       messages.push(...messagesPart);
 
       const percentage = Math.round(messages.length / numberOfMessages * 10000) / 100;
-      const progressBarMessage = `Loaded ${messages.length} of ${numberOfMessages} messages, ${percentage}%`;
+      const progressBarMessage = `${messageWord.pastPerfect} ${messages.length} of ${numberOfMessages} messages, ${percentage}%`;
       this.store.dispatch(updateTaskDonePercentage({
         id: taskId,
         donePercentage: percentage,
