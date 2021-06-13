@@ -4,7 +4,7 @@ import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
 import { IMessage, MessagesChannel } from './ngrx/messages.models';
-import * as Long from 'Long';
+import * as Long from 'long';
 import {Store} from '@ngrx/store';
 import {State} from '../ngrx.module';
 import {v4} from "uuid";
