@@ -4,3 +4,4 @@ temp
 /build
 .cache
 .idea
+frontend/.angular/
