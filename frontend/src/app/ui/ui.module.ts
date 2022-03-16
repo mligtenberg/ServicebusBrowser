@@ -17,7 +17,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContextmenuDividerComponent } from './contextmenu-divider/contextmenu-divider.component';
 import { MessagebarComponent } from './messagebar/messagebar.component';
 import { TextboxInputDialogComponent } from './textbox-input-dialog/textbox-input-dialog.component';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { TextboxDialogInputComponent } from './textbox-dialog-input/textbox-dialog-input.component';
 import { FirstLinePipe } from './pipes/first-line.pipe';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
@@ -50,7 +49,6 @@ import { TasksListComponent } from './tasks-list/tasks-list.component';
     ResizableModule,
     FormsModule,
     ReactiveFormsModule,
-    MonacoEditorModule,
     RouterModule
   ],
     exports: [
