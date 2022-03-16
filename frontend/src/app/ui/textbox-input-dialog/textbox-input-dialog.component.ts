@@ -12,14 +12,14 @@ export class TextboxInputDialogComponent {
   editorOptions = { theme: 'vs-light', language: 'text/plain' };
 
   constructor(options: DialogOptions, private dialogRef: DialogRef<string>) {
-    this.text = options.get("text");
+    this.text = options.get('text');
   }
 
-  submit() {
+  submit(): void {
     this.dialogRef.respond(this.text);
   }
 
-  cancel() {
+  cancel(): void {
     this.dialogRef.cancel();
   }
 }

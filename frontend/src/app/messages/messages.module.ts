@@ -10,9 +10,9 @@ import { GetMesagesDialogComponent } from './get-mesages-dialog/get-mesages-dial
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { QueueMessageComponent } from './queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { SelectMessageTargetDialogComponent } from './select-message-target-dialog/select-message-target-dialog.component';
 import { ConnectionsModule } from '../connections/connections.module';
+import {NuMonacoEditorModule} from "@ng-util/monaco-editor";
 
 const routes: Routes = [
   { path: 'view/:messageSetId', component: ViewMessagesComponent },
@@ -29,7 +29,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     UiModule,
-    MonacoEditorModule,
+    NuMonacoEditorModule,
     ConnectionsModule
   ],
   exports: [

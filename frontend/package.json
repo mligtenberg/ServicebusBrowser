@@ -27,6 +27,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.1.0",
     "@fortawesome/free-regular-svg-icons": "^6.1.0",
     "@fortawesome/free-solid-svg-icons": "^6.1.0",
+    "@ng-util/monaco-editor": "^13.0.0",
     "@ngrx/effects": "^13.0.2",
     "@ngrx/router-store": "^13.0.2",
     "@ngrx/store": "^13.0.2",

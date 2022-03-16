@@ -22,6 +22,7 @@ import { FirstLinePipe } from './pipes/first-line.pipe';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
 import {RouterModule} from '@angular/router';
 import { TasksListComponent } from './tasks-list/tasks-list.component';
+import {NuMonacoEditorModule} from '@ng-util/monaco-editor';
 @NgModule({
   declarations: [
     MenubarComponent,
@@ -49,6 +50,7 @@ import { TasksListComponent } from './tasks-list/tasks-list.component';
     ResizableModule,
     FormsModule,
     ReactiveFormsModule,
+    NuMonacoEditorModule,
     RouterModule
   ],
     exports: [
