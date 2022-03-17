@@ -1,13 +1,12 @@
-import { state } from "@angular/animations";
-import { createReducer, on } from "@ngrx/store";
-import * as actions from "./topics.actions";
-import { ISubscriptionTopicSet, ITopicConnectionSet } from "./topics.models";
+import { createReducer, on } from '@ngrx/store';
+import * as actions from './topics.actions';
+import { ISubscriptionTopicSet, ITopicConnectionSet } from './topics.models';
 
 export interface ITopicsState {
-    topicConnectionSets: ITopicConnectionSet[],
-    subscriptionSets: ISubscriptionTopicSet[],
-    loadingTopicsFor: string[],
-    loadingSubscriptionsFor: string[]
+    topicConnectionSets: ITopicConnectionSet[];
+    subscriptionSets: ISubscriptionTopicSet[];
+    loadingTopicsFor: string[];
+    loadingSubscriptionsFor: string[];
 }
 
 const initialState: ITopicsState = {
@@ -15,7 +14,7 @@ const initialState: ITopicsState = {
     subscriptionSets: [],
     loadingSubscriptionsFor: [],
     loadingTopicsFor: []
-}
+};
 
 export const topicReducer = createReducer<ITopicsState>(
     initialState,
@@ -23,38 +22,38 @@ export const topicReducer = createReducer<ITopicsState>(
         return {
             ...state,
             loadingTopicsFor: [
-                ...state.loadingTopicsFor.filter(c => c != action.connectionId),
+                ...state.loadingTopicsFor.filter(c => c !== action.connectionId),
                 action.connectionId
             ]
-        }
+        };
     }),
     on(actions.refreshTopicsSuccess, (state, action) => {
         return {
             ...state,
             topicConnectionSets: [
-                ...state.topicConnectionSets.filter(c => c.connectionId != action.connectionId),
+                ...state.topicConnectionSets.filter(c => c.connectionId !== action.connectionId),
                 {
                     connectionId: action.connectionId,
                     topics: action.topics,
                 }
             ],
-            loadingTopicsFor: state.loadingTopicsFor.filter(c => c != action.connectionId)
-        }
+            loadingTopicsFor: state.loadingTopicsFor.filter(c => c !== action.connectionId)
+        };
     }),
     on(actions.refreshSubscriptionsFailed, (state, action) => {
         return {
             ...state,
-            loadingTopicsFor: state.loadingTopicsFor.filter(c => c != action.connectionId)
-        }
+            loadingTopicsFor: state.loadingTopicsFor.filter(c => c !== action.connectionId)
+        };
     }),
     on(actions.refreshSubscriptions, (state, action) => {
         return {
             ...state,
             loadingSubscriptionsFor: [
-                ...state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`),
+                ...state.loadingSubscriptionsFor.filter(c => c !== `${action.connectionId}/${action.topicName}`),
                 `${action.connectionId}/${action.topicName}`
             ]
-        }
+        };
     }),
     on(actions.refreshSubscriptionsSuccess, (state, action) => {
         return {
@@ -67,17 +66,17 @@ export const topicReducer = createReducer<ITopicsState>(
                     subscriptions: action.subscriptions
                 }
             ],
-            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`)
-        }
+            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c !== `${action.connectionId}/${action.topicName}`)
+        };
     }),
     on(actions.refreshSubscriptionsFailed, (state, action) => {
         return {
             ...state,
-            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c != `${action.connectionId}/${action.topicName}`)         
-        }
+            loadingSubscriptionsFor: state.loadingSubscriptionsFor.filter(c => c !== `${action.connectionId}/${action.topicName}`)
+        };
     }),
     on(actions.updateTopicSuccesful, (state, action) => {
-        const topicSet = state.topicConnectionSets.find(t => t.connectionId == action.connectionId);
+        const topicSet = state.topicConnectionSets.find(t => t.connectionId === action.connectionId);
         return {
             ...state,
             topicConnectionSets: [
@@ -90,6 +89,6 @@ export const topicReducer = createReducer<ITopicsState>(
                     ]
                 }
             ]
-        }
+        };
     })
-)
+);

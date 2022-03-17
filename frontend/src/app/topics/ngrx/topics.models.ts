@@ -1,7 +1,8 @@
 import { IAuthorizationRule } from '../../models/IAuthorizationRule';
+import {RuleProperties} from '@azure/service-bus';
 
 export interface ITopic {
-    name: string,
+    name: string;
     properties: {
        defaultMessageTimeToLive: string;
        maxSizeInMegabytes: number;
@@ -14,7 +15,7 @@ export interface ITopic {
        autoDeleteOnIdle: string;
        enablePartitioning: boolean;
        enableExpress: boolean;
-    },
+    };
     info: {
         status: string;
         availabilityStatus: string;
@@ -24,11 +25,11 @@ export interface ITopic {
         createdAt: Date;
         modifiedAt: Date;
         accessedAt: Date;
-    }
+    };
 }
 
 export interface ISubscription {
-    name: string,
+    name: string;
     properties: {
         lockDuration: string;
         requiresSession: boolean;
@@ -41,7 +42,7 @@ export interface ISubscription {
         userMetadata?: string;
         forwardDeadLetteredMessagesTo?: string;
         autoDeleteOnIdle: string;
-    },
+    };
     info: {
         status: string;
         availabilityStatus?: string;
@@ -54,15 +55,16 @@ export interface ISubscription {
         createdAt: Date;
         modifiedAt: Date;
         accessedAt: Date;
-    }
+    };
+    rules: RuleProperties[];
 }
 export interface ITopicConnectionSet {
-    connectionId: string,
-    topics: ITopic[]
+    connectionId: string;
+    topics: ITopic[];
 }
 
 export interface ISubscriptionTopicSet {
-    connectionId: string,
-    topicName: string,
-    subscriptions: ISubscription[]
+    connectionId: string;
+    topicName: string;
+    subscriptions: ISubscription[];
 }

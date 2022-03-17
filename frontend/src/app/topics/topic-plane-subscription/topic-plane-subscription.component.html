@@ -1,4 +1,9 @@
-<div (contextmenu)="onContextMenuSelected($event)" (click)="onSelected($event)" class="subscription">
-    <span class="subscription-name">{{ subscription.name }}</span>
-    <span class="subscription-specs">({{subscription.info.activeMessageCount}}, {{subscription.info.deadLetterMessageCount}}, {{subscription.info.transferDeadLetterMessageCount}})</span>  
-</div>
+<app-toggle-box>
+  <span class="title" (contextmenu)="onContextMenuSelected($event)" (click)="onSelected($event)" >
+      <span class="subscription-name">{{ subscription.name }}</span>
+      <span class="subscription-specs">({{subscription.info.activeMessageCount}}, {{subscription.info.deadLetterMessageCount}}, {{subscription.info.transferDeadLetterMessageCount}})</span>
+  </span>
+  <span class="body">
+    <span *ngFor="let rule of subscription.rules">{{rule.name}}</span>
+  </span>
+</app-toggle-box>

@@ -1,4 +1,4 @@
-import { TemplateRef, ViewChild, Component, Input, Output, EventEmitter } from '@angular/core';
+import {TemplateRef, ViewChild, Component, Input, Output, EventEmitter } from '@angular/core';
 import { ISubscriptionSelectionEvent, SubscriptionSelectionType } from '../models/ISubscriptionSelectionEvent';
 import { ISubscription, ITopic } from '../ngrx/topics.models';
 
@@ -18,7 +18,7 @@ export class TopicPlaneSubscriptionComponent {
   @ViewChild('contextMenu')
   contextMenuReference: TemplateRef<any>;
 
-  onSelected($event: MouseEvent) {
+  onSelected($event: MouseEvent): void {
     this.selected.emit({
       clickPosition: {
         clientX: $event.clientX,
@@ -27,10 +27,12 @@ export class TopicPlaneSubscriptionComponent {
       type: SubscriptionSelectionType.click,
       topic: this.topic,
       subscription: this.subscription
-    })
+    });
+
+    $event.stopPropagation();
   }
 
-  onContextMenuSelected($event: MouseEvent) {
+  onContextMenuSelected($event: MouseEvent): void {
     this.contextMenuSelected.emit({
       clickPosition: {
         clientX: $event.clientX,
@@ -39,6 +41,6 @@ export class TopicPlaneSubscriptionComponent {
       type: SubscriptionSelectionType.contextMenu,
       topic: this.topic,
       subscription: this.subscription
-    })
+    });
   }
 }

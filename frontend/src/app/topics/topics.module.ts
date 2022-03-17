@@ -15,6 +15,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { TopicDetailsComponent } from './topic-details/topic-details.component';
 import { SubscriptionContextMenuComponent } from './subscription-context-menu/subscription-context-menu.component';
 import { TopicsPlaneBaseComponent } from './topics-plane-base/topics-plane-base.component';
+import {SubscriptionsEffects} from "./subscriptions.effects";
 
 const routes: Routes = [
   { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
@@ -26,7 +27,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     StoreModule.forFeature('topics', topicReducer),
-    EffectsModule.forFeature([TopicsEffects]),
+    EffectsModule.forFeature([TopicsEffects, SubscriptionsEffects]),
     UiModule,
     FontAwesomeModule,
     ReactiveFormsModule,

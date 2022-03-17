@@ -12,7 +12,7 @@ export class ToggleBoxComponent {
   constructor() { }
 
   @Input()
-  ignoreTitle: boolean = false;
+  ignoreTitle = false;
 
   @Input() @Output()
   open: boolean;
@@ -23,23 +23,23 @@ export class ToggleBoxComponent {
   @Output()
   bodyClosed = new EventEmitter();
 
-  get stateIcon(): IconDefinition { 
+  get stateIcon(): IconDefinition {
     return this.open ? faChevronDown : faChevronRight;
   }
 
-  click($event: Event) {
+  click($event: Event): void {
     this.open = !this.open;
     if (this.open) {
-      this.bodyOpened.emit("Body opened");
+      this.bodyOpened.emit('Body opened');
     } else {
-      this.bodyClosed.emit("Body closed");
+      this.bodyClosed.emit('Body closed');
     }
 
     $event.stopPropagation();
   }
 
-  clickTitle($event: Event) {
-    if(!this.ignoreTitle) {
+  clickTitle($event: Event): void {
+    if (!this.ignoreTitle) {
       this.click($event);
     }
   }

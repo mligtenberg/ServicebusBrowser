@@ -29,7 +29,7 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
     private activeRoute: ActivatedRoute,
     private store: Store<State>,
     formBuilder: FormBuilder
-    ) { 
+    ) {
       this.formBuilder = formBuilder;
       this.form = this.formBuilder.group<ISubscriptionDetailsForm>({
         name: new FormControl({value: '', disabled: true}),
@@ -70,11 +70,11 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
           forwardDeadLetteredMessagesTo: s.properties.forwardDeadLetteredMessagesTo ?? '',
           deadLetteringOnFilterEvaluationExceptions: s.properties.deadLetteringOnFilterEvaluationExceptions,
         });
-      })
+      });
     }));
   }
 
-  save() {
+  save(): void {
     const formValue = this.form.value;
     this.store.dispatch(updateSubscription({
       connectionId: this.connectionId,
@@ -94,9 +94,10 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
           forwardDeadLetteredMessagesTo: formValue.forwardDeadLetteredMessagesTo,
           forwardTo: formValue.forwardTo,
           userMetadata: formValue.userMetadata
-        }
+        },
+        rules: []
       }
-    }))
+    }));
   }
 
   ngOnDestroy(): void {
