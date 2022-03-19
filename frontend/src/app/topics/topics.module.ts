@@ -15,29 +15,35 @@ import { RouterModule, Routes } from '@angular/router';
 import { TopicDetailsComponent } from './topic-details/topic-details.component';
 import { SubscriptionContextMenuComponent } from './subscription-context-menu/subscription-context-menu.component';
 import { TopicsPlaneBaseComponent } from './topics-plane-base/topics-plane-base.component';
-import {SubscriptionsEffects} from "./subscriptions.effects";
-import { SubscriptionRuleComponent } from './subscription-rule/subscription-rule.component';
+import { SubscriptionsEffects } from './subscriptions.effects';
+import { SubscriptionRuleDetailsComponent } from './subscription-rule-details/subscription-rule-details.component';
 
 const routes: Routes = [
-  { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
-  { path: 'view/:connectionId/:topicName/:subscriptionName', component: SubscriptionDetailsComponent },
-  { path: 'view/:connectionId/:topicName/:subscriptionName/:ruleName', component: SubscriptionRuleComponent }
+    { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
+    { path: 'view/:connectionId/:topicName/:subscriptionName', component: SubscriptionDetailsComponent },
+    { path: 'view/:connectionId/:topicName/:subscriptionName/:ruleName', component: SubscriptionRuleDetailsComponent },
 ];
 
 @NgModule({
-  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent, SubscriptionContextMenuComponent, TopicsPlaneBaseComponent, SubscriptionRuleComponent],
-  imports: [
-    CommonModule,
-    StoreModule.forFeature('topics', topicReducer),
-    EffectsModule.forFeature([TopicsEffects, SubscriptionsEffects]),
-    UiModule,
-    FontAwesomeModule,
-    ReactiveFormsModule,
-    RouterModule.forChild(routes)
-  ],
-  exports: [
-    TopicsPlaneComponent,
-    TopicsPlaneBaseComponent
-  ]
+    declarations: [
+        TopicsPlaneComponent,
+        TopicsPlaneItemComponent,
+        TopicPlaneSubscriptionComponent,
+        SubscriptionDetailsComponent,
+        TopicDetailsComponent,
+        SubscriptionContextMenuComponent,
+        TopicsPlaneBaseComponent,
+        SubscriptionRuleDetailsComponent,
+    ],
+    imports: [
+        CommonModule,
+        StoreModule.forFeature('topics', topicReducer),
+        EffectsModule.forFeature([TopicsEffects, SubscriptionsEffects]),
+        UiModule,
+        FontAwesomeModule,
+        ReactiveFormsModule,
+        RouterModule.forChild(routes),
+    ],
+    exports: [TopicsPlaneComponent, TopicsPlaneBaseComponent],
 })
-export class TopicsModule { }
+export class TopicsModule {}
