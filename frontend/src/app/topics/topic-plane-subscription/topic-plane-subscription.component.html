@@ -4,6 +4,6 @@
       <span class="subscription-specs">({{subscription.info.activeMessageCount}}, {{subscription.info.deadLetterMessageCount}}, {{subscription.info.transferDeadLetterMessageCount}})</span>
   </span>
   <span class="body">
-    <span *ngFor="let rule of subscription.rules">{{rule.name}}</span>
+    <span class="rule" (click)="onRuleSelected($event, rule)" *ngFor="let rule of subscription.rules">{{rule.name}}</span>
   </span>
 </app-toggle-box>

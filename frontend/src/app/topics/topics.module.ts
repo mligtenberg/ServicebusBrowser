@@ -16,14 +16,16 @@ import { TopicDetailsComponent } from './topic-details/topic-details.component';
 import { SubscriptionContextMenuComponent } from './subscription-context-menu/subscription-context-menu.component';
 import { TopicsPlaneBaseComponent } from './topics-plane-base/topics-plane-base.component';
 import {SubscriptionsEffects} from "./subscriptions.effects";
+import { SubscriptionRuleComponent } from './subscription-rule/subscription-rule.component';
 
 const routes: Routes = [
   { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
-  { path: 'view/:connectionId/:topicName/:subscriptionName', component: SubscriptionDetailsComponent }
+  { path: 'view/:connectionId/:topicName/:subscriptionName', component: SubscriptionDetailsComponent },
+  { path: 'view/:connectionId/:topicName/:subscriptionName/:ruleName', component: SubscriptionRuleComponent }
 ];
 
 @NgModule({
-  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent, SubscriptionContextMenuComponent, TopicsPlaneBaseComponent],
+  declarations: [TopicsPlaneComponent, TopicsPlaneItemComponent, TopicPlaneSubscriptionComponent, SubscriptionDetailsComponent, TopicDetailsComponent, SubscriptionContextMenuComponent, TopicsPlaneBaseComponent, SubscriptionRuleComponent],
   imports: [
     CommonModule,
     StoreModule.forFeature('topics', topicReducer),

@@ -1,4 +1,4 @@
-import { ISubscription, ITopic } from "../ngrx/topics.models";
+import { ISubscription, ITopic } from '../ngrx/topics.models';
 
 export interface ISubscriptionSelectionEvent {
     type: SubscriptionSelectionType;

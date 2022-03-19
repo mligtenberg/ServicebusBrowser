@@ -8,91 +8,99 @@ import { ITopicSelectionEvent, TopicSelectionType } from '../models/ITopicSelect
 import { refreshSubscriptions } from '../ngrx/topics.actions';
 import { ISubscription, ITopic } from '../ngrx/topics.models';
 import { getSubscriptionsLoading, getTopicSubscriptions } from '../ngrx/topics.selectors';
+import { ISubscriptionRuleSelectionEvent } from '../models/ISubscriptionRuleSelectionEvent';
 
 @Component({
-  selector: 'app-topics-plane-item',
-  templateUrl: './topics-plane-item.component.html',
-  styleUrls: ['./topics-plane-item.component.scss']
+    selector: 'app-topics-plane-item',
+    templateUrl: './topics-plane-item.component.html',
+    styleUrls: ['./topics-plane-item.component.scss'],
 })
 export class TopicsPlaneItemComponent implements OnInit, OnDestroy {
+    @Input()
+    connectionId: string;
 
-  @Input()
-  connectionId: string;
+    @Input()
+    topic: ITopic;
 
-  @Input()
-  topic: ITopic;
+    @Input()
+    showSubscriptions: boolean;
 
-  @Input()
-  showSubscriptions: boolean;
+    @Output()
+    subscriptionSelected = new EventEmitter<ISubscriptionSelectionEvent>();
+    @Output()
+    subscriptionContextMenuSelected = new EventEmitter<ISubscriptionSelectionEvent>();
 
-  @Output()
-  subscriptionSelected = new EventEmitter<ISubscriptionSelectionEvent>();
-  @Output()
-  subscriptionContextMenuSelected = new EventEmitter<ISubscriptionSelectionEvent>();
+    @Output()
+    subscriptionRuleSelected = new EventEmitter<ISubscriptionRuleSelectionEvent>();
 
-  @Output()
-  selected = new EventEmitter<ITopicSelectionEvent>();
-  @Output()
-  contextMenuSelected = new EventEmitter<ITopicSelectionEvent>();
+    @Output()
+    selected = new EventEmitter<ITopicSelectionEvent>();
+    @Output()
+    contextMenuSelected = new EventEmitter<ITopicSelectionEvent>();
 
-  subscriptions: ISubscription[] = [];
-  loading: boolean = false;
+    subscriptions: ISubscription[] = [];
+    loading = false;
 
-  subs = new Subscription();
+    subs = new Subscription();
 
-  constructor(
-    private store: Store<State>,
-    private log: LogService
-  ) { }
+    constructor(private store: Store<State>, private log: LogService) {}
 
-  ngOnInit(): void {
-    this.subs.add(this.store.select(getTopicSubscriptions(this.connectionId, this.topic.name)).subscribe(s => {
-      this.subscriptions = s;
-    }));
+    ngOnInit(): void {
+        this.subs.add(
+            this.store.select(getTopicSubscriptions(this.connectionId, this.topic.name)).subscribe((s) => {
+                this.subscriptions = s;
+            })
+        );
 
-    this.subs.add(this.store.select(getSubscriptionsLoading(this.connectionId, this.topic.name)).subscribe(isLoading => {
-      this.loading = isLoading;
-    }))
-  }
+        this.subs.add(
+            this.store.select(getSubscriptionsLoading(this.connectionId, this.topic.name)).subscribe((isLoading) => {
+                this.loading = isLoading;
+            })
+        );
+    }
 
-  refreshSubscriptions($event: Event = null): void {    
-    this.log.logInfo(`Refreshing topics for '${this.topic.name}'`);
-    this.store.dispatch(refreshSubscriptions({connectionId: this.connectionId, topicName: this.topic.name}));
+    refreshSubscriptions($event: Event = null): void {
+        this.log.logInfo(`Refreshing topics for '${this.topic.name}'`);
+        this.store.dispatch(refreshSubscriptions({ connectionId: this.connectionId, topicName: this.topic.name }));
 
-    $event?.stopPropagation();
-  }
+        $event?.stopPropagation();
+    }
 
-  onSubscriptionSelected(event: ISubscriptionSelectionEvent) {
-    this.subscriptionSelected.emit(event);
-  }
+    onSubscriptionSelected(event: ISubscriptionSelectionEvent): void {
+        this.subscriptionSelected.emit(event);
+    }
 
-  onContextMenuSubscriptionSelected(event: ISubscriptionSelectionEvent) {
-    this.subscriptionContextMenuSelected.emit(event);
-  }
+    onContextMenuSubscriptionSelected(event: ISubscriptionSelectionEvent): void {
+        this.subscriptionContextMenuSelected.emit(event);
+    }
 
-  onSelected($event: MouseEvent) {
-    this.selected.emit({
-      clickPosition: {
-        clientX: $event.clientX,
-        clientY: $event.clientY
-      },
-      type: TopicSelectionType.click,
-      topic: this.topic
-    })
-  }
+    onSubscriptionRuleSelected(event: ISubscriptionRuleSelectionEvent): void {
+        this.subscriptionRuleSelected.emit(event);
+    }
 
-  onContextMenuSelected($event: MouseEvent) {
-    this.selected.emit({
-      clickPosition: {
-        clientX: $event.clientX,
-        clientY: $event.clientY
-      },
-      type: TopicSelectionType.contextMenu,
-      topic: this.topic
-    })
-  }
+    onSelected($event: MouseEvent): void {
+        this.selected.emit({
+            clickPosition: {
+                clientX: $event.clientX,
+                clientY: $event.clientY,
+            },
+            type: TopicSelectionType.click,
+            topic: this.topic,
+        });
+    }
 
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
-  }
+    onContextMenuSelected($event: MouseEvent): void {
+        this.selected.emit({
+            clickPosition: {
+                clientX: $event.clientX,
+                clientY: $event.clientY,
+            },
+            type: TopicSelectionType.contextMenu,
+            topic: this.topic,
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.subs.unsubscribe();
+    }
 }

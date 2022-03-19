@@ -6,54 +6,56 @@ import { ContextmenuService } from 'src/app/ui/contextmenu.service';
 import { ISubscriptionSelectionEvent } from '../models/ISubscriptionSelectionEvent';
 import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
 import { ISubscription, ITopic } from '../ngrx/topics.models';
+import { ISubscriptionRuleSelectionEvent } from '../models/ISubscriptionRuleSelectionEvent';
 
 @Component({
-  selector: 'app-topics-plane',
-  templateUrl: './topics-plane.component.html',
-  styleUrls: ['./topics-plane.component.scss']
+    selector: 'app-topics-plane',
+    templateUrl: './topics-plane.component.html',
+    styleUrls: ['./topics-plane.component.scss'],
 })
 export class TopicsPlaneComponent {
-  @Input()
-  connection: IConnection;
+    @Input()
+    connection: IConnection;
 
-  @ViewChild('subscriptionContextMenu')
-  subscriptionContextMenu: TemplateRef<any>
+    @ViewChild('subscriptionContextMenu')
+    subscriptionContextMenu: TemplateRef<any>;
 
-  selectedTopic: ITopic;
-  selectedSubscription: ISubscription;
+    selectedTopic: ITopic;
+    selectedSubscription: ISubscription;
 
-  topics: ITopic[];
+    topics: ITopic[];
 
-  topicsSubscription: Subscription;
-  loading: boolean = false;
+    topicsSubscription: Subscription;
+    loading = false;
 
-  constructor(
-    private router: Router,
-    private contextMenu: ContextmenuService
-  ) { }
+    constructor(private router: Router, private contextMenu: ContextmenuService) {}
 
-  onTopicSelected($event: ITopicSelectionEvent) {
-    this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name]);
-  }
+    onTopicSelected($event: ITopicSelectionEvent): void {
+        this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name]);
+    }
 
-  onSubscriptionSelected($event: ISubscriptionSelectionEvent) {
-    this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name, $event.subscription.name]);
-  }
+    onSubscriptionSelected($event: ISubscriptionSelectionEvent): void {
+        this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name, $event.subscription.name]);
+    }
 
-  onSubscriptionContextMenuSelected($event: ISubscriptionSelectionEvent) {
-    // ensure previous menu has closed
-    this.contextMenu.closeContextmenu();
+    onSubscriptionRuleSelected($event: ISubscriptionRuleSelectionEvent): void {
+        this.router.navigate(['topics', 'view', this.connection.id, $event.topic.name, $event.subscription.name, $event.rule.name]);
+    }
 
-    this.selectedTopic = $event.topic;
-    this.selectedSubscription = $event.subscription;
+    onSubscriptionContextMenuSelected($event: ISubscriptionSelectionEvent): void {
+        // ensure previous menu has closed
+        this.contextMenu.closeContextmenu();
 
-    this.contextMenu.openContextmenu({
-      templateRef: this.subscriptionContextMenu,
-      mousePosition: {
-        x: $event.clickPosition.clientX,
-        y: $event.clickPosition.clientY
-      },
-      width: 350
-    })
-  }
+        this.selectedTopic = $event.topic;
+        this.selectedSubscription = $event.subscription;
+
+        this.contextMenu.openContextmenu({
+            templateRef: this.subscriptionContextMenu,
+            mousePosition: {
+                x: $event.clickPosition.clientX,
+                y: $event.clickPosition.clientY,
+            },
+            width: 350,
+        });
+    }
 }

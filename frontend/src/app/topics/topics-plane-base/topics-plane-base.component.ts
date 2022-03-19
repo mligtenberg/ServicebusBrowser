@@ -9,89 +9,98 @@ import { ITopicSelectionEvent } from '../models/ITopicSelectionEvent';
 import { refreshTopics } from '../ngrx/topics.actions';
 import { ITopic } from '../ngrx/topics.models';
 import { getTopics, getTopicsLoading } from '../ngrx/topics.selectors';
+import { ISubscriptionRuleSelectionEvent } from '../models/ISubscriptionRuleSelectionEvent';
 
 @Component({
-  selector: 'app-topics-plane-base',
-  templateUrl: './topics-plane-base.component.html',
-  styleUrls: ['./topics-plane-base.component.scss']
+    selector: 'app-topics-plane-base',
+    templateUrl: './topics-plane-base.component.html',
+    styleUrls: ['./topics-plane-base.component.scss'],
 })
 export class TopicsPlaneBaseComponent implements OnChanges, OnDestroy {
-  @Input()
-  connection: IConnection;
-  @Input()
-  showSubscriptions: boolean;
+    @Input()
+    connection: IConnection;
+    @Input()
+    showSubscriptions: boolean;
 
-  @Output()
-  subscriptionSelected = new EventEmitter<ISubscriptionSelectionEvent>();
-  @Output()
-  subscriptionContextMenuSelected = new EventEmitter<ISubscriptionSelectionEvent>();
+    @Output()
+    subscriptionSelected = new EventEmitter<ISubscriptionSelectionEvent>();
+    @Output()
+    subscriptionContextMenuSelected = new EventEmitter<ISubscriptionSelectionEvent>();
 
-  @Output()
-  topicSelected = new EventEmitter<ITopicSelectionEvent>();
-  @Output()
-  topicContextMenuSelected = new EventEmitter<ITopicSelectionEvent>();
+    @Output()
+    subscriptionRuleSelected = new EventEmitter<ISubscriptionRuleSelectionEvent>();
 
-  topics: ITopic[];
-  topicsSubscription: Subscription;
-  loading: boolean = false;
+    @Output()
+    topicSelected = new EventEmitter<ITopicSelectionEvent>();
+    @Output()
+    topicContextMenuSelected = new EventEmitter<ITopicSelectionEvent>();
 
-  constructor(
-    private store: Store<State>,
-    private log: LogService
-  ) { }
+    topics: ITopic[];
+    topicsSubscription: Subscription;
+    loading = false;
 
-  ngOnChanges(): void {
-    this.resubscribe();
-  }
+    constructor(private store: Store<State>, private log: LogService) {}
 
-  ngOnDestroy(): void {
-    this.topicsSubscription.unsubscribe();
-  }
-
-  resubscribe() {
-    if (this.topicsSubscription) {
-      this.topicsSubscription.unsubscribe();
+    ngOnChanges(): void {
+        this.resubscribe();
     }
 
-    this.topicsSubscription = new Subscription();
-
-    if (!this.connection) {
-      this.log.logError('Cannot load topics since connection is not set');
-      return;
+    ngOnDestroy(): void {
+        this.topicsSubscription.unsubscribe();
     }
 
-    this.topicsSubscription.add(this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
-      this.topics = topics;
-    }));
+    resubscribe(): void {
+        if (this.topicsSubscription) {
+            this.topicsSubscription.unsubscribe();
+        }
 
-    this.topicsSubscription.add(this.store.select(getTopicsLoading(this.connection.id)).subscribe((isLoading) => {
-      this.loading = isLoading;
-    }));
-  }
+        this.topicsSubscription = new Subscription();
 
-  refreshTopics($event: Event | null) {
-    if (this.connection) {
-      this.store.dispatch(refreshTopics({connectionId: this.connection.id}));
-    } else {
-      this.topics = [];
+        if (!this.connection) {
+            this.log.logError('Cannot load topics since connection is not set');
+            return;
+        }
+
+        this.topicsSubscription.add(
+            this.store.select(getTopics(this.connection.id)).subscribe((topics) => {
+                this.topics = topics;
+            })
+        );
+
+        this.topicsSubscription.add(
+            this.store.select(getTopicsLoading(this.connection.id)).subscribe((isLoading) => {
+                this.loading = isLoading;
+            })
+        );
     }
 
-    $event?.stopPropagation();
-  }
+    refreshTopics($event: Event | null): void {
+        if (this.connection) {
+            this.store.dispatch(refreshTopics({ connectionId: this.connection.id }));
+        } else {
+            this.topics = [];
+        }
 
-  onSubscriptionSelected(event: ISubscriptionSelectionEvent) {
-    this.subscriptionSelected.emit(event);
-  }
+        $event?.stopPropagation();
+    }
 
-  onSubscriptionContextMenuSelected(event: ISubscriptionSelectionEvent) {
-    this.subscriptionContextMenuSelected.emit(event);
-  }
+    onSubscriptionSelected(event: ISubscriptionSelectionEvent): void {
+        this.subscriptionSelected.emit(event);
+    }
 
-  onTopicSelected(event: ITopicSelectionEvent) {
-    this.topicSelected.emit(event);
-  }
+    onSubscriptionContextMenuSelected(event: ISubscriptionSelectionEvent): void {
+        this.subscriptionContextMenuSelected.emit(event);
+    }
 
-  onTopicContextMenuSelected(event: ITopicSelectionEvent) {
-    this.topicContextMenuSelected.emit(event);
-  }
+    onSubscriptionRuleSelected(event: ISubscriptionRuleSelectionEvent): void {
+        this.subscriptionRuleSelected.emit(event);
+    }
+
+    onTopicSelected(event: ITopicSelectionEvent): void {
+        this.topicSelected.emit(event);
+    }
+
+    onTopicContextMenuSelected(event: ITopicSelectionEvent): void {
+        this.topicContextMenuSelected.emit(event);
+    }
 }
