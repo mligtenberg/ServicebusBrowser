@@ -7,28 +7,30 @@
   display: grid;
   gap: 12px;
   height: 100%;
-  @media all and (min-width: $large-layout) {
-    grid-template-areas:
+  grid-template-areas:
       "name type"
       "filter action";
 
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 2fr;
-    min-height: 0px;
-  }
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 2fr;
+  min-height: 0px;
 
-  grid-template-areas:
+
+  @media all and (max-width: $medium-layout) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
     "name"
     "type"
     "filter"
     "action";
 
-  &.sql {
-    grid-template-rows: auto auto 250px 250px;
-  }
-  &.correlation {
-    grid-template-rows: auto auto 2fr 250px;
-    min-height: 900px;
+    &.sql {
+      grid-template-rows: auto auto 250px 250px;
+    }
+    &.correlation {
+      grid-template-rows: auto auto 2fr 250px;
+      min-height: 900px;
+    }
   }
 
   overflow-y: scroll;
