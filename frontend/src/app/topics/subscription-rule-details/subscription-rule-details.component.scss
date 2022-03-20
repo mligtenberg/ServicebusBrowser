@@ -1,0 +1,65 @@
+@import "../../../styling/colorscheme.scss";
+@import "../../../styling/boxes.scss";
+@import "../../../styling/forms.scss";
+@import "../../../styling/property-table.scss";
+
+.container {
+  display: grid;
+  gap: 12px;
+  height: 100%;
+  @media all and (min-width: $large-layout) {
+    grid-template-areas:
+      "name type"
+      "filter action";
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 2fr;
+    min-height: 0px;
+  }
+
+  grid-template-areas:
+    "name"
+    "type"
+    "filter"
+    "action";
+
+  &.sql {
+    grid-template-rows: auto auto 250px 250px;
+  }
+  &.correlation {
+    grid-template-rows: auto auto 2fr 250px;
+    min-height: 900px;
+  }
+
+  overflow-y: scroll;
+  padding-bottom: 10px;
+
+  .name {
+    grid-area: name;
+  }
+
+  .subscription-properties {
+    grid-area: subscription-properties;
+  }
+
+  .subscription-settings {
+    grid-area: subscription-settings;
+  }
+
+  .subscription-information {
+    grid-area: subscription-information;
+  }
+
+  .subscription-actions {
+    grid-area: subscription-actions;
+  }
+}
+
+.box-body {
+  overflow: hidden;
+
+  nu-monaco-editor {
+    width: 100%;
+    height: 100% !important;
+  }
+}

@@ -17,6 +17,7 @@ import { SubscriptionContextMenuComponent } from './subscription-context-menu/su
 import { TopicsPlaneBaseComponent } from './topics-plane-base/topics-plane-base.component';
 import { SubscriptionsEffects } from './subscriptions.effects';
 import { SubscriptionRuleDetailsComponent } from './subscription-rule-details/subscription-rule-details.component';
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 
 const routes: Routes = [
     { path: 'view/:connectionId/:topicName', component: TopicDetailsComponent },
@@ -43,6 +44,7 @@ const routes: Routes = [
         FontAwesomeModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
+        NuMonacoEditorModule,
     ],
     exports: [TopicsPlaneComponent, TopicsPlaneBaseComponent],
 })
