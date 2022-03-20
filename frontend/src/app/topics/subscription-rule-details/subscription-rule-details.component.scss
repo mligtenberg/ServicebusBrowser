@@ -12,7 +12,7 @@
       "filter action";
 
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 2fr;
+  grid-template-rows: 100px 2fr;
   min-height: 0px;
 
 
@@ -25,11 +25,10 @@
     "action";
 
     &.sql {
-      grid-template-rows: auto auto 250px 250px;
+      grid-template-rows: 100px 100px 250px 250px;
     }
     &.correlation {
-      grid-template-rows: auto auto 2fr 250px;
-      min-height: 900px;
+      grid-template-rows: 100px 100px 450px 250px;
     }
   }
 
