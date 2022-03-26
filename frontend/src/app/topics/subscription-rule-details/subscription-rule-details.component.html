@@ -25,41 +25,59 @@
 
     <div class="filter box">
         <span class="box-title">Filter</span>
-        <ng-container *ngIf="form.value.type == 'sql'">
+        <ng-container *ngIf="form.controls.type.value == 'sql'">
             <div class="box-body sql no-padding">
                 <nu-monaco-editor [options]="editorOptions" formControlName="sqlFilter"></nu-monaco-editor>
             </div>
         </ng-container>
-        <ng-container *ngIf="form.value.type == 'correlation'">
+        <ng-container *ngIf="form.controls.type.value == 'correlation'">
             <span class="box-body correlaction">
                 <div class="formcontrol">
-                    <div class="batched-operations checkbox-option">
-                        <label for="correlationFilterContentType">Content type</label>
-                        <input type="text" formControlName="correlationFilterContentType"/>
-                    </div>
-                    <div class="batched-operations checkbox-option">
+                    <label for="correlationFilterContentType">Content type</label>
+                    <input type="text" id="correlationFilterContentType"
+                           formControlName="correlationFilterContentType"/>
+                </div>
+                   <div class="formcontrol">
                         <label for="correlationFilterCorrelationId">Correlation Id</label>
-                        <input type="text" formControlName="correlationFilterCorrelationId"/>
+                        <input type="text" id="correlationFilterCorrelationId"
+                               formControlName="correlationFilterCorrelationId"/>
                     </div>
-                    <div class="batched-operations checkbox-option">
+                <div class="formcontrol">
                         <label for="correlationFilterSubject">Subject</label>
-                        <input type="text" formControlName="correlationFilterSubject"/>
-                    </div>
-                    <div class="batched-operations checkbox-option">
+                        <input type="text" id="correlationFilterSubject" formControlName="correlationFilterSubject"/>
+                </div>
+                <div class="formcontrol">
                         <label for="correlationFilterMessageId">Message Id</label>
-                        <input type="text" formControlName="correlationFilterMessageId"/>
-                    </div>
-                    <div class="batched-operations checkbox-option">
+                        <input type="text" id="correlationFilterMessageId"
+                               formControlName="correlationFilterMessageId"/>
+                </div>
+                <div class="formcontrol">
                         <label for="correlationFilterReplyToSessionId">Reply To Session Id</label>
-                        <input type="text" formControlName="correlationFilterReplyToSessionId"/>
-                    </div>
-                    <div class="batched-operations checkbox-option">
+                        <input type="text" id="correlationFilterReplyToSessionId"
+                               formControlName="correlationFilterReplyToSessionId"/>
+                </div>
+                <div class="formcontrol">
                         <label for="correlationFilterSessionId">Session Id</label>
-                        <input type="text" formControlName="correlationFilterSessionId"/>
-                    </div>
-                    <div class="batched-operations checkbox-option">
+                        <input type="text" id="correlationFilterSessionId"
+                               formControlName="correlationFilterSessionId"/>
+                </div>
+                <div class="formcontrol">
                         <label for="correlationFilterReplyTo">To</label>
-                        <input type="text" formControlName="correlationFilterReplyToSessionId"/>
+                        <input type="text" id="correlationFilterReplyTo"
+                               formControlName="correlationFilterReplyToSessionId"/>
+                </div>
+
+                <label id="applicationProperties-label" for="applicationProperties">Application properties</label>
+                <div id="applicationProperties" formArrayName="correlationApplicationProperties"
+                     *ngFor="let group of correlationApplicationProperties.controls; index as i">
+                    <div [formGroupName]="i" class="formcontrol keyvalue">
+                        <div class="key">
+                            <input type="text" formControlName="key"/>
+                        </div>
+
+                        <div class="value">
+                            <input type="text" formControlName="value"/>
+                        </div>
                     </div>
                 </div>
             </span>

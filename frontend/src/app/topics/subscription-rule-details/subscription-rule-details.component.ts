@@ -4,10 +4,10 @@ import { first, mergeMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { State } from '../../ngrx.module';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { AbstractControl, Form, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { IFormBuilder, IFormGroup } from '@rxweb/types';
-import { ISubscriptionRuleForm } from '../models/ISubscriptionRuleForm';
+import { IFormArray, IFormBuilder, IFormGroup } from '@rxweb/types';
+import { ISubscriptionRuleApplicationPropertiesForm, ISubscriptionRuleForm } from '../models/ISubscriptionRuleForm';
 import { CorrelationRuleFilter, RuleProperties, SqlRuleFilter } from '@azure/service-bus';
 
 @Component({
@@ -18,6 +18,10 @@ import { CorrelationRuleFilter, RuleProperties, SqlRuleFilter } from '@azure/ser
 export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
     subscription: Subscription;
     form: IFormGroup<ISubscriptionRuleForm>;
+    get correlationApplicationProperties(): IFormArray<ISubscriptionRuleApplicationPropertiesForm> {
+        return this.form.get('correlationApplicationProperties') as unknown as IFormArray<ISubscriptionRuleApplicationPropertiesForm>;
+    }
+
     formBuilder: IFormBuilder;
     editorOptions = {
         theme: 'vs-light',
@@ -43,6 +47,7 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
             correlationFilterSessionId: '',
             correlationFilterReplyToSessionId: '',
             correlationFilterTo: '',
+            correlationApplicationProperties: this.formBuilder.array<ISubscriptionRuleApplicationPropertiesForm>([]),
         });
 
         this.form.disable();
@@ -61,6 +66,7 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
             console.log(rule);
             const sqlFilter = rule.filter as SqlRuleFilter;
             const correlationFilter = rule.filter as CorrelationRuleFilter;
+
             this.form.patchValue({
                 name: rule.name,
                 type: this.isCorrelationFilter(rule.filter) ? 'correlation' : 'sql',
@@ -75,7 +81,24 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
                 correlationFilterSubject: correlationFilter.subject,
                 correlationFilterSessionId: correlationFilter.sessionId,
             });
+
+            const appProps = correlationFilter.applicationProperties ?? {};
+            this.correlationApplicationProperties.clear();
+            for (const key in appProps) {
+                if (appProps.hasOwnProperty(key)) {
+                    const formGroup = new FormGroup({
+                        key: new FormControl(key),
+                        value: new FormControl(appProps[key]),
+                    });
+                    formGroup.disable();
+                    this.correlationApplicationProperties.push(formGroup);
+                }
+            }
         });
+    }
+
+    asFormGroup(formObject: AbstractControl): FormGroup {
+        return formObject as FormGroup;
     }
 
     private isCorrelationFilter(filter: SqlRuleFilter | CorrelationRuleFilter): boolean {

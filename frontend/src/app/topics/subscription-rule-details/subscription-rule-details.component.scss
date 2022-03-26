@@ -57,10 +57,21 @@
 }
 
 .box-body {
-  overflow: hidden;
-
   nu-monaco-editor {
     width: 100%;
     height: 100% !important;
   }
+}
+
+.keyvalue {
+  display: flex;
+  flex-direction: row;
+}
+
+.formcontrol.keyvalue {
+  margin-top: 0;
+}
+
+#applicationProperties-label {
+  font-size: 0.9em;
 }
