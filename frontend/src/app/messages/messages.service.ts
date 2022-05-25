@@ -9,7 +9,6 @@ import { Store } from '@ngrx/store';
 import { State } from '../ngrx.module';
 import { v4 } from 'uuid';
 import { createTask, finishTask, updateTaskDonePercentage } from '../ngrx/actions';
-import { isString } from 'lodash';
 
 @Injectable({
     providedIn: 'root',
@@ -71,6 +70,7 @@ export class MessagesService {
         const receiver = client.createReceiver(queueName, {
             receiveMode: 'receiveAndDelete',
             subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
         });
 
         await this.getMessagesInternal(receiver, messageCount, false, {
@@ -92,6 +92,7 @@ export class MessagesService {
         const receiver = client.createReceiver(topicName, subscriptionName, {
             receiveMode: 'receiveAndDelete',
             subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
         });
 
         const adminClient = this.connectionService.getAdminClient(connection);
@@ -152,6 +153,7 @@ export class MessagesService {
         const client = this.connectionService.getClient(connection);
         const receiver = client.createReceiver(queueName, {
             subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
         });
 
         const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
@@ -175,6 +177,7 @@ export class MessagesService {
         const client = this.connectionService.getClient(connection);
         const receiver = client.createReceiver(topicName, subscriptionName, {
             subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
         });
 
         const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
