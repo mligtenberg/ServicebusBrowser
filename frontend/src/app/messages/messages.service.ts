@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ServiceBusMessage, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
+import { ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
@@ -7,8 +7,11 @@ import { IMessage, MessagesChannel } from './ngrx/messages.models';
 import * as Long from 'long';
 import { Store } from '@ngrx/store';
 import { State } from '../ngrx.module';
+import { Buffer } from 'buffer';
+import isBuffer from 'is-buffer';
 import { v4 } from 'uuid';
 import { createTask, finishTask, updateTaskDonePercentage } from '../ngrx/actions';
+import { AmqpAnnotatedMessage } from '@azure/core-amqp';
 
 @Injectable({
     providedIn: 'root',
@@ -130,12 +133,15 @@ export class MessagesService {
                 applicationProperties[key] = value;
             }
 
+            const body = Buffer.from(m.body, 'utf8');
+
             return {
                 subject: m.properties.subject,
-                body: m.body,
+                body,
+                bodyType: 'data',
                 contentType: m.properties.contentType,
                 applicationProperties: (Object as any).fromEntries(m.customProperties),
-            } as ServiceBusMessage;
+            } as AmqpAnnotatedMessage;
         });
 
         await sender.sendMessages(serviceBusMessages);
@@ -253,6 +259,7 @@ export class MessagesService {
     }
 
     private mapMessage(m: ServiceBusReceivedMessage): IMessage {
+        console.log(m);
         const message = {
             id: m.messageId?.toString(),
             body: this.readBody(m.body),
@@ -282,6 +289,11 @@ export class MessagesService {
     private readBody(body: any): string {
         if (typeof body === 'string') {
             return body;
+        }
+
+        if (isBuffer(body)) {
+            const decoder = new TextDecoder();
+            return decoder.decode(body);
         }
 
         if (typeof body === 'object') {
