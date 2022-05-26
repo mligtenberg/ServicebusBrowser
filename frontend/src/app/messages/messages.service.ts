@@ -259,7 +259,6 @@ export class MessagesService {
     }
 
     private mapMessage(m: ServiceBusReceivedMessage): IMessage {
-        console.log(m);
         const message = {
             id: m.messageId?.toString(),
             body: this.readBody(m.body),
