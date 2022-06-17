@@ -11,7 +11,7 @@
   "author": "Martin Ligtenberg",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^13.6.6",
+    "electron": "^15.5.5",
     "node-loader": "^1.0.2",
     "rimraf": "^3.0.2",
     "ts-loader": "^8.0.12",
