@@ -25,9 +25,9 @@ since the build is required to be signed.
 
 ### Manual build (release build)
 #### Requirements
-- Node V14 or V15
-    - for Apple Silicon users a x64 build of node is advised
-- NPM V6 or V7    
+- Node V14 to V16
+  - Note: Higher versions of Node are currently unsupported, this because of issue between the Openssl 3 upgrade and Keytar (see electron-main project.json)
+- NPM V8 
 
 #### Steps
 - Clone the project
