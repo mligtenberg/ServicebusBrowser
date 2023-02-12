@@ -31,7 +31,7 @@
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^6.2.0",
-    "electron": "^13.1.2",
+    "electron": "^18.3.7",
     "electron-builder": "^22.10.5",
     "prettier": "2.6.0",
     "rimraf": "^3.0.2",
