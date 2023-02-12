@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { IFormBuilder, IFormGroup } from '@rxweb/types';
@@ -26,22 +26,22 @@ export class TopicDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private activeRoute: ActivatedRoute,
     private store: Store<State>,
-    formBuilder: FormBuilder
+    formBuilder: UntypedFormBuilder
     ) { 
       this.formBuilder = formBuilder;
 
       this.form = this.formBuilder.group<ITopicDetailsForm>({
-        name: new FormControl({value: '', disabled: true}),
-        defaultMessageTimeToLive: new FormControl({value: ''}),
-        enableBatchedOperations: new FormControl({value: false}),
-        userMetadata: new FormControl({value: ''}),
-        autoDeleteOnIdle: new FormControl({value: ''}),
-        maxSizeInMegabytes: new FormControl({value: 0}),
-        requiresDuplicateDetection: new FormControl({value: false, disabled: true}),
-        duplicateDetectionHistoryTimeWindow: new FormControl({value: ''}),
-        supportOrdering: new FormControl({value: false}),
-        enablePartitioning: new FormControl({value: false, disabled: true}),
-        enableExpress: new FormControl({value: false, disabled: true}),
+        name: new UntypedFormControl({value: '', disabled: true}),
+        defaultMessageTimeToLive: new UntypedFormControl({value: ''}),
+        enableBatchedOperations: new UntypedFormControl({value: false}),
+        userMetadata: new UntypedFormControl({value: ''}),
+        autoDeleteOnIdle: new UntypedFormControl({value: ''}),
+        maxSizeInMegabytes: new UntypedFormControl({value: 0}),
+        requiresDuplicateDetection: new UntypedFormControl({value: false, disabled: true}),
+        duplicateDetectionHistoryTimeWindow: new UntypedFormControl({value: ''}),
+        supportOrdering: new UntypedFormControl({value: false}),
+        enablePartitioning: new UntypedFormControl({value: false, disabled: true}),
+        enableExpress: new UntypedFormControl({value: false, disabled: true}),
       });
     }
 

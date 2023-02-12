@@ -4,7 +4,7 @@ import { first, mergeMap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { State } from '../../ngrx.module';
-import { AbstractControl, Form, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, Form, FormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IFormArray, IFormBuilder, IFormGroup } from '@rxweb/types';
 import { ISubscriptionRuleApplicationPropertiesForm, ISubscriptionRuleForm } from '../models/ISubscriptionRuleForm';
@@ -32,10 +32,10 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
         },
     };
 
-    constructor(private activeRoute: ActivatedRoute, private store: Store<State>, formBuilder: FormBuilder) {
+    constructor(private activeRoute: ActivatedRoute, private store: Store<State>, formBuilder: UntypedFormBuilder) {
         this.formBuilder = formBuilder;
         this.form = this.formBuilder.group<ISubscriptionRuleForm>({
-            name: new FormControl({ value: '', disabled: true }),
+            name: new UntypedFormControl({ value: '', disabled: true }),
             type: 'sql',
             sqlFilter: '',
             sqlAction: '',
@@ -86,9 +86,9 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
             this.correlationApplicationProperties.clear();
             for (const key in appProps) {
                 if (appProps.hasOwnProperty(key)) {
-                    const formGroup = new FormGroup({
-                        key: new FormControl(key),
-                        value: new FormControl(appProps[key]),
+                    const formGroup = new UntypedFormGroup({
+                        key: new UntypedFormControl(key),
+                        value: new UntypedFormControl(appProps[key]),
                     });
                     formGroup.disable();
                     this.correlationApplicationProperties.push(formGroup);
@@ -97,8 +97,8 @@ export class SubscriptionRuleDetailsComponent implements OnInit, OnDestroy {
         });
     }
 
-    asFormGroup(formObject: AbstractControl): FormGroup {
-        return formObject as FormGroup;
+    asFormGroup(formObject: AbstractControl): UntypedFormGroup {
+        return formObject as UntypedFormGroup;
     }
 
     private isCorrelationFilter(filter: SqlRuleFilter | CorrelationRuleFilter): boolean {

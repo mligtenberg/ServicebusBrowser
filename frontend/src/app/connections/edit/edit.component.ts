@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { addLog } from 'src/app/logging/ngrx/logging.actions';
@@ -32,10 +32,10 @@ interface ConnectionForm {
 export class EditComponent implements OnInit, OnDestroy {
   isNew = true;
   subs = new Subscription();
-  connectionForm: FormGroup;
+  connectionForm: UntypedFormGroup;
   init = false;
 
-  constructor(private store: Store<State>, private formBuilder: FormBuilder) {
+  constructor(private store: Store<State>, private formBuilder: UntypedFormBuilder) {
     this.connectionForm = this.formBuilder.group({
       name: ['', Validators.required],
       type: 'connectionString',

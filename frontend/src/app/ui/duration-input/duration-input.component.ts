@@ -1,5 +1,5 @@
 import { Component, forwardRef, OnDestroy } from '@angular/core';
-import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 
@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./duration-input.component.scss']
 })
 export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
-  form: FormGroup;
+  form: UntypedFormGroup;
   isDisabled: boolean = false;
 
   private onChange: (_: string) => void;
@@ -38,7 +38,7 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
     }
   }
 
-  constructor(formBuilder: FormBuilder) {
+  constructor(formBuilder: UntypedFormBuilder) {
     this.form = formBuilder.group({
       seconds: 0,
       minutes: 0,

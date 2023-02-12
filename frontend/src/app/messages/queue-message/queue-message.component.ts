@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { generateUuid } from '@azure/core-http';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
@@ -32,7 +32,7 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store<State>,
     private dialogService: DialogService,
-    formBuilder: FormBuilder
+    formBuilder: UntypedFormBuilder
   ) {
     this.formBuilder = formBuilder;
 

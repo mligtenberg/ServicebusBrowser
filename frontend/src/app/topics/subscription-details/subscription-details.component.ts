@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { IFormBuilder, IFormGroup } from '@rxweb/types';
@@ -28,22 +28,22 @@ export class SubscriptionDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private activeRoute: ActivatedRoute,
     private store: Store<State>,
-    formBuilder: FormBuilder
+    formBuilder: UntypedFormBuilder
     ) {
       this.formBuilder = formBuilder;
       this.form = this.formBuilder.group<ISubscriptionDetailsForm>({
-        name: new FormControl({value: '', disabled: true}),
-        lockDuration: new FormControl({value: ''}),
-        requiresSession: new FormControl({value: false, disabled: true}),
-        defaultMessageTimeToLive: new FormControl({value: ''}),
-        deadLetteringOnMessageExpiration: new FormControl({value: false}),
-        maxDeliveryCount: new FormControl({value: 1}),
-        enableBatchedOperations: new FormControl({value: false}),
-        forwardTo: new FormControl({value: ''}),
-        userMetadata: new FormControl({value: ''}),
-        autoDeleteOnIdle: new FormControl({value: ''}),
-        forwardDeadLetteredMessagesTo: new FormControl({value: ''}),
-        deadLetteringOnFilterEvaluationExceptions: new FormControl({value: false})
+        name: new UntypedFormControl({value: '', disabled: true}),
+        lockDuration: new UntypedFormControl({value: ''}),
+        requiresSession: new UntypedFormControl({value: false, disabled: true}),
+        defaultMessageTimeToLive: new UntypedFormControl({value: ''}),
+        deadLetteringOnMessageExpiration: new UntypedFormControl({value: false}),
+        maxDeliveryCount: new UntypedFormControl({value: 1}),
+        enableBatchedOperations: new UntypedFormControl({value: false}),
+        forwardTo: new UntypedFormControl({value: ''}),
+        userMetadata: new UntypedFormControl({value: ''}),
+        autoDeleteOnIdle: new UntypedFormControl({value: ''}),
+        forwardDeadLetteredMessagesTo: new UntypedFormControl({value: ''}),
+        deadLetteringOnFilterEvaluationExceptions: new UntypedFormControl({value: false})
       });
     }
 

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { IFormBuilder, IFormGroup } from '@rxweb/types';
@@ -26,26 +26,26 @@ export class QueueDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private activeRoute: ActivatedRoute,
     private store: Store<State>,
-    formBuilder: FormBuilder
+    formBuilder: UntypedFormBuilder
     ) { 
       this.formBuilder = formBuilder;
       this.form = this.formBuilder.group<IQueueDetailsForm>({
-        name: new FormControl({value: ''}),
-        lockDuration: new FormControl({value: ''}),
-        maxSizeInMegabytes: new FormControl({value: 0}),
-        requiresDuplicateDetection: new FormControl({value: false, disabled: true}),
-        requiresSession: new FormControl({value: false, disabled: true}),
-        defaultMessageTimeToLive: new FormControl({value: ''}),
-        deadLetteringOnMessageExpiration: new FormControl({value: false}),
-        duplicateDetectionHistoryTimeWindow: new FormControl({value: ''}),
-        maxDeliveryCount: new FormControl({value: 1}),
-        enableBatchedOperations: new FormControl({value: ''}),
-        forwardTo: new FormControl({value: ''}),
-        userMetadata: new FormControl({value: ''}),
-        autoDeleteOnIdle: new FormControl({value: '', disabled: true}),
-        enablePartitioning: new FormControl({value: false, disabled: true}),
-        forwardDeadLetteredMessagesTo: new FormControl({value: ''}),
-        enableExpress: new FormControl({value: '', disabled: true}),
+        name: new UntypedFormControl({value: ''}),
+        lockDuration: new UntypedFormControl({value: ''}),
+        maxSizeInMegabytes: new UntypedFormControl({value: 0}),
+        requiresDuplicateDetection: new UntypedFormControl({value: false, disabled: true}),
+        requiresSession: new UntypedFormControl({value: false, disabled: true}),
+        defaultMessageTimeToLive: new UntypedFormControl({value: ''}),
+        deadLetteringOnMessageExpiration: new UntypedFormControl({value: false}),
+        duplicateDetectionHistoryTimeWindow: new UntypedFormControl({value: ''}),
+        maxDeliveryCount: new UntypedFormControl({value: 1}),
+        enableBatchedOperations: new UntypedFormControl({value: ''}),
+        forwardTo: new UntypedFormControl({value: ''}),
+        userMetadata: new UntypedFormControl({value: ''}),
+        autoDeleteOnIdle: new UntypedFormControl({value: '', disabled: true}),
+        enablePartitioning: new UntypedFormControl({value: false, disabled: true}),
+        forwardDeadLetteredMessagesTo: new UntypedFormControl({value: ''}),
+        enableExpress: new UntypedFormControl({value: '', disabled: true}),
       });
     }
 
