@@ -25,7 +25,7 @@ since the build is required to be signed.
 
 ### Manual build (release build)
 #### Requirements
-- Node V14 to V18
+- Node V16 to V18
 - NPM V8 
 
 #### Steps
