@@ -25,8 +25,7 @@ since the build is required to be signed.
 
 ### Manual build (release build)
 #### Requirements
-- Node V14 to V16
-  - Note: Higher versions of Node are currently unsupported, this because of issue between the Openssl 3 upgrade and Keytar (see electron-main project.json)
+- Node V14 to V18
 - NPM V8 
 
 #### Steps
