@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
-import { generateUuid } from '@azure/core-http';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
 import { DialogService } from 'src/app/ui/dialog.service';
@@ -12,6 +11,7 @@ import { IFormBuilder, IFormGroup, IFormArray} from '@rxweb/types';
 import { IQueueMessageCustomPropertyForm, IQueueMessageForm } from '../models/IQueueMessageForm';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-queue-message',
@@ -87,7 +87,7 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
   send(): void {
     const formValue = this.form.value;
 
-    const operationId = generateUuid();
+    const operationId = uuidv4();
     const message = {
       id: operationId,
       body: formValue.body,

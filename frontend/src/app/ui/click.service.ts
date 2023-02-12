@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class ClickService implements OnDestroy {
 
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>();
 
   public onClick$: Observable<Event>;
 

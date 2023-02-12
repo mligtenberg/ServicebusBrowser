@@ -4,7 +4,6 @@ import { ConnectionService } from '../connections/connection.service';
 import { IConnection } from '../connections/ngrx/connections.models';
 import { LogService } from '../logging/log.service';
 import { IMessage, MessagesChannel } from './ngrx/messages.models';
-import * as Long from 'long';
 import { Store } from '@ngrx/store';
 import { State } from '../ngrx.module';
 import { Buffer } from 'buffer';
@@ -12,6 +11,7 @@ import isBuffer from 'is-buffer';
 import { v4 } from 'uuid';
 import { createTask, finishTask, updateTaskDonePercentage } from '../ngrx/actions';
 import { AmqpAnnotatedMessage } from '@azure/core-amqp';
+import Long from "long";
 
 @Injectable({
     providedIn: 'root',
@@ -227,7 +227,7 @@ export class MessagesService {
             const messagesLeft = numberOfMessages - messages.length;
             const maxMessageCount = messagesLeft > 1000 ? 1000 : messagesLeft;
 
-            const lastSequenceNumber: Long.Long | undefined = messages.length ? messages[messages.length - 1].sequenceNumber : undefined;
+            const lastSequenceNumber: Long | undefined = messages.length ? messages[messages.length - 1].sequenceNumber : undefined;
 
             const messagesPart = peek
                 ? await receiver.peekMessages(maxMessageCount, {

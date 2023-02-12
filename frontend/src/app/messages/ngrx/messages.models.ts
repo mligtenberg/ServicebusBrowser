@@ -1,3 +1,5 @@
+import Long from "long";
+
 export interface IMessage {
   id: string;
   properties: {
