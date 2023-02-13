@@ -12,28 +12,37 @@ import { QueueMessageComponent } from './queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
 import { SelectMessageTargetDialogComponent } from './select-message-target-dialog/select-message-target-dialog.component';
 import { ConnectionsModule } from '../connections/connections.module';
-import {NuMonacoEditorModule} from "@ng-util/monaco-editor";
+import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
+import { MessagesTableComponent } from './messages-table/messages-table.component';
+import { CdkTableModule } from '@angular/cdk/table';
+import { MessagesBodyComponent } from './messages-body/messages-body.component';
 
 const routes: Routes = [
-  { path: 'view/:messageSetId', component: ViewMessagesComponent },
-  { path: 'queue', component: QueueMessageComponent }
+    { path: 'view/:messageSetId', component: ViewMessagesComponent },
+    { path: 'queue', component: QueueMessageComponent },
 ];
 
 @NgModule({
-  declarations: [ViewMessagesComponent, GetMesagesDialogComponent, QueueMessageComponent, SelectMessageTargetDialogComponent],
-  imports: [
-    CommonModule,
-    StoreModule.forFeature('messages', messagesReducer),
-    EffectsModule.forFeature([MessagesEffects]),
-    RouterModule.forChild(routes),
-    FormsModule,
-    ReactiveFormsModule,
-    UiModule,
-    NuMonacoEditorModule,
-    ConnectionsModule
-  ],
-  exports: [
-    GetMesagesDialogComponent
-  ]
+    declarations: [
+        ViewMessagesComponent,
+        GetMesagesDialogComponent,
+        QueueMessageComponent,
+        SelectMessageTargetDialogComponent,
+        MessagesTableComponent,
+        MessagesBodyComponent,
+    ],
+    imports: [
+        CommonModule,
+        StoreModule.forFeature('messages', messagesReducer),
+        EffectsModule.forFeature([MessagesEffects]),
+        RouterModule.forChild(routes),
+        FormsModule,
+        ReactiveFormsModule,
+        UiModule,
+        NuMonacoEditorModule,
+        ConnectionsModule,
+        CdkTableModule,
+    ],
+    exports: [GetMesagesDialogComponent],
 })
-export class MessagesModule { }
+export class MessagesModule {}

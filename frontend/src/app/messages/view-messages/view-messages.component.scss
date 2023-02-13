@@ -53,73 +53,14 @@
 /* styling */
 .messages-selection {
   max-height: 100%;
-
-  .message-header {
-    font-weight: bold;
-    border-bottom: solid 1px $background-dark;
-  }
-
-  .message-option {
-    font-size: 0.7em;
-    .message-sequence-number {
-      direction: rtl;
-    }
-  }
-
-  .message-option,
-  .message-header {
-    line-height: 30px;
-    cursor: pointer;
-    display: flex;
-
-    &:nth-child(even) {
-      background-color: $background-lighter;
-    }
-
-    &.selected {
-      background-color: $accent-light;
-    }
-
-    .message-id {
-      flex: 1;
-      padding: 0 10px;
-      max-width: 330px;
-      text-overflow: ellipsis;
-
-      /* Required for text-overflow to do anything */
-      white-space: nowrap;
-      overflow: hidden;
-    }
-
-    .message-sequence-number {
-      width: 160px;
-      text-align: right;
-      text-overflow: ellipsis;
-      padding: 0 10px;
-
-      /* Required for text-overflow to do anything */
-      white-space: nowrap;
-      overflow: hidden;
-    }
-
-    .message-subject {
-      flex: 1;
-      text-overflow: ellipsis;
-      padding: 0 10px;
-
-      /* Required for text-overflow to do anything */
-      white-space: nowrap;
-      overflow: hidden;
-    }
-  }
 }
 
 .message-body .box-body {
   overflow: hidden;
 
-  nu-monaco-editor {
+  app-messages-body {
+    height: 100%;
     width: 100%;
-    height: 100% !important;
   }
 }
 

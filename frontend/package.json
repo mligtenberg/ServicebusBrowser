@@ -15,6 +15,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^15.1.4",
+    "@angular/cdk": "^15.1.4",
     "@angular/common": "^15.1.4",
     "@angular/compiler": "^15.1.4",
     "@angular/core": "^15.1.4",
@@ -30,6 +31,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.3.0",
     "@fortawesome/free-solid-svg-icons": "^6.3.0",
     "@ng-util/monaco-editor": "^15.0.0",
+    "@ngrx/component-store": "^15.2.1",
     "@ngrx/effects": "^15.2.1",
     "@ngrx/router-store": "^15.2.1",
     "@ngrx/store": "^15.2.1",
