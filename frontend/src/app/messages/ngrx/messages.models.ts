@@ -26,6 +26,7 @@ export interface IMessageSet {
     name: string;
     connectionId: string;
     origin: MessageOrigin;
+    messagesChannel: MessagesChannel;
     queueName?: string;
     topicName?: string;
     subscriptionName?: string;
