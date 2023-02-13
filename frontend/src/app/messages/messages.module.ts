@@ -4,18 +4,18 @@ import { StoreModule } from '@ngrx/store';
 import { messagesReducer } from './ngrx/messages.reducers';
 import { EffectsModule } from '@ngrx/effects';
 import { MessagesEffects } from './messages.effects';
-import { ViewMessagesComponent } from './view-messages/view-messages.component';
+import { ViewMessagesComponent } from './messages/view-messages/view-messages.component';
 import { RouterModule, Routes } from '@angular/router';
 import { GetMesagesDialogComponent } from './get-mesages-dialog/get-mesages-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { QueueMessageComponent } from './queue-message/queue-message.component';
+import { QueueMessageComponent } from './queue/queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
 import { SelectMessageTargetDialogComponent } from './select-message-target-dialog/select-message-target-dialog.component';
 import { ConnectionsModule } from '../connections/connections.module';
 import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
-import { MessagesTableComponent } from './messages-table/messages-table.component';
+import { MessagesTableComponent } from './messages/messages-table/messages-table.component';
 import { CdkTableModule } from '@angular/cdk/table';
-import { MessagesBodyComponent } from './messages-body/messages-body.component';
+import { MessagesBodyComponent } from './messages/messages-body/messages-body.component';
 
 const routes: Routes = [
     { path: 'view/:messageSetId', component: ViewMessagesComponent },

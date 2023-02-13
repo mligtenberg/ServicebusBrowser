@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { IMessage, IMessageSet } from '../ngrx/messages.models';
+import { IMessage, IMessageSet } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
 import { map } from 'rxjs/operators';
 

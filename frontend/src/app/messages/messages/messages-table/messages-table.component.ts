@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnChanges } from '@angular/core';
 import { CdkTableDataSourceInput } from '@angular/cdk/table';
-import { IMessageTableRow } from '../ngrx/messages.models';
+import { IMessageTableRow } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
 import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';

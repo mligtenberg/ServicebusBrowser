@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { IMessageSet, IMessageTableRow } from './ngrx/messages.models';
+import { IMessageSet, IMessageTableRow } from '../ngrx/messages.models';
 import { ComponentStore } from '@ngrx/component-store';
 import { Store } from '@ngrx/store';
-import { State } from '../ngrx.module';
+import { State } from '../../ngrx.module';
 import { Observable, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { getMessages } from './ngrx/messages.selectors';
+import { getMessages } from '../ngrx/messages.selectors';
 
 interface IMessageSetState {
     messageSet?: IMessageSet;
