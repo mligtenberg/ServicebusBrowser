@@ -4,43 +4,34 @@ import { IMessagebarOptions } from './models/messagebarOptions';
 import { MessagebarRef } from './models/messagebarRef';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class MessagebarService {
-  constructor(
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private appRef: ApplicationRef,
-    private injector: Injector
-  ) {}
+    constructor(private componentFactoryResolver: ComponentFactoryResolver, private appRef: ApplicationRef, private injector: Injector) {}
 
-  showMessage(options: IMessagebarOptions) {
-    const messagebarRef = new MessagebarRef(options.message);
+    showMessage(options: IMessagebarOptions) {
+        const messagebarRef = new MessagebarRef(options.message);
 
-    const injector = Injector.create({
-      providers: [
-        { provide: MessagebarRef, useValue: messagebarRef } as ValueProvider
-      ],
-      parent: this.injector
-    });
+        const injector = Injector.create({
+            providers: [{ provide: MessagebarRef, useValue: messagebarRef } as ValueProvider],
+            parent: this.injector,
+        });
 
-    const messagebarComponent = this.componentFactoryResolver
-    .resolveComponentFactory(MessagebarComponent)
-    .create(injector);
-    
-    this.appRef.attachView(messagebarComponent.hostView);
+        const messagebarComponent = this.componentFactoryResolver.resolveComponentFactory(MessagebarComponent).create(injector);
 
-    const htmlElement = (messagebarComponent.hostView as EmbeddedViewRef<any>)
-    .rootNodes[0] as HTMLElement;
+        this.appRef.attachView(messagebarComponent.hostView);
 
-    document.body.appendChild(htmlElement);
+        const htmlElement = (messagebarComponent.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
 
-    const closeTime = options.showForMiliseconds ?? 2000;
+        document.body.appendChild(htmlElement);
 
-    setTimeout(() => {
-      messagebarComponent.destroy();
-      document.body.removeChild(htmlElement);
-    }, closeTime);
+        const closeTime = options.showForMiliseconds ?? 2000;
 
-    return messagebarRef;
-  }
+        setTimeout(() => {
+            document.body.removeChild(htmlElement);
+            messagebarComponent.destroy();
+        }, closeTime);
+
+        return messagebarRef;
+    }
 }
