@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { IMessagesState } from './messages.reducers';
-import { IMessageSet, IMessageSetReference, IMessageTableRow } from './messages.models';
+import { IMessageSetReference } from './messages.models';
 
 const getMessagesFeatureState = createFeatureSelector<IMessagesState>('messages');
 
@@ -15,3 +15,9 @@ export const getMessageSetReferences = createSelector(getMessagesFeatureState, (
         } as IMessageSetReference;
     })
 );
+
+export const getMessage = (messageSetId: string, messageId: string) => {
+    return createSelector(getMessages(messageSetId), (messageSet) => {
+        return messageSet?.messages.find((m) => m.id === messageId);
+    });
+};

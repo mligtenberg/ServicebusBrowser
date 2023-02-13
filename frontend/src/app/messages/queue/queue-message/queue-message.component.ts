@@ -10,8 +10,10 @@ import { SelectMessageTargetDialogComponent } from '../../select-message-target-
 import { IFormBuilder, IFormGroup, IFormArray } from '@rxweb/types';
 import { IQueueMessageCustomPropertyForm, IQueueMessageForm } from '../../models/IQueueMessageForm';
 import * as moment from 'moment';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+import { ActivatedRoute } from '@angular/router';
+import { getMessage } from '../../ngrx/messages.selectors';
 
 @Component({
     selector: 'app-queue-message',
@@ -29,7 +31,12 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
         return this.form.controls.customProperties as IFormArray<IQueueMessageCustomPropertyForm>;
     }
 
-    constructor(private store: Store<State>, private dialogService: DialogService, formBuilder: UntypedFormBuilder) {
+    constructor(
+        private store: Store<State>,
+        private dialogService: DialogService,
+        formBuilder: UntypedFormBuilder,
+        private activatedRoute: ActivatedRoute
+    ) {
         this.formBuilder = formBuilder;
 
         this.form = this.formBuilder.group<IQueueMessageForm>({
@@ -56,6 +63,45 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subs.add(this.form.get('contentType').valueChanges.subscribe((v) => this.contentTypeUpdated(v as any as string)));
+
+        const sub = this.activatedRoute.params
+            .pipe(
+                switchMap((params) => {
+                    if (!params.messageSetId || !params.messageId) {
+                        return undefined;
+                    }
+
+                    return this.store.select(getMessage(params.messageSetId, params.messageId));
+                })
+            )
+            .subscribe((message: IMessage | undefined) => {
+                const customProperties = [] as IQueueMessageCustomPropertyForm[];
+
+                for (const key of Object.keys(message?.customProperties ?? {})) {
+                    const value = message?.customProperties[key];
+                    const type = typeof value;
+
+                    const allowedTypes = ['string', 'number', 'boolean', 'date'];
+                    if (!allowedTypes.includes(type)) {
+                        continue;
+                    }
+
+                    customProperties.push({
+                        key: key,
+                        type: type as 'string' | 'number' | 'boolean' | 'date',
+                        value: value,
+                    });
+                }
+
+                this.form.patchValue({
+                    body: message?.body ?? '',
+                    subject: message?.properties.subject ?? '',
+                    contentType: message?.properties.contentType ?? '',
+                    customProperties: customProperties,
+                });
+            });
+
+        this.subs.add(sub);
     }
 
     ngOnDestroy(): void {
@@ -77,6 +123,11 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
     addCustomProperty(): void {
         const array = this.customProperties;
         array.push(this.getNewCustomPropertyForm());
+    }
+
+    removeCustomProperty(index: number): void {
+        const array = this.customProperties;
+        array.removeAt(index);
     }
 
     send(): void {

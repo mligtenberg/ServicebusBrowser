@@ -20,6 +20,7 @@ import { MessagesBodyComponent } from './messages/messages-body/messages-body.co
 const routes: Routes = [
     { path: 'view/:messageSetId', component: ViewMessagesComponent },
     { path: 'queue', component: QueueMessageComponent },
+    { path: 'requeue/:messageSetId/:messageId', component: QueueMessageComponent },
 ];
 
 @NgModule({
