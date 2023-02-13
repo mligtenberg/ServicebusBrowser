@@ -19,3 +19,8 @@ export function getAdminClient(connection) {
             throw new Error('Connection type not supported yet, cannot create client');
     }
 }
+
+window['servicebusConnections'] = {
+    getClient: getClient,
+    getAdminClient: getAdminClient,
+};

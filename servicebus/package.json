@@ -2,9 +2,8 @@
   "name": "servicebus",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "build": "parcel build servicebus.ts --no-minify --global servicebusConnections"
+    "build": "parcel build servicebus.ts --no-optimize"
   },
   "author": "",
   "license": "ISC",
@@ -12,7 +11,10 @@
     "@azure/service-bus": "^7.8.0"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.4",
+    "buffer": "^5.7.1",
+    "os-browserify": "^0.3.0",
+    "parcel": "^2.0.0",
+    "path-browserify": "^1.0.1",
     "typescript": "^4.9.5"
   },
   "browserslist": [

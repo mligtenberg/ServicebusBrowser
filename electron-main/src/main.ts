@@ -32,7 +32,7 @@ function createWindow(): BrowserWindow | null {
     win.setMenu(null);
 
     if (isNgServe) {
-        win.loadURL('http://127.0.0.1:4200');
+        win.loadURL('http://localhost:4200');
     } else {
         // and load the index.html of the app.
         win.loadFile('../frontend/index.html');
