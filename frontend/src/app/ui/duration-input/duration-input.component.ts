@@ -57,6 +57,10 @@ export class DurationInputComponent implements ControlValueAccessor, OnDestroy {
     }
 
     writeValue(obj: any): void {
+        if (!obj) {
+            return;
+        }
+
         this._value = Duration.fromISO(obj as string);
         this.form.setValue({
             seconds: this._value.seconds,
