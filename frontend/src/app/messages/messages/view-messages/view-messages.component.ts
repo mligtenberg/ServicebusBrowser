@@ -3,8 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IMessage, IMessageSet } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
-import { map } from 'rxjs/operators';
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { map, takeUntil } from 'rxjs/operators';
+import { faEnvelope, faEnvelopesBulk } from '@fortawesome/free-solid-svg-icons';
+import { DialogService } from '../../../ui/dialog.service';
 
 @Component({
     selector: 'app-view-messages',
@@ -25,7 +26,16 @@ export class ViewMessagesComponent implements OnInit {
         return faEnvelope;
     }
 
-    constructor(private componentStore: MessagesComponentStoreService, private router: Router, private activeRoute: ActivatedRoute) {}
+    get requeueAllIcon() {
+        return faEnvelopesBulk;
+    }
+
+    constructor(
+        private componentStore: MessagesComponentStoreService,
+        private dialogService: DialogService,
+        private router: Router,
+        private activeRoute: ActivatedRoute
+    ) {}
 
     ngOnInit(): void {
         this.componentStore.loadMessageSet(this.activeRoute.params.pipe(map((params) => params.messageSetId)));
@@ -33,5 +43,16 @@ export class ViewMessagesComponent implements OnInit {
 
     requeueMessage(messageSet: IMessageSet, message: IMessage): void {
         this.router.navigate(['messages', 'requeue', messageSet.messageSetId, message.id]);
+    }
+
+    requeueAll(): void {
+        this.dialogService
+            .openConfirmDialog('Requeue all?', 'Are you sure you want to requeue all messages?')
+            .pipe(takeUntil(this.componentStore.destroy$))
+            .subscribe((result) => {
+                if (result) {
+                    this.componentStore.requeueAllMessages();
+                }
+            });
     }
 }

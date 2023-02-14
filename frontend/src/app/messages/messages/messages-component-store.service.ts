@@ -4,8 +4,10 @@ import { ComponentStore } from '@ngrx/component-store';
 import { Store } from '@ngrx/store';
 import { State } from '../../ngrx.module';
 import { Observable, switchMap } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import { getMessages } from '../ngrx/messages.selectors';
+import { sendMessages } from '../ngrx/messages.actions';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IMessageSetState {
     messageSet?: IMessageSet;
@@ -39,6 +41,23 @@ export class MessagesComponentStoreService extends ComponentStore<IMessageSetSta
             tap((messageSet: IMessageSet) => {
                 this.setMessageSet(messageSet);
             })
+        );
+    });
+
+    requeueAllMessages = this.effect((o: Observable<never>) => {
+        return o.pipe(
+            withLatestFrom(this.messageSet$),
+            tap(([_, messageSet]: [never, IMessageSet]) => {
+                return this.store.dispatch(
+                    sendMessages({
+                        connectionId: messageSet.connectionId,
+                        operationId: uuidv4(),
+                        queueOrTopicName: messageSet.queueName ?? messageSet.topicName,
+                        messages: messageSet.messages,
+                    })
+                );
+            }),
+            map(() => void 0)
         );
     });
 

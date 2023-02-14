@@ -54,7 +54,7 @@
 .messages-selection {
   max-height: 100%;
 }
-.message-body .box-title {
+.message-body .box-title, .messages-selection .box-title {
   display: flex;
 
   .title {

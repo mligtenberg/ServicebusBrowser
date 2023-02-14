@@ -13,7 +13,7 @@ import * as moment from 'moment';
 import { Observable, of, Subscription, switchMap, take } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivatedRoute } from '@angular/router';
-import { getMessage, getMessages } from '../../ngrx/messages.selectors';
+import { getMessages } from '../../ngrx/messages.selectors';
 import { map } from 'rxjs/operators';
 
 @Component({

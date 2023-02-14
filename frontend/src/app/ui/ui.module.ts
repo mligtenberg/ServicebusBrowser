@@ -23,6 +23,7 @@ import { TabBarComponent } from './tab-bar/tab-bar.component';
 import {RouterModule} from '@angular/router';
 import { TasksListComponent } from './tasks-list/tasks-list.component';
 import {NuMonacoEditorModule} from '@ng-util/monaco-editor';
+import { ConfirmDialogBodyComponent } from './confirm-dialog-body/confirm-dialog-body.component';
 @NgModule({
   declarations: [
     MenubarComponent,
@@ -42,7 +43,8 @@ import {NuMonacoEditorModule} from '@ng-util/monaco-editor';
     TextboxDialogInputComponent,
     FirstLinePipe,
     TabBarComponent,
-    TasksListComponent
+    TasksListComponent,
+    ConfirmDialogBodyComponent
   ],
   imports: [
     CommonModule,
