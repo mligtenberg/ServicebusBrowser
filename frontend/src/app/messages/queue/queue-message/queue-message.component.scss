@@ -83,6 +83,17 @@
   }
 }
 
+.remove-property {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+
+  &:hover {
+    color: darkred;
+  }
+}
+
 nu-monaco-editor {
   height: 100% !important;
 }
