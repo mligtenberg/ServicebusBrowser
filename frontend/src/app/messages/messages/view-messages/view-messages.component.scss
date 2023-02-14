@@ -54,6 +54,13 @@
 .messages-selection {
   max-height: 100%;
 }
+.message-body .box-title {
+  display: flex;
+
+  .title {
+    flex: 1;
+  }
+}
 
 .message-body .box-body {
   overflow: hidden;

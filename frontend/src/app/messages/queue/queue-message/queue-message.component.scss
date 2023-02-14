@@ -52,8 +52,15 @@
   > .controls {
     grid-area: controls;
     display: flex;
+    gap: 10px;
+    justify-content: center;
+
     > .filler {
       flex: 1;
+    }
+
+    > .target {
+      line-height: 30px;
     }
   }
 }

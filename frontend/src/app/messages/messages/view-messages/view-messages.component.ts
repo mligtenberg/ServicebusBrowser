@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IMessage, IMessageSet } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
 import { map } from 'rxjs/operators';
+import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
 
 @Component({
     selector: 'app-view-messages',
@@ -20,9 +21,17 @@ export class ViewMessagesComponent implements OnInit {
         return this.componentStore.currentMessage$;
     }
 
-    constructor(private componentStore: MessagesComponentStoreService, private activeRoute: ActivatedRoute) {}
+    get requeueIcon() {
+        return faEnvelope;
+    }
+
+    constructor(private componentStore: MessagesComponentStoreService, private router: Router, private activeRoute: ActivatedRoute) {}
 
     ngOnInit(): void {
         this.componentStore.loadMessageSet(this.activeRoute.params.pipe(map((params) => params.messageSetId)));
+    }
+
+    requeueMessage(messageSet: IMessageSet, message: IMessage): void {
+        this.router.navigate(['messages', 'requeue', messageSet.messageSetId, message.id]);
     }
 }

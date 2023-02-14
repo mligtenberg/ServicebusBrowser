@@ -23,9 +23,11 @@ export class MessagesComponentStoreService extends ComponentStore<IMessageSetSta
     readonly messagesTableRows$ = this.select((state) => {
         return state.messageSet?.messages.map((m) => {
             return {
+                messageSetId: state.messageSet.messageSetId,
                 id: m.id,
                 subject: m.properties.subject,
                 sequenceNumber: m.properties.sequenceNumber,
+                messageChannel: state.messageSet.messagesChannel,
             } as IMessageTableRow;
         });
     });

@@ -5,15 +5,16 @@ import { State } from 'src/app/ngrx.module';
 import { DialogService } from 'src/app/ui/dialog.service';
 import { ISelectedMessagesTarget } from '../../models/ISelectedMessagesTarget';
 import { sendMessages } from '../../ngrx/messages.actions';
-import { IMessage } from '../../ngrx/messages.models';
+import { IMessage, IMessageSet } from '../../ngrx/messages.models';
 import { SelectMessageTargetDialogComponent } from '../../select-message-target-dialog/select-message-target-dialog.component';
 import { IFormBuilder, IFormGroup, IFormArray } from '@rxweb/types';
 import { IQueueMessageCustomPropertyForm, IQueueMessageForm } from '../../models/IQueueMessageForm';
 import * as moment from 'moment';
-import { Subscription, switchMap } from 'rxjs';
+import { Observable, of, Subscription, switchMap, take } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivatedRoute } from '@angular/router';
-import { getMessage } from '../../ngrx/messages.selectors';
+import { getMessage, getMessages } from '../../ngrx/messages.selectors';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-queue-message',
@@ -26,6 +27,8 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
 
     form: IFormGroup<IQueueMessageForm>;
     subs = new Subscription();
+
+    selectedMessagesTarget?: ISelectedMessagesTarget;
 
     get customProperties(): IFormArray<IQueueMessageCustomPropertyForm> {
         return this.form.controls.customProperties as IFormArray<IQueueMessageCustomPropertyForm>;
@@ -71,33 +74,38 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
                         return undefined;
                     }
 
-                    return this.store.select(getMessage(params.messageSetId, params.messageId));
+                    return this.store.select(getMessages(params.messageSetId)).pipe(
+                        map((messageSet) => {
+                            const currentMessage = messageSet?.messages.find((m) => m.id === params.messageId);
+                            return [messageSet, currentMessage];
+                        })
+                    );
                 })
             )
-            .subscribe((message: IMessage | undefined) => {
-                const customProperties = [] as IQueueMessageCustomPropertyForm[];
+            .subscribe(([messageSet, message]: [IMessageSet, IMessage]) => {
+                this.customProperties.clear();
 
-                for (const key of Object.keys(message?.customProperties ?? {})) {
-                    const value = message?.customProperties[key];
+                const customPropertyKeys = message?.customProperties?.keys() ?? [];
+                for (const key of customPropertyKeys) {
+                    const value = message?.customProperties.get(key);
                     const type = typeof value;
 
-                    const allowedTypes = ['string', 'number', 'boolean', 'date'];
-                    if (!allowedTypes.includes(type)) {
-                        continue;
-                    }
-
-                    customProperties.push({
-                        key: key,
-                        type: type as 'string' | 'number' | 'boolean' | 'date',
-                        value: value,
-                    });
+                    this.customProperties.push(
+                        this.getNewCustomPropertyForm(key, type as any as 'string' | 'number' | 'boolean' | 'date', value.toString())
+                    );
                 }
+
+                this.selectedMessagesTarget = !messageSet
+                    ? undefined
+                    : {
+                          connectionId: messageSet.connectionId ?? '',
+                          queueOrTopicName: messageSet.topicName ?? messageSet.queueName ?? '',
+                      };
 
                 this.form.patchValue({
                     body: message?.body ?? '',
                     subject: message?.properties.subject ?? '',
                     contentType: message?.properties.contentType ?? '',
-                    customProperties: customProperties,
                 });
             });
 
@@ -108,11 +116,15 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
         this.subs.unsubscribe();
     }
 
-    getNewCustomPropertyForm(): IFormGroup<IQueueMessageCustomPropertyForm> {
+    getNewCustomPropertyForm(
+        key = '',
+        type: 'string' | 'number' | 'boolean' | 'date' = 'string',
+        value = ''
+    ): IFormGroup<IQueueMessageCustomPropertyForm> {
         return this.formBuilder.group<IQueueMessageCustomPropertyForm>({
-            key: '',
-            type: 'string',
-            value: '',
+            key: key,
+            type: type,
+            value: value,
         });
     }
 
@@ -128,6 +140,22 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
     removeCustomProperty(index: number): void {
         const array = this.customProperties;
         array.removeAt(index);
+    }
+
+    selectQueueOrTopic(): void {
+        this.openSelectDialog()
+            .pipe(take(1))
+            .subscribe((target) => {
+                this.selectedMessagesTarget = target;
+            });
+    }
+
+    openSelectDialog(): Observable<ISelectedMessagesTarget> {
+        const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(
+            SelectMessageTargetDialogComponent
+        );
+
+        return dialog.afterClosed();
     }
 
     send(): void {
@@ -165,11 +193,9 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
             message.customProperties.set(key, value);
         }
 
-        const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(
-            SelectMessageTargetDialogComponent
-        );
+        const observable = this.selectedMessagesTarget ? of(this.selectedMessagesTarget) : this.openSelectDialog();
 
-        const sub = dialog.afterClosed().subscribe((target) => {
+        observable.pipe(take(1)).subscribe((target) => {
             this.store.dispatch(
                 sendMessages({
                     connectionId: target.connectionId,
@@ -178,7 +204,6 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
                     messages: [message],
                 })
             );
-            sub.unsubscribe();
         });
     }
 }

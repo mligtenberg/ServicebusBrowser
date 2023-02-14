@@ -58,6 +58,8 @@
     </div>
     <div class="controls">
       <div class="filler"></div>
+      <span class="target" *ngIf="selectedMessagesTarget">target: {{ selectedMessagesTarget.queueOrTopicName }}</span>
+      <button class="select-target" (click)="selectQueueOrTopic()">Select target</button>
       <button class="send" (click)="send()">Send</button>
     </div>
   </div>

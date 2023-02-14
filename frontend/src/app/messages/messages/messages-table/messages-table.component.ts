@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnChanges, TemplateRef, ViewChild } from '@angular/core';
 import { CdkTableDataSourceInput } from '@angular/cdk/table';
 import { IMessageTableRow } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
 import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { ContextmenuService } from '../../../ui/contextmenu.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-messages-table',
@@ -20,7 +22,7 @@ export class MessagesTableComponent {
         return this.componentStore.currentMessage$.pipe(map((message) => message?.id));
     }
 
-    constructor(private componentStore: MessagesComponentStoreService) {}
+    constructor(private componentStore: MessagesComponentStoreService, private contextMenu: ContextmenuService, private router: Router) {}
 
     selectMessage(messageId: string): void {
         this.componentStore.setCurrentMessage(messageId);

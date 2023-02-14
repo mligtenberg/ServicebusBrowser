@@ -44,7 +44,9 @@ export enum MessageOrigin {
 }
 
 export interface IMessageTableRow {
+    messageSetId: string;
     id: string;
     subject: string;
     sequenceNumber: Long;
+    messageChannel: MessagesChannel;
 }

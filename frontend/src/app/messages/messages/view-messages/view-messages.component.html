@@ -6,7 +6,24 @@
         </div>
     </div>
     <div class="message-body box">
-        <div class="box-title">Body</div>
+        <div class="box-title">
+            <span class="title">Body</span>
+            <span class="message-buttons" *ngIf="currentMessage$ | async as selectedMessage; else loadingButtons">
+                <button *ngIf="messageSet.messagesChannel === 1"
+                        (click)="requeueMessage(messageSet, selectedMessage)"
+                        title="Requeue message">
+                    <fa-icon class="icon-button"  [icon]="requeueIcon"></fa-icon>
+                </button>
+            </span>
+
+            <ng-template #loadingButtons>
+                <span class="message-buttons">
+                    <button *ngIf="messageSet.messagesChannel === 1" disabled title="Requeue message">
+                        <fa-icon class="icon-button"  [icon]="requeueIcon"></fa-icon>
+                    </button>
+                </span>
+            </ng-template>
+        </div>
         <div class="box-body no-padding">
             <app-messages-body></app-messages-body>
         </div>

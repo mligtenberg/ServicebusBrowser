@@ -16,6 +16,7 @@ import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 import { MessagesTableComponent } from './messages/messages-table/messages-table.component';
 import { CdkTableModule } from '@angular/cdk/table';
 import { MessagesBodyComponent } from './messages/messages-body/messages-body.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 const routes: Routes = [
     { path: 'view/:messageSetId', component: ViewMessagesComponent },
@@ -43,6 +44,7 @@ const routes: Routes = [
         NuMonacoEditorModule,
         ConnectionsModule,
         CdkTableModule,
+        FontAwesomeModule,
     ],
     exports: [GetMesagesDialogComponent],
 })
