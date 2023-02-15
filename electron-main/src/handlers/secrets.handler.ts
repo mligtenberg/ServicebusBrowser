@@ -47,8 +47,20 @@ export function initSecretsHandler(app: App) {
                 connectionString: value,
             };
 
-            writeSettings(settings);
+            try {
+                writeSettings(settings);
+                event.reply(secretsChannels.ADD_SECRET_REPONSE, true);
+            } catch (e) {
+                if (!(e instanceof Error)) {
+                    event.reply(secretsChannels.ADD_SECRET_REPONSE, false, e);
+                    return;
+                }
+
+                event.reply(secretsChannels.ADD_SECRET_REPONSE, false, e.message);
+            }
         }
+
+        event.reply(secretsChannels.ADD_SECRET_REPONSE, false, 'Encryption is not available');
     });
 
     ipcMain.on(secretsChannels.DELETE_SECRET, (event, ...args) => {
@@ -65,7 +77,17 @@ export function initSecretsHandler(app: App) {
                 delete settings.savedConnections[key];
             }
 
-            writeSettings(settings);
+            try {
+                writeSettings(settings);
+                event.reply(secretsChannels.DELETE_SECRET_RESPONSE, true);
+            } catch (e) {
+                if (!(e instanceof Error)) {
+                    event.reply(secretsChannels.DELETE_SECRET_RESPONSE, false, e);
+                    return;
+                }
+
+                event.reply(secretsChannels.DELETE_SECRET_RESPONSE, false, e.message);
+            }
         }
     });
 
