@@ -1,6 +1,6 @@
 {
   "name": "servicebus-browser",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "main": "./temp/main/main.js",
   "scripts": {
     "install:servicebus": "cd servicebus && npm i",

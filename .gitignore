@@ -5,3 +5,5 @@ temp
 .cache
 .idea
 frontend/.angular/
+
+frontend/src/assets/servicebus.js
