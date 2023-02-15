@@ -3,6 +3,7 @@
   "version": "0.5.1",
   "main": "./temp/main/main.js",
   "scripts": {
+    "install:servicebus": "cd servicebus && npm i",
     "install:angular": "cd frontend && npm i",
     "install:preload": "cd electron-preload && npm i",
     "install:main": "cd electron-main && npm i",
