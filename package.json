@@ -8,7 +8,7 @@
     "install:preload": "cd electron-preload && npm i",
     "install:main": "cd electron-main && npm i",
     "install:builder-deps": "electron-builder install-app-deps",
-    "postinstall": "npm run install:builder-deps && npm run install:preload && npm run install:main && npm run install:angular",
+    "postinstall": "npm run install:builder-deps && npm run install:preload && npm run install:main && npm run install:angular && npm run install:servicebus",
     "clean": "rimraf temp && rimraf build && rimraf dist",
     "build:frontend": "cd frontend && npm run build",
     "build:preload": "cd electron-preload && npm run build",
