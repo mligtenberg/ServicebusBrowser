@@ -81,7 +81,9 @@ export class MessagesEffects {
                                 action.topicName,
                                 action.subscriptionName,
                                 action.channel,
-                                action.numberOfMessages
+                                action.numberOfMessages,
+                                action.skip,
+                                action.fromSequenceNumber
                             )
                             .pipe(
                                 map((messages: IMessage[]) =>

@@ -79,6 +79,8 @@ export const getSubscriptionMessages = createAction(
         subscriptionName: string;
         channel: MessagesChannel;
         numberOfMessages: number;
+        skip?: number;
+        fromSequenceNumber?: Long;
     }>()
 );
 

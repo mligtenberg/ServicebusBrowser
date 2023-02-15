@@ -6,7 +6,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { MessagesEffects } from './messages.effects';
 import { ViewMessagesComponent } from './messages/view-messages/view-messages.component';
 import { RouterModule, Routes } from '@angular/router';
-import { GetMesagesDialogComponent } from './get-mesages-dialog/get-mesages-dialog.component';
+import { GetMessagesDialogComponent } from './get-mesages-dialog/get-messages-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { QueueMessageComponent } from './queue/queue-message/queue-message.component';
 import { UiModule } from '../ui/ui.module';
@@ -27,7 +27,7 @@ const routes: Routes = [
 @NgModule({
     declarations: [
         ViewMessagesComponent,
-        GetMesagesDialogComponent,
+        GetMessagesDialogComponent,
         QueueMessageComponent,
         SelectMessageTargetDialogComponent,
         MessagesTableComponent,
@@ -46,6 +46,6 @@ const routes: Routes = [
         CdkTableModule,
         FontAwesomeModule,
     ],
-    exports: [GetMesagesDialogComponent],
+    exports: [GetMessagesDialogComponent],
 })
 export class MessagesModule {}

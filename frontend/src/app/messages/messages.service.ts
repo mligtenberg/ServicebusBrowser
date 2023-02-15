@@ -363,6 +363,7 @@ export class MessagesService {
         skip?: number,
         fromSequenceNumber?: Long
     ): Observable<LoadStatusUpdate | IMessage[]> {
+        console.log('peakMessages', numberOfMessages, skip, fromSequenceNumber);
         return this.getMessagesInternal(receiver, true, 0, numberOfMessages + (skip ?? 0), fromSequenceNumber).pipe(
             catchError((error) => of(new LoadStatusUpdate('error', undefined, error))),
             switchMap((update) => {
