@@ -58,12 +58,13 @@ export class MessagesService {
         fromSequenceNumber?: Long
     ): Observable<IMessage[]> {
         const taskId = v4();
+        const targetName = channel === MessagesChannel.regular ? queueName : `${queueName} - ${this.getSubQueueType(channel)}`;
 
         this.store.dispatch(
             createTask({
                 id: taskId,
                 title: 'Receiving messages',
-                subtitle: channel === MessagesChannel.regular ? queueName : `${queueName} - ${this.getSubQueueType(channel)}`,
+                subtitle: targetName,
                 donePercentage: 0,
                 progressBarMessage: `Loaded 0 of ${numberOfMessages} messages, 0%`,
             })
@@ -83,15 +84,17 @@ export class MessagesService {
                                     progressBarMessage,
                                 })
                             );
-                            this.log.logInfo(`Retrieving messages for queue '${queueName}': ${progressBarMessage}`);
+                            this.log.logInfo(`Retrieving messages for queue '${connection.name}/${targetName}': ${progressBarMessage}`);
                             break;
                         case 'loaded':
                             this.store.dispatch(finishTask({ id: taskId }));
-                            this.log.logInfo(`Retrieved ${update.totalLoaded} messages for '${connection.name}/${queueName}'`);
+                            this.log.logInfo(`Retrieved ${update.totalLoaded} messages for '${connection.name}/${targetName}'`);
                             break;
                         case 'error':
                             this.store.dispatch(finishTask({ id: taskId }));
-                            this.log.logWarning(`Retrieving messages for subscription '${queueName}' failed: ${update.error}`);
+                            this.log.logWarning(
+                                `Retrieving messages for subscription '${connection.name}/${targetName}' failed: ${update.error}`
+                            );
                             break;
                     }
                 }
@@ -111,15 +114,15 @@ export class MessagesService {
         fromSequenceNumber?: Long
     ): Observable<IMessage[]> {
         const taskId = v4();
+        const targetName = MessagesChannel.regular
+            ? `${topicName}/${subscriptionName}`
+            : `${topicName}/${subscriptionName} - ${this.getSubQueueType(channel)}`;
 
         this.store.dispatch(
             createTask({
                 id: taskId,
                 title: 'Receiving messages',
-                subtitle:
-                    channel === MessagesChannel.regular
-                        ? `${topicName}/${subscriptionName}`
-                        : `${topicName}/${subscriptionName} - ${this.getSubQueueType(channel)}`,
+                subtitle: targetName,
                 donePercentage: 0,
                 progressBarMessage: `Loaded 0 of ${numberOfMessages} messages, 0%`,
             })
@@ -148,19 +151,17 @@ export class MessagesService {
                                 })
                             );
                             this.log.logInfo(
-                                `Retrieving messages for subscription '${topicName}/${subscriptionName}': ${progressBarMessage}`
+                                `Retrieving messages for subscription '${connection.name}/${targetName}': ${progressBarMessage}`
                             );
                             break;
                         case 'loaded':
                             this.store.dispatch(finishTask({ id: taskId }));
-                            this.log.logInfo(
-                                `Retrieved ${update.totalLoaded} messages for '${connection.name}/${topicName}/${subscriptionName}'`
-                            );
+                            this.log.logInfo(`Retrieved ${update.totalLoaded} messages for '${connection.name}/${targetName}'`);
                             break;
                         case 'error':
                             this.store.dispatch(finishTask({ id: taskId }));
                             this.log.logWarning(
-                                `Retrieving messages for subscription '${topicName}/${subscriptionName}' failed: ${update.error}`
+                                `Retrieving messages for subscription '${connection.name}/${targetName}' failed: ${update.error}`
                             );
                             break;
                     }
