@@ -74,9 +74,16 @@ export class MessagesService {
                 if (update instanceof LoadStatusUpdate) {
                     switch (update.loadStatus) {
                         case 'loading':
-                            const percentage = (update.totalLoaded / numberOfMessages) * 100;
-                            this.store.dispatch(updateTaskDonePercentage({ id: taskId, donePercentage: percentage }));
-                            this.log.logInfo(`Retrieving messages for queue '${queueName}'... ${percentage}%`);
+                            const percentage = this.getPercentage(update.totalLoaded, numberOfMessages);
+                            const progressBarMessage = `Loaded ${update.totalLoaded} of ${numberOfMessages} messages, ${percentage}%`;
+                            this.store.dispatch(
+                                updateTaskDonePercentage({
+                                    id: taskId,
+                                    donePercentage: percentage,
+                                    progressBarMessage,
+                                })
+                            );
+                            this.log.logInfo(`Retrieving messages for queue '${queueName}': ${progressBarMessage}`);
                             break;
                         case 'loaded':
                             this.store.dispatch(finishTask({ id: taskId }));
@@ -131,9 +138,18 @@ export class MessagesService {
                 if (update instanceof LoadStatusUpdate) {
                     switch (update.loadStatus) {
                         case 'loading':
-                            const percentage = (update.totalLoaded / numberOfMessages) * 100;
-                            this.store.dispatch(updateTaskDonePercentage({ id: taskId, donePercentage: percentage }));
-                            this.log.logInfo(`Retrieving messages for subscription '${topicName}/${subscriptionName}'... ${percentage}%`);
+                            const percentage = this.getPercentage(update.totalLoaded, numberOfMessages);
+                            const progressBarMessage = `Loaded ${update.totalLoaded} of ${numberOfMessages} messages, ${percentage}%`;
+                            this.store.dispatch(
+                                updateTaskDonePercentage({
+                                    id: taskId,
+                                    donePercentage: percentage,
+                                    progressBarMessage: `Loaded 0 of ${numberOfMessages} messages, ${percentage}%`,
+                                })
+                            );
+                            this.log.logInfo(
+                                `Retrieving messages for subscription '${topicName}/${subscriptionName}': ${progressBarMessage}`
+                            );
                             break;
                         case 'loaded':
                             this.store.dispatch(finishTask({ id: taskId }));
@@ -196,11 +212,15 @@ export class MessagesService {
                 }
 
                 if (update instanceof LoadStatusUpdate) {
+                    const percentage = this.getPercentage(update.totalLoaded, messageCount);
+                    const progressBarMessage = `Loaded ${update.totalLoaded} of ${messageCount} messages, ${percentage}%`;
+
                     const action =
                         update.loadStatus === 'loading'
                             ? updateTaskDonePercentage({
                                   id: taskId,
-                                  donePercentage: (update.totalLoaded / messageCount) * 100,
+                                  donePercentage: percentage,
+                                  progressBarMessage: `Loaded 0 of ${messageCount} messages, ${percentage}%`,
                               })
                             : finishTask({ id: taskId });
 
@@ -259,11 +279,15 @@ export class MessagesService {
                 }
 
                 if (update instanceof LoadStatusUpdate) {
+                    const percentage = this.getPercentage(update.totalLoaded, messageCount);
+                    const progressBarMessage = `Loaded ${update.totalLoaded} of ${messageCount} messages, ${percentage}%`;
+
                     const action =
                         update.loadStatus === 'loading'
                             ? updateTaskDonePercentage({
                                   id: taskId,
-                                  donePercentage: (update.totalLoaded / messageCount) * 100,
+                                  donePercentage: percentage,
+                                  progressBarMessage,
                               })
                             : finishTask({ id: taskId });
                     this.store.dispatch(action);
@@ -385,7 +409,15 @@ export class MessagesService {
                         newNumberOfLoadedMessages,
                         newNumberOfMessagesYetToReceive,
                         lastSequenceNumber.add(1)
-                    ).pipe(map((nextPart: ServiceBusReceivedMessage[]) => [...messagesPart, ...nextPart]));
+                    ).pipe(
+                        map((nextPart: ServiceBusReceivedMessage[] | LoadStatusUpdate) => {
+                            if (nextPart instanceof LoadStatusUpdate) {
+                                return nextPart;
+                            }
+
+                            return [...messagesPart, ...nextPart];
+                        })
+                    );
                 }
 
                 return of(messagesPart);
@@ -451,5 +483,10 @@ export class MessagesService {
 
     private isMessageArray(obj: IMessage[] | LoadStatusUpdate): obj is IMessage[] {
         return !(obj instanceof LoadStatusUpdate);
+    }
+
+    private getPercentage(loaded: number, total: number): number {
+        const percentage = Math.round((loaded / total) * 1000) / 10;
+        return percentage === Infinity ? 0 : percentage;
     }
 }
