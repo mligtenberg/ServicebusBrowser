@@ -11,117 +11,16 @@ import isBuffer from 'is-buffer';
 import { v4 } from 'uuid';
 import { createTask, finishTask, updateTaskDonePercentage } from '../ngrx/actions';
 import { AmqpAnnotatedMessage } from '@azure/core-amqp';
-import Long from "long";
+import Long from 'long';
+import { filter, finalize, from, Observable, of, startWith, switchMap, zip } from 'rxjs';
+import { LoadStatusUpdate } from './models/load-status-update.model';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MessagesService {
     constructor(private connectionService: ConnectionService, private log: LogService, private store: Store<State>) {}
-
-    async getQueueMessages(
-        connection: IConnection,
-        queueName: string,
-        numberOfMessages: number,
-        channel: MessagesChannel
-    ): Promise<IMessage[]> {
-        try {
-            const messages = await this.getQueuesMessagesInternal(connection, queueName, numberOfMessages, channel);
-            this.log.logInfo(`Retrieved ${messages.length} messages for '${connection.name}/${queueName}'`);
-            return messages;
-        } catch (reason) {
-            this.log.logWarning(`Retrieving messages for queue '${queueName}' failed: ${reason}`);
-            throw reason;
-        }
-    }
-
-    async getSubscriptionMessages(
-        connection: IConnection,
-        topicName: string,
-        subscriptionName: string,
-        numberOfMessages: number,
-        channel: MessagesChannel
-    ): Promise<IMessage[]> {
-        try {
-            const messages = await this.getSubscriptionMessagesInternal(connection, topicName, subscriptionName, numberOfMessages, channel);
-            this.log.logInfo(`Retrieved ${messages.length} messages for '${connection.name}/${topicName}/${subscriptionName}'`);
-            return messages;
-        } catch (reason) {
-            this.log.logWarning(`Retrieving messages for subscription '${topicName}/${subscriptionName}' failed: ${reason}`);
-            throw reason;
-        }
-    }
-
-    async clearQueueMessages(connection: IConnection, queueName: string, channel: MessagesChannel): Promise<void> {
-        const adminClient = this.connectionService.getAdminClient(connection);
-        const runtimeProperties = await adminClient.getQueueRuntimeProperties(queueName);
-
-        let messageCount = 0;
-        switch (channel) {
-            case MessagesChannel.regular:
-                messageCount = runtimeProperties.activeMessageCount;
-                break;
-            case MessagesChannel.deadletter:
-                messageCount = runtimeProperties.deadLetterMessageCount;
-                break;
-            case MessagesChannel.transferedDeadletters:
-                messageCount = runtimeProperties.transferDeadLetterMessageCount;
-                break;
-        }
-
-        const client = this.connectionService.getClient(connection);
-        const receiver = client.createReceiver(queueName, {
-            receiveMode: 'receiveAndDelete',
-            subQueueType: this.getSubQueueType(channel),
-            skipParsingBodyAsJson: true,
-        });
-
-        await this.getMessagesInternal(receiver, messageCount, false, {
-            pastPerfect: 'Cleared',
-            presentContinues: 'Clearing',
-        });
-
-        await receiver.close();
-        await client.close();
-    }
-
-    async clearSubscriptionMessages(
-        connection: IConnection,
-        topicName: string,
-        subscriptionName: string,
-        channel: MessagesChannel
-    ): Promise<void> {
-        const client = this.connectionService.getClient(connection);
-        const receiver = client.createReceiver(topicName, subscriptionName, {
-            receiveMode: 'receiveAndDelete',
-            subQueueType: this.getSubQueueType(channel),
-            skipParsingBodyAsJson: true,
-        });
-
-        const adminClient = this.connectionService.getAdminClient(connection);
-        const runtimeProperties = await adminClient.getSubscriptionRuntimeProperties(topicName, subscriptionName);
-
-        let messageCount = 0;
-        switch (channel) {
-            case MessagesChannel.regular:
-                messageCount = runtimeProperties.activeMessageCount;
-                break;
-            case MessagesChannel.deadletter:
-                messageCount = runtimeProperties.deadLetterMessageCount;
-                break;
-            case MessagesChannel.transferedDeadletters:
-                messageCount = runtimeProperties.transferDeadLetterMessageCount;
-                break;
-        }
-
-        await this.getMessagesInternal(receiver, messageCount, false, {
-            pastPerfect: 'Cleared',
-            presentContinues: 'Clearing',
-        });
-
-        await receiver.close();
-        await client.close();
-    }
 
     async sendMessages(messages: IMessage[], connection: IConnection, queueOrTopicName: string): Promise<void> {
         const client = this.connectionService.getClient(connection);
@@ -150,112 +49,349 @@ export class MessagesService {
         await client.close();
     }
 
-    private async getQueuesMessagesInternal(
+    getQueueMessages(
         connection: IConnection,
         queueName: string,
+        channel: MessagesChannel,
         numberOfMessages: number,
-        channel: MessagesChannel
-    ): Promise<IMessage[]> {
+        skip?: number,
+        fromSequenceNumber?: Long
+    ): Observable<IMessage[]> {
+        const taskId = v4();
+
+        this.store.dispatch(
+            createTask({
+                id: taskId,
+                title: 'Receiving messages',
+                subtitle: channel === MessagesChannel.regular ? queueName : `${queueName} - ${this.getSubQueueType(channel)}`,
+                donePercentage: 0,
+                progressBarMessage: `Loaded 0 of ${numberOfMessages} messages, 0%`,
+            })
+        );
+
+        return this.getQueuesMessagesInternal(connection, queueName, channel, numberOfMessages, skip, fromSequenceNumber).pipe(
+            tap((update) => {
+                if (update instanceof LoadStatusUpdate) {
+                    switch (update.loadStatus) {
+                        case 'loading':
+                            const percentage = (update.totalLoaded / numberOfMessages) * 100;
+                            this.store.dispatch(updateTaskDonePercentage({ id: taskId, donePercentage: percentage }));
+                            this.log.logInfo(`Retrieving messages for queue '${queueName}'... ${percentage}%`);
+                            break;
+                        case 'loaded':
+                            this.store.dispatch(finishTask({ id: taskId }));
+                            this.log.logInfo(`Retrieved ${update.totalLoaded} messages for '${connection.name}/${queueName}'`);
+                            break;
+                        case 'error':
+                            this.store.dispatch(finishTask({ id: taskId }));
+                            this.log.logWarning(`Retrieving messages for subscription '${queueName}' failed: ${update.error}`);
+                            break;
+                    }
+                }
+            }),
+            filter((update) => this.isMessageArray(update)),
+            map((update) => update as IMessage[])
+        );
+    }
+
+    getSubscriptionMessages(
+        connection: IConnection,
+        topicName: string,
+        subscriptionName: string,
+        channel: MessagesChannel,
+        numberOfMessages: number,
+        skip?: number,
+        fromSequenceNumber?: Long
+    ): Observable<IMessage[]> {
+        const taskId = v4();
+
+        this.store.dispatch(
+            createTask({
+                id: taskId,
+                title: 'Receiving messages',
+                subtitle:
+                    channel === MessagesChannel.regular
+                        ? `${topicName}/${subscriptionName}`
+                        : `${topicName}/${subscriptionName} - ${this.getSubQueueType(channel)}`,
+                donePercentage: 0,
+                progressBarMessage: `Loaded 0 of ${numberOfMessages} messages, 0%`,
+            })
+        );
+
+        return this.getSubscriptionMessagesInternal(
+            connection,
+            topicName,
+            subscriptionName,
+            channel,
+            numberOfMessages,
+            skip,
+            fromSequenceNumber
+        ).pipe(
+            tap((update) => {
+                if (update instanceof LoadStatusUpdate) {
+                    switch (update.loadStatus) {
+                        case 'loading':
+                            const percentage = (update.totalLoaded / numberOfMessages) * 100;
+                            this.store.dispatch(updateTaskDonePercentage({ id: taskId, donePercentage: percentage }));
+                            this.log.logInfo(`Retrieving messages for subscription '${topicName}/${subscriptionName}'... ${percentage}%`);
+                            break;
+                        case 'loaded':
+                            this.store.dispatch(finishTask({ id: taskId }));
+                            this.log.logInfo(
+                                `Retrieved ${update.totalLoaded} messages for '${connection.name}/${topicName}/${subscriptionName}'`
+                            );
+                            break;
+                        case 'error':
+                            this.store.dispatch(finishTask({ id: taskId }));
+                            this.log.logWarning(
+                                `Retrieving messages for subscription '${topicName}/${subscriptionName}' failed: ${update.error}`
+                            );
+                            break;
+                    }
+                }
+            }),
+            filter((update) => this.isMessageArray(update)),
+            map((update) => update as IMessage[])
+        );
+    }
+
+    clearQueueMessages(connection: IConnection, queueName: string, channel: MessagesChannel): Observable<void> {
+        const adminClient = this.connectionService.getAdminClient(connection);
         const client = this.connectionService.getClient(connection);
         const receiver = client.createReceiver(queueName, {
+            receiveMode: 'receiveAndDelete',
             subQueueType: this.getSubQueueType(channel),
             skipParsingBodyAsJson: true,
         });
 
-        const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
-            pastPerfect: 'Retrieved',
-            presentContinues: 'Retrieving',
-        });
+        const taskId = v4();
 
-        await receiver.close();
-        await client.close();
+        this.store.dispatch(
+            createTask({
+                id: taskId,
+                title: 'clearing messages',
+                subtitle: channel === MessagesChannel.regular ? queueName : `${queueName} - ${this.getSubQueueType(channel)}`,
+                donePercentage: 0,
+                progressBarMessage: `No messages cleared, 0%`,
+            })
+        );
 
-        return messages;
+        return zip(from(adminClient.getQueueRuntimeProperties(queueName)), this.readMessages(receiver)).pipe(
+            finalize(async () => {
+                await receiver.close();
+                await client.close();
+            }),
+            tap(([runtimeProperties, update]) => {
+                let messageCount = 0;
+                switch (channel) {
+                    case MessagesChannel.deadletter:
+                        messageCount = runtimeProperties.deadLetterMessageCount;
+                        break;
+                    case MessagesChannel.transferedDeadletters:
+                        messageCount = runtimeProperties.transferDeadLetterMessageCount;
+                        break;
+                    default:
+                        messageCount = runtimeProperties.activeMessageCount;
+                        break;
+                }
+
+                if (update instanceof LoadStatusUpdate) {
+                    const action =
+                        update.loadStatus === 'loading'
+                            ? updateTaskDonePercentage({
+                                  id: taskId,
+                                  donePercentage: (update.totalLoaded / messageCount) * 100,
+                              })
+                            : finishTask({ id: taskId });
+
+                    this.store.dispatch(action);
+                }
+            }),
+            map(() => void 0)
+        );
     }
 
-    private async getSubscriptionMessagesInternal(
+    clearSubscriptionMessages(
         connection: IConnection,
         topicName: string,
         subscriptionName: string,
-        numberOfMessages: number,
         channel: MessagesChannel
-    ): Promise<IMessage[]> {
+    ): Observable<void> {
+        const adminClient = this.connectionService.getAdminClient(connection);
         const client = this.connectionService.getClient(connection);
         const receiver = client.createReceiver(topicName, subscriptionName, {
             subQueueType: this.getSubQueueType(channel),
             skipParsingBodyAsJson: true,
         });
 
-        const messages = await this.getMessagesInternal(receiver, numberOfMessages, true, {
-            pastPerfect: 'Retrieved',
-            presentContinues: 'Retrieving',
-        });
-
-        await receiver.close();
-        await client.close();
-
-        return messages;
-    }
-
-    private async getMessagesInternal(
-        receiver: ServiceBusReceiver,
-        numberOfMessages: number,
-        peek: boolean,
-        messageWord: {
-            presentContinues: string;
-            pastPerfect: string;
-        }
-    ): Promise<IMessage[]> {
         const taskId = v4();
-        const message = `${messageWord.pastPerfect} 0 of ${numberOfMessages} messages, 0%`;
+
         this.store.dispatch(
             createTask({
                 id: taskId,
-                title: `${messageWord.presentContinues} messages`,
-                subtitle: receiver.entityPath,
+                title: 'Receiving messages',
+                subtitle:
+                    channel === MessagesChannel.regular
+                        ? `${topicName}/${subscriptionName}`
+                        : `${topicName}/${subscriptionName} - ${this.getSubQueueType(channel)}`,
                 donePercentage: 0,
-                progressBarMessage: message,
+                progressBarMessage: `No messages cleared, 0%`,
             })
         );
 
-        const messages: ServiceBusReceivedMessage[] = [];
-        let lastLength = -1;
+        return zip(from(adminClient.getSubscriptionRuntimeProperties(topicName, subscriptionName)), this.readMessages(receiver)).pipe(
+            finalize(async () => {
+                await receiver.close();
+                await client.close();
+            }),
+            tap(([runtimeProperties, update]) => {
+                let messageCount = 0;
+                switch (channel) {
+                    case MessagesChannel.deadletter:
+                        messageCount = runtimeProperties.deadLetterMessageCount;
+                        break;
+                    case MessagesChannel.transferedDeadletters:
+                        messageCount = runtimeProperties.transferDeadLetterMessageCount;
+                        break;
+                    default:
+                        messageCount = runtimeProperties.activeMessageCount;
+                        break;
+                }
 
-        while (messages.length < numberOfMessages && messages.length !== lastLength) {
-            lastLength = messages.length;
+                if (update instanceof LoadStatusUpdate) {
+                    const action =
+                        update.loadStatus === 'loading'
+                            ? updateTaskDonePercentage({
+                                  id: taskId,
+                                  donePercentage: (update.totalLoaded / messageCount) * 100,
+                              })
+                            : finishTask({ id: taskId });
+                    this.store.dispatch(action);
+                }
+            }),
+            map(() => void 0)
+        );
+    }
 
-            const messagesLeft = numberOfMessages - messages.length;
-            const maxMessageCount = messagesLeft > 1000 ? 1000 : messagesLeft;
+    private getQueuesMessagesInternal(
+        connection: IConnection,
+        queueName: string,
+        channel: MessagesChannel,
+        numberOfMessages: number,
+        skip?: number,
+        fromSequenceNumber?: Long
+    ): Observable<LoadStatusUpdate | IMessage[]> {
+        const client = this.connectionService.getClient(connection);
+        const receiver = client.createReceiver(queueName, {
+            subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
+        });
 
-            const lastSequenceNumber: Long | undefined = messages.length ? messages[messages.length - 1].sequenceNumber : undefined;
+        return this.peakMessages(receiver, numberOfMessages, skip, fromSequenceNumber).pipe(
+            finalize(async () => {
+                await receiver.close();
+                await client.close();
+            })
+        );
+    }
 
-            const messagesPart = peek
-                ? await receiver.peekMessages(maxMessageCount, {
-                      fromSequenceNumber: lastSequenceNumber?.add(1),
-                  })
-                : await receiver.receiveMessages(maxMessageCount);
+    private getSubscriptionMessagesInternal(
+        connection: IConnection,
+        topicName: string,
+        subscriptionName: string,
+        channel: MessagesChannel,
+        numberOfMessages: number,
+        skip?: number,
+        fromSequenceNumber?: Long
+    ): Observable<LoadStatusUpdate | IMessage[]> {
+        const client = this.connectionService.getClient(connection);
+        const receiver = client.createReceiver(topicName, subscriptionName, {
+            subQueueType: this.getSubQueueType(channel),
+            skipParsingBodyAsJson: true,
+        });
 
-            messages.push(...messagesPart);
+        return this.peakMessages(receiver, numberOfMessages, skip, fromSequenceNumber).pipe(
+            finalize(async () => {
+                await receiver.close();
+                await client.close();
+            })
+        );
+    }
 
-            const percentage = Math.round((messages.length / numberOfMessages) * 10000) / 100;
-            const progressBarMessage = `${messageWord.pastPerfect} ${messages.length} of ${numberOfMessages} messages, ${percentage}%`;
-            this.store.dispatch(
-                updateTaskDonePercentage({
-                    id: taskId,
-                    donePercentage: percentage,
-                    progressBarMessage,
-                })
-            );
-            this.log.logVerbose(progressBarMessage);
+    private readMessages(receiver: ServiceBusReceiver, numberOfMessages?: number): Observable<LoadStatusUpdate | IMessage[]> {
+        return this.getMessagesInternal(receiver, false, 0, numberOfMessages).pipe(
+            catchError((error) => of(new LoadStatusUpdate('error', undefined, error))),
+            switchMap((update) => {
+                if (update instanceof LoadStatusUpdate) {
+                    return of(update);
+                }
+
+                const messages = update.map((m) => this.mapMessage(m));
+                return from([new LoadStatusUpdate('loaded', messages.length), messages]);
+            })
+        );
+    }
+
+    private peakMessages(
+        receiver: ServiceBusReceiver,
+        numberOfMessages?: number,
+        skip?: number,
+        fromSequenceNumber?: Long
+    ): Observable<LoadStatusUpdate | IMessage[]> {
+        return this.getMessagesInternal(receiver, true, 0, numberOfMessages + (skip ?? 0), fromSequenceNumber).pipe(
+            catchError((error) => of(new LoadStatusUpdate('error', undefined, error))),
+            switchMap((update) => {
+                if (update instanceof LoadStatusUpdate) {
+                    return of(
+                        new LoadStatusUpdate(update.loadStatus, !update.totalLoaded ? 0 : update.totalLoaded - (skip ?? 0), update.error)
+                    );
+                }
+
+                const messages = update.slice(skip ?? 0).map((m) => this.mapMessage(m));
+                return from([new LoadStatusUpdate('loaded', messages.length), messages]);
+            })
+        );
+    }
+
+    private getMessagesInternal(
+        receiver: ServiceBusReceiver,
+        peek: boolean,
+        numberOfLoadedMessages: number,
+        numberOfMessagesYetToReceive?: number,
+        fromSequenceNumber?: Long
+    ): Observable<LoadStatusUpdate | ServiceBusReceivedMessage[]> {
+        if (numberOfMessagesYetToReceive !== undefined && numberOfMessagesYetToReceive <= 0) {
+            return of([]);
         }
 
-        this.store.dispatch(
-            finishTask({
-                id: taskId,
-            })
-        );
+        const messageFunction = (peek: boolean, maximumMessagesToGet: number, fromSequenceNumber: Long | undefined) => {
+            return peek
+                ? from(receiver.peekMessages(maximumMessagesToGet, { fromSequenceNumber: fromSequenceNumber }))
+                : from(receiver.receiveMessages(maximumMessagesToGet));
+        };
 
-        return messages.map((m) => this.mapMessage(m));
+        return messageFunction(peek, numberOfMessagesYetToReceive, fromSequenceNumber).pipe(
+            mergeMap((messagesPart: ServiceBusReceivedMessage[]) => {
+                if (messagesPart.length !== 0) {
+                    const newNumberOfLoadedMessages = numberOfLoadedMessages + messagesPart.length;
+
+                    const newNumberOfMessagesYetToReceive =
+                        numberOfLoadedMessages === undefined ? undefined : numberOfMessagesYetToReceive - messagesPart.length;
+
+                    const lastSequenceNumber: Long | undefined = messagesPart[messagesPart.length - 1].sequenceNumber;
+                    return this.getMessagesInternal(
+                        receiver,
+                        peek,
+                        newNumberOfLoadedMessages,
+                        newNumberOfMessagesYetToReceive,
+                        lastSequenceNumber.add(1)
+                    ).pipe(map((nextPart: ServiceBusReceivedMessage[]) => [...messagesPart, ...nextPart]));
+                }
+
+                return of(messagesPart);
+            }),
+            startWith(new LoadStatusUpdate('loading', numberOfLoadedMessages))
+        );
     }
 
     private mapMessage(m: ServiceBusReceivedMessage): IMessage {
@@ -311,5 +447,9 @@ export class MessagesService {
             default:
                 return undefined;
         }
+    }
+
+    private isMessageArray(obj: IMessage[] | LoadStatusUpdate): obj is IMessage[] {
+        return !(obj instanceof LoadStatusUpdate);
     }
 }
