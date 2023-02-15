@@ -7,3 +7,5 @@ temp
 frontend/.angular/
 
 frontend/src/assets/servicebus.js
+
+servicebus/.parcel-cache/
