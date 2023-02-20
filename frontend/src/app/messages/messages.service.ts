@@ -12,9 +12,9 @@ import { v4 } from 'uuid';
 import { createTask, finishTask, updateTaskDonePercentage } from '../ngrx/actions';
 import { AmqpAnnotatedMessage } from '@azure/core-amqp';
 import Long from 'long';
-import { filter, finalize, from, Observable, of, startWith, switchMap, zip } from 'rxjs';
+import { combineLatest, filter, finalize, from, Observable, of, startWith, switchMap } from 'rxjs';
 import { LoadStatusUpdate } from './models/load-status-update.model';
-import { catchError, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, tap, withLatestFrom } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
@@ -193,11 +193,7 @@ export class MessagesService {
             })
         );
 
-        return zip(from(adminClient.getQueueRuntimeProperties(queueName)), this.readMessages(receiver)).pipe(
-            finalize(async () => {
-                await receiver.close();
-                await client.close();
-            }),
+        return combineLatest([from(adminClient.getQueueRuntimeProperties(queueName)), this.readMessages(receiver)]).pipe(
             tap(([runtimeProperties, update]) => {
                 let messageCount = 0;
                 switch (channel) {
@@ -217,16 +213,21 @@ export class MessagesService {
                     const progressBarMessage = `Loaded ${update.totalLoaded} of ${messageCount} messages, ${percentage}%`;
 
                     const action =
-                        update.loadStatus === 'loading'
+                        update.loadStatus === 'loading' && percentage < 100
                             ? updateTaskDonePercentage({
                                   id: taskId,
                                   donePercentage: percentage,
-                                  progressBarMessage: `Loaded 0 of ${messageCount} messages, ${percentage}%`,
+                                  progressBarMessage: progressBarMessage,
                               })
                             : finishTask({ id: taskId });
 
                     this.store.dispatch(action);
                 }
+            }),
+            finalize(async () => {
+                await receiver.close();
+                await client.close();
+                finishTask({ id: taskId });
             }),
             map(() => void 0)
         );
@@ -241,6 +242,7 @@ export class MessagesService {
         const adminClient = this.connectionService.getAdminClient(connection);
         const client = this.connectionService.getClient(connection);
         const receiver = client.createReceiver(topicName, subscriptionName, {
+            receiveMode: 'receiveAndDelete',
             subQueueType: this.getSubQueueType(channel),
             skipParsingBodyAsJson: true,
         });
@@ -260,12 +262,14 @@ export class MessagesService {
             })
         );
 
-        return zip(from(adminClient.getSubscriptionRuntimeProperties(topicName, subscriptionName)), this.readMessages(receiver)).pipe(
+        return this.readMessages(receiver).pipe(
             finalize(async () => {
                 await receiver.close();
                 await client.close();
+                this.store.dispatch(finishTask({ id: taskId }));
             }),
-            tap(([runtimeProperties, update]) => {
+            withLatestFrom(from(adminClient.getSubscriptionRuntimeProperties(topicName, subscriptionName))),
+            tap(([update, runtimeProperties]) => {
                 let messageCount = 0;
                 switch (channel) {
                     case MessagesChannel.deadletter:
@@ -347,6 +351,7 @@ export class MessagesService {
         return this.getMessagesInternal(receiver, false, 0, numberOfMessages).pipe(
             catchError((error) => of(new LoadStatusUpdate('error', undefined, error))),
             switchMap((update) => {
+                console.log(update);
                 if (update instanceof LoadStatusUpdate) {
                     return of(update);
                 }
@@ -363,7 +368,6 @@ export class MessagesService {
         skip?: number,
         fromSequenceNumber?: Long
     ): Observable<LoadStatusUpdate | IMessage[]> {
-        console.log('peakMessages', numberOfMessages, skip, fromSequenceNumber);
         return this.getMessagesInternal(receiver, true, 0, numberOfMessages + (skip ?? 0), fromSequenceNumber).pipe(
             catchError((error) => of(new LoadStatusUpdate('error', undefined, error))),
             switchMap((update) => {
@@ -382,7 +386,7 @@ export class MessagesService {
     private getMessagesInternal(
         receiver: ServiceBusReceiver,
         peek: boolean,
-        numberOfLoadedMessages: number,
+        numberOfLoadedMessages?: number,
         numberOfMessagesYetToReceive?: number,
         fromSequenceNumber?: Long
     ): Observable<LoadStatusUpdate | ServiceBusReceivedMessage[]> {
@@ -390,19 +394,27 @@ export class MessagesService {
             return of([]);
         }
 
-        const messageFunction = (peek: boolean, maximumMessagesToGet: number, fromSequenceNumber: Long | undefined) => {
+        const messageFunction = (peek: boolean, maximumMessagesToGet: number | undefined, fromSequenceNumber: Long | undefined) => {
             return peek
-                ? from(receiver.peekMessages(maximumMessagesToGet, { fromSequenceNumber: fromSequenceNumber }))
-                : from(receiver.receiveMessages(maximumMessagesToGet));
+                ? from(
+                      receiver.peekMessages(maximumMessagesToGet ?? 1000, {
+                          fromSequenceNumber: fromSequenceNumber,
+                      })
+                  )
+                : from(
+                      receiver.receiveMessages(maximumMessagesToGet ?? 1000, {
+                          maxWaitTimeInMs: 1000,
+                      })
+                  );
         };
 
         return messageFunction(peek, numberOfMessagesYetToReceive, fromSequenceNumber).pipe(
             mergeMap((messagesPart: ServiceBusReceivedMessage[]) => {
                 if (messagesPart.length !== 0) {
-                    const newNumberOfLoadedMessages = numberOfLoadedMessages + messagesPart.length;
+                    const newNumberOfLoadedMessages = (numberOfLoadedMessages ?? 0) + messagesPart.length;
 
                     const newNumberOfMessagesYetToReceive =
-                        numberOfLoadedMessages === undefined ? undefined : numberOfMessagesYetToReceive - messagesPart.length;
+                        numberOfMessagesYetToReceive === undefined ? undefined : numberOfMessagesYetToReceive - messagesPart.length;
 
                     const lastSequenceNumber: Long | undefined = messagesPart[messagesPart.length - 1].sequenceNumber;
                     return this.getMessagesInternal(
