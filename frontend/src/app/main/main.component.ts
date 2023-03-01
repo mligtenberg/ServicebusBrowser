@@ -5,6 +5,7 @@ import { deleteConnection, openConnection } from '../connections/ngrx/connection
 import { IConnection } from '../connections/ngrx/connections.models';
 import { getStoredConnections } from '../connections/ngrx/connections.selectors';
 import { State } from '../ngrx.module';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   templateUrl: './main.component.html',

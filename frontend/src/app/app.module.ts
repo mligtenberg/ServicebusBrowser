@@ -17,6 +17,7 @@ import { TopicsModule } from './topics/topics.module';
 import { MessagesModule } from './messages/messages.module';
 import { MainEffectsEffects } from './main-effects.effects';
 import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
     declarations: [AppComponent, MainComponent],
@@ -37,6 +38,7 @@ import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
         NuMonacoEditorModule.forRoot({
             baseUrl: `lib`,
         }),
+        BrowserAnimationsModule,
     ],
     providers: [],
     bootstrap: [AppComponent],
