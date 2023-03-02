@@ -18,10 +18,14 @@ import { MessagesModule } from './messages/messages.module';
 import { MainEffectsEffects } from './main-effects.effects';
 import { NuMonacoEditorModule } from '@ng-util/monaco-editor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatButtonModule} from '@angular/material/button';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
     declarations: [AppComponent, MainComponent],
     imports: [
+        MatListModule,
+        MatButtonModule,
         BrowserModule,
         AppRoutingModule,
         NgrxModule,

@@ -1,5 +1,10 @@
-<div class="storedConnection" *ngFor="let connection of storedConnections">
-    <div class="name">{{connection.name}}</div>
-    <button mat-raised-button  class="open" (click)="open(connection)">Open</button>
-    <button mat-button class="delete" (click)="delete(connection)">Delete</button>
-</div>
+<mat-list  *ngFor="let connection of storedConnections">
+   <mat-list-item> 
+    <div class="storedConnection">
+        <div class="name">{{connection.name}}</div> 
+        <button class="open" mat-raised-button (click)="open(connection)">Open</button>
+        <button class="delete" mat-raised-button color="warn"  (click)="delete(connection)">Delete</button> 
+    </div>  
+   </mat-list-item>
+   <hr>
+</mat-list>

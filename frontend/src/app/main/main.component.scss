@@ -5,14 +5,13 @@
     display: flex;
     .name {
         flex: 1;
+        margin: 10px;
     }
-
     .open, .delete {
-        margin: 0px 6px;
-        cursor: pointer;
-
-        &:hover {
-            color: lighten($text, 20%);
-        }
+        margin: 3px 10px;
     }
 }
+
+// mat-divider {
+//     width: 80%;
+// }

@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { ConnectionsRoutingModule } from './connections-routing.module';
 import { EditComponent } from './edit/edit.component';
 import { ConnectionPlaneComponent } from './connection-plane/connection-plane.component';
@@ -15,6 +14,10 @@ import { QueuesModule } from '../queues/queues.module';
 import { UiModule } from '../ui/ui.module';
 import { TopicsModule } from '../topics/topics.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio'; 
 import { SelectTargetConnectionItemComponent } from './select-target-connection-item/select-target-connection-item.component';
 import { SelectTargetConnectionPlaneComponent } from './select-target-connection-plane/select-target-connection-plane.component';
 
@@ -27,6 +30,10 @@ import { SelectTargetConnectionPlaneComponent } from './select-target-connection
     SelectTargetConnectionPlaneComponent
   ],
   imports: [
+    MatRadioModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
     CommonModule,
     ConnectionsRoutingModule,
     LoggingModule,

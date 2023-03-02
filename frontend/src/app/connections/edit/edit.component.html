@@ -1,25 +1,36 @@
-<div class="form-container">
-    <div class="title">{{isNew ? "New connection" : "Edit connection"}}</div>
-    <div class="cancel"><a (click)="cancel()">Cancel</a></div>
-    <div class="form">
-        <form [formGroup]="connectionForm">
-            <div class="formcontrol">
-                <label for="name">Name</label>
-                <input type="text" formControlName="name" />
-            </div>
-            <div class="formcontrol">
-                <label for="connectionType">Connection type</label>
-                <div class="radio-option">
-                    <input type="radio" formControlName="type" value="connectionString" />Connection string
-                </div>
-            </div>
-            <div *ngIf="connectionForm.value.type === 'connectionString'" class="formcontrol">
-                <label for="connectionString">Connection string</label>
-                <textarea type="text" formControlName="connectionString"></textarea>
-                <button (click)="test()" [disabled]="!connectionForm.value.connectionString || connectionForm.value.tested">Test</button>
-            </div>
-            <button [disabled]="!connectionForm.valid" (click)="storeConnection()">Store</button>
-            <button [disabled]="!connectionForm.valid" (click)="onSubmit()">Open</button>
-        </form>
-    </div>
-</div>
+<div class="title">{{isNew ? "New connection" : "Edit connection"}}</div>
+
+<button class="cancel-button" mat-raised-button (click)="cancel()">Cancel</button>
+
+<form [formGroup]="connectionForm">
+    <p>
+        <mat-form-field [style.width.px]="400" appearance="outline">
+            <mat-label for="name">Name</mat-label>
+            <input matInput type="text" formControlName="name" />
+        </mat-form-field>
+    </p>
+    <p>
+        <label for="connectionType">Connection type:</label>
+        <mat-radio-group>
+            <mat-radio-button matInput value="connectionString">Connection string
+            </mat-radio-button>
+        </mat-radio-group>
+    </p>
+    <p>
+        <mat-form-field [style.width.px]="400" appearance="outline"
+            *ngIf="connectionForm.value.type === 'connectionString'">
+            <mat-label for="connectionString">Connection string</mat-label>
+            <textarea matInput formControlName="connectionString"></textarea>
+        </mat-form-field>
+    </p>
+    <p>
+        <button class="test-button" mat-raised-button matTooltip="Test" (click)="test()"
+            [disabled]="!connectionForm.value.connectionString || connectionForm.value.tested">
+            Test Connection String
+        </button>
+    </p>
+
+    <button class="store-button" mat-raised-button [disabled]="!connectionForm.valid"
+        (click)="storeConnection()">Store</button>
+    <button class="oopen-button" mat-raised-button [disabled]="!connectionForm.valid" (click)="onSubmit()">Open</button>
+</form>
