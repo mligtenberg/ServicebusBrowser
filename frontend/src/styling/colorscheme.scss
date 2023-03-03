@@ -1,3 +1,5 @@
+/** OLD COLOR SCHEME **/
+
 $background-lightest: #f7f5f5;
 $background-lighter: #f2f2f2;
 $background-light: darken($background-lightest, 10%);
@@ -14,3 +16,72 @@ $font-family: "Helvetica", sans-serif;
 
 $medium-layout: 900px;
 $large-layout: 1200px;
+
+// NEW COLOR SCHEME
+$black-87-opacity: rgba(55, 55,55, 0.87);
+
+$primary-color-servicebus: (
+    50: #e6e9f2,
+    100: #bfc8df,
+    200: #96a4c9,
+    300: #6d81b4,
+    400: #4d66a5,
+    500: #2a4d98,
+    600: #24468f,
+    700: #1a3c83,
+    800: #113377,
+    900: #032361,
+    // A100: #ffffff,
+    // A200: #dde6f3,
+    // A400: #6992c9,
+    // A700: #38649d,
+    contrast: (
+        50: $black-87-opacity,
+        100: $black-87-opacity,
+        200: $black-87-opacity,
+        300: $black-87-opacity,
+        400: $black-87-opacity,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        // A100: $black-87-opacity,
+        // A200: $black-87-opacity,
+        // A400: $black-87-opacity,
+        // A700: white,
+    )
+);
+
+$secondary-color-servicebus: (
+    50: #e1f5fd,
+    100: #b4e5f9,
+    200: #83d4f5,
+    300: #55c2f0,
+    400: #36b5ee,
+    500: #1fa9eb,
+    600: #1b9bdd,
+    700: #1588c9,
+    800: #1377b5,
+    900: #0c5793,
+    // A100: #ffffff,
+    // A200: #fff7f4,
+    // A400: #fc8259,
+    // A700: #f44205,
+    contrast: (
+        50: $black-87-opacity,
+        100: $black-87-opacity,
+        200: $black-87-opacity,
+        300: $black-87-opacity,
+        400: $black-87-opacity,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+        // A100: $black-87-opacity,
+        // A200: $black-87-opacity,
+        // A400: $black-87-opacity,
+        // A700: white,
+    )
+);

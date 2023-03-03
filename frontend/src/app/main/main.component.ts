@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { deleteConnection, openConnection } from '../connections/ngrx/connections.actions';
@@ -15,8 +15,7 @@ export class MainComponent implements OnInit {
   subs = new Subscription();
 
   constructor(
-    private store: Store<State>,
-
+    private store: Store<State>
   ) { }
 
   ngOnInit(): void {
