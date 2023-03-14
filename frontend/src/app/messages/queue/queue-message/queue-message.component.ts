@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/ngrx.module';
-import { DialogService } from 'src/app/ui/dialog.service';
 import { ISelectedMessagesTarget } from '../../models/ISelectedMessagesTarget';
 import { sendMessages } from '../../ngrx/messages.actions';
 import { IMessage, IMessageSet } from '../../ngrx/messages.models';
@@ -15,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ActivatedRoute } from '@angular/router';
 import { getMessages } from '../../ngrx/messages.selectors';
 import { map } from 'rxjs/operators';
+import { DialogsService } from '../../../ui/dialogs/dialogs.service';
 
 @Component({
     selector: 'app-queue-message',
@@ -36,7 +36,7 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store<State>,
-        private dialogService: DialogService,
+        private dialogService: DialogsService,
         formBuilder: UntypedFormBuilder,
         private activatedRoute: ActivatedRoute
     ) {
@@ -151,11 +151,9 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
     }
 
     openSelectDialog(): Observable<ISelectedMessagesTarget> {
-        const dialog = this.dialogService.openDialog<SelectMessageTargetDialogComponent, ISelectedMessagesTarget>(
-            SelectMessageTargetDialogComponent
-        );
+        const dialog = this.dialogService.open<ISelectedMessagesTarget>(SelectMessageTargetDialogComponent);
 
-        return dialog.afterClosed();
+        return dialog.closed;
     }
 
     send(): void {

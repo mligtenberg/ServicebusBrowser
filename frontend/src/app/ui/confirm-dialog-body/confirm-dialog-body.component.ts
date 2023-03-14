@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { DialogRef } from '../models/dialogRef';
-import { DialogOptions } from '../models/dialogOptions';
+import { Component, Inject, OnInit } from '@angular/core';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+
+export interface ConfirmDialogOptions {
+    title: string;
+    message: string;
+}
 
 @Component({
     selector: 'app-confirm-dialog-body',
@@ -11,18 +15,18 @@ export class ConfirmDialogBodyComponent implements OnInit {
     title: string;
     message: string;
 
-    constructor(private dialogRef: DialogRef<boolean>, private options: DialogOptions) {}
+    constructor(public dialogRef: DialogRef<boolean>, @Inject(DIALOG_DATA) public data: ConfirmDialogOptions) {}
 
     confirm() {
-        this.dialogRef.respond(true);
+        this.dialogRef.close(true);
     }
 
     cancel() {
-        this.dialogRef.respond(false);
+        this.dialogRef.close(false);
     }
 
     ngOnInit(): void {
-        this.title = this.options.get('title');
-        this.message = this.options.get('message');
+        this.title = this.data.title;
+        this.message = this.data.message;
     }
 }

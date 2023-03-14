@@ -5,7 +5,8 @@ import { IMessage, IMessageSet } from '../../ngrx/messages.models';
 import { MessagesComponentStoreService } from '../messages-component-store.service';
 import { map, takeUntil } from 'rxjs/operators';
 import { faEnvelope, faEnvelopesBulk } from '@fortawesome/free-solid-svg-icons';
-import { DialogService } from '../../../ui/dialog.service';
+import { ConfirmDialogBodyComponent, ConfirmDialogOptions } from '../../../ui/confirm-dialog-body/confirm-dialog-body.component';
+import { DialogsService } from '../../../ui/dialogs/dialogs.service';
 
 @Component({
     selector: 'app-view-messages',
@@ -32,7 +33,7 @@ export class ViewMessagesComponent implements OnInit {
 
     constructor(
         private componentStore: MessagesComponentStoreService,
-        private dialogService: DialogService,
+        private dialogService: DialogsService,
         private router: Router,
         private activeRoute: ActivatedRoute
     ) {}
@@ -47,8 +48,13 @@ export class ViewMessagesComponent implements OnInit {
 
     requeueAll(): void {
         this.dialogService
-            .openConfirmDialog('Requeue all?', 'Are you sure you want to requeue all messages?')
-            .pipe(takeUntil(this.componentStore.destroy$))
+            .open<boolean>(ConfirmDialogBodyComponent, {
+                data: {
+                    title: 'Requeue all?',
+                    message: 'Are you sure you want to requeue all messages?',
+                } as ConfirmDialogOptions,
+            })
+            .closed.pipe(takeUntil(this.componentStore.destroy$))
             .subscribe((result) => {
                 if (result) {
                     this.componentStore.requeueAllMessages();

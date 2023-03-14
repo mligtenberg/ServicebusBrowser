@@ -1,16 +1,16 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { GetMessagesDialogComponent } from 'src/app/messages/get-mesages-dialog/get-messages-dialog.component';
 import { clearSubscriptionMessages, getSubscriptionMessages } from 'src/app/messages/ngrx/messages.actions';
 import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { DialogService } from 'src/app/ui/dialog.service';
-import { DialogRef } from 'src/app/ui/dialog.service';
 import { ISubscription } from '../ngrx/topics.models';
 import Long from 'long';
 import { GetMessagesDialogResponseModel } from '../../messages/get-mesages-dialog/get-messages-dialog-response.model';
+import { DialogRef } from '@angular/cdk/dialog';
+import { DialogsService } from '../../ui/dialogs/dialogs.service';
 
 @Component({
     selector: 'app-subscription-context-menu',
@@ -22,10 +22,10 @@ export class SubscriptionContextMenuComponent implements OnDestroy {
     @Input() topicName: string;
     @Input() subscription: ISubscription;
 
-    dialogRef: DialogRef<unknown>;
+    dialogRef: DialogRef<GetMessagesDialogResponseModel>;
     dialogSubscription: Subscription;
 
-    constructor(private contextMenu: ContextmenuService, private store: Store<State>, private dialog: DialogService) {}
+    constructor(private contextMenu: ContextmenuService, private store: Store<State>, private dialog: DialogsService) {}
 
     getQueuedMessages($event: Event) {
         this.contextMenu.closeContextmenu();
@@ -80,13 +80,13 @@ export class SubscriptionContextMenuComponent implements OnDestroy {
     }
 
     private openDialog() {
-        this.dialogRef = this.dialog.openDialog(GetMessagesDialogComponent);
+        this.dialogRef = this.dialog.open(GetMessagesDialogComponent);
     }
 
     private subscribe(channel: MessagesChannel) {
         this.unsubscribe();
 
-        this.dialogSubscription = this.dialogRef.afterClosed().subscribe((response: GetMessagesDialogResponseModel) => {
+        this.dialogSubscription = this.dialogRef.closed.pipe(take(1)).subscribe((response: GetMessagesDialogResponseModel) => {
             this.getMessages(channel, response.amountOfMessagesToRetrieve, response.skip, response.fromSequenceNumber);
             this.unsubscribe();
         });

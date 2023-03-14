@@ -6,11 +6,11 @@ import { clearQueueMessages, getQueueMessages } from 'src/app/messages/ngrx/mess
 import { MessagesChannel } from 'src/app/messages/ngrx/messages.models';
 import { State } from 'src/app/ngrx.module';
 import { ContextmenuService } from 'src/app/ui/contextmenu.service';
-import { DialogService } from 'src/app/ui/dialog.service';
-import { DialogRef } from 'src/app/ui/dialog.service';
 import { IQueue } from '../ngrx/queues.models';
 import { GetMessagesDialogResponseModel } from '../../messages/get-mesages-dialog/get-messages-dialog-response.model';
 import Long from 'long';
+import { DialogRef } from '@angular/cdk/dialog';
+import { DialogsService } from '../../ui/dialogs/dialogs.service';
 
 @Component({
     selector: 'app-queue-context-menu',
@@ -25,10 +25,10 @@ export class QueueContextMenuComponent implements OnDestroy {
     @Input()
     connectionId: string;
 
-    dialogRef: DialogRef<unknown>;
+    dialogRef: DialogRef<GetMessagesDialogResponseModel>;
     subscription: Subscription;
 
-    constructor(private store: Store<State>, private contextMenu: ContextmenuService, private dialog: DialogService) {}
+    constructor(private store: Store<State>, private contextMenu: ContextmenuService, private dialog: DialogsService) {}
 
     getQueuedMessages($event: Event) {
         this.contextMenu.closeContextmenu();
@@ -76,13 +76,15 @@ export class QueueContextMenuComponent implements OnDestroy {
     }
 
     private openDialog() {
-        this.dialogRef = this.dialog.openDialog(GetMessagesDialogComponent);
+        this.dialogRef = this.dialog.open(GetMessagesDialogComponent, {
+            width: '400px',
+        });
     }
 
     private subscribe(channel: MessagesChannel) {
         this.unsubscribe();
 
-        this.subscription = this.dialogRef.afterClosed().subscribe((response: GetMessagesDialogResponseModel) => {
+        this.subscription = this.dialogRef.closed.subscribe((response: GetMessagesDialogResponseModel) => {
             this.getMessages(channel, response.amountOfMessagesToRetrieve, response.skip, response.fromSequenceNumber);
             this.unsubscribe();
         });
