@@ -85,6 +85,10 @@ export class QueueContextMenuComponent implements OnDestroy {
         this.unsubscribe();
 
         this.subscription = this.dialogRef.closed.subscribe((response: GetMessagesDialogResponseModel) => {
+            if (!response) {
+                return;
+            }
+
             this.getMessages(channel, response.amountOfMessagesToRetrieve, response.skip, response.fromSequenceNumber);
             this.unsubscribe();
         });

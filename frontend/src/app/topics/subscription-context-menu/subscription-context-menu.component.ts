@@ -86,7 +86,11 @@ export class SubscriptionContextMenuComponent implements OnDestroy {
     private subscribe(channel: MessagesChannel) {
         this.unsubscribe();
 
-        this.dialogSubscription = this.dialogRef.closed.pipe(take(1)).subscribe((response: GetMessagesDialogResponseModel) => {
+        this.dialogSubscription = this.dialogRef.closed.subscribe((response: GetMessagesDialogResponseModel) => {
+            if (!response) {
+                return;
+            }
+
             this.getMessages(channel, response.amountOfMessagesToRetrieve, response.skip, response.fromSequenceNumber);
             this.unsubscribe();
         });

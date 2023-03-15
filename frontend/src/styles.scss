@@ -1,5 +1,5 @@
 @import "./styling/colorscheme.scss";
-@import "./styling/dialogs.scss";
+@import '@angular/cdk/overlay-prebuilt.css';
 
 html {
     height: 100%;

@@ -1,4 +1,11 @@
 @import "../../../../styling/colorscheme.scss";
+
+:host {
+  display: block;
+  min-height: 100%;
+  width: 100%;
+}
+
 .dialog {
   background-color: $background-lighter;
   padding: 1em;

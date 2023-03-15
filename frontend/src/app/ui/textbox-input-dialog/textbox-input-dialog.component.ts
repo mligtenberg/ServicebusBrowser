@@ -10,12 +10,12 @@ export class TextboxInputDialogComponent {
     text: string;
     editorOptions = { theme: 'vs-light', language: 'text/plain' };
 
-    constructor(public dialogRef: DialogRef<string>, @Inject(DIALOG_DATA) public data: string) {
+    constructor(public dialogRef: DialogRef<{ value: string }>, @Inject(DIALOG_DATA) public data: string) {
         this.text = data;
     }
 
     submit(): void {
-        this.dialogRef.close(this.text);
+        this.dialogRef.close({ value: this.text });
     }
 
     cancel(): void {

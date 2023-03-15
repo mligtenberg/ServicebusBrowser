@@ -62,12 +62,16 @@ export class TextboxDialogInputComponent implements ControlValueAccessor, OnDest
 
     openEditDialog() {
         this.dialog
-            .open<string>(TextboxInputDialogComponent, {
+            .open<{ value: string }>(TextboxInputDialogComponent, {
                 data: this._value,
             })
             .closed.pipe(take(1))
             .subscribe((v) => {
-                this.value = v;
+                if (!v) {
+                    return;
+                }
+
+                this.value = v.value;
             });
     }
 

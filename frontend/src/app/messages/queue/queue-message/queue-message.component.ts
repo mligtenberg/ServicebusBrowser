@@ -9,7 +9,7 @@ import { SelectMessageTargetDialogComponent } from '../../select-message-target-
 import { IFormBuilder, IFormGroup, IFormArray } from '@rxweb/types';
 import { IQueueMessageCustomPropertyForm, IQueueMessageForm } from '../../models/IQueueMessageForm';
 import * as moment from 'moment';
-import { Observable, of, Subscription, switchMap, take } from 'rxjs';
+import { Observable, of, Subscription, switchMap, take, throwError } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivatedRoute } from '@angular/router';
 import { getMessages } from '../../ngrx/messages.selectors';
@@ -153,7 +153,15 @@ export class QueueMessageComponent implements OnInit, OnDestroy {
     openSelectDialog(): Observable<ISelectedMessagesTarget> {
         const dialog = this.dialogService.open<ISelectedMessagesTarget>(SelectMessageTargetDialogComponent);
 
-        return dialog.closed;
+        return dialog.closed.pipe(
+            switchMap((result) => {
+                if (!result) {
+                    return throwError(() => new Error('No result'));
+                }
+
+                return of(result);
+            })
+        );
     }
 
     send(): void {
