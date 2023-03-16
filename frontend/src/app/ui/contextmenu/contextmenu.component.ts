@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, TemplateRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { CdkDialogContainer } from '@angular/cdk/dialog';
 
 @Component({
     selector: 'app-contextmenu',
@@ -6,13 +7,4 @@ import { Component, OnInit, ChangeDetectionStrategy, Input, TemplateRef } from '
     styleUrls: ['./contextmenu.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContextmenuComponent implements OnInit {
-    constructor() {}
-
-    @Input()
-    public templateRef: TemplateRef<any>;
-    @Input()
-    public data: any;
-
-    ngOnInit(): void {}
-}
+export class ContextmenuComponent extends CdkDialogContainer {}
