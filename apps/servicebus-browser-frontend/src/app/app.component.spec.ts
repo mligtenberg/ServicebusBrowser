@@ -15,13 +15,13 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Welcome servicebus-browser'
+      'Welcome servicebus-browser-frontend'
     );
   });
 
-  it(`should have as title 'servicebus-browser'`, () => {
+  it(`should have as title 'servicebus-browser-frontend'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('servicebus-browser');
+    expect(app.title).toEqual('servicebus-browser-frontend');
   });
 });

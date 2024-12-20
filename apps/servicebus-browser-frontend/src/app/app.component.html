@@ -1,0 +1,13 @@
+<p-menubar class="main-menu" [model]="items" breakpoint="100px" />
+<p-splitter [panelSizes]="[25,75]" class="main-splitter">
+  <ng-template pTemplate>
+    <div class="flex items-center justify-center h-full">Menu</div>
+  </ng-template>
+  <ng-template pTemplate>
+    <div class="main-content">
+      <p-scroll-panel>
+        <router-outlet></router-outlet>
+      </p-scroll-panel>
+    </div>
+  </ng-template>
+</p-splitter>

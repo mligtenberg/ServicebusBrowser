@@ -51,5 +51,6 @@
       "style": "scss",
       "unitTestRunner": "jest"
     }
-  }
+  },
+  "defaultProject": "servicebus-browser-app"
 }

@@ -1,8 +1,8 @@
 export default {
-  displayName: 'servicebus-browser',
+  displayName: 'servicebus-browser-frontend',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/apps/servicebus-browser',
+  coverageDirectory: '../../coverage/apps/servicebus-browser-frontend',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

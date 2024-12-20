@@ -1,0 +1,37 @@
+:host ::ng-deep {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  .main-menu {
+    .p-menubar {
+      padding: 0;
+      border-radius: 0;
+      z-index: 2;
+      position: relative;
+    }
+  }
+
+  .main-splitter {
+    flex: 1;
+
+    .p-splitter {
+      border: none;
+      border-radius: 0;
+      height: 100%;
+    }
+  }
+
+  .main-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: stretch;
+    justify-items: stretch;
+
+    p-scroll-panel {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
