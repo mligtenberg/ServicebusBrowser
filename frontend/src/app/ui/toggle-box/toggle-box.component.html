@@ -1,7 +1,0 @@
-<div class="toggle-box-title">
-    <div class="title-box">
-        <fa-icon [icon]="stateIcon" size="1x" (click)="click($event)"></fa-icon>
-        <div class="title-box-content" (click)="clickTitle($event)"><ng-content select=".title"></ng-content></div>
-    </div>
-</div>
-<div class="toggle-box-content" [ngClass]="{'open': open}"><ng-content select=".body"></ng-content></div>

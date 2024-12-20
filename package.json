@@ -1,76 +1,55 @@
 {
-  "name": "servicebus-browser",
-  "version": "0.6.2",
-  "main": "./temp/main/main.js",
-  "scripts": {
-    "install:servicebus": "cd servicebus && npm i",
-    "install:angular": "cd frontend && npm i",
-    "install:preload": "cd electron-preload && npm i",
-    "install:main": "cd electron-main && npm i",
-    "install:builder-deps": "electron-builder install-app-deps",
-    "postinstall": "npm run install:builder-deps && npm run install:preload && npm run install:main && npm run install:angular && npm run install:servicebus",
-    "clean": "rimraf temp && rimraf build && rimraf dist",
-    "build:frontend": "cd frontend && npm run build",
-    "build:preload": "cd electron-preload && npm run build",
-    "build:electron": "cd electron-main && npm run build",
-    "build": "npm run build:frontend && npm run build:preload && npm run build:electron",
-    "start": "concurrently --kill-others \"npm run start:electron\" \"npm run start:ng\"",
-    "start:ng": "cd frontend && npm run start",
-    "prestart:electron": "npm run build:preload",
-    "start:electron": "cd electron-main && npm run start:ngServe",
-    "precopy": "shx mkdir temp && cd temp && shx mkdir main && shx mkdir build && shx mkdir preload && shx mkdir frontend",
-    "copy": "npm run copy:main && npm run copy:frontend && npm run copy:preload && npm run copy:mainBuild",
-    "copy:main": "cd ./electron-main/dist/ && shx cp -r . ../../temp/main",
-    "copy:mainBuild": "cd ./electron-main/build/ && shx cp -r  . ../../build",
-    "copy:preload": "cd ./electron-preload/dist/ && shx cp -r . ../../temp/preload",
-    "copy:frontend": "cd ./frontend/dist/explorer/ && shx cp -r . ../../../temp/frontend",
-    "prepackage": "npm run clean && npm run copy",
-    "package": "electron-builder",
-    "release": "npm run build && npm run package"
-  },
-  "author": "Martin Ligtenberg",
+  "name": "@service-bus-browser/source",
+  "version": "0.0.0",
   "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^7.6.0",
-    "electron": "^23.0.0",
-    "electron-builder": "^24.0.0",
-    "prettier": "2.8.4",
-    "rimraf": "^4.1.2",
-    "shx": "^0.3.4"
-  },
-  "build": {
-    "appId": "digital.ligtenberg.servicebusbrowser",
-    "productName": "Servicebus browser",
-    "artifactName": "Servicebus browser.${ext}",
-    "copyright": "Copyright © 2021 Martin Ligtenberg",
-    "files": [
-      "temp/"
-    ],
-    "extraResources": [
-      {
-        "from": "temp/frontend",
-        "to": "frontend",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
-    "win": {
-      "target": [
-        "nsis",
-        "appx"
-      ]
-    },
-    "appx": {
-      "displayName": "Servicebus Browser",
-      "applicationId": "MartinLigtenberg.ServicebusBrowser",
-      "identityName": "2768MartinLigtenberg.ServicebusBrowser",
-      "publisher": "CN=45F007EA-0B49-402D-BFDE-77AE30963162",
-      "publisherDisplayName": "Martin Ligtenberg",
-      "addAutoLaunchExtension": false
-    }
-  },
+  "scripts": {},
+  "private": true,
   "dependencies": {
-    "electron-updater": "^5.3.0"
+    "@angular/animations": "~19.0.0",
+    "@angular/common": "~19.0.0",
+    "@angular/compiler": "~19.0.0",
+    "@angular/core": "~19.0.0",
+    "@angular/forms": "~19.0.0",
+    "@angular/platform-browser": "~19.0.0",
+    "@angular/platform-browser-dynamic": "~19.0.0",
+    "@angular/router": "~19.0.0",
+    "rxjs": "~7.8.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "~19.0.0",
+    "@angular-devkit/core": "~19.0.0",
+    "@angular-devkit/schematics": "~19.0.0",
+    "@angular/cli": "~19.0.0",
+    "@angular/compiler-cli": "~19.0.0",
+    "@angular/language-service": "~19.0.0",
+    "@eslint/js": "^9.8.0",
+    "@nx/angular": "20.2.2",
+    "@nx/eslint": "20.2.2",
+    "@nx/eslint-plugin": "20.2.2",
+    "@nx/jest": "20.2.2",
+    "@nx/js": "20.2.2",
+    "@nx/web": "20.2.2",
+    "@nx/workspace": "20.2.2",
+    "@schematics/angular": "~19.0.0",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "@types/jest": "^29.5.12",
+    "@types/node": "18.16.9",
+    "@typescript-eslint/utils": "^8.13.0",
+    "angular-eslint": "^19.0.2",
+    "eslint": "^9.8.0",
+    "eslint-config-prettier": "^9.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-preset-angular": "~14.4.0",
+    "nx": "20.2.2",
+    "prettier": "^2.6.2",
+    "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
+    "tslib": "^2.3.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.13.0"
   }
 }

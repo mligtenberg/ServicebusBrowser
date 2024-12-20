@@ -1,9 +1,0 @@
-<div class="tab-bar">
-  <div class="tab" title="Connections" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-    <span class="title">Connections</span>
-  </div>
-  <div class="tab" *ngFor="let tab of tabs" [title]="tab.name" [routerLink]="['/messages/view', tab.messageSetId]" routerLinkActive="active">
-    <span class="title">{{tab.name}}</span>
-    <button (click)="removeMessageSet(tab.messageSetId)">X</button>
-  </div>
-</div>

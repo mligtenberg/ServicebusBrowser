@@ -1,8 +1,0 @@
-<div class="task-list open">
-  <div class="task" *ngFor="let task of tasks">
-    <span class="title" [title]="task.title">{{task.title}}</span>
-    <span class="subtitle" [title]="task.subtitle">{{task.subtitle}}</span>
-    <progress class="loader" [value]="task.donePercentage" max="100"> {{task.donePercentage}}% </progress>
-    <span class="message" *ngIf="task.progressBarMessage">{{task.progressBarMessage}}</span>
-  </div>
-</div>

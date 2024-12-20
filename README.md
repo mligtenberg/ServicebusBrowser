@@ -1,39 +1,82 @@
-<div>
-    <br>
-    <picture id="theme-default">
-        <source srcset="assets/logo-text-dark.png" media="(prefers-color-scheme: dark)" />
-        <source srcset="assets/logo-text.png" media="(prefers-color-scheme: light)" />
-        <img src="assets/logo-text-dark.png" />
-    </picture>
-    <br>
-</div>
+# ServiceBusBrowser
 
-This project aims to build a cross platform tool to manage Azure Servicebus instances.
-Currently you are able to:
-- View your queues, topics and subscriptions
-- View the details of your queues, topics and subscriptions
-- Peek (View without deleting) messages in your queues and subscriptions. From the main, deadletter and trasfered dead letter channels
-- Send messages to your queues and topics
+<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-## How to run
-### Installer
-Download the Windows, Linux versions of the app here:
-- https://github.com/mligtenberg/ServicebusBrowser/releases
+✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
 
-For mac users a manual release is advised for now
-since the build is required to be signed.
+[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 
-### Manual build (release build)
-#### Requirements
-- Node V16 to V18
-- NPM V8 
+## Finish your CI setup
 
-#### Steps
-- Clone the project
-- Install the dependencies with ``npm install`` in the main directory
-- Build by running ``npm release`` in the main directory
+[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/D5UW5m2AQK)
 
-### Manual build (dev enviorment)
-- Clone the project
-- Install the dependencies with ``npm install`` in the main directory
-- Build and start the project by running ``npm start`` in the main directory
+
+## Run tasks
+
+To run the dev server for your app, use:
+
+```sh
+npx nx serve servicebus-browser
+```
+
+To create a production bundle:
+
+```sh
+npx nx build servicebus-browser
+```
+
+To see all available targets to run for a project, run:
+
+```sh
+npx nx show project servicebus-browser
+```
+
+These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+
+[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Add new projects
+
+While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+
+Use the plugin's generator to create new projects.
+
+To generate a new application, use:
+
+```sh
+npx nx g @nx/angular:app demo
+```
+
+To generate a new library, use:
+
+```sh
+npx nx g @nx/angular:lib mylib
+```
+
+You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+
+[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+
+[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Install Nx Console
+
+Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+
+[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Useful links
+
+Learn more:
+
+- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
+- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+And join the Nx community:
+- [Discord](https://go.nx.dev/community)
+- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
+- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
+- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
