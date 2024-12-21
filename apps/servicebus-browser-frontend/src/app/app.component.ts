@@ -1,16 +1,18 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { Button } from 'primeng/button';
 import { Splitter } from 'primeng/splitter';
 import { PrimeTemplate } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { Tab, TabList, Tabs } from 'primeng/tabs';
+import { LogsListComponent } from '@service-bus-browser/logs-components';
+import { Store } from '@ngrx/store';
+import { LogsSelectors } from '@service-bus-browser/logs-store';
 
 @Component({
   imports: [
     RouterModule,
-    Button,
+    LogsListComponent,
     Splitter,
     PrimeTemplate,
     Menubar,
@@ -55,8 +57,10 @@ export class AppComponent {
       ],
     },
   ];
+  store = inject(Store);
 
   logsOpened = signal(false);
+  logs = this.store.selectSignal(LogsSelectors.selectLogs);
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);

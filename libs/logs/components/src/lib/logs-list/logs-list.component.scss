@@ -1,0 +1,8 @@
+sbb-logs-log-line {
+  display: block;
+  height: 20px;
+
+  &.odd {
+    background: var(--p-surface-100);
+  }
+}

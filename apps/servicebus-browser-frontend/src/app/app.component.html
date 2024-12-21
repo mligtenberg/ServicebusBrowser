@@ -30,9 +30,7 @@
 
         @if (logsOpened()) {
           <div class="logs-content">
-            <p-scrollPanel>
-              <pre>tempt text this will be replaced by actual logs in a logs component</pre>
-            </p-scrollPanel>
+            <sbb-logs-list [logs]="logs()"></sbb-logs-list>
           </div>
         }
       </div>

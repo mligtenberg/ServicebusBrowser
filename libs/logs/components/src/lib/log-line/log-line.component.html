@@ -1,0 +1,3 @@
+<pre
+  [style.--color]="logLineColor()"
+>{{logLine().loggedAt | date:'YYYY-MM-dd HH:mm:ss' }} - {{logLine().severity}}: {{logLine().message}}</pre>

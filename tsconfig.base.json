@@ -15,6 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@service-bus-browser/logs-components": [
+        "libs/logs/components/src/index.ts"
+      ],
       "@service-bus-browser/logs-contracts": [
         "libs/logs/contract/src/index.ts"
       ],

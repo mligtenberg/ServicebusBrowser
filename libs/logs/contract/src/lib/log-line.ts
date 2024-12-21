@@ -1,5 +1,6 @@
+export type LogLineSeverity = 'verbose' | 'info' | 'warn' | 'error' | 'critical';
 export interface LogLine {
-  severity: 'verbose' | 'info' | 'warn' | 'error' | 'critical';
+  severity: LogLineSeverity;
   message: string;
   loggedAt: Date;
   context?: any;
