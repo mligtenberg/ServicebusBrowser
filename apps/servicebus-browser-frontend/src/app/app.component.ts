@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Button } from 'primeng/button';
 import { Splitter } from 'primeng/splitter';
 import { PrimeTemplate } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { ScrollPanel } from 'primeng/scrollpanel';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 
 @Component({
   imports: [
@@ -14,6 +15,9 @@ import { ScrollPanel } from 'primeng/scrollpanel';
     PrimeTemplate,
     Menubar,
     ScrollPanel,
+    Tabs,
+    TabList,
+    Tab,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -51,4 +55,10 @@ export class AppComponent {
       ],
     },
   ];
+
+  logsOpened = signal(false);
+
+  toggleLogs() {
+    this.logsOpened.update((value) => !value);
+  }
 }

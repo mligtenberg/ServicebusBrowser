@@ -5,9 +5,37 @@
   </ng-template>
   <ng-template pTemplate>
     <div class="main-content">
+      <p-tabs value="/dashboard" class="open-data-tabs" scrollable="">
+        <p-tablist>
+          <p-tab value="/dashboard">
+            tab 1
+          </p-tab>
+          <p-tab value="/dashboard2">
+            tab2
+          </p-tab>
+        </p-tablist>
+      </p-tabs>
       <p-scroll-panel>
         <router-outlet></router-outlet>
       </p-scroll-panel>
+      <div class="logs">
+        <button class="logs-header" (click)="toggleLogs()">
+          <span class="text">Logs</span>
+          @if (logsOpened()) {
+            <span class="icon pi pi-chevron-down"></span>
+          } @else {
+            <span class="icon pi pi-chevron-left"></span>
+          }
+        </button>
+
+        @if (logsOpened()) {
+          <div class="logs-content">
+            <p-scrollPanel>
+              <pre>tempt text this will be replaced by actual logs in a logs component</pre>
+            </p-scrollPanel>
+          </div>
+        }
+      </div>
     </div>
   </ng-template>
 </p-splitter>

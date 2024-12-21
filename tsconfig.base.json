@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@service-bus-browser/logs-contracts": [
+        "libs/logs/contract/src/index.ts"
+      ],
+      "@service-bus-browser/logs-store": ["libs/logs/store/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
