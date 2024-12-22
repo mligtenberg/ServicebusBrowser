@@ -7,6 +7,7 @@ import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideTopologyState } from '@service-bus-browser/topology-store';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes, withHashLocation()),
     provideLogsState(),
+    provideTopologyState(),
 
     // ngrx
     provideStore(),

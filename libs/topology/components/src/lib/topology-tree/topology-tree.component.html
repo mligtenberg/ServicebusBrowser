@@ -1,0 +1,17 @@
+<p-tree [value]="nodes()" selectionMode="single" (selectionChange)="onSelectionChange($event)">
+  <ng-template let-node pTemplate="default">
+    <b>{{ node.label }}</b>
+  </ng-template>
+  <ng-template let-node pTemplate="namespace">
+    <sbb-tpl-namespace-tree-node [namespace]="node.data" />
+  </ng-template>
+  <ng-template let-node pTemplate="queue">
+    <sbb-tpl-queue-tree-node [queue]="node.data.queue" />
+  </ng-template>
+  <ng-template let-node pTemplate="topic">
+    <sbb-tpl-topic-tree-node [topic]="node.data.topic" />
+  </ng-template>
+  <ng-template let-node pTemplate="subscription">
+    <sbb-tpl-subscription-tree-node [subscription]="node.data.subscription" />
+  </ng-template>
+</p-tree>

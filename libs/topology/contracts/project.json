@@ -1,0 +1,26 @@
+{
+  "name": "contracts",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/topology/contracts/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/topology/contracts",
+        "main": "libs/topology/contracts/src/index.ts",
+        "tsConfig": "libs/topology/contracts/tsconfig.lib.json",
+        "assets": ["libs/topology/contracts/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/topology/contracts/jest.config.ts"
+      }
+    }
+  }
+}

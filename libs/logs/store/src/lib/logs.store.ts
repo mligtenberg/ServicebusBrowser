@@ -9,7 +9,7 @@ export type LogsState = {
 }
 
 export const initialState: LogsState = {
-  logs: Array.from({ length: 1000 }, (_, index) => {
+  logs: Array.from({ length: 100000 }, (_, index) => {
     const severity = Math.random();
     let severityString: LogLineSeverity = 'verbose';
     if (severity > 0.2) {

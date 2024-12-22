@@ -1,7 +1,15 @@
 <p-menubar class="main-menu" [model]="items" breakpoint="100px" />
 <p-splitter [panelSizes]="[25,75]" class="main-splitter">
   <ng-template pTemplate>
-    <div class="flex items-center justify-center h-full">Menu</div>
+    <div class="sidebar">
+      <sbb-tpl-topology-tree
+        [namespaces]="namespaces()"
+        (namespaceSelected)="onNamespaceSelected($event)"
+        (queueSelected)="onQueueSelected($event)"
+        (topicSelected)="onTopicSelected($event)"
+        (subscriptionSelected)="onSubscriptionSelected($event)"
+      />
+    </div>
   </ng-template>
   <ng-template pTemplate>
     <div class="main-content">
