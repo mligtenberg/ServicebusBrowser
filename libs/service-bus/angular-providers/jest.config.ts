@@ -1,6 +1,6 @@
 export default {
   displayName: '@service-bus-browser/service-bus-angular-providers',
-  preset: '../../jest.preset.js',
+  preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../coverage/libs/angular-providers',
   transform: {
