@@ -1,7 +1,8 @@
 {
-  "name": "contract",
+  "name": "@service-bus-browser/service-bus-angular-providers",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/logs/contract/src",
+  "sourceRoot": "libs/angular-providers/src",
+  "prefix": "lib",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,8 +10,11 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/logs/contract/jest.config.ts"
+        "jestConfig": "libs/angular-providers/jest.config.ts"
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
   }
 }

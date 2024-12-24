@@ -3,6 +3,7 @@ import ElectronEvents from './app/events/electron.events';
 import { app, BrowserWindow } from 'electron';
 import App from './app/app';
 import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import ServiceBusEvents from './app/events/service-bus.events';
 
 
 
@@ -20,6 +21,7 @@ export default class Main {
 
   static bootstrapAppEvents() {
     ElectronEvents.bootstrapElectronEvents();
+    ServiceBusEvents.bootstrapServiceBusEvents();
 
     // initialize auto updater service
     if (!App.isDevelopmentMode()) {

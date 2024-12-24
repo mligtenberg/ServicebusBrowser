@@ -8,6 +8,7 @@ import { provideLogsState } from '@service-bus-browser/logs-store';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
+import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,13 +28,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes, withHashLocation()),
     provideLogsState(),
     provideTopologyState(),
+    provideServiceBusClient(),
 
     // ngrx
     provideStore(),
     provideStoreDevtools({
       maxAge: 25,
-      logOnly: !
-        isDevMode(),
+      logOnly: !isDevMode(),
     }),
   ],
 };

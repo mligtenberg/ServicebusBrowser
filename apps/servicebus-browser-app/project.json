@@ -11,7 +11,8 @@
         "outputPath": "dist/apps/servicebus-browser-app",
         "main": "apps/servicebus-browser-app/src/main.ts",
         "tsConfig": "apps/servicebus-browser-app/tsconfig.app.json",
-        "assets": ["apps/servicebus-browser-app/src/assets"]
+        "assets": ["apps/servicebus-browser-app/src/assets"],
+        "externalDependencies": "none"
       },
       "configurations": {
         "production": {

@@ -19,9 +19,24 @@
         "libs/logs/components/src/index.ts"
       ],
       "@service-bus-browser/logs-contracts": [
-        "libs/logs/contract/src/index.ts"
+        "libs/logs/contracts/src/index.ts"
       ],
       "@service-bus-browser/logs-store": ["libs/logs/store/src/index.ts"],
+      "@service-bus-browser/service-bus-angular-providers": [
+        "libs/service-bus/angular-providers/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-clients": [
+        "libs/service-bus/clients/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-contracts": [
+        "libs/service-bus/contracts/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-electron-client": [
+        "libs/service-bus/electron-client/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-server": [
+        "libs/service-bus/server/src/index.ts"
+      ],
       "@service-bus-browser/topology-components": [
         "libs/topology/components/src/index.ts"
       ],
