@@ -15,6 +15,12 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@service-bus-browser/connections-flow": [
+        "libs/connections/flow/src/index.ts"
+      ],
+      "@service-bus-browser/connections-store": [
+        "libs/connections/store/src/index.ts"
+      ],
       "@service-bus-browser/logs-components": [
         "libs/logs/components/src/index.ts"
       ],
@@ -36,6 +42,9 @@
       ],
       "@service-bus-browser/service-bus-server": [
         "libs/service-bus/server/src/index.ts"
+      ],
+      "@service-bus-browser/shared-contracts": [
+        "libs/shared/contracts/src/index.ts"
       ],
       "@service-bus-browser/topology-components": [
         "libs/topology/components/src/index.ts"

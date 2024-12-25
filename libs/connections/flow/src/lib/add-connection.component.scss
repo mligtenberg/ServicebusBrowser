@@ -1,0 +1,33 @@
+:host{
+  display: block;
+  width: 100%;
+}
+
+.connection-type-option > * {
+  margin: 0 0 0 0.5em;
+}
+
+.heading {
+  font-size: 0.7rem;
+  font-weight: normal;
+  margin: 0 0 1rem 1rem;
+  color: var(--p-floatlabel-active-color);
+}
+
+section {
+  margin: 0 0 1rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0 0 0;
+
+  button {
+    margin: 0 0 0 0.5rem;
+  }
+}

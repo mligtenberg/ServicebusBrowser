@@ -18,4 +18,8 @@ export class ServiceBusElectronClient {
     await serviceBusApi.doRequest('listConnections', {});
     return [];
   }
+
+  async checkConnection(connection: Connection): Promise<boolean> {
+    return await serviceBusApi.doRequest('checkConnection', connection) as boolean;
+  }
 }

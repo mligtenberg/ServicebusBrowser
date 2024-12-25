@@ -11,7 +11,13 @@ const listConnections = async () => {
   return connectionManager.listConnections();
 };
 
+const checkConnection = async (connection: Connection) => {
+  const connectionClient = connectionManager.getConnectionClient({ connection });
+  return await connectionClient.getAdministrationClient().checkConnection();
+}
+
 export default {
   addConnection,
-  listConnections
+  listConnections,
+  checkConnection
 }

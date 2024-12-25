@@ -6,10 +6,13 @@ export class ConnectionManager {
 
   addConnection(connection: Connection) {
     this.connections[connection.name] = connection;
+    console.log(`Connection ${connection.name} added`);
   }
 
-  getConnection(name: string): ConnectionClient {
-    const connection = this.connections[name];
+  getConnectionClient(options: {name: string } | {connection: Connection}): ConnectionClient {
+    const connection = 'connection' in options
+      ? options.connection
+      : this.getConnection(options.name);
 
     if (!connection) {
       throw new Error(`Connection ${name} not found`);
@@ -20,5 +23,9 @@ export class ConnectionManager {
 
   listConnections(): string[] {
     return Object.keys(this.connections);
+  }
+
+  private getConnection(name: string): Connection {
+    return this.connections[name];
   }
 }

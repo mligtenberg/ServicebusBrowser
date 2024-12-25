@@ -1,0 +1,38 @@
+<main class="page-container">
+  <h2 class="page-title">Add connection</h2>
+  <div role="form">
+    <section class="name">
+      <p-floatlabel variant="on">
+        <input id="connectionName" class="full-width" pInputText [(ngModel)]="connectionName" />
+        <label for="connectionName">Connection Name</label>
+      </p-floatlabel>
+    </section>
+    <section class="connection-type">
+      <label for="connectionType" class="heading">Connection type</label>
+      <div class="connection-type-option full-width" id="connectionType">
+        <p-radiobutton
+          name="connectionType"
+          value="connectionString"
+          inputId="connectionStringConnection"
+          [(ngModel)]="connectionType"
+        ></p-radiobutton>
+        <label for="connectionStringConnection">Connection String</label>
+      </div>
+    </section>
+    @if (connectionType() === 'connectionString') {
+      <section class="connection-string">
+        <p-floatlabel variant="on">
+          <input id="connectionString" class="full-width" pInputText [(ngModel)]="connectionString" />
+          <label for="connectionString">Connection String</label>
+        </p-floatlabel>
+      </section>
+    }
+
+
+    <section class="actions">
+      <button pButton severity="secondary" type="button">Cancel</button>
+      <button pButton severity="primary" type="button" [disabled]="!canSave()" (click)="testConnection()">test</button>
+      <button pButton severity="primary" type="button" [disabled]="!canSave()" (click)="save()">Save</button>
+    </section>
+  </div>
+</main>

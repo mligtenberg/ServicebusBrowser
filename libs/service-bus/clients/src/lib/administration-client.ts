@@ -6,6 +6,14 @@ export class AdministrationClient {
   constructor(private connection: Connection) {
   }
 
+  async checkConnection(): Promise<boolean> {
+    const administrationClient = this.getAdministrationClient();
+    const queuesPages = administrationClient.listQueues();
+    const queues = await queuesPages.next();
+
+    return !!queues.value;
+  }
+
   async getQueues(): Promise<Queue[]> {
     const administrationClient = this.getAdministrationClient();
     const queuesPages = administrationClient.listQueues();
