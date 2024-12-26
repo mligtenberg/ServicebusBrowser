@@ -1,8 +1,9 @@
 import { Queue } from './queue';
 import { Topic } from './topic';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export type Namespace = {
-  id: string;
+  id: UUID;
   name: string;
 }
 

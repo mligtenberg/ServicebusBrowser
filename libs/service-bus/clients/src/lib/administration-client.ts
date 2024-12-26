@@ -7,11 +7,16 @@ export class AdministrationClient {
   }
 
   async checkConnection(): Promise<boolean> {
-    const administrationClient = this.getAdministrationClient();
-    const queuesPages = administrationClient.listQueues();
-    const queues = await queuesPages.next();
+   try {
+     const administrationClient = this.getAdministrationClient();
+     const queuesPages = administrationClient.listQueues();
+     const queues = await queuesPages.next();
 
-    return !!queues.value;
+     return !!queues.value;
+   }
+    catch {
+      return false;
+    }
   }
 
   async getQueues(): Promise<Queue[]> {
@@ -49,13 +54,13 @@ export class AdministrationClient {
     return topics;
   }
 
-  async getSubscriptions(topicName: string): Promise<Subscription[]> {
+  async getSubscriptions(topicId: string): Promise<Subscription[]> {
     const administrationClient = this.getAdministrationClient();
-    const subscriptionsPages = administrationClient.listSubscriptions(topicName);
+    const subscriptionsPages = administrationClient.listSubscriptions(topicId);
     const subscriptions: Subscription[] = [];
 
     for await (const subscription of subscriptionsPages) {
-      const runtimeProps = await administrationClient.getSubscriptionRuntimeProperties(topicName, subscription.subscriptionName);
+      const runtimeProps = await administrationClient.getSubscriptionRuntimeProperties(topicId, subscription.subscriptionName);
 
       subscriptions.push({
         id: subscription.subscriptionName,

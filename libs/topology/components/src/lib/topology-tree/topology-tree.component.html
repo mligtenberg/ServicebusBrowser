@@ -1,4 +1,9 @@
-<p-tree [value]="nodes()" selectionMode="single" (selectionChange)="onSelectionChange($event)">
+<p-tree
+  [value]="nodes()"
+  selectionMode="single"
+  (selectionChange)="onSelectionChange($event)"
+  emptyMessage="No namespaces found"
+>
   <ng-template let-node pTemplate="default">
     <b>{{ node.label }}</b>
   </ng-template>

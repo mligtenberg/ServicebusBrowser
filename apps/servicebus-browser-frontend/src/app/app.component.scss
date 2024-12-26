@@ -14,6 +14,7 @@
 
   .main-splitter {
     flex: 1;
+    height: calc(100% - 32px);
 
     .p-splitter {
       border: none;
@@ -25,6 +26,10 @@
   .sidebar {
     width: 100%;
     height: 100%;
+
+    .p-scrollpanel {
+      height: 100%;
+    }
   }
 
   .main-content {

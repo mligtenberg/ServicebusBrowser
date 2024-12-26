@@ -4,6 +4,7 @@ import { topologyFeature } from './lib/topology.store';
 import { provideEffects } from '@ngrx/effects';
 import { TopologyEffects } from './lib/topology.effects';
 
+export * as TopologyActions from './lib/topology.actions'
 export * as TopologySelectors from './lib/topology.selectors'
 
 export function provideTopologyState(): (

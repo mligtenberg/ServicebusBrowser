@@ -1,5 +1,9 @@
 :host {
   ::ng-deep .p-tree-node-label {
+    width: calc(100% - 32px);
+  }
+
+  ::ng-deep .p-tree-node-leaf .p-tree-node-label {
     width: 100%;
   }
 
@@ -9,9 +13,13 @@
 
   ::ng-deep .p-tree-node-leaf {
     line-height: 28px;
-    .p-tree-node-content {
-      padding: 0 0.4rem;
+    .p-tree-node-content sbb-tpl-topic-tree-node {
+      padding: 0 0 0 32px;
     }
+  }
+
+  ::ng-deep .p-tree-empty-message {
+    padding: 0.5rem;
   }
 }
 

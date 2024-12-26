@@ -1,2 +1,2 @@
-<span><fa-icon [icon]="icon"></fa-icon> {{ queue().name }}</span>
-<span>({{queue().messageCount}},{{queue().deadLetterMessageCount}},{{queue().transferDeadLetterMessageCount}})</span>
+<span class="name" [pTooltip]="queue().name"><fa-icon [icon]="icon"></fa-icon> {{ queue().name }}</span>
+<span class="counters">({{queue().messageCount}},{{queue().deadLetterMessageCount}},{{queue().transferDeadLetterMessageCount}})</span>

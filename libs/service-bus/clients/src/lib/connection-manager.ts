@@ -1,31 +1,40 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
 import { ConnectionClient } from './connection-client';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export class ConnectionManager {
-  private connections: { [name: string]: Connection } = {};
+  private connections: Map<UUID, Connection> = new Map();
 
   addConnection(connection: Connection) {
-    this.connections[connection.name] = connection;
-    console.log(`Connection ${connection.name} added`);
+    this.connections.set(connection.id, connection);
   }
 
-  getConnectionClient(options: {name: string } | {connection: Connection}): ConnectionClient {
+  getConnectionClient(options: { id: UUID } | {connection: Connection}): ConnectionClient {
     const connection = 'connection' in options
       ? options.connection
-      : this.getConnection(options.name);
+      : this.getConnection(options.id);
 
-    if (!connection) {
-      throw new Error(`Connection ${name} not found`);
+    console.log('connection', connection);
+
+    if (connection === undefined) {
+      // @ts-expect-error - when id is provided, connection is undefined
+      throw new Error(`Connection ${ options['id'] as string } not found`);
     }
 
     return new ConnectionClient(connection);
   }
 
-  listConnections(): string[] {
-    return Object.keys(this.connections);
+  listConnections(): {connectionId: UUID, connectionName: string}[] {
+    const connectionsIterator = this.connections.values();
+    const connections = Array.from(connectionsIterator);
+
+    return connections.map(connection => ({
+      connectionId: connection.id,
+      connectionName: connection.name
+    }));
   }
 
-  private getConnection(name: string): Connection {
-    return this.connections[name];
+  private getConnection(id: UUID): Connection | undefined {
+    return this.connections.get(id);
   }
 }

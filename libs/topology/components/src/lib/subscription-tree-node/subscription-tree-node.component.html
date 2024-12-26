@@ -1,2 +1,2 @@
-<span><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
+<span class="name" [pTooltip]="subscription().name"><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
 <span>({{subscription().messageCount}},{{subscription().deadLetterMessageCount}},{{subscription().transferDeadLetterMessageCount}})</span>

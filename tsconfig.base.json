@@ -27,6 +27,7 @@
       "@service-bus-browser/logs-contracts": [
         "libs/logs/contracts/src/index.ts"
       ],
+      "@service-bus-browser/logs-services": ["libs/logs/services/src/index.ts"],
       "@service-bus-browser/logs-store": ["libs/logs/store/src/index.ts"],
       "@service-bus-browser/service-bus-angular-providers": [
         "libs/service-bus/angular-providers/src/index.ts"

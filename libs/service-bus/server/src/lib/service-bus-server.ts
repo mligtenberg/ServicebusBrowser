@@ -1,5 +1,6 @@
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 const connectionManager = new ConnectionManager();
 
@@ -16,8 +17,26 @@ const checkConnection = async (connection: Connection) => {
   return await connectionClient.getAdministrationClient().checkConnection();
 }
 
+const listQueues = async (body: {connectionId: UUID}) => {
+  const connection = connectionManager.getConnectionClient({ id: body.connectionId });
+  return await connection.getAdministrationClient().getQueues();
+}
+
+const listTopics = async (body: {connectionId: UUID}) => {
+  const connection = connectionManager.getConnectionClient({ id: body.connectionId });
+  return await connection.getAdministrationClient().getTopics();
+}
+
+const listSubscriptions = async (body: { connectionId: UUID, topicId: string }) => {
+  const connection = connectionManager.getConnectionClient({ id: body.connectionId });
+  return await connection.getAdministrationClient().getSubscriptions(body.topicId);
+}
+
 export default {
   addConnection,
   listConnections,
-  checkConnection
+  checkConnection,
+  listQueues,
+  listTopics,
+  listSubscriptions,
 }
