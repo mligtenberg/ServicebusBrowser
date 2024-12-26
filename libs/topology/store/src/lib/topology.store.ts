@@ -33,29 +33,29 @@ export const logsReducer = createReducer(
     ...state,
     namespaces,
   })),
-  on(internalActions.queuesLoaded, (state, { namespaceId, queues }) => ({
+  on(internalActions.queuesLoaded, (state, { namespace, queues }) => ({
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
-      [namespaceId]: queues,
+      [namespace.id]: queues,
     },
   })),
-  on(internalActions.topicsLoaded, (state, { namespaceId, topics }) => ({
+  on(internalActions.topicsLoaded, (state, { namespace, topics }) => ({
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
-      [namespaceId]: topics,
+      [namespace.id]: topics,
     },
   })),
   on(
     internalActions.subscriptionsLoaded,
-    (state, { namespaceId, topicId, subscriptions }) => ({
+    (state, { namespace, topic, subscriptions }) => ({
       ...state,
       subscriptionsPerNamespaceAndTopic: {
         ...state.subscriptionsPerNamespaceAndTopic,
-        [namespaceId]: {
-          ...state.subscriptionsPerNamespaceAndTopic[namespaceId],
-          [topicId]: subscriptions,
+        [namespace.id]: {
+          ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
+          [topic.id]: subscriptions,
         },
       },
     })
