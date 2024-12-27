@@ -17,14 +17,10 @@
       padding: 0 0 0 32px;
     }
   }
-
-  ::ng-deep .p-tree-empty-message {
-    padding: 0.5rem;
-  }
 }
 
 p-tree {
-  --p-tree-padding: 0rem;
+  --p-tree-padding: 0.6rem;
   --p-tree-node-padding: 0;
   --p-tree-indent: 28px;
 }
