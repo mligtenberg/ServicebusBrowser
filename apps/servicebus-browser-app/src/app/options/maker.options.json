@@ -4,5 +4,5 @@
   "artifactName": "Servicebus browser.${ext}",
   "copyright": "Copyright © 2024 Martin Ligtenberg",
   "productName": "Servicebus Browser",
-  "icon": "src/assets.logo.png"
+  "icon": "assets/icon.png"
 }
