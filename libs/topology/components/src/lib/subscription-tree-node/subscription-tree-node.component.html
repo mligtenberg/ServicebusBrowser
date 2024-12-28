@@ -4,9 +4,9 @@
 </div>
 
 @if (contextMenuItems()) {
-  <p-contextmenu
+  <sbb-context-menu
     [target]="sub"
     [model]="contextMenuItems() ?? []"
-    appendTo="body"
-  ></p-contextmenu>
+    [data]="subscription()"
+  />
 }

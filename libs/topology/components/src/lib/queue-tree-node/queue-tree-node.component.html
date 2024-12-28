@@ -3,9 +3,8 @@
 <span class="counters">({{queue().messageCount}},{{queue().deadLetterMessageCount}},{{queue().transferDeadLetterMessageCount}})</span>
 </div>
 @if (contextMenuItems()) {
-  <p-contextmenu
+  <sbb-context-menu
     [target]="q"
     [model]="contextMenuItems() ?? []"
-    appendTo="body"
-  ></p-contextmenu>
+    [data]="queue()" />
 }

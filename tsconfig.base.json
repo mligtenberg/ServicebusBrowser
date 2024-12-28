@@ -44,6 +44,9 @@
       "@service-bus-browser/service-bus-server": [
         "libs/service-bus/server/src/index.ts"
       ],
+      "@service-bus-browser/shared-components": [
+        "libs/shared/components/src/index.ts"
+      ],
       "@service-bus-browser/shared-contracts": [
         "libs/shared/contracts/src/index.ts"
       ],

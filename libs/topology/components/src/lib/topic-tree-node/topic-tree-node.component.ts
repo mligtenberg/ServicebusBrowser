@@ -7,10 +7,18 @@ import { Tooltip } from 'primeng/tooltip';
 import { Button } from 'primeng/button';
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
+import { ContextMenuComponent } from '@service-bus-browser/shared-components';
 
 @Component({
   selector: 'sbb-tpl-topic-tree-node',
-  imports: [CommonModule, FaIconComponent, Tooltip, Button, ContextMenu],
+  imports: [
+    CommonModule,
+    FaIconComponent,
+    Tooltip,
+    Button,
+    ContextMenu,
+    ContextMenuComponent,
+  ],
   templateUrl: './topic-tree-node.component.html',
   styleUrl: './topic-tree-node.component.scss',
 })

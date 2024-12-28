@@ -2,10 +2,8 @@
   <span class="name" [pTooltip]="namespace().name"><fa-icon [icon]="icon"></fa-icon> {{ namespace().name }}</span>
 </div>
 @if (contextMenuItems()) {
-  <p-contextmenu
+  <sbb-context-menu
     [target]="ns"
-    [model]="modifiedContextMenuItems() ?? []"
-    appendTo="body"
-  >
-  </p-contextmenu>
+    [model]="contextMenuItems() ?? []"
+    [data]="namespace()" />
 }

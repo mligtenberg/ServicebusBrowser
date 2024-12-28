@@ -4,11 +4,11 @@ import {
   Namespace,
   NamespaceWithChildren,
   Queue,
-  Subscription,
+  Subscription, Topic,
   TopicWithChildren
 } from '@service-bus-browser/topology-contracts';
 import { Tree } from 'primeng/tree';
-import { MenuItem, PrimeTemplate, TreeNode } from 'primeng/api';
+import { PrimeTemplate, TreeNode } from 'primeng/api';
 import { NamespaceTreeNodeComponent } from '../namespace-tree-node/namespace-tree-node.component';
 import { TopicTreeNodeComponent } from '../topic-tree-node/topic-tree-node.component';
 import { SubscriptionTreeNodeComponent } from '../subscription-tree-node/subscription-tree-node.component';
@@ -16,7 +16,7 @@ import { QueueTreeNodeComponent } from '../queue-tree-node/queue-tree-node.compo
 import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
-import { UUID } from '@service-bus-browser/shared-contracts';
+import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -36,10 +36,10 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 export class TopologyTreeComponent {
   namespaces =
     input.required<NamespaceWithChildren<Queue, TopicWithChildren>[]>();
-  namespaceContextMenuItems = input<MenuItem[]>();
-  queueContextMenu = input<MenuItem[]>();
-  topicContextMenu = input<MenuItem[]>();
-  subscriptionContextMenu = input<MenuItem[]>();
+  namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
+  queueContextMenu = input<SbbMenuItem<Queue>[]>();
+  topicContextMenu = input<SbbMenuItem<Topic>[]>();
+  subscriptionContextMenu = input<SbbMenuItem<Subscription>[]>();
   store = inject(Store);
 
   nodes = computed<TreeNode[]>(() =>
