@@ -8,6 +8,7 @@ import { Button } from 'primeng/button';
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
 import { ContextMenuComponent } from '@service-bus-browser/shared-components';
+import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 
 @Component({
   selector: 'sbb-tpl-topic-tree-node',
@@ -27,7 +28,7 @@ export class TopicTreeNodeComponent {
   icon = faFolderTree;
 
   refreshTopic = output<Topic>();
-  contextMenuItems = input<MenuItem[]>();
+  contextMenuItems = input<SbbMenuItem<Topic>[]>();
 
   refresh($event: MouseEvent) {
     this.refreshTopic.emit(this.topic());
