@@ -24,3 +24,12 @@ p-tree {
   --p-tree-node-padding: 0;
   --p-tree-indent: 28px;
 }
+
+.category-divider {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  --p-button-icon-only-width: 1.5rem;
+}

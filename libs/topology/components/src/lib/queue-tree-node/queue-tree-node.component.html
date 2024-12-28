@@ -1,2 +1,11 @@
+<div class="line-container" #q>
 <span class="name" [pTooltip]="queue().name"><fa-icon [icon]="icon"></fa-icon> {{ queue().name }}</span>
 <span class="counters">({{queue().messageCount}},{{queue().deadLetterMessageCount}},{{queue().transferDeadLetterMessageCount}})</span>
+</div>
+@if (contextMenuItems()) {
+  <p-contextmenu
+    [target]="q"
+    [model]="contextMenuItems() ?? []"
+    appendTo="body"
+  ></p-contextmenu>
+}

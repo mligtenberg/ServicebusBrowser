@@ -28,6 +28,7 @@ export class AdministrationClient {
       const runtimeProps = await administrationClient.getQueueRuntimeProperties(queue.name);
 
       queues.push({
+        namespaceId: this.connection.id,
         id: queue.name,
         name: queue.name,
         messageCount: runtimeProps.activeMessageCount,
@@ -46,6 +47,7 @@ export class AdministrationClient {
 
     for await (const topic of topicsPages) {
       topics.push({
+        namespaceId: this.connection.id,
         id: topic.name,
         name: topic.name,
       });
@@ -63,6 +65,8 @@ export class AdministrationClient {
       const runtimeProps = await administrationClient.getSubscriptionRuntimeProperties(topicId, subscription.subscriptionName);
 
       subscriptions.push({
+        namespaceId: this.connection.id,
+        topicId: topicId,
         id: subscription.subscriptionName,
         name: subscription.subscriptionName,
         messageCount: runtimeProps.activeMessageCount,

@@ -8,15 +8,27 @@
     <b>{{ node.label }}</b>
   </ng-template>
   <ng-template let-node pTemplate="namespace">
-    <sbb-tpl-namespace-tree-node [namespace]="node.data" />
+    <sbb-tpl-namespace-tree-node [namespace]="node.data" [contextMenuItems]="namespaceContextMenuItems()" />
+  </ng-template>
+  <ng-template let-node pTemplate="queues">
+    <div class="category-divider">
+      <span class="name">{{ node.label }}</span>
+      <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
+    </div>
+  </ng-template>
+  <ng-template let-node pTemplate="topics">
+    <div class="category-divider">
+      <span class="name">{{ node.label }}</span>
+      <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
+    </div>
   </ng-template>
   <ng-template let-node pTemplate="queue">
-    <sbb-tpl-queue-tree-node [queue]="node.data.queue" />
+    <sbb-tpl-queue-tree-node [contextMenuItems]="queueContextMenu()" [queue]="node.data.queue" />
   </ng-template>
   <ng-template let-node pTemplate="topic">
-    <sbb-tpl-topic-tree-node [topic]="node.data.topic" />
+    <sbb-tpl-topic-tree-node [contextMenuItems]="topicContextMenu()" [topic]="node.data.topic" (refreshTopic)="refreshSubscriptions($event.namespaceId, $event.id)" />
   </ng-template>
   <ng-template let-node pTemplate="subscription">
-    <sbb-tpl-subscription-tree-node [subscription]="node.data.subscription" />
+    <sbb-tpl-subscription-tree-node [contextMenuItems]="subscriptionContextMenu()" [subscription]="node.data.subscription" />
   </ng-template>
 </p-tree>

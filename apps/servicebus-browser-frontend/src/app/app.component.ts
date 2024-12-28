@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
-import { PrimeTemplate } from 'primeng/api';
+import { MenuItem, MenuItemCommandEvent, PrimeTemplate } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { Tab, TabList, Tabs } from 'primeng/tabs';
@@ -11,6 +11,7 @@ import { LogsSelectors } from '@service-bus-browser/logs-store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { Namespace, Queue, Topic, Subscription } from '@service-bus-browser/topology-contracts';
+import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 
 @Component({
   imports: [
@@ -34,13 +35,22 @@ export class AppComponent {
   items = [
     {
       label: 'Connections',
-    }
+    },
   ];
   store = inject(Store);
 
   logsOpened = signal(false);
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
+
+  namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
+    {
+      label: 'Remove Namespace',
+      onSelect(data: Namespace, event: MenuItemCommandEvent) {
+        console.log(data, event);
+      },
+    },
+  ];
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
@@ -58,7 +68,11 @@ export class AppComponent {
     console.log($event);
   }
 
-  onSubscriptionSelected($event: { namespaceId: string; topicId: string, subscription: Subscription }) {
+  onSubscriptionSelected($event: {
+    namespaceId: string;
+    topicId: string;
+    subscription: Subscription;
+  }) {
     console.log($event);
   }
 }

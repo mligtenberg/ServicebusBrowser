@@ -1,1 +1,11 @@
-<span class="name" [pTooltip]="namespace().name"><fa-icon [icon]="icon"></fa-icon> {{ namespace().name }}</span>
+<div class="line-container" #ns>
+  <span class="name" [pTooltip]="namespace().name"><fa-icon [icon]="icon"></fa-icon> {{ namespace().name }}</span>
+</div>
+@if (contextMenuItems()) {
+  <p-contextmenu
+    [target]="ns"
+    [model]="modifiedContextMenuItems() ?? []"
+    appendTo="body"
+  >
+  </p-contextmenu>
+}

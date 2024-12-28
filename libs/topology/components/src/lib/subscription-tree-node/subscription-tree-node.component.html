@@ -1,2 +1,12 @@
-<span class="name" [pTooltip]="subscription().name"><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
-<span>({{subscription().messageCount}},{{subscription().deadLetterMessageCount}},{{subscription().transferDeadLetterMessageCount}})</span>
+<div class="line-container" #sub>
+  <span class="name" [pTooltip]="subscription().name"><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
+  <span>({{subscription().messageCount}},{{subscription().deadLetterMessageCount}},{{subscription().transferDeadLetterMessageCount}})</span>
+</div>
+
+@if (contextMenuItems()) {
+  <p-contextmenu
+    [target]="sub"
+    [model]="contextMenuItems() ?? []"
+    appendTo="body"
+  ></p-contextmenu>
+}
