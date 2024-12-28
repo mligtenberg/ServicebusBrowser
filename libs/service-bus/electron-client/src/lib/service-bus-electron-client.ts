@@ -16,6 +16,10 @@ export class ServiceBusElectronClient {
     await serviceBusApi.doRequest('addConnection', connection);
   }
 
+  async removeConnection(connectionId: UUID): Promise<void> {
+    await serviceBusApi.doRequest('removeConnection', { connectionId });
+  }
+
   async listConnections(): Promise<Array<{ connectionId: UUID, connectionName: string }>> {
     return await serviceBusApi.doRequest('listConnections', {}) as Array<{ connectionId: UUID, connectionName: string }>;
   }

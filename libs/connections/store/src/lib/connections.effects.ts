@@ -3,8 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as actions from './connections.actions';
 import * as internalActions from './connections.internal-actions';
 import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { from, map, switchMap, tap } from 'rxjs';
-import { Logger } from '@service-bus-browser/logs-services';
+import { catchError, from, map, switchMap, tap } from 'rxjs';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 
 @Injectable({
@@ -13,21 +12,37 @@ import { TopologyActions } from '@service-bus-browser/topology-store';
 export class ConnectionsEffects {
   actions$ = inject(Actions);
   serviceBusClient = inject(ServiceBusElectronClient);
-  logger = inject(Logger);
 
   addConnection$ = createEffect(
     () => this.actions$.pipe(
       ofType(actions.addConnection),
       switchMap(({ connection }) => from(this.serviceBusClient.addConnection(connection)).pipe(
-        map(() => internalActions.connectionAdded({ connectionId: connection.id }))
+        map(() => internalActions.connectionAdded({ connectionId: connection.id })),
+        catchError(error => [internalActions.failedToAddConnection({ connectionId: connection.id, error: {
+          title: 'Failed to add connection',
+          detail: error.message,
+        }})]),
       )),
     ),
   )
 
-  reloadOnConnectionAdded$ = createEffect(
+  removeConnection$ = createEffect(
     () => this.actions$.pipe(
-      ofType(internalActions.connectionAdded),
-      map(() => TopologyActions.loadNamespaces())
+      ofType(actions.removeConnection),
+      switchMap(({ connectionId }) => from(this.serviceBusClient.removeConnection(connectionId)).pipe(
+        map(() => internalActions.connectionRemoved({ connectionId })),
+        catchError(error => [internalActions.failedToRemoveConnection({ connectionId, error: {
+          title: 'Failed to remove connection',
+          detail: error.message,
+        }})]),
+      )),
+    ),
+  )
+
+  reloadOnConnectionChanged$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(internalActions.connectionAdded, internalActions.connectionRemoved),
+      map(() => TopologyActions.loadNamespaces()),
     ),
   )
 
@@ -35,14 +50,14 @@ export class ConnectionsEffects {
     () => this.actions$.pipe(
       ofType(actions.checkConnection),
       switchMap(({ connection }) => from(this.serviceBusClient.checkConnection(connection)).pipe(
-        tap(result => {
+        map(result => {
           if (result) {
-            this.logger.info('Connection test succeeded', connection);
-          } else {
-            this.logger.error('Connection test failed', connection);
-          }})
+            return internalActions.connectionCheckedSuccessfully({ connection });
+          }
+
+          return internalActions.connectionCheckFailed({ connection });
+        })
       )),
     ),
-    { dispatch: false }
   )
 }

@@ -8,6 +8,10 @@ const addConnection =  (connection: Connection) => {
   return connectionManager.addConnection(connection);
 };
 
+const removeConnection = (id: UUID) => {
+  return connectionManager.removeConnection(id);
+}
+
 const listConnections = async () => {
   return connectionManager.listConnections();
 };
@@ -34,6 +38,7 @@ const listSubscriptions = async (body: { connectionId: UUID, topicId: string }) 
 
 export default {
   addConnection,
+  removeConnection,
   listConnections,
   checkConnection,
   listQueues,

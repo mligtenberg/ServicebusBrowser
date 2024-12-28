@@ -9,12 +9,16 @@ export class ConnectionManager {
     this.connections.set(connection.id, connection);
   }
 
+  removeConnection(options: { connectionId: UUID }) {
+    if (!this.connections.delete(options.connectionId)) {
+      throw new Error(`Connection ${ options.connectionId } not found`);
+    }
+  }
+
   getConnectionClient(options: { id: UUID } | {connection: Connection}): ConnectionClient {
     const connection = 'connection' in options
       ? options.connection
       : this.getConnection(options.id);
-
-    console.log('connection', connection);
 
     if (connection === undefined) {
       // @ts-expect-error - when id is provided, connection is undefined

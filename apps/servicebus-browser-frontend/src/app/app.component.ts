@@ -12,6 +12,7 @@ import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { Namespace, Queue, Topic, Subscription } from '@service-bus-browser/topology-contracts';
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @Component({
   imports: [
@@ -25,6 +26,7 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
     TabList,
     Tab,
     TopologyTreeComponent,
+    SidebarComponent,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -41,38 +43,8 @@ export class AppComponent {
 
   logsOpened = signal(false);
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
-  namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
-
-  namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
-    {
-      label: 'Remove Namespace',
-      onSelect(data: Namespace, event: MenuItemCommandEvent) {
-        console.log(data, event);
-      },
-    },
-  ];
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
-  }
-
-  onNamespaceSelected($event: { namespace: Namespace }) {
-    console.log($event);
-  }
-
-  onQueueSelected($event: { namespaceId: string; queue: Queue }) {
-    console.log($event);
-  }
-
-  onTopicSelected($event: { namespaceId: string; topic: Topic }) {
-    console.log($event);
-  }
-
-  onSubscriptionSelected($event: {
-    namespaceId: string;
-    topicId: string;
-    subscription: Subscription;
-  }) {
-    console.log($event);
   }
 }

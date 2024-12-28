@@ -3,14 +3,7 @@
   <ng-template pTemplate>
     <div class="sidebar">
       <p-scroll-panel>
-        <sbb-tpl-topology-tree
-          [namespaces]="namespaces()"
-          [namespaceContextMenuItems]="namespaceContextMenuItems"
-          (namespaceSelected)="onNamespaceSelected($event)"
-          (queueSelected)="onQueueSelected($event)"
-          (topicSelected)="onTopicSelected($event)"
-          (subscriptionSelected)="onSubscriptionSelected($event)"
-        />
+        <app-sidebar></app-sidebar>
       </p-scroll-panel>
     </div>
   </ng-template>
