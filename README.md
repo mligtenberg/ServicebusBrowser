@@ -26,14 +26,16 @@ since the build is required to be signed.
 ### Manual build (release build)
 #### Requirements
 - Node V20
-- NPM V8
+- PNPM V9
 
 #### Steps
 - Clone the project
-- Install the dependencies with ``npm install`` in the main directory
-- Build by running ``npm release`` in the main directory
+- Install the dependencies with ``pnpm install`` in the main directory
+- Build by running ``pnpm exec nx run-many -t build make`` in the main directory
 
 ### Manual build (dev enviorment)
 - Clone the project
-- Install the dependencies with ``npm install`` in the main directory
-- Build and start the project by running ``npm start`` in the main directory
+- Install the dependencies with ``pnpm install`` in the main directory
+- Build and start the project by running ``pnpm exec nx run-many -t serve`` in the main directory
+- A electron window should open with the app running
+  - you might need to hit Ff (or CMD + R on mac) to refresh the window, this is a timing issue caused by the dev server
