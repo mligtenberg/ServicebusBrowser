@@ -17,7 +17,6 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
     FaIconComponent,
     Tooltip,
     Button,
-    ContextMenu,
     ContextMenuComponent,
   ],
   templateUrl: './topic-tree-node.component.html',
@@ -25,6 +24,7 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 })
 export class TopicTreeNodeComponent {
   topic = input.required<Topic>();
+  showRefresh = input.required<boolean>();
   icon = faFolderTree;
 
   refreshTopic = output<Topic>();

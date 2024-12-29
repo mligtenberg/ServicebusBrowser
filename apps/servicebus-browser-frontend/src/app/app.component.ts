@@ -25,7 +25,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     Tabs,
     TabList,
     Tab,
-    TopologyTreeComponent,
     SidebarComponent,
   ],
   selector: 'app-root',
@@ -34,11 +33,19 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 })
 export class AppComponent {
   title = 'servicebus-browser-frontend';
-  items = [
+  menuItems: MenuItem[] = [
     {
       label: 'Connections',
+      items: [
+        {
+          label: 'Add Connection',
+          icon: 'pi pi-plus',
+          routerLink: '/connections/add',
+        }
+      ]
     },
   ];
+
   store = inject(Store);
 
   logsOpened = signal(false);

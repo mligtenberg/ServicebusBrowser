@@ -1,0 +1,47 @@
+input, textarea, p-inputnumber {
+  width: 100%;
+}
+
+.line {
+  margin: 1em 0;
+  width: 100%;
+}
+
+.duration-input label {
+  margin-bottom: 0.5rem;
+}
+
+.duration-input sbb-duration-input {
+  display: block;
+  padding-top: 0.5rem;
+}
+
+form {
+  margin: 0.5rem;
+
+  display: grid;
+  gap: 1rem;
+  grid-template-areas:
+    'name settings'
+    'properties settings'
+    'properties .';
+
+  .name {
+    grid-area: name;
+  }
+
+  .properties {
+    grid-area: properties;
+  }
+
+  .settings {
+    grid-area: settings;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}

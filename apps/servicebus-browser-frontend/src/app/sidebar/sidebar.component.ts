@@ -11,6 +11,7 @@ import {
   TopologySelectors,
 } from '@service-bus-browser/topology-store';
 import { ConnectionsActions } from '@service-bus-browser/connections-store';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -20,6 +21,7 @@ import { ConnectionsActions } from '@service-bus-browser/connections-store';
 })
 export class SidebarComponent {
   store = inject(Store);
+  router = inject(Router);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
 
   namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
@@ -31,16 +33,12 @@ export class SidebarComponent {
     },
   ];
 
-  onNamespaceSelected($event: { namespace: Namespace }) {
-    console.log($event);
-  }
-
   onQueueSelected($event: { namespaceId: string; queue: Queue }) {
-    console.log($event);
+    this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', $event.queue.id]);
   }
 
   onTopicSelected($event: { namespaceId: string; topic: Topic }) {
-    console.log($event);
+    this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'topics', $event.topic.id]);
   }
 
   onSubscriptionSelected($event: {
@@ -48,6 +46,14 @@ export class SidebarComponent {
     topicId: string;
     subscription: Subscription;
   }) {
-    console.log($event);
+    this.router.navigate([
+      'manage-topology',
+      'namespaces',
+      $event.namespaceId,
+      'topics',
+      $event.topicId,
+      'subscriptions',
+      $event.subscription.id,
+    ]);
   }
 }

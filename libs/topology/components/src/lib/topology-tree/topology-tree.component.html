@@ -3,6 +3,8 @@
   selectionMode="single"
   (selectionChange)="onSelectionChange($event)"
   emptyMessage="No namespaces found"
+  (onNodeExpand)="onNodeExpand($event)"
+  (onNodeCollapse)="onNodeCollapse($event)"
 >
   <ng-template let-node pTemplate="default">
     <b>{{ node.label }}</b>
@@ -26,7 +28,13 @@
     <sbb-tpl-queue-tree-node [contextMenuItems]="queueContextMenu()" [queue]="node.data.queue" />
   </ng-template>
   <ng-template let-node pTemplate="topic">
-    <sbb-tpl-topic-tree-node [contextMenuItems]="topicContextMenu()" [topic]="node.data.topic" (refreshTopic)="refreshSubscriptions($event.namespaceId, $event.id)" />
+    <sbb-tpl-topic-tree-node
+      [contextMenuItems]="topicContextMenu()"
+      [topic]="node.data.topic"
+      [showRefresh]="displaySubscriptions()"
+      (refreshTopic)="refreshSubscriptions($event.namespaceId, $event.id)"
+      [ngClass]="{ 'show-subscriptions': displaySubscriptions() }"
+    />
   </ng-template>
   <ng-template let-node pTemplate="subscription">
     <sbb-tpl-subscription-tree-node [contextMenuItems]="subscriptionContextMenu()" [subscription]="node.data.subscription" />

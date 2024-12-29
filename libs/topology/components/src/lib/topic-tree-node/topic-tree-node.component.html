@@ -1,6 +1,8 @@
 <div class="line-container" #t>
   <span class="name" [pTooltip]="topic().name"><fa-icon [icon]="icon"></fa-icon> {{ topic().name }}</span>
-  <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
+  @if (showRefresh()) {
+    <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
+  }
 </div>
 
 @if (contextMenuItems()) {

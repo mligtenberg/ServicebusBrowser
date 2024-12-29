@@ -1,0 +1,87 @@
+<form [formGroup]="form">
+  <p-card class="name" header="Name">
+    <input pInputText formControlName="queueName" />
+  </p-card>
+
+  <p-card class="properties" header="Queue Properties" formGroupName="queueProperties">
+    <div class="line">
+      <p-float-label variant="on">
+        <p-inputnumber formControlName="maxSizeInMegabytes" inputId="maxQueueSize"></p-inputnumber>
+        <label for="maxQueueSize">Max queue size in megabytes</label>
+      </p-float-label>
+    </div>
+    <div class="line">
+      <p-float-label variant="on">
+        <p-inputnumber formControlName="maxDeliveryCount" inputId="maxDeliveryCount"></p-inputnumber>
+        <label for="maxDeliveryCount">Max delivery count</label>
+      </p-float-label>
+    </div>
+    <div class="line">
+      <p-float-label variant="on">
+        <textarea pTextarea formControlName="userMetadata" id="userMetadata"></textarea>
+        <label for="userMetadata">User Metadata</label>
+      </p-float-label>
+    </div>
+    <div class="line">
+      <p-float-label variant="on">
+        <sbb-tpl-endpoint-selector-input
+          id="forwardMessagesTo"
+          formControlName="forwardMessagesTo"
+        />
+        <label for="forwardMessagesTo">Forward to</label>
+      </p-float-label>
+    </div>
+    <div class="line">
+      <p-float-label variant="on">
+        <sbb-tpl-endpoint-selector-input
+          id="forwardDeadLetteredMessagesTo"
+          formControlName="forwardDeadLetteredMessagesTo"
+        />
+        <label for="forwardDeadLetteredMessagesTo">Forward dead letters to</label>
+      </p-float-label>
+    </div>
+    <div class="line duration-input">
+      <label for="duplicateDetectionHistoryTimeWindow">Duplicate detection time window</label>
+      <sbb-duration-input id="duplicateDetectionHistoryTimeWindow" formGroupName="duplicateDetectionHistoryTimeWindow"></sbb-duration-input>
+    </div>
+    <div class="line duration-input">
+      <label for="autoDeleteOnIdle">Auto delete on idle</label>
+      <sbb-duration-input id="autoDeleteOnIdle" formGroupName="autoDeleteOnIdle"></sbb-duration-input>
+    </div>
+    <div class="line duration-input">
+      <label for="defaultMessageTimeToLive">Default message time to live</label>
+      <sbb-duration-input id="defaultMessageTimeToLive" formGroupName="defaultMessageTimeToLive"></sbb-duration-input>
+    </div>
+    <div class="line duration-input">
+      <label for="lockDuration">Lock duration</label>
+      <sbb-duration-input id="lockDuration" formGroupName="lockDuration"></sbb-duration-input>
+    </div>
+  </p-card>
+
+  <p-card class="settings" header="Queue Settings" formGroupName="queueSettings">
+    <div class="checkbox">
+      <p-checkbox formControlName="enableBatchedOperations" inputId="enableBatchedOperations" [binary]="true" />
+      <label for="enableBatchedOperations">Enable batched operations</label>
+    </div>
+    <div class="checkbox">
+      <p-checkbox formControlName="deadLetteringOnMessageExpiration" inputId="deadLetteringOnMessageExpiration" [binary]="true" />
+      <label for="deadLetteringOnMessageExpiration">Deadlettering on message expiration</label>
+    </div>
+    <div class="checkbox">
+      <p-checkbox formControlName="enablePartitioning" inputId="enablePartitioning" [binary]="true" />
+      <label for="enablePartitioning">Partitioning</label>
+    </div>
+    <div class="checkbox">
+      <p-checkbox formControlName="enableExpress" inputId="enableExpress" [binary]="true" />
+      <label for="enableExpress">Express</label>
+    </div>
+    <div class="checkbox">
+      <p-checkbox formControlName="requiresDuplicateDetection" inputId="requiresDuplicateDetection" [binary]="true" />
+      <label for="requiresDuplicateDetection">Requires duplicate detection</label>
+    </div>
+    <div class="checkbox">
+      <p-checkbox formControlName="requiresSession" inputId="requiresSession" [binary]="true" />
+      <label for="requiresSession">Requires session</label>
+    </div>
+  </p-card>
+</form>

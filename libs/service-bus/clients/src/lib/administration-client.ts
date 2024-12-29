@@ -29,11 +29,40 @@ export class AdministrationClient {
 
       queues.push({
         namespaceId: this.connection.id,
+        endpoint: this.getEndpoint() + queue.name,
         id: queue.name,
         name: queue.name,
-        messageCount: runtimeProps.activeMessageCount,
-        deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
-        transferDeadLetterMessageCount: runtimeProps.transferDeadLetterMessageCount,
+        metadata: {
+          accessedAt: runtimeProps.accessedAt,
+          activeMessageCount: runtimeProps.activeMessageCount,
+          createdAt: runtimeProps.createdAt,
+          modifiedAt: runtimeProps.modifiedAt,
+          scheduledMessageCount: runtimeProps.scheduledMessageCount,
+          sizeInBytes: runtimeProps.sizeInBytes,
+          totalMessageCount: runtimeProps.totalMessageCount,
+          deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
+          transferDeadLetterMessageCount: runtimeProps.transferDeadLetterMessageCount,
+          transferMessageCount: runtimeProps.transferMessageCount,
+        },
+        settings: {
+          deadLetteringOnMessageExpiration: queue.deadLetteringOnMessageExpiration,
+          enableExpress: queue.enableExpress,
+          enablePartitioning: queue.enablePartitioning,
+          requiresSession: queue.requiresSession,
+          requiresDuplicateDetection: queue.requiresDuplicateDetection,
+          enableBatchedOperations: queue.enableBatchedOperations,
+        },
+        properties: {
+          autoDeleteOnIdle: queue.autoDeleteOnIdle,
+          defaultMessageTimeToLive: queue.defaultMessageTimeToLive,
+          duplicateDetectionHistoryTimeWindow: queue.duplicateDetectionHistoryTimeWindow,
+          forwardDeadLetteredMessagesTo: queue.forwardDeadLetteredMessagesTo ?? null,
+          forwardMessagesTo: queue.forwardTo ?? null,
+          lockDuration: queue.lockDuration,
+          maxDeliveryCount: queue.maxDeliveryCount,
+          maxSizeInMegabytes: queue.maxSizeInMegabytes,
+          userMetadata: queue.userMetadata ?? null,
+        }
       });
     }
 
@@ -48,6 +77,7 @@ export class AdministrationClient {
     for await (const topic of topicsPages) {
       topics.push({
         namespaceId: this.connection.id,
+        endpoint: this.getEndpoint() + topic.name,
         id: topic.name,
         name: topic.name,
       });
@@ -68,6 +98,7 @@ export class AdministrationClient {
         namespaceId: this.connection.id,
         topicId: topicId,
         id: subscription.subscriptionName,
+        endpoint: this.getEndpoint() + topicId + '/' + subscription.subscriptionName,
         name: subscription.subscriptionName,
         messageCount: runtimeProps.activeMessageCount,
         deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
@@ -82,6 +113,16 @@ export class AdministrationClient {
     switch (this.connection.type) {
       case 'connectionString':
         return new ServiceBusAdministrationClient(this.connection.connectionString);
+    }
+  }
+
+  private getEndpoint(): string {
+    switch (this.connection.type) {
+      case 'connectionString':
+        {
+          const endpoint = this.connection.connectionString.split(';').find((part) => part.startsWith('Endpoint='))?.split('=')[1] ?? '/';
+          return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
+        }
     }
   }
 }

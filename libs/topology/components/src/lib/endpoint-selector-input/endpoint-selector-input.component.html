@@ -1,0 +1,36 @@
+<p-input-group>
+  <input pInputText disabled [value]="value()" />
+  <p-inputgroup-addon>
+    <p-button icon="pi pi-times"
+              ariaLabel="clear selection"
+              severity="danger"
+              [disabled]="value() === null || disabled()"
+              [text]="true"
+              (click)="value.set(null)"></p-button>
+  </p-inputgroup-addon>
+  <p-inputgroup-addon>
+    <p-button
+      icon="pi pi-search"
+      ariaLabel="select endpoint"
+      [text]="true"
+      [disabled]="disabled()"
+      (click)="dialogVisible.set(true)"></p-button>
+  </p-inputgroup-addon>
+</p-input-group>
+
+<p-dialog
+  header="Select endpoint"
+  appendTo="body"
+  [visible]="dialogVisible()"
+  (visibleChange)="dialogVisible.set($event)"
+  [modal]="true"
+>
+  <p-scroll-panel>
+    <sbb-tpl-topology-tree
+      [namespaces]="namespaces()"
+      [displaySubscriptions]="false"
+      (queueSelected)="onQueueSelected($event)"
+      (topicSelected)="onTopicSelected($event)"
+    ></sbb-tpl-topology-tree>
+  </p-scroll-panel>
+</p-dialog>

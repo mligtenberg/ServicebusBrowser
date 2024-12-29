@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Namespace,
@@ -7,7 +7,7 @@ import {
   Subscription, Topic,
   TopicWithChildren
 } from '@service-bus-browser/topology-contracts';
-import { Tree } from 'primeng/tree';
+import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
 import { NamespaceTreeNodeComponent } from '../namespace-tree-node/namespace-tree-node.component';
 import { TopicTreeNodeComponent } from '../topic-tree-node/topic-tree-node.component';
@@ -40,23 +40,36 @@ export class TopologyTreeComponent {
   queueContextMenu = input<SbbMenuItem<Queue>[]>();
   topicContextMenu = input<SbbMenuItem<Topic>[]>();
   subscriptionContextMenu = input<SbbMenuItem<Subscription>[]>();
+
+  displayQueues = input<boolean>(true);
+  displayTopics = input<boolean>(true);
+  displaySubscriptions = input<boolean>(true);
+
   store = inject(Store);
 
+  opened = signal<string[]>([]);
+
   nodes = computed<TreeNode[]>(() =>
-    this.namespaces().map<TreeNode>((ns, ns_index) => ({
-      key: ns_index.toString(),
-      label: ns.name,
-      type: 'namespace',
-      data: ns,
-      children: [
-        {
-          key: `${ns_index}-queues`,
+    this.namespaces().map<TreeNode>((ns) => {
+      const node: TreeNode = {
+        key: ns.id,
+        label: ns.name,
+        type: 'namespace',
+        data: ns,
+        children: [],
+        expanded: this.opened().includes(ns.id),
+      };
+
+      if (this.displayQueues()) {
+        node.children?.push({
+          key: `${ns.id}-queues`,
           label: 'Queues',
           type: 'queues',
           selectable: false,
           data: ns.id,
-          children: ns.queues.map<TreeNode>((queue, queue_index) => ({
-            key: `${ns_index}-queue-${queue_index}`,
+          expanded: this.opened().includes(`${ns.id}-queues`),
+          children: ns.queues.map<TreeNode>((queue) => ({
+            key: `${ns.id}-queue-${queue.id}`,
             label: queue.name,
             type: 'queue',
             data: {
@@ -65,36 +78,50 @@ export class TopologyTreeComponent {
             },
             leaf: true,
           })),
-        },
-        {
-          key: `${ns_index}-topics`,
+        });
+      }
+
+      if (this.displayTopics()) {
+        node.children?.push({
+          key: `${ns.id}-topics`,
           label: 'Topics',
           type: 'topics',
           selectable: false,
           data: ns.id,
-          children: ns.topics.map<TreeNode>((topic, topic_index) => ({
-            key: `${ns_index}-topic-${topic_index}`,
-            label: topic.name,
-            type: 'topic',
-            data: {
-              namespace: ns,
-              topic,
-            },
-            children: topic.subscriptions.map<TreeNode>((sub, sub_index) => ({
-              key: `${ns_index}-topic-${topic_index}-subscription-${sub_index}`,
-              label: sub.name,
-              type: 'subscription',
+          expanded: this.opened().includes(`${ns.id}-topics`),
+          children: ns.topics.map<TreeNode>((topic) => {
+            const topNode: TreeNode = {
+              key: `${ns.id}-topic-${topic.id}`,
+              expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
+              label: topic.name,
+              type: 'topic',
               data: {
                 namespace: ns,
                 topic,
-                subscription: sub,
               },
-              leaf: true,
-            })),
-          })),
-        },
-      ],
-    }))
+            };
+
+            if (this.displaySubscriptions()) {
+              topNode.children = topic.subscriptions.map<TreeNode>((sub) => ({
+                key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
+                label: sub.name,
+                type: 'subscription',
+                data: {
+                  namespace: ns,
+                  topic,
+                  subscription: sub,
+                },
+                leaf: true,
+              }))
+            }
+
+            return topNode;
+          }),
+        });
+      }
+
+      return node;
+    })
   );
 
   namespaceSelected = output<{
@@ -138,6 +165,18 @@ export class TopologyTreeComponent {
         );
         break;
     }
+  }
+
+  onNodeExpand(event: TreeNodeExpandEvent) {
+    this.opened.update((opened) => [
+      ... new Set([...opened, event.node.key as string]),
+    ]);
+  }
+
+  onNodeCollapse(event: TreeNodeCollapseEvent) {
+    this.opened.update((opened) =>
+      opened.filter((key) => key !== event.node.key)
+    );
   }
 
   private onNamespaceSelected(namespace: Namespace) {

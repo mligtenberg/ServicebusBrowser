@@ -25,6 +25,8 @@
     "@ngrx/store": "^19.0.0",
     "@ngrx/store-devtools": "^19.0.0",
     "@primeng/themes": "^19.0.1",
+    "@types/luxon": "^3.4.2",
+    "luxon": "^3.5.0",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.1",
     "rxjs": "~7.8.0",

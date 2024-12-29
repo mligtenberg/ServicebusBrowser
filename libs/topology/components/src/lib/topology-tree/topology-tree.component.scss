@@ -13,7 +13,7 @@
 
   ::ng-deep .p-tree-node-leaf {
     line-height: 28px;
-    .p-tree-node-content sbb-tpl-topic-tree-node {
+    .p-tree-node-content sbb-tpl-topic-tree-node.show-subscriptions {
       padding: 0 0 0 32px;
     }
   }

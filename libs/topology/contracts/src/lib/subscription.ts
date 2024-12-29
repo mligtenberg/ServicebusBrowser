@@ -4,6 +4,7 @@ export type Subscription = {
   namespaceId: UUID;
   topicId: string;
   id: string;
+  endpoint: string;
   name: string;
   messageCount: number;
   deadLetterMessageCount: number;
