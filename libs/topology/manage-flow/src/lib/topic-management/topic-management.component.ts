@@ -1,44 +1,45 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { QueueForm } from './form';
-import { Store } from '@ngrx/store';
-import { TopologySelectors } from '@service-bus-browser/topology-store';
-import { Subject, takeUntil } from 'rxjs';
-import { UUID } from '@service-bus-browser/shared-contracts';
-import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputNumber } from 'primeng/inputnumber';
-import { Textarea } from 'primeng/textarea';
-import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { Checkbox } from 'primeng/checkbox';
+import { DurationInputComponent } from '@service-bus-browser/shared-components';
+import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
+import { FloatLabel } from 'primeng/floatlabel';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { InputNumber } from 'primeng/inputnumber';
+import { InputText } from 'primeng/inputtext';
+import { QueueForm } from '../queue-management/form';
+import { TopicForm } from './form';
+import { Textarea } from 'primeng/textarea';
+import { Subject, takeUntil } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { UUID } from '@service-bus-browser/shared-contracts';
+import { TopologySelectors } from '@service-bus-browser/topology-store';
 
 @Component({
-  selector: 'lib-queue-management',
+  selector: 'lib-topic-management',
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    DurationInputComponent,
     Card,
-    InputText,
-    FloatLabel,
-    InputNumber,
-    Textarea,
-    EndpointSelectorInputComponent,
     Checkbox,
+    DurationInputComponent,
+    FloatLabel,
+    FormsModule,
+    InputNumber,
+    InputText,
+    ReactiveFormsModule,
+    Textarea,
   ],
-  templateUrl: './queue-management.component.html',
-  styleUrl: './queue-management.component.scss',
+  templateUrl: './topic-management.component.html',
+  styleUrl: './topic-management.component.scss',
 })
-export class QueueManagementComponent implements OnDestroy {
+export class TopicManagementComponent {
   destroy$ = new Subject<void>();
   newParams$ = new Subject<void>();
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
-  form = new FormGroup<QueueForm>({
+  form = new FormGroup<TopicForm>({
     name: new FormControl<string>('', {
       validators: [Validators.required],
       nonNullable: true,
@@ -48,13 +49,7 @@ export class QueueManagementComponent implements OnDestroy {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      maxDeliveryCount: new FormControl<number>(0, {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
       userMetadata: new FormControl<string | null>(''),
-      forwardMessagesTo: new FormControl<string | null>(''),
-      forwardDeadLetteredMessagesTo: new FormControl<string | null>(''),
       duplicateDetectionHistoryTimeWindow: new FormControl<string>('', {
         validators: [Validators.required],
         nonNullable: true,
@@ -67,26 +62,19 @@ export class QueueManagementComponent implements OnDestroy {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      lockDuration: new FormControl<string>('', {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
     }),
     settings: new FormGroup({
       enableBatchedOperations: new FormControl<boolean>(false, {
         nonNullable: true,
       }),
-      deadLetteringOnMessageExpiration: new FormControl<boolean>(false, {
-        nonNullable: true,
-      }),
       enablePartitioning: new FormControl<boolean>(false, {
         nonNullable: true,
       }),
+      supportOrdering: new FormControl<boolean>(false, { nonNullable: true }),
       enableExpress: new FormControl<boolean>(false, { nonNullable: true }),
       requiresDuplicateDetection: new FormControl<boolean>(false, {
         nonNullable: true,
       }),
-      requiresSession: new FormControl<boolean>(false, { nonNullable: true }),
     }),
   });
 
@@ -95,14 +83,14 @@ export class QueueManagementComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
         const namespaceId = params['namespaceId'] as UUID | undefined;
-        const queueId = params['queueId'] as string | undefined;
+        const topicId = params['topicId'] as string | undefined;
 
         this.newParams$.next();
         this.newParams$.complete();
         this.newParams$ = new Subject<void>();
 
         // new queue form
-        if (!namespaceId || !queueId) {
+        if (!namespaceId || !topicId) {
           this.form.reset();
           this.configureFormAsCreate();
           return;
@@ -110,20 +98,20 @@ export class QueueManagementComponent implements OnDestroy {
         this.configureFormAsEdit();
 
         this.store
-          .select(TopologySelectors.selectQueueById(namespaceId, queueId))
+          .select(TopologySelectors.selectTopicById(namespaceId, topicId))
           .pipe(
             takeUntil(this.newParams$),
             takeUntil(this.destroy$)
           )
-          .subscribe((queue) => {
-            if (!queue) {
+          .subscribe((topic) => {
+            if (!topic) {
               return;
             }
 
             this.form.setValue({
-              name: queue.name,
-              properties: queue.properties,
-              settings: queue.settings
+              name: topic.name,
+              properties: topic.properties,
+              settings: topic.settings
             }, { emitEvent: false });
           });
       });
@@ -133,7 +121,6 @@ export class QueueManagementComponent implements OnDestroy {
     this.form.controls.name.disable();
     this.form.controls.settings.controls.enablePartitioning.disable();
     this.form.controls.settings.controls.enableExpress.disable();
-    this.form.controls.settings.controls.requiresSession.disable();
     this.form.controls.settings.controls.requiresDuplicateDetection.disable();
     this.form.controls.properties.controls.autoDeleteOnIdle.disable();
   }
@@ -142,7 +129,6 @@ export class QueueManagementComponent implements OnDestroy {
     this.form.controls.name.enable();
     this.form.controls.settings.controls.enablePartitioning.enable();
     this.form.controls.settings.controls.enableExpress.enable();
-    this.form.controls.settings.controls.requiresSession.enable();
     this.form.controls.settings.controls.requiresDuplicateDetection.enable();
     this.form.controls.properties.controls.autoDeleteOnIdle.enable();
   }

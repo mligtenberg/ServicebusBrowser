@@ -1,45 +1,20 @@
 <form [formGroup]="form">
   <p-card class="name" header="Name">
-    <input pInputText formControlName="queueName" />
+    <input pInputText formControlName="name" />
   </p-card>
 
-  <p-card class="properties" header="Queue Properties" formGroupName="queueProperties">
+  <p-card class="properties" header="Topic Properties" formGroupName="properties">
     <div class="line">
       <p-float-label variant="on">
         <p-inputnumber formControlName="maxSizeInMegabytes" inputId="maxSizeInMegabytes"></p-inputnumber>
         <!--suppress XmlInvalidId -->
-        <label for="maxSizeInMegabytes">Max queue size in megabytes</label>
-      </p-float-label>
-    </div>
-    <div class="line">
-      <p-float-label variant="on">
-        <p-inputnumber formControlName="maxDeliveryCount" inputId="maxDeliveryCount"></p-inputnumber>
-        <!--suppress XmlInvalidId -->
-        <label for="maxDeliveryCount">Max delivery count</label>
+        <label for="maxSizeInMegabytes">Max topic size in megabytes</label>
       </p-float-label>
     </div>
     <div class="line">
       <p-float-label variant="on">
         <textarea pTextarea formControlName="userMetadata" id="userMetadata"></textarea>
         <label for="userMetadata">User Metadata</label>
-      </p-float-label>
-    </div>
-    <div class="line">
-      <p-float-label variant="on">
-        <sbb-tpl-endpoint-selector-input
-          id="forwardMessagesTo"
-          formControlName="forwardMessagesTo"
-        />
-        <label for="forwardMessagesTo">Forward to</label>
-      </p-float-label>
-    </div>
-    <div class="line">
-      <p-float-label variant="on">
-        <sbb-tpl-endpoint-selector-input
-          id="forwardDeadLetteredMessagesTo"
-          formControlName="forwardDeadLetteredMessagesTo"
-        />
-        <label for="forwardDeadLetteredMessagesTo">Forward dead letters to</label>
       </p-float-label>
     </div>
     <div class="line duration-input">
@@ -54,22 +29,13 @@
       <label for="defaultMessageTimeToLive">Default message time to live</label>
       <sbb-duration-input id="defaultMessageTimeToLive" formGroupName="defaultMessageTimeToLive"></sbb-duration-input>
     </div>
-    <div class="line duration-input">
-      <label for="lockDuration">Lock duration</label>
-      <sbb-duration-input id="lockDuration" formGroupName="lockDuration"></sbb-duration-input>
-    </div>
   </p-card>
 
-  <p-card class="settings" header="Queue Settings" formGroupName="queueSettings">
+  <p-card class="settings" header="Topic Settings" formGroupName="settings">
     <div class="checkbox">
       <p-checkbox formControlName="enableBatchedOperations" inputId="enableBatchedOperations" [binary]="true" />
       <!--suppress XmlInvalidId -->
       <label for="enableBatchedOperations">Enable batched operations</label>
-    </div>
-    <div class="checkbox">
-      <p-checkbox formControlName="deadLetteringOnMessageExpiration" inputId="deadLetteringOnMessageExpiration" [binary]="true" />
-      <!--suppress XmlInvalidId -->
-      <label for="deadLetteringOnMessageExpiration">Deadlettering on message expiration</label>
     </div>
     <div class="checkbox">
       <p-checkbox formControlName="enablePartitioning" inputId="enablePartitioning" [binary]="true" />
@@ -87,9 +53,9 @@
       <label for="requiresDuplicateDetection">Requires duplicate detection</label>
     </div>
     <div class="checkbox">
-      <p-checkbox formControlName="requiresSession" inputId="requiresSession" [binary]="true" />
+      <p-checkbox formControlName="supportOrdering" inputId="supportOrdering" [binary]="true" />
       <!--suppress XmlInvalidId -->
-      <label for="requiresSession">Requires session</label>
+      <label for="supportOrdering">Support ordering</label>
     </div>
   </p-card>
 </form>
