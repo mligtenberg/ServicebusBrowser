@@ -26,9 +26,13 @@
   .sidebar {
     width: 100%;
     height: 100%;
+  }
 
-    .p-scrollpanel {
-      height: 100%;
+  .p-scrollpanel {
+    height: 100%;
+
+    .p-scrollpanel-content {
+      position: absolute;
     }
   }
 
@@ -41,8 +45,7 @@
     justify-items: stretch;
 
     p-scroll-panel {
-      width: 100%;
-      height: 100%;
+      flex: 1;
     }
   }
 }

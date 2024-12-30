@@ -1,5 +1,5 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { ServiceBusAdministrationClient } from '@azure/service-bus';
+import { RuleProperties, ServiceBusAdministrationClient } from '@azure/service-bus';
 import { Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
 
 export class AdministrationClient {
@@ -75,11 +75,28 @@ export class AdministrationClient {
     const topics: Topic[] = [];
 
     for await (const topic of topicsPages) {
+      const topicMeta = await administrationClient.getTopicRuntimeProperties(topic.name);
+
       topics.push({
         namespaceId: this.connection.id,
         endpoint: this.getEndpoint() + topic.name,
         id: topic.name,
         name: topic.name,
+        properties: {
+          autoDeleteOnIdle: topic.autoDeleteOnIdle,
+          defaultMessageTimeToLive: topic.defaultMessageTimeToLive,
+          duplicateDetectionHistoryTimeWindow: topic.duplicateDetectionHistoryTimeWindow,
+          maxSizeInMegabytes: topic.maxSizeInMegabytes,
+          userMetadata: topic.userMetadata ?? null,
+        },
+        settings: {
+          enableBatchedOperations: topic.enableBatchedOperations,
+          enableExpress: topic.enableExpress,
+          enablePartitioning: topic.enablePartitioning,
+          requiresDuplicateDetection: topic.requiresDuplicateDetection,
+          supportOrdering: topic.supportOrdering,
+        },
+        metadata: topicMeta
       });
     }
 
@@ -100,13 +117,41 @@ export class AdministrationClient {
         id: subscription.subscriptionName,
         endpoint: this.getEndpoint() + topicId + '/' + subscription.subscriptionName,
         name: subscription.subscriptionName,
-        messageCount: runtimeProps.activeMessageCount,
-        deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
-        transferDeadLetterMessageCount: runtimeProps.transferDeadLetterMessageCount,
+        properties: {
+          autoDeleteOnIdle: subscription.autoDeleteOnIdle,
+          defaultMessageTimeToLive: subscription.defaultMessageTimeToLive,
+          forwardDeadLetteredMessagesTo: subscription.forwardDeadLetteredMessagesTo ?? null,
+          forwardMessagesTo: subscription.forwardTo ?? null,
+          lockDuration: subscription.lockDuration,
+          userMetadata: subscription.userMetadata ?? null,
+        },
+        settings: {
+          deadLetteringOnFilterEvaluationExceptions: subscription.deadLetteringOnFilterEvaluationExceptions,
+          deadLetteringOnMessageExpiration: subscription.deadLetteringOnMessageExpiration,
+          enableBatchedOperations: subscription.enableBatchedOperations,
+          requiresSession: subscription.requiresSession,
+        },
+        metaData: runtimeProps
       });
     }
 
     return subscriptions
+  }
+
+  private async getSubscriptionRules(client: ServiceBusAdministrationClient, topicName: string, subscriptionName: string)
+    : Promise<RuleProperties[]> {
+    let finished = false;
+    const rules: RuleProperties[] = [];
+
+    const iterator = client.listRules(topicName, subscriptionName);
+    do {
+      const result = await iterator.next();
+      if (result.value) {
+        rules.push(result.value);
+      }
+      finished = result.done ?? true;
+    } while (!finished);
+    return rules;
   }
 
   private getAdministrationClient(): ServiceBusAdministrationClient {
