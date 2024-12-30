@@ -9,6 +9,7 @@ export type Subscription = {
   properties: {
     userMetadata: string | null;
     forwardMessagesTo: string | null;
+    maxDeliveryCount: number;
     forwardDeadLetteredMessagesTo: string | null;
     autoDeleteOnIdle: string;
     defaultMessageTimeToLive: string;

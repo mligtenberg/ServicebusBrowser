@@ -118,6 +118,7 @@ export class AdministrationClient {
         endpoint: this.getEndpoint() + topicId + '/' + subscription.subscriptionName,
         name: subscription.subscriptionName,
         properties: {
+          maxDeliveryCount: subscription.maxDeliveryCount,
           autoDeleteOnIdle: subscription.autoDeleteOnIdle,
           defaultMessageTimeToLive: subscription.defaultMessageTimeToLive,
           forwardDeadLetteredMessagesTo: subscription.forwardDeadLetteredMessagesTo ?? null,

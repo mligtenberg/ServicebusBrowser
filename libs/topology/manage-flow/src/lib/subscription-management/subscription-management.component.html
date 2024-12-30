@@ -3,14 +3,7 @@
     <input pInputText formControlName="name" />
   </p-card>
 
-  <p-card class="properties" header="Queue Properties" formGroupName="properties">
-    <div class="line">
-      <p-float-label variant="on">
-        <p-inputnumber formControlName="maxSizeInMegabytes" inputId="maxSizeInMegabytes"></p-inputnumber>
-        <!--suppress XmlInvalidId -->
-        <label for="maxSizeInMegabytes">Max queue size in megabytes</label>
-      </p-float-label>
-    </div>
+  <p-card class="properties" header="Subscription Properties" formGroupName="properties">
     <div class="line">
       <p-float-label variant="on">
         <p-inputnumber formControlName="maxDeliveryCount" inputId="maxDeliveryCount"></p-inputnumber>
@@ -43,10 +36,6 @@
       </p-float-label>
     </div>
     <div class="line duration-input">
-      <label for="duplicateDetectionHistoryTimeWindow">Duplicate detection time window</label>
-      <sbb-duration-input id="duplicateDetectionHistoryTimeWindow" formGroupName="duplicateDetectionHistoryTimeWindow"></sbb-duration-input>
-    </div>
-    <div class="line duration-input">
       <label for="autoDeleteOnIdle">Auto delete on idle</label>
       <sbb-duration-input id="autoDeleteOnIdle" formGroupName="autoDeleteOnIdle"></sbb-duration-input>
     </div>
@@ -60,7 +49,7 @@
     </div>
   </p-card>
 
-  <p-card class="settings" header="Queue Settings" formGroupName="settings">
+  <p-card class="settings" header="Subscription Settings" formGroupName="settings">
     <div class="checkbox">
       <p-checkbox formControlName="enableBatchedOperations" inputId="enableBatchedOperations" [binary]="true" />
       <!--suppress XmlInvalidId -->
@@ -70,21 +59,6 @@
       <p-checkbox formControlName="deadLetteringOnMessageExpiration" inputId="deadLetteringOnMessageExpiration" [binary]="true" />
       <!--suppress XmlInvalidId -->
       <label for="deadLetteringOnMessageExpiration">Deadlettering on message expiration</label>
-    </div>
-    <div class="checkbox">
-      <p-checkbox formControlName="enablePartitioning" inputId="enablePartitioning" [binary]="true" />
-      <!--suppress XmlInvalidId -->
-      <label for="enablePartitioning">Partitioning</label>
-    </div>
-    <div class="checkbox">
-      <p-checkbox formControlName="enableExpress" inputId="enableExpress" [binary]="true" />
-      <!--suppress XmlInvalidId -->
-      <label for="enableExpress">Express</label>
-    </div>
-    <div class="checkbox">
-      <p-checkbox formControlName="requiresDuplicateDetection" inputId="requiresDuplicateDetection" [binary]="true" />
-      <!--suppress XmlInvalidId -->
-      <label for="requiresDuplicateDetection">Requires duplicate detection</label>
     </div>
     <div class="checkbox">
       <p-checkbox formControlName="requiresSession" inputId="requiresSession" [binary]="true" />
