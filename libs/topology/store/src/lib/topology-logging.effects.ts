@@ -81,4 +81,34 @@ export class TopologyLoggingEffects {
     ofType(internalActions.failedToRemoveQueue),
     tap(({ error, namespace }) => this.logger.error(`Failed to remove queue from namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
   ), { dispatch: false });
+
+  logTopicAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.topicAdded),
+    tap(({ topic, namespace }) => this.logger.info(`Topic ${topic.name} added to namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToAddTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToAddTopic),
+    tap(({ error, namespace }) => this.logger.error(`Failed to add topic to namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logTopicEdited$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.topicEdited),
+    tap(({ topic, namespace }) => this.logger.info(`Topic ${topic.name} edited in namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToEditTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToEditTopic),
+    tap(({ error, namespace }) => this.logger.error(`Failed to edit topic in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logTopicRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.topicRemoved),
+    tap(({ topicId, namespace }) => this.logger.info(`Topic ${topicId} removed from namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToRemoveTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToRemoveTopic),
+    tap(({ error, namespace }) => this.logger.error(`Failed to remove topic from namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
 }

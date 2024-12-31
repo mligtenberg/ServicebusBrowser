@@ -9,7 +9,7 @@ import {
   QueueWithMetaData,
   SubscriptionWithMetaData,
   SubscriptionRule,
-  TopicWithMetaData,
+  TopicWithMetaData, Topic
 } from '@service-bus-browser/topology-contracts';
 
 export class AdministrationClient {
@@ -77,6 +77,44 @@ export class AdministrationClient {
     return this.mapTopic(topic, topicMeta);
   }
 
+  async addTopic(topic: Topic): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    const body = {
+      autoDeleteOnIdle: !topic.properties.autoDeleteOnIdle ? undefined : topic.properties.autoDeleteOnIdle,
+      defaultMessageTimeToLive: topic.properties.defaultMessageTimeToLive,
+      duplicateDetectionHistoryTimeWindow: !topic.properties.duplicateDetectionHistoryTimeWindow ? undefined : topic.properties.duplicateDetectionHistoryTimeWindow,
+      maxSizeInMegabytes: topic.properties.maxSizeInMegabytes,
+      userMetadata: !topic.properties.userMetadata ? undefined : topic.properties.userMetadata,
+      enableBatchedOperations: topic.settings.enableBatchedOperations,
+      enableExpress: topic.settings.enableExpress,
+      enablePartitioning: topic.settings.enablePartitioning,
+      requiresDuplicateDetection: topic.settings.requiresDuplicateDetection,
+      supportOrdering: topic.settings.supportOrdering
+    };
+
+    await administrationClient.createTopic(topic.name, body);
+  }
+
+  async updateTopic(topic: Topic): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    const topicProperties = await administrationClient.getTopic(topic.name);
+
+    topicProperties.autoDeleteOnIdle = !topic.properties.autoDeleteOnIdle ? topicProperties.autoDeleteOnIdle : topic.properties.autoDeleteOnIdle;
+    topicProperties.defaultMessageTimeToLive = topic.properties.defaultMessageTimeToLive;
+    topicProperties.duplicateDetectionHistoryTimeWindow = !topic.properties.duplicateDetectionHistoryTimeWindow ? topicProperties.duplicateDetectionHistoryTimeWindow : topic.properties.duplicateDetectionHistoryTimeWindow;
+    topicProperties.maxSizeInMegabytes = topic.properties.maxSizeInMegabytes;
+    topicProperties.userMetadata = !topic.properties.userMetadata ? '' : topic.properties.userMetadata;
+    topicProperties.enableBatchedOperations = topic.settings.enableBatchedOperations;
+    topicProperties.supportOrdering = topic.settings.supportOrdering;
+
+    await administrationClient.updateTopic(topicProperties);
+  }
+
+  async deleteTopic(topicId: string): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    await administrationClient.deleteTopic(topicId);
+  }
+
   async getSubscriptions(topicId: string): Promise<SubscriptionWithMetaData[]> {
     const administrationClient = this.getAdministrationClient();
     const subscriptionsPages = administrationClient.listSubscriptions(topicId);
@@ -130,7 +168,6 @@ export class AdministrationClient {
 
   async updateQueue(queue: QueueWithMetaData): Promise<void> {
     const administrationClient = this.getAdministrationClient();
-    console.log(queue);
     const queueProperties = await administrationClient.getQueue(queue.name);
 
     queueProperties.autoDeleteOnIdle = !queue.properties.autoDeleteOnIdle ? queueProperties.autoDeleteOnIdle : queue.properties.autoDeleteOnIdle;

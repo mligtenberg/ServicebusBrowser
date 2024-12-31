@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { Queue } from '@service-bus-browser/topology-contracts';
+import { Queue, Topic } from '@service-bus-browser/topology-contracts';
 
 // NAMESPACES
 
@@ -44,6 +44,21 @@ export const loadTopics = createAction(
 
 export const loadTopic = createAction(
   '[Topology] Load Topic',
+  props<{ namespaceId: UUID; topicId: string }>()
+);
+
+export const addTopic = createAction(
+  '[Topology] Add Topic',
+  props<{ namespaceId: UUID; topic: Topic }>()
+);
+
+export const editTopic = createAction(
+  '[Topology] Edit Topic',
+  props<{ namespaceId: UUID; topic: Topic }>()
+);
+
+export const removeTopic = createAction(
+  '[Topology] Remove Topic',
   props<{ namespaceId: UUID; topicId: string }>()
 );
 

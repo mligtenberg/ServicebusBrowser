@@ -38,7 +38,14 @@ export class SidebarComponent {
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
       },
-    }
+    },
+    {
+      label: 'Add topic',
+      icon: 'pi pi-plus',
+      onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'topics', 'create']);
+      },
+    },
   ];
 
   queuesGroupNodeContextMenu: SbbMenuItem<Namespace>[] = [
@@ -47,6 +54,16 @@ export class SidebarComponent {
       icon: 'pi pi-plus',
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
+      },
+    },
+  ];
+
+  topicsGroupNodeContextMenu: SbbMenuItem<Namespace>[] = [
+    {
+      label: 'Add topic',
+      icon: 'pi pi-plus',
+      onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'topics', 'create']);
       },
     },
   ];
@@ -64,6 +81,23 @@ export class SidebarComponent {
       icon: 'pi pi-trash',
       onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
         this.store.dispatch(TopologyActions.removeQueue({ namespaceId: data.namespaceId, queueId: data.id }));
+      },
+    },
+  ];
+
+  topicContextMenuItems: SbbMenuItem<TopicWithMetaData>[] = [
+    {
+      label: 'Edit Topic',
+      icon: 'pi pi-pencil',
+      onSelect: async (data: TopicWithMetaData, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.namespaceId, 'topics', 'edit', data.id]);
+      },
+    },
+    {
+      label: 'Remove Topic',
+      icon: 'pi pi-trash',
+      onSelect: (data: TopicWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(TopologyActions.removeTopic({ namespaceId: data.namespaceId, topicId: data.id }));
       },
     },
   ];

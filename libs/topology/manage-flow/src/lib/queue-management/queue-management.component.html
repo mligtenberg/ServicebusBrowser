@@ -93,6 +93,6 @@
     </div>
   </p-card>
   <div class="actions">
-    <button pButton type="button" (click)="save()">Save</button>
+    <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
   </div>
 </form>

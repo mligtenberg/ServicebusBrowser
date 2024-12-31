@@ -91,6 +91,14 @@ export const logsReducer = createReducer(
       [namespace.id]: state.queuesPerNamespace[namespace.id].filter(queue => queue.id !== queueId)
     }
   })),
+  on(internalActions.topicRemoved, (state, {namespace, topicId}) => ({
+      ...state,
+      topicsPerNamespace: {
+        ...state.topicsPerNamespace,
+        [namespace.id]: state.topicsPerNamespace[namespace.id].filter(topic => topic.id !== topicId)
+      }
+    }
+  )),
 );
 
 export const topologyFeature = createFeature({

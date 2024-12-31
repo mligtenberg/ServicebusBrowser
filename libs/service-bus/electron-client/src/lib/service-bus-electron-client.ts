@@ -1,5 +1,11 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { Queue, QueueWithMetaData, SubscriptionWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
+import {
+  Queue,
+  QueueWithMetaData,
+  SubscriptionWithMetaData,
+  Topic,
+  TopicWithMetaData
+} from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 interface ElectronWindow {
@@ -54,6 +60,18 @@ export class ServiceBusElectronClient {
 
   async getTopic(connectionId: string, topicId: string): Promise<TopicWithMetaData> {
     return await serviceBusApi.doRequest('getTopic', { connectionId, topicId }) as TopicWithMetaData;
+  }
+
+  async createTopic(connectionId: string, topic: Topic): Promise<void> {
+    await serviceBusApi.doRequest('createTopic', { connectionId, topic });
+  }
+
+  async editTopic(connectionId: string, topic: Topic): Promise<void> {
+    await serviceBusApi.doRequest('updateTopic', { connectionId, topic });
+  }
+
+  async removeTopic(connectionId: string, topicId: string): Promise<void> {
+    await serviceBusApi.doRequest('deleteTopic', { connectionId, topicId });
   }
 
   async listSubscriptions(connectionId: string, topicId: string): Promise<SubscriptionWithMetaData[]> {

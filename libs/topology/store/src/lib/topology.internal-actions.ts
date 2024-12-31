@@ -1,5 +1,12 @@
 import { createAction, props } from '@ngrx/store';
-import { Namespace, Queue, QueueWithMetaData, SubscriptionWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
+import {
+  Namespace,
+  Queue,
+  QueueWithMetaData,
+  SubscriptionWithMetaData,
+  Topic,
+  TopicWithMetaData
+} from '@service-bus-browser/topology-contracts';
 import { Problem } from '@service-bus-browser/shared-contracts';
 
 // NAMESPACES
@@ -85,6 +92,36 @@ export const topicLoaded = createAction(
 
 export const failedToLoadTopic = createAction(
   '[Topology] Failed To Load Topic',
+  props<{ namespace?: Namespace; error: Problem }>()
+);
+
+export const topicAdded = createAction(
+  '[Topology] Topic Added',
+  props<{ namespace: Namespace; topic: Topic }>()
+);
+
+export const failedToAddTopic = createAction(
+  '[Topology] Failed To Add Topic',
+  props<{ namespace?: Namespace; error: Problem }>()
+);
+
+export const topicEdited = createAction(
+  '[Topology] Topic Edited',
+  props<{ namespace: Namespace; topic: Topic }>()
+);
+
+export const failedToEditTopic = createAction(
+  '[Topology] Failed To Edit Topic',
+  props<{ namespace?: Namespace; error: Problem }>()
+);
+
+export const topicRemoved = createAction(
+  '[Topology] Topic Removed',
+  props<{ namespace: Namespace; topicId: string }>()
+);
+
+export const failedToRemoveTopic = createAction(
+  '[Topology] Failed To Remove Topic',
   props<{ namespace?: Namespace; error: Problem }>()
 );
 

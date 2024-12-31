@@ -58,4 +58,7 @@
       <label for="supportOrdering">Support ordering</label>
     </div>
   </p-card>
+  <div class="actions">
+    <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
+  </div>
 </form>

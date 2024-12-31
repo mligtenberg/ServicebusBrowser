@@ -157,6 +157,60 @@ export class TopologyEffects implements OnInitEffects {
     )),
   ));
 
+  addTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.addTopic),
+    mergeMap(({ namespaceId, topic }) => from(this.serviceBusClient.createTopic(namespaceId, topic)).pipe(
+      map(() => topic),
+      catchError((error) => [{ problem: { title: 'failed to add topic', detail: error.toString()} }]),
+      switchMap((topic) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, topic })),
+        take(1)
+      )),
+      map(({ namespace, topic }) => {
+        if ('problem' in topic) {
+          return internalActions.failedToAddTopic({ namespace: namespace!, error: topic.problem });
+        }
+        return internalActions.topicAdded({ namespace: namespace!, topic: topic });
+      })
+    )),
+  ));
+
+  editTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.editTopic),
+    mergeMap(({ namespaceId, topic }) => from(this.serviceBusClient.editTopic(namespaceId, topic)).pipe(
+      map(() => topic),
+      catchError((error) => [{ problem: { title: 'failed to edit topic', detail: error.toString()} }]),
+      switchMap((topic) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, topic })),
+        take(1)
+      )),
+      map(({ namespace, topic }) => {
+        if ('problem' in topic) {
+          return internalActions.failedToEditTopic({ namespace: namespace!, error: topic.problem });
+        }
+        return internalActions.topicEdited({ namespace: namespace!, topic: topic });
+      })
+    )),
+  ));
+
+  deleteTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.removeTopic),
+    mergeMap(({ namespaceId, topicId }) => from(this.serviceBusClient.removeTopic(namespaceId, topicId)).pipe(
+      map(() => topicId),
+      catchError((error) => [{ problem: { title: 'failed to delete topic', detail: error.toString()} }]),
+      switchMap((topicId) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, topicId })),
+        take(1)
+      )),
+      map(({ namespace, topicId }) => {
+        if (typeof(topicId) === 'object') {
+          return internalActions.failedToEditTopic({ namespace: namespace!, error: topicId.problem });
+        }
+        return internalActions.topicRemoved({ namespace: namespace!, topicId: topicId });
+      })
+    )),
+  ));
+
   loadSubscriptions$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadSubscriptions),
     mergeMap(({ namespaceId, topicId }) => from(this.serviceBusClient.listSubscriptions(namespaceId, topicId)).pipe(
@@ -211,6 +265,13 @@ export class TopologyEffects implements OnInitEffects {
     ofType(internalActions.queueAdded),
     mergeMap(({ queue, namespace }) =>
       from([actions.loadQueue({ namespaceId: namespace.id, queueId: queue.id })])
+    )
+  ));
+
+  loadTopicOnTopicAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.topicAdded),
+    mergeMap(({ topic, namespace }) =>
+      from([actions.loadTopic({ namespaceId: namespace.id, topicId: topic.id })])
     )
   ));
 
