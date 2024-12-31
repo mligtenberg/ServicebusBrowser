@@ -25,6 +25,16 @@ export const addQueue = createAction(
   props<{ namespaceId: UUID; queue: Queue }>()
 );
 
+export const editQueue = createAction(
+  '[Topology] Edit Queue',
+  props<{ namespaceId: UUID; queue: Queue }>()
+);
+
+export const removeQueue = createAction(
+  '[Topology] Remove Queue',
+  props<{ namespaceId: UUID; queueId: string }>()
+);
+
 // TOPICS
 
 export const loadTopics = createAction(

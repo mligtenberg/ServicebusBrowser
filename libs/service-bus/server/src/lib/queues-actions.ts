@@ -22,3 +22,13 @@ export const addQueue = async (body: { connectionId: UUID, queue: QueueWithMetaD
   const administrationClient = connection.getAdministrationClient();
   return administrationClient.addQueue(body.queue);
 }
+
+export const editQueue = async (body: { connectionId: UUID, queue: QueueWithMetaData }) => {
+  const connection = connectionManager.getConnectionClient({ id: body.connectionId });
+  return await connection.getAdministrationClient().updateQueue(body.queue);
+}
+
+export const removeQueue = async (body: { connectionId: UUID, queueId: string }) => {
+  const connection = connectionManager.getConnectionClient({ id: body.connectionId });
+  return await connection.getAdministrationClient().deleteQueue(body.queueId);
+}

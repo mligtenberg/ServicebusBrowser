@@ -40,6 +40,14 @@ export class ServiceBusElectronClient {
     await serviceBusApi.doRequest('addQueue', { connectionId, queue });
   }
 
+  async editQueue(connectionId: string, queue: Queue): Promise<void> {
+    await serviceBusApi.doRequest('editQueue', { connectionId, queue });
+  }
+
+  async removeQueue(connectionId: string, queueId: string): Promise<void> {
+    await serviceBusApi.doRequest('removeQueue', { connectionId, queueId });
+  }
+
   async listTopics(connectionId: string): Promise<TopicWithMetaData[]> {
     return await serviceBusApi.doRequest('listTopics', {connectionId}) as TopicWithMetaData[];
   }

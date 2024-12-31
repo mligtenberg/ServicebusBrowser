@@ -19,6 +19,7 @@ import { Textarea } from 'primeng/textarea';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { Checkbox } from 'primeng/checkbox';
 import { ButtonDirective } from 'primeng/button';
+import { Queue } from '@service-bus-browser/topology-contracts';
 
 @Component({
   selector: 'lib-queue-management',
@@ -122,39 +123,51 @@ export class QueueManagementComponent implements OnDestroy {
       return;
     }
 
+    const formValue = this.form.getRawValue();
+
+    const queue: Queue = {
+      id: formValue.name ?? '',
+      namespaceId: this.activeRoute.snapshot.params['namespaceId'],
+      name: formValue.name ?? '',
+      properties: {
+        lockDuration: formValue.properties.lockDuration ?? '',
+        maxSizeInMegabytes: formValue.properties.maxSizeInMegabytes ?? 0,
+        defaultMessageTimeToLive: formValue.properties.defaultMessageTimeToLive ?? '',
+        duplicateDetectionHistoryTimeWindow: formValue.properties.duplicateDetectionHistoryTimeWindow ?? '',
+        maxDeliveryCount: formValue.properties.maxDeliveryCount ?? 0,
+        userMetadata: formValue.properties.userMetadata ?? null,
+        autoDeleteOnIdle: formValue.properties.autoDeleteOnIdle ?? '',
+        forwardMessagesTo: formValue.properties.forwardMessagesTo ?? null,
+        forwardDeadLetteredMessagesTo: formValue.properties.forwardDeadLetteredMessagesTo ?? null,
+      },
+      settings: {
+        requiresDuplicateDetection: formValue.settings.requiresDuplicateDetection ?? false,
+        requiresSession: formValue.settings.requiresSession ?? false,
+        deadLetteringOnMessageExpiration: formValue.settings.deadLetteringOnMessageExpiration ?? false,
+        enableBatchedOperations: formValue.settings.enableBatchedOperations ?? false,
+        enableExpress: formValue.settings.enableExpress ?? false,
+        enablePartitioning: formValue.settings.enablePartitioning ?? false,
+      },
+    }
+
     // save queue
     if (this.action === 'create') {
       this.store.dispatch(
         TopologyActions.addQueue({
           namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-          queue: {
-            id: this.form.value.name ?? '',
-            namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-            name: this.form.value.name ?? '',
-            properties: {
-              lockDuration: this.form.value.properties?.lockDuration ?? '',
-              maxSizeInMegabytes: this.form.value.properties?.maxSizeInMegabytes ?? 0,
-              defaultMessageTimeToLive: this.form.value.properties?.defaultMessageTimeToLive ?? '',
-              duplicateDetectionHistoryTimeWindow: this.form.value.properties?.duplicateDetectionHistoryTimeWindow ?? '',
-              maxDeliveryCount: this.form.value.properties?.maxDeliveryCount ?? 0,
-              userMetadata: this.form.value.properties?.userMetadata ?? null,
-              autoDeleteOnIdle: this.form.value.properties?.autoDeleteOnIdle ?? '',
-              forwardMessagesTo: this.form.value.properties?.forwardMessagesTo ?? null,
-              forwardDeadLetteredMessagesTo: this.form.value.properties?.forwardDeadLetteredMessagesTo ?? null,
-            },
-            settings: {
-              requiresDuplicateDetection: this.form.value.settings?.requiresDuplicateDetection ?? false,
-              requiresSession: this.form.value.settings?.requiresSession ?? false,
-              deadLetteringOnMessageExpiration: this.form.value.settings?.deadLetteringOnMessageExpiration ?? false,
-              enableBatchedOperations: this.form.value.settings?.enableBatchedOperations ?? false,
-              enableExpress: this.form.value.settings?.enableExpress ?? false,
-              enablePartitioning: this.form.value.settings?.enablePartitioning ?? false,
-            },
-          }
+          queue: queue
         })
       );
       return;
     }
+
+    // update queue
+    this.store.dispatch(
+      TopologyActions.editQueue({
+        namespaceId: this.activeRoute.snapshot.params['namespaceId'],
+        queue: queue
+      })
+    );
   }
 
   private createForm() {

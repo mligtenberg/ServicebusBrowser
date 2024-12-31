@@ -51,6 +51,23 @@ export class SidebarComponent {
     },
   ];
 
+  queueContextMenuItems: SbbMenuItem<QueueWithMetaData>[] = [
+    {
+      label: 'Edit Queue',
+      icon: 'pi pi-pencil',
+      onSelect: async (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.namespaceId, 'queues', 'edit', data.id]);
+      },
+    },
+    {
+      label: 'Remove Queue',
+      icon: 'pi pi-trash',
+      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(TopologyActions.removeQueue({ namespaceId: data.namespaceId, queueId: data.id }));
+      },
+    },
+  ];
+
   async onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
     await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', 'edit', $event.queue.id]);
   }

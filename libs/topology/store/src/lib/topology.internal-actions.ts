@@ -46,6 +46,26 @@ export const failedToAddQueue = createAction(
   props<{ namespace?: Namespace; error: Problem }>()
 );
 
+export const queueEdited = createAction(
+  '[Topology] Queue Edited',
+  props<{ namespace: Namespace; queue: Queue }>()
+);
+
+export const failedToEditQueue = createAction(
+  '[Topology] Failed To Edit Queue',
+  props<{ namespace?: Namespace; error: Problem }>()
+);
+
+export const queueRemoved = createAction(
+  '[Topology] Queue Removed',
+  props<{ namespace: Namespace; queueId: string }>()
+);
+
+export const failedToRemoveQueue = createAction(
+  '[Topology] Failed To Remove Queue',
+  props<{ namespace?: Namespace; error: Problem }>()
+);
+
 // TOPICS
 
 export const topicsLoaded = createAction(

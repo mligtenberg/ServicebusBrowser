@@ -68,6 +68,60 @@ export class TopologyEffects implements OnInitEffects {
     )),
   ));
 
+  addQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.addQueue),
+    mergeMap(({ namespaceId, queue }) => from(this.serviceBusClient.createQueue(namespaceId, queue)).pipe(
+      map(() => queue),
+      catchError((error) => [{ problem: { title: 'failed to add queue', detail: error.toString()} }]),
+      switchMap((queue) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, queue })),
+        take(1)
+      )),
+      map(({ namespace, queue }) => {
+        if ('problem' in queue) {
+          return internalActions.failedToAddQueue({ namespace: namespace!, error: queue.problem });
+        }
+        return internalActions.queueAdded({ namespace: namespace!, queue: queue });
+      })
+    )),
+  ));
+
+  editQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.editQueue),
+    mergeMap(({ namespaceId, queue }) => from(this.serviceBusClient.editQueue(namespaceId, queue)).pipe(
+      map(() => queue),
+      catchError((error) => [{ problem: { title: 'failed to edit queue', detail: error.toString()} }]),
+      switchMap((queue) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, queue })),
+        take(1)
+      )),
+      map(({ namespace, queue }) => {
+        if ('problem' in queue) {
+          return internalActions.failedToEditQueue({ namespace: namespace!, error: queue.problem });
+        }
+        return internalActions.queueEdited({ namespace: namespace!, queue: queue });
+      })
+    )),
+  ));
+
+  removeQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.removeQueue),
+    mergeMap(({ namespaceId, queueId }) => from(this.serviceBusClient.removeQueue(namespaceId, queueId)).pipe(
+      map(() => queueId),
+      catchError((error) => [{ problem: { title: 'failed to remove queue', detail: error.toString()} }]),
+      switchMap((queueId) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, queueId })),
+        take(1)
+      )),
+      map(({ namespace, queueId }) => {
+        if (typeof(queueId) === 'object') {
+          return internalActions.failedToEditQueue({ namespace: namespace!, error: queueId.problem });
+        }
+        return internalActions.queueRemoved({ namespace: namespace!, queueId: queueId });
+      })
+    )),
+  ));
+
   loadTopics$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadTopics),
     mergeMap(({ namespaceId }) => from(this.serviceBusClient.listTopics(namespaceId)).pipe(
@@ -142,24 +196,6 @@ export class TopologyEffects implements OnInitEffects {
           return internalActions.failedToLoadSubscription({ namespace: namespace!, topic: topic!, error: subscription.problem });
         }
         return internalActions.subscriptionLoaded({ namespace: namespace!, topic: topic!, subscription: subscription });
-      })
-    )),
-  ));
-
-  addQueue$ = createEffect(() => this.actions$.pipe(
-    ofType(actions.addQueue),
-    mergeMap(({ namespaceId, queue }) => from(this.serviceBusClient.createQueue(namespaceId, queue)).pipe(
-      map(() => queue),
-      catchError((error) => [{ problem: { title: 'failed to add queue', detail: error.toString()} }]),
-      switchMap((queue) => this.store.select(selectNamespaceById(namespaceId)).pipe(
-        map((namespace) => ({ namespace, queue })),
-        take(1)
-      )),
-      map(({ namespace, queue }) => {
-        if ('problem' in queue) {
-          return internalActions.failedToAddQueue({ namespace: namespace!, error: queue.problem });
-        }
-        return internalActions.queueAdded({ namespace: namespace!, queue: queue });
       })
     )),
   ));

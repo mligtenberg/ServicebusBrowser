@@ -61,4 +61,24 @@ export class TopologyLoggingEffects {
     ofType(internalActions.failedToAddQueue),
     tap(({ error, namespace }) => this.logger.error(`Failed to add queue to namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
   ), { dispatch: false });
+
+  logQueueEdited$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.queueEdited),
+    tap(({ queue, namespace }) => this.logger.info(`Queue ${queue.name} edited in namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToEditQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToEditQueue),
+    tap(({ error, namespace }) => this.logger.error(`Failed to edit queue in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logQueueRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.queueRemoved),
+    tap(({ queueId, namespace }) => this.logger.info(`Queue ${queueId} removed from namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToRemoveQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToRemoveQueue),
+    tap(({ error, namespace }) => this.logger.error(`Failed to remove queue from namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
 }

@@ -128,6 +128,31 @@ export class AdministrationClient {
     await administrationClient.createQueue(queue.name, body);
   }
 
+  async updateQueue(queue: QueueWithMetaData): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    console.log(queue);
+    const queueProperties = await administrationClient.getQueue(queue.name);
+
+    queueProperties.autoDeleteOnIdle = !queue.properties.autoDeleteOnIdle ? queueProperties.autoDeleteOnIdle : queue.properties.autoDeleteOnIdle;
+    queueProperties.defaultMessageTimeToLive = queue.properties.defaultMessageTimeToLive;
+    queueProperties.duplicateDetectionHistoryTimeWindow = !queue.properties.duplicateDetectionHistoryTimeWindow ? queueProperties.duplicateDetectionHistoryTimeWindow : queue.properties.duplicateDetectionHistoryTimeWindow;
+    queueProperties.forwardDeadLetteredMessagesTo = queue.properties.forwardDeadLetteredMessagesTo ?? undefined;
+    queueProperties.forwardTo = queue.properties.forwardMessagesTo ?? undefined;
+    queueProperties.lockDuration = !queue.properties.lockDuration ? queueProperties.lockDuration : queue.properties.lockDuration;
+    queueProperties.userMetadata = !queue.properties.userMetadata ? '' : queue.properties.userMetadata;
+    queueProperties.enableBatchedOperations = queue.settings.enableBatchedOperations;
+    queueProperties.deadLetteringOnMessageExpiration = queue.settings.deadLetteringOnMessageExpiration;
+    queueProperties.maxSizeInMegabytes = queue.properties.maxSizeInMegabytes;
+    queueProperties.maxDeliveryCount = queue.properties.maxDeliveryCount;
+
+    await administrationClient.updateQueue(queueProperties);
+  }
+
+  async deleteQueue(queueId: string): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    await administrationClient.deleteQueue(queueId);
+  }
+
   private async getSubscriptionRules(client: ServiceBusAdministrationClient, topicName: string, subscriptionName: string)
     : Promise<RuleProperties[]> {
     let finished = false;
