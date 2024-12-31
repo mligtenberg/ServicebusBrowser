@@ -43,45 +43,7 @@ export class QueueManagementComponent implements OnDestroy {
   newParams$ = new Subject<void>();
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
-  form = new FormGroup<QueueForm>({
-    name: new FormControl<string>('', {
-      validators: [Validators.required],
-      nonNullable: true,
-    }),
-    properties: new FormGroup({
-      maxSizeInMegabytes: new FormControl<number>(1024, {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
-      maxDeliveryCount: new FormControl<number>(10, {
-        validators: [Validators.required],
-        nonNullable: true,
-      }),
-      userMetadata: new FormControl<string | null>(''),
-      forwardMessagesTo: new FormControl<string | null>(null),
-      forwardDeadLetteredMessagesTo: new FormControl<string | null>(null),
-      duplicateDetectionHistoryTimeWindow: new FormControl<string>(''),
-      autoDeleteOnIdle: new FormControl<string>(''),
-      defaultMessageTimeToLive: new FormControl<string>('P14D'),
-      lockDuration: new FormControl<string>('PT1M'),
-    }),
-    settings: new FormGroup({
-      enableBatchedOperations: new FormControl<boolean>(false, {
-        nonNullable: true,
-      }),
-      deadLetteringOnMessageExpiration: new FormControl<boolean>(true, {
-        nonNullable: true,
-      }),
-      enablePartitioning: new FormControl<boolean>(false, {
-        nonNullable: true,
-      }),
-      enableExpress: new FormControl<boolean>(false, { nonNullable: true }),
-      requiresDuplicateDetection: new FormControl<boolean>(false, {
-        nonNullable: true,
-      }),
-      requiresSession: new FormControl<boolean>(false, { nonNullable: true }),
-    }),
-  });
+  form = this.createForm();
   action: 'create' | 'modify' = 'create';
 
   constructor() {
@@ -89,6 +51,7 @@ export class QueueManagementComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([ params, data ]) => {
         this.action = data['action'] as 'create' | 'modify';
+        this.form = this.createForm();
 
         const namespaceId = params['namespaceId'] as UUID | undefined;
         const queueId = params['queueId'] as string | undefined;
@@ -98,13 +61,9 @@ export class QueueManagementComponent implements OnDestroy {
         }
 
         if (this.action === 'create') {
-          console.log('Create new queue');
-          this.form.reset();
           this.configureFormAsCreate();
           return;
         }
-
-        console.log('Modify queue', queueId);
 
         this.newParams$.next();
         this.newParams$.complete();
@@ -123,8 +82,6 @@ export class QueueManagementComponent implements OnDestroy {
             if (!queue) {
               return;
             }
-
-            console.log('Queue', queue);
 
             this.form.setValue(
               {
@@ -171,7 +128,7 @@ export class QueueManagementComponent implements OnDestroy {
         TopologyActions.addQueue({
           namespaceId: this.activeRoute.snapshot.params['namespaceId'],
           queue: {
-            id: '',
+            id: this.form.value.name ?? '',
             namespaceId: this.activeRoute.snapshot.params['namespaceId'],
             name: this.form.value.name ?? '',
             properties: {
@@ -193,11 +150,52 @@ export class QueueManagementComponent implements OnDestroy {
               enableExpress: this.form.value.settings?.enableExpress ?? false,
               enablePartitioning: this.form.value.settings?.enablePartitioning ?? false,
             },
-
           }
         })
       );
       return;
     }
+  }
+
+  private createForm() {
+    return new FormGroup<QueueForm>({
+      name: new FormControl<string>('', {
+        validators: [Validators.required],
+        nonNullable: true,
+      }),
+      properties: new FormGroup({
+        maxSizeInMegabytes: new FormControl<number>(1024, {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+        maxDeliveryCount: new FormControl<number>(10, {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+        userMetadata: new FormControl<string | null>(''),
+        forwardMessagesTo: new FormControl<string | null>(null),
+        forwardDeadLetteredMessagesTo: new FormControl<string | null>(null),
+        duplicateDetectionHistoryTimeWindow: new FormControl<string>(''),
+        autoDeleteOnIdle: new FormControl<string>(''),
+        defaultMessageTimeToLive: new FormControl<string>('P14D'),
+        lockDuration: new FormControl<string>('PT1M'),
+      }),
+      settings: new FormGroup({
+        enableBatchedOperations: new FormControl<boolean>(false, {
+          nonNullable: true,
+        }),
+        deadLetteringOnMessageExpiration: new FormControl<boolean>(true, {
+          nonNullable: true,
+        }),
+        enablePartitioning: new FormControl<boolean>(false, {
+          nonNullable: true,
+        }),
+        enableExpress: new FormControl<boolean>(false, { nonNullable: true }),
+        requiresDuplicateDetection: new FormControl<boolean>(false, {
+          nonNullable: true,
+        }),
+        requiresSession: new FormControl<boolean>(false, { nonNullable: true }),
+      }),
+    });
   }
 }

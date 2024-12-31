@@ -1,6 +1,16 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { CorrelationRuleFilter, RuleProperties, ServiceBusAdministrationClient } from '@azure/service-bus';
-import { QueueWithMetaData, Subscription, SubscriptionRule, Topic } from '@service-bus-browser/topology-contracts';
+import {
+  CorrelationRuleFilter, QueueProperties, QueueRuntimeProperties,
+  RuleProperties,
+  ServiceBusAdministrationClient,
+  SubscriptionProperties, SubscriptionRuntimeProperties, TopicProperties, TopicRuntimeProperties
+} from '@azure/service-bus';
+import {
+  QueueWithMetaData,
+  SubscriptionWithMetaData,
+  SubscriptionRule,
+  TopicWithMetaData,
+} from '@service-bus-browser/topology-contracts';
 
 export class AdministrationClient {
   constructor(private connection: Connection) {
@@ -27,140 +37,72 @@ export class AdministrationClient {
     for await (const queue of queuesPages) {
       const runtimeProps = await administrationClient.getQueueRuntimeProperties(queue.name);
 
-      queues.push({
-        namespaceId: this.connection.id,
-        id: queue.name,
-        name: queue.name,
-        metadata: {
-          accessedAt: runtimeProps.accessedAt,
-          activeMessageCount: runtimeProps.activeMessageCount,
-          createdAt: runtimeProps.createdAt,
-          modifiedAt: runtimeProps.modifiedAt,
-          scheduledMessageCount: runtimeProps.scheduledMessageCount,
-          sizeInBytes: runtimeProps.sizeInBytes,
-          totalMessageCount: runtimeProps.totalMessageCount,
-          deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
-          transferDeadLetterMessageCount: runtimeProps.transferDeadLetterMessageCount,
-          transferMessageCount: runtimeProps.transferMessageCount,
-          endpoint: this.getEndpoint() + queue.name,
-        },
-        settings: {
-          deadLetteringOnMessageExpiration: queue.deadLetteringOnMessageExpiration,
-          enableExpress: queue.enableExpress,
-          enablePartitioning: queue.enablePartitioning,
-          requiresSession: queue.requiresSession,
-          requiresDuplicateDetection: queue.requiresDuplicateDetection,
-          enableBatchedOperations: queue.enableBatchedOperations,
-        },
-        properties: {
-          autoDeleteOnIdle: queue.autoDeleteOnIdle,
-          defaultMessageTimeToLive: queue.defaultMessageTimeToLive,
-          duplicateDetectionHistoryTimeWindow: queue.duplicateDetectionHistoryTimeWindow,
-          forwardDeadLetteredMessagesTo: queue.forwardDeadLetteredMessagesTo ?? null,
-          forwardMessagesTo: queue.forwardTo ?? null,
-          lockDuration: queue.lockDuration,
-          maxDeliveryCount: queue.maxDeliveryCount,
-          maxSizeInMegabytes: queue.maxSizeInMegabytes,
-          userMetadata: queue.userMetadata ?? null,
-        }
-      });
+      queues.push(this.mapQueue(queue, runtimeProps));
     }
 
     return queues;
   }
 
-  async getTopics(): Promise<Topic[]> {
+  async getQueue(queueId: string): Promise<QueueWithMetaData> {
+    const administrationClient = this.getAdministrationClient();
+    const [queue, queueMeta] = await Promise.all([
+      administrationClient.getQueue(queueId),
+      administrationClient.getQueueRuntimeProperties(queueId)
+    ]);
+
+    return this.mapQueue(queue, queueMeta);
+  }
+
+  async getTopics(): Promise<TopicWithMetaData[]> {
     const administrationClient = this.getAdministrationClient();
     const topicsPages = administrationClient.listTopics();
-    const topics: Topic[] = [];
+    const topics: TopicWithMetaData[] = [];
 
     for await (const topic of topicsPages) {
       const topicMeta = await administrationClient.getTopicRuntimeProperties(topic.name);
 
-      topics.push({
-        namespaceId: this.connection.id,
-        endpoint: this.getEndpoint() + topic.name,
-        id: topic.name,
-        name: topic.name,
-        properties: {
-          autoDeleteOnIdle: topic.autoDeleteOnIdle,
-          defaultMessageTimeToLive: topic.defaultMessageTimeToLive,
-          duplicateDetectionHistoryTimeWindow: topic.duplicateDetectionHistoryTimeWindow,
-          maxSizeInMegabytes: topic.maxSizeInMegabytes,
-          userMetadata: topic.userMetadata ?? null,
-        },
-        settings: {
-          enableBatchedOperations: topic.enableBatchedOperations,
-          enableExpress: topic.enableExpress,
-          enablePartitioning: topic.enablePartitioning,
-          requiresDuplicateDetection: topic.requiresDuplicateDetection,
-          supportOrdering: topic.supportOrdering,
-        },
-        metadata: topicMeta
-      });
+      topics.push(this.mapTopic(topic, topicMeta));
     }
 
     return topics;
   }
 
-  async getSubscriptions(topicId: string): Promise<Subscription[]> {
+  async getTopic(topicId: string): Promise<TopicWithMetaData> {
+    const administrationClient = this.getAdministrationClient();
+    const [topic, topicMeta] = await Promise.all([
+      administrationClient.getTopic(topicId),
+      administrationClient.getTopicRuntimeProperties(topicId)
+    ]);
+
+    return this.mapTopic(topic, topicMeta);
+  }
+
+  async getSubscriptions(topicId: string): Promise<SubscriptionWithMetaData[]> {
     const administrationClient = this.getAdministrationClient();
     const subscriptionsPages = administrationClient.listSubscriptions(topicId);
-    const subscriptions: Subscription[] = [];
+    const subscriptions: SubscriptionWithMetaData[] = [];
 
     for await (const subscription of subscriptionsPages) {
-      const runtimeProps = await administrationClient.getSubscriptionRuntimeProperties(topicId, subscription.subscriptionName);
-      const rules = await this.getSubscriptionRules(administrationClient, topicId, subscription.subscriptionName);
+      const [subscriptionMeta, rules] = await Promise.all([
+        administrationClient.getSubscriptionRuntimeProperties(topicId, subscription.subscriptionName),
+        this.getSubscriptionRules(administrationClient, topicId, subscription.subscriptionName)
+      ]);
 
-      subscriptions.push({
-        namespaceId: this.connection.id,
-        topicId: topicId,
-        id: subscription.subscriptionName,
-        endpoint: this.getEndpoint() + topicId + '/' + subscription.subscriptionName,
-        name: subscription.subscriptionName,
-        properties: {
-          maxDeliveryCount: subscription.maxDeliveryCount,
-          autoDeleteOnIdle: subscription.autoDeleteOnIdle,
-          defaultMessageTimeToLive: subscription.defaultMessageTimeToLive,
-          forwardDeadLetteredMessagesTo: subscription.forwardDeadLetteredMessagesTo ?? null,
-          forwardMessagesTo: subscription.forwardTo ?? null,
-          lockDuration: subscription.lockDuration,
-          userMetadata: subscription.userMetadata ?? null,
-        },
-        settings: {
-          deadLetteringOnFilterEvaluationExceptions: subscription.deadLetteringOnFilterEvaluationExceptions,
-          deadLetteringOnMessageExpiration: subscription.deadLetteringOnMessageExpiration,
-          enableBatchedOperations: subscription.enableBatchedOperations,
-          requiresSession: subscription.requiresSession,
-        },
-        metaData: runtimeProps,
-        rules: rules.map((rule) => {
-          return ('sqlExpression' in rule.filter ? {
-            filterType: 'sql',
-            filter: rule.filter.sqlExpression,
-            action: rule.action.sqlExpression
-          } : {
-            filterType: 'correlation',
-            systemProperties: Object.keys(rule.filter).map((key) => {
-              const filter = rule.filter as CorrelationRuleFilter;
-              // @ts-expect-error - TS doesn't know that the key is a valid key
-              const value = filter[key] as unknown;
-              if (typeof value !== 'string') {
-                return null;
-              }
-
-              return {
-                key: key,
-                value: value
-              }
-            }).filter((value) => value !== null),
-            applicationProperties: rule.filter.applicationProperties
-          }) as SubscriptionRule;
-        })
-      });
+      subscriptions.push(this.mapSubscription(topicId, subscription, subscriptionMeta, rules));
     }
 
     return subscriptions
+  }
+
+  async getSubscription(topicId: string, subscriptionId: string) {
+    const administrationClient = this.getAdministrationClient();
+    const [subscription, subscriptionMeta, rules] = await Promise.all([
+      administrationClient.getSubscription(topicId, subscriptionId),
+      administrationClient.getSubscriptionRuntimeProperties(topicId, subscriptionId),
+      this.getSubscriptionRules(administrationClient, topicId, subscriptionId)
+    ]);
+
+    return this.mapSubscription(topicId, subscription, subscriptionMeta, rules);
   }
 
   async addQueue(queue: QueueWithMetaData): Promise<void> {
@@ -182,8 +124,6 @@ export class AdministrationClient {
       maxSizeInMegabytes: queue.properties.maxSizeInMegabytes,
       maxDeliveryCount: queue.properties.maxDeliveryCount
     };
-
-    console.log('Creating queue', queue.name, body);
 
     await administrationClient.createQueue(queue.name, body);
   }
@@ -219,5 +159,118 @@ export class AdministrationClient {
           return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
         }
     }
+  }
+
+  private mapQueue(queue: QueueProperties, queueMeta: QueueRuntimeProperties): QueueWithMetaData {
+    return {
+      namespaceId: this.connection.id,
+      id: queue.name,
+      name: queue.name,
+      metadata: {
+        ...queueMeta,
+        endpoint: this.getEndpoint() + queue.name,
+    },
+      settings: {
+        deadLetteringOnMessageExpiration: queue.deadLetteringOnMessageExpiration,
+          enableExpress: queue.enableExpress,
+          enablePartitioning: queue.enablePartitioning,
+          requiresSession: queue.requiresSession,
+          requiresDuplicateDetection: queue.requiresDuplicateDetection,
+          enableBatchedOperations: queue.enableBatchedOperations,
+      },
+      properties: {
+        autoDeleteOnIdle: queue.autoDeleteOnIdle,
+          defaultMessageTimeToLive: queue.defaultMessageTimeToLive,
+          duplicateDetectionHistoryTimeWindow: queue.duplicateDetectionHistoryTimeWindow,
+          forwardDeadLetteredMessagesTo: queue.forwardDeadLetteredMessagesTo ?? null,
+          forwardMessagesTo: queue.forwardTo ?? null,
+          lockDuration: queue.lockDuration,
+          maxDeliveryCount: queue.maxDeliveryCount,
+          maxSizeInMegabytes: queue.maxSizeInMegabytes,
+          userMetadata: queue.userMetadata ?? null,
+      }
+    }
+  }
+
+  private mapTopic(topic: TopicProperties, topicMeta: TopicRuntimeProperties): TopicWithMetaData {
+    return {
+      namespaceId: this.connection.id,
+      id: topic.name,
+      name: topic.name,
+      properties: {
+        autoDeleteOnIdle: topic.autoDeleteOnIdle,
+        defaultMessageTimeToLive: topic.defaultMessageTimeToLive,
+        duplicateDetectionHistoryTimeWindow: topic.duplicateDetectionHistoryTimeWindow,
+        maxSizeInMegabytes: topic.maxSizeInMegabytes,
+        userMetadata: topic.userMetadata ?? null,
+      },
+      settings: {
+        enableBatchedOperations: topic.enableBatchedOperations,
+        enableExpress: topic.enableExpress,
+        enablePartitioning: topic.enablePartitioning,
+        requiresDuplicateDetection: topic.requiresDuplicateDetection,
+        supportOrdering: topic.supportOrdering,
+      },
+      metadata: {
+        ...topicMeta,
+        endpoint: this.getEndpoint() + topic.name,
+      }
+    };
+  }
+
+  private mapSubscription(
+    topicId: string,
+    subscription: SubscriptionProperties,
+    subscriptionMeta: SubscriptionRuntimeProperties,
+    rules: RuleProperties[]
+  ): SubscriptionWithMetaData {
+    return {
+      namespaceId: this.connection.id,
+      topicId: topicId,
+      id: subscription.subscriptionName,
+      name: subscription.subscriptionName,
+      properties: {
+        maxDeliveryCount: subscription.maxDeliveryCount,
+        autoDeleteOnIdle: subscription.autoDeleteOnIdle,
+        defaultMessageTimeToLive: subscription.defaultMessageTimeToLive,
+        forwardDeadLetteredMessagesTo: subscription.forwardDeadLetteredMessagesTo ?? null,
+        forwardMessagesTo: subscription.forwardTo ?? null,
+        lockDuration: subscription.lockDuration,
+        userMetadata: subscription.userMetadata ?? null,
+      },
+      settings: {
+        deadLetteringOnFilterEvaluationExceptions: subscription.deadLetteringOnFilterEvaluationExceptions,
+        deadLetteringOnMessageExpiration: subscription.deadLetteringOnMessageExpiration,
+        enableBatchedOperations: subscription.enableBatchedOperations,
+        requiresSession: subscription.requiresSession,
+      },
+      metaData: {
+        ...subscriptionMeta,
+        endpoint: this.getEndpoint() + topicId + '/' + subscription.subscriptionName,
+      },
+      rules: rules.map((rule) => {
+        return ('sqlExpression' in rule.filter ? {
+          filterType: 'sql',
+          filter: rule.filter.sqlExpression,
+          action: rule.action.sqlExpression
+        } : {
+          filterType: 'correlation',
+          systemProperties: Object.keys(rule.filter).map((key) => {
+            const filter = rule.filter as CorrelationRuleFilter;
+            // @ts-expect-error - TS doesn't know that the key is a valid key
+            const value = filter[key] as unknown;
+            if (typeof value !== 'string') {
+              return null;
+            }
+
+            return {
+              key: key,
+              value: value
+            }
+          }).filter((value) => value !== null),
+          applicationProperties: rule.filter.applicationProperties
+        }) as SubscriptionRule;
+      })
+    };
   }
 }

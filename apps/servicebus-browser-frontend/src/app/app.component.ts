@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import { LogsSelectors } from '@service-bus-browser/logs-store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
-import { Namespace, QueueWithMetaData, Topic, Subscription } from '@service-bus-browser/topology-contracts';
+import { Namespace, QueueWithMetaData, TopicWithMetaData, SubscriptionWithMetaData } from '@service-bus-browser/topology-contracts';
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 import { SidebarComponent } from './sidebar/sidebar.component';
 

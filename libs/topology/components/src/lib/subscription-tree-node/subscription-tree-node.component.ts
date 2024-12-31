@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from '@service-bus-browser/topology-contracts';
+import { SubscriptionWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
@@ -21,7 +21,7 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
   styleUrl: './subscription-tree-node.component.scss',
 })
 export class SubscriptionTreeNodeComponent {
-  subscription = input.required<Subscription>();
+  subscription = input.required<SubscriptionWithMetaData>();
   icon = faFolder;
-  contextMenuItems = input<SbbMenuItem<Subscription>[]>();
+  contextMenuItems = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
 }

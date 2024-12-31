@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
-import { Namespace, QueueWithMetaData, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Namespace, QueueWithMetaData, SubscriptionWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import {
@@ -55,14 +55,14 @@ export class SidebarComponent {
     await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', 'edit', $event.queue.id]);
   }
 
-  async onTopicSelected($event: { namespaceId: string; topic: Topic }) {
+  async onTopicSelected($event: { namespaceId: string; topic: TopicWithMetaData }) {
     await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'topics', 'edit', $event.topic.id]);
   }
 
   async onSubscriptionSelected($event: {
     namespaceId: string;
     topicId: string;
-    subscription: Subscription;
+    subscription: SubscriptionWithMetaData;
   }) {
     await this.router.navigate([
       'manage-topology',

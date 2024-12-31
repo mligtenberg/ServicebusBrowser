@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Topic } from '@service-bus-browser/topology-contracts';
+import { TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolderTree } from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
@@ -23,12 +23,12 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
   styleUrl: './topic-tree-node.component.scss',
 })
 export class TopicTreeNodeComponent {
-  topic = input.required<Topic>();
+  topic = input.required<TopicWithMetaData>();
   showRefresh = input.required<boolean>();
   icon = faFolderTree;
 
-  refreshTopic = output<Topic>();
-  contextMenuItems = input<SbbMenuItem<Topic>[]>();
+  refreshTopic = output<TopicWithMetaData>();
+  contextMenuItems = input<SbbMenuItem<TopicWithMetaData>[]>();
 
   refresh($event: MouseEvent) {
     this.refreshTopic.emit(this.topic());

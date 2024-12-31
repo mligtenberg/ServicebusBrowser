@@ -1,5 +1,5 @@
 import { QueueWithMetaData } from './queue';
-import { Topic } from './topic';
+import { TopicWithMetaData } from './topic';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export type Namespace = {
@@ -9,7 +9,7 @@ export type Namespace = {
 
 export type NamespaceWithChildren<
   TQueue extends QueueWithMetaData = QueueWithMetaData,
-  TTopic extends Topic = Topic
+  TTopic extends TopicWithMetaData = TopicWithMetaData
 > = Namespace & {
   topics: TTopic[];
   queues: TQueue[];

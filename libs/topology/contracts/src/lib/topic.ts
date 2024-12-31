@@ -1,9 +1,8 @@
-import { Subscription } from './subscription';
+import { SubscriptionWithMetaData } from './subscription';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export type Topic = {
   namespaceId: UUID;
-  endpoint: string;
   id: string;
   name: string;
 
@@ -21,6 +20,9 @@ export type Topic = {
     enablePartitioning: boolean;
     enableExpress: boolean;
   },
+}
+
+export type TopicWithMetaData = Topic & {
   metadata: {
     /**
      * Name of the topic
@@ -51,9 +53,13 @@ export type Topic = {
      * Accessed at timestamp
      */
     accessedAt: Date;
+    /**
+     * The endpoint URL for the entity.
+     */
+    endpoint: string;
   }
 }
 
-export type TopicWithChildren<TSubscription extends Subscription = Subscription> = Topic & {
+export type TopicWithChildren<TSubscription extends SubscriptionWithMetaData = SubscriptionWithMetaData> = TopicWithMetaData & {
   subscriptions: TSubscription[];
 }

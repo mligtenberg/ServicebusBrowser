@@ -4,7 +4,7 @@ import {
   Namespace,
   NamespaceWithChildren,
   QueueWithMetaData,
-  Subscription, Topic,
+  SubscriptionWithMetaData, TopicWithMetaData,
   TopicWithChildren
 } from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
@@ -42,8 +42,8 @@ export class TopologyTreeComponent {
   queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   queueContextMenu = input<SbbMenuItem<QueueWithMetaData>[]>();
-  topicContextMenu = input<SbbMenuItem<Topic>[]>();
-  subscriptionContextMenu = input<SbbMenuItem<Subscription>[]>();
+  topicContextMenu = input<SbbMenuItem<TopicWithMetaData>[]>();
+  subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
 
   displayQueues = input<boolean>(true);
   displayTopics = input<boolean>(true);
@@ -142,7 +142,7 @@ export class TopologyTreeComponent {
   subscriptionSelected = output<{
     namespaceId: string;
     topicId: string;
-    subscription: Subscription;
+    subscription: SubscriptionWithMetaData;
   }>();
 
   onSelectionChange(event: TreeNode | TreeNode[] | null) {
@@ -206,7 +206,7 @@ export class TopologyTreeComponent {
   private onSubscriptionSelected(
     namespace: Namespace,
     topic: TopicWithChildren,
-    subscription: Subscription
+    subscription: SubscriptionWithMetaData
   ) {
     this.subscriptionSelected.emit({
       namespaceId: namespace.id,

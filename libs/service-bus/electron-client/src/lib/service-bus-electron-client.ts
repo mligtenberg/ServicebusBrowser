@@ -1,5 +1,5 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { Queue, QueueWithMetaData, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Queue, QueueWithMetaData, SubscriptionWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 interface ElectronWindow {
@@ -32,15 +32,27 @@ export class ServiceBusElectronClient {
     return await serviceBusApi.doRequest('listQueues', {connectionId}) as QueueWithMetaData[];
   }
 
-  async listTopics(connectionId: string): Promise<Topic[]> {
-    return await serviceBusApi.doRequest('listTopics', {connectionId}) as Topic[];
-  }
-
-  async listSubscriptions(connectionId: string, topicId: string): Promise<Subscription[]> {
-    return await serviceBusApi.doRequest('listSubscriptions', { connectionId, topicId }) as Subscription[];
+  async getQueue(connectionId: string, queueId: string): Promise<QueueWithMetaData> {
+    return await serviceBusApi.doRequest('getQueue', { connectionId, queueId }) as QueueWithMetaData;
   }
 
   async createQueue(connectionId: string, queue: Queue): Promise<void> {
     await serviceBusApi.doRequest('addQueue', { connectionId, queue });
+  }
+
+  async listTopics(connectionId: string): Promise<TopicWithMetaData[]> {
+    return await serviceBusApi.doRequest('listTopics', {connectionId}) as TopicWithMetaData[];
+  }
+
+  async getTopic(connectionId: string, topicId: string): Promise<TopicWithMetaData> {
+    return await serviceBusApi.doRequest('getTopic', { connectionId, topicId }) as TopicWithMetaData;
+  }
+
+  async listSubscriptions(connectionId: string, topicId: string): Promise<SubscriptionWithMetaData[]> {
+    return await serviceBusApi.doRequest('listSubscriptions', { connectionId, topicId }) as SubscriptionWithMetaData[];
+  }
+
+  async getSubscription(connectionId: string, topicId: string, subscriptionId: string): Promise<SubscriptionWithMetaData> {
+    return await serviceBusApi.doRequest('getSubscription', { connectionId, topicId, subscriptionId }) as SubscriptionWithMetaData;
   }
 }

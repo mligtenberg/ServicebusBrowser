@@ -51,6 +51,23 @@ export class TopologyEffects implements OnInitEffects {
     )),
   ));
 
+  loadQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.loadQueue),
+    mergeMap(({ namespaceId, queueId }) => from(this.serviceBusClient.getQueue(namespaceId, queueId)).pipe(
+      catchError((error) => [{ problem: { title: 'failed to load queue', detail: error.toString()} }]),
+      switchMap((queue) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, queue })),
+        take(1)
+      )),
+      map(({queue, namespace}) => {
+        if ('problem' in queue) {
+          return internalActions.failedToLoadQueue({ namespace: namespace!, error: queue.problem });
+        }
+        return internalActions.queueLoaded({ namespace: namespace!, queue: queue });
+      })
+    )),
+  ));
+
   loadTopics$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadTopics),
     mergeMap(({ namespaceId }) => from(this.serviceBusClient.listTopics(namespaceId)).pipe(
@@ -65,6 +82,23 @@ export class TopologyEffects implements OnInitEffects {
         }
 
         return internalActions.failedToLoadTopics({ namespace: namespace!, error: topics.problem});
+      })
+    )),
+  ));
+
+  loadTopic$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.loadTopic),
+    mergeMap(({ namespaceId, topicId }) => from(this.serviceBusClient.getTopic(namespaceId, topicId)).pipe(
+      catchError((error) => [{ problem: { title: 'failed to load topic', detail: error.toString()} }]),
+      switchMap((topic) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, topic })),
+        take(1)
+      )),
+      map(({topic, namespace}) => {
+        if ('problem' in topic) {
+          return internalActions.failedToLoadTopic({ namespace: namespace!, error: topic.problem });
+        }
+        return internalActions.topicLoaded({ namespace: namespace!, topic: topic });
       })
     )),
   ));
@@ -86,6 +120,28 @@ export class TopologyEffects implements OnInitEffects {
           return internalActions.subscriptionsLoaded({ namespace: namespace!, topic: topic!, subscriptions })
         }
         return internalActions.failedToLoadSubscriptions({ namespace: namespace!, topic: topic!, error: subscriptions.problem });
+      })
+    )),
+  ));
+
+  loadSubscription$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.loadSubscription),
+    mergeMap(({ namespaceId, topicId, subscriptionId }) => from(this.serviceBusClient.getSubscription(namespaceId, topicId, subscriptionId)).pipe(
+      catchError((error) => [{ problem: { title: 'failed to load subscription', detail: error.toString()} }]),
+      switchMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, subscription })),
+        take(1)
+      )),
+      switchMap(({subscription, namespace}) => this.store.select(selectTopicById(namespaceId
+        , topicId)).pipe(
+        map((topic) => ({ namespace, subscription, topic })),
+        take(1)
+      )),
+      map(({subscription, namespace, topic}) => {
+        if ('problem' in subscription) {
+          return internalActions.failedToLoadSubscription({ namespace: namespace!, topic: topic!, error: subscription.problem });
+        }
+        return internalActions.subscriptionLoaded({ namespace: namespace!, topic: topic!, subscription: subscription });
       })
     )),
   ));
@@ -115,6 +171,13 @@ export class TopologyEffects implements OnInitEffects {
     )
   ));
 
+  loadQueueOnQueueAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.queueAdded),
+    mergeMap(({ queue, namespace }) =>
+      from([actions.loadQueue({ namespaceId: namespace.id, queueId: queue.id })])
+    )
+  ));
+
   loadTopicsOnNamespaceLoaded$ = createEffect(() => this.actions$.pipe(
     ofType(internalActions.namespacesLoaded),
     mergeMap(({ namespaces }) =>
@@ -128,4 +191,12 @@ export class TopologyEffects implements OnInitEffects {
       from(topics.map((topic) => actions.loadSubscriptions({ namespaceId: namespace.id, topicId: topic.id })))
     )
   ));
+
+  loadSubscriptionsOnTopicLoaded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.topicLoaded),
+    mergeMap(({ topic, namespace }) =>
+      from([actions.loadSubscriptions({ namespaceId: namespace.id, topicId: topic.id })])
+    )
+  ));
+
 }

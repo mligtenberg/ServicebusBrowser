@@ -5,7 +5,6 @@ export type Subscription = {
   namespaceId: UUID;
   topicId: string;
   id: string;
-  endpoint: string;
   name: string;
   properties: {
     userMetadata: string | null;
@@ -22,6 +21,10 @@ export type Subscription = {
     deadLetteringOnFilterEvaluationExceptions: boolean;
     requiresSession: boolean;
   },
+}
+
+
+export type SubscriptionWithMetaData = Subscription & {
   metaData: {
     /**
      * Name of the subscription
@@ -64,6 +67,10 @@ export type Subscription = {
      * Accessed at timestamp
      */
     accessedAt: Date;
+    /**
+     * The endpoint URL for the entity.
+     */
+    endpoint: string;
   },
   rules: SubscriptionRule[];
 }

@@ -2,8 +2,8 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 import {
   Namespace,
   QueueWithMetaData,
-  Subscription,
-  Topic,
+  SubscriptionWithMetaData,
+  TopicWithMetaData,
 } from '@service-bus-browser/topology-contracts';
 
 import * as internalActions from './topology.internal-actions';
@@ -13,10 +13,10 @@ export const featureKey = 'topology';
 export type TopologyState = {
   namespaces: Namespace[];
   queuesPerNamespace: Record<string, QueueWithMetaData[]>;
-  topicsPerNamespace: Record<string, Topic[]>;
+  topicsPerNamespace: Record<string, TopicWithMetaData[]>;
   subscriptionsPerNamespaceAndTopic: Record<
     string,
-    Record<string, Subscription[]>
+    Record<string, SubscriptionWithMetaData[]>
   >;
 };
 
@@ -40,11 +40,25 @@ export const logsReducer = createReducer(
       [namespace.id]: queues,
     },
   })),
+  on(internalActions.queueLoaded, (state, { namespace, queue }) => ({
+    ...state,
+    queuesPerNamespace: {
+      ...state.queuesPerNamespace,
+      [namespace.id]: [...state.queuesPerNamespace[namespace.id], queue],
+    },
+  })),
   on(internalActions.topicsLoaded, (state, { namespace, topics }) => ({
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
       [namespace.id]: topics,
+    },
+  })),
+  on(internalActions.topicLoaded, (state, { namespace, topic }) => ({
+    ...state,
+    topicsPerNamespace: {
+      ...state.topicsPerNamespace,
+      [namespace.id]: [...state.topicsPerNamespace[namespace.id], topic],
     },
   })),
   on(
@@ -60,6 +74,16 @@ export const logsReducer = createReducer(
       },
     })
   ),
+  on(internalActions.subscriptionLoaded, (state, { namespace, topic, subscription }) => ({
+    ...state,
+    subscriptionsPerNamespaceAndTopic: {
+      ...state.subscriptionsPerNamespaceAndTopic,
+      [namespace.id]: {
+        ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
+        [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id], subscription],
+      },
+    }
+  })),
 );
 
 export const topologyFeature = createFeature({

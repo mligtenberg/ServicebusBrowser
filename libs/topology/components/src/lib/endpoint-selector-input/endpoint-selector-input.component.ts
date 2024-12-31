@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { TopologyTreeComponent } from '../topology-tree/topology-tree.component';
 import { ScrollPanel } from 'primeng/scrollpanel';
-import { QueueWithMetaData, Topic } from '@service-bus-browser/topology-contracts';
+import { QueueWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -57,8 +57,8 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
     this.dialogVisible.set(false);
   }
 
-  onTopicSelected($event: { namespaceId: string; topic: Topic }) {
-    this.value.set($event.topic.endpoint);
+  onTopicSelected($event: { namespaceId: string; topic: TopicWithMetaData }) {
+    this.value.set($event.topic.metadata.endpoint);
     this.dialogVisible.set(false);
   }
 
