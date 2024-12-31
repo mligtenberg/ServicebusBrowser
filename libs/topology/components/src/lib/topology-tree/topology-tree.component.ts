@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   Namespace,
   NamespaceWithChildren,
-  Queue,
+  QueueWithMetaData,
   Subscription, Topic,
   TopicWithChildren
 } from '@service-bus-browser/topology-contracts';
@@ -17,6 +17,7 @@ import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
+import { ContextMenuComponent } from '@service-bus-browser/shared-components';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -29,15 +30,18 @@ import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
     QueueTreeNodeComponent,
     PrimeTemplate,
     Button,
+    ContextMenuComponent,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
 })
 export class TopologyTreeComponent {
   namespaces =
-    input.required<NamespaceWithChildren<Queue, TopicWithChildren>[]>();
+    input.required<NamespaceWithChildren<QueueWithMetaData, TopicWithChildren>[]>();
   namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
-  queueContextMenu = input<SbbMenuItem<Queue>[]>();
+  queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
+  topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
+  queueContextMenu = input<SbbMenuItem<QueueWithMetaData>[]>();
   topicContextMenu = input<SbbMenuItem<Topic>[]>();
   subscriptionContextMenu = input<SbbMenuItem<Subscription>[]>();
 
@@ -66,7 +70,7 @@ export class TopologyTreeComponent {
           label: 'Queues',
           type: 'queues',
           selectable: false,
-          data: ns.id,
+          data: ns,
           expanded: this.opened().includes(`${ns.id}-queues`),
           children: ns.queues.map<TreeNode>((queue) => ({
             key: `${ns.id}-queue-${queue.id}`,
@@ -87,7 +91,7 @@ export class TopologyTreeComponent {
           label: 'Topics',
           type: 'topics',
           selectable: false,
-          data: ns.id,
+          data: ns,
           expanded: this.opened().includes(`${ns.id}-topics`),
           children: ns.topics.map<TreeNode>((topic) => {
             const topNode: TreeNode = {
@@ -112,7 +116,7 @@ export class TopologyTreeComponent {
                   subscription: sub,
                 },
                 leaf: true,
-              }))
+              }));
             }
 
             return topNode;
@@ -129,7 +133,7 @@ export class TopologyTreeComponent {
   }>();
   queueSelected = output<{
     namespaceId: string;
-    queue: Queue;
+    queue: QueueWithMetaData;
   }>();
   topicSelected = output<{
     namespaceId: string;
@@ -169,7 +173,7 @@ export class TopologyTreeComponent {
 
   onNodeExpand(event: TreeNodeExpandEvent) {
     this.opened.update((opened) => [
-      ... new Set([...opened, event.node.key as string]),
+      ...new Set([...opened, event.node.key as string]),
     ]);
   }
 
@@ -185,7 +189,7 @@ export class TopologyTreeComponent {
     });
   }
 
-  private onQueueSelected(namespace: Namespace, queue: Queue) {
+  private onQueueSelected(namespace: Namespace, queue: QueueWithMetaData) {
     this.queueSelected.emit({
       namespaceId: namespace.id,
       queue,
@@ -211,13 +215,13 @@ export class TopologyTreeComponent {
     });
   }
 
-  refreshQueues($event: MouseEvent, namespaceId: UUID) {
-    this.store.dispatch(TopologyActions.loadQueues({ namespaceId }));
+  refreshQueues($event: MouseEvent, namespace: Namespace) {
+    this.store.dispatch(TopologyActions.loadQueues({ namespaceId: namespace.id }));
     $event.stopPropagation();
   }
 
-  refreshTopics($event: MouseEvent, namespaceId: UUID) {
-    this.store.dispatch(TopologyActions.loadTopics({ namespaceId }));
+  refreshTopics($event: MouseEvent, namespace: Namespace) {
+    this.store.dispatch(TopologyActions.loadTopics({ namespaceId: namespace.id }));
     $event.stopPropagation();
   }
 

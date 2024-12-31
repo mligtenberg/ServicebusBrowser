@@ -1,5 +1,5 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Queue, QueueWithMetaData, Subscription, Topic } from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 interface ElectronWindow {
@@ -28,8 +28,8 @@ export class ServiceBusElectronClient {
     return await serviceBusApi.doRequest('checkConnection', connection) as boolean;
   }
 
-  async listQueues(connectionId: string): Promise<Queue[]> {
-    return await serviceBusApi.doRequest('listQueues', {connectionId}) as Queue[];
+  async listQueues(connectionId: string): Promise<QueueWithMetaData[]> {
+    return await serviceBusApi.doRequest('listQueues', {connectionId}) as QueueWithMetaData[];
   }
 
   async listTopics(connectionId: string): Promise<Topic[]> {
@@ -38,5 +38,9 @@ export class ServiceBusElectronClient {
 
   async listSubscriptions(connectionId: string, topicId: string): Promise<Subscription[]> {
     return await serviceBusApi.doRequest('listSubscriptions', { connectionId, topicId }) as Subscription[];
+  }
+
+  async createQueue(connectionId: string, queue: Queue): Promise<void> {
+    await serviceBusApi.doRequest('addQueue', { connectionId, queue });
   }
 }

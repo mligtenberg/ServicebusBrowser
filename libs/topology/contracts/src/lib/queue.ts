@@ -2,7 +2,6 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 
 export type Queue = {
   namespaceId: UUID;
-  endpoint: string;
   id: string;
   name: string;
   properties: {
@@ -24,6 +23,9 @@ export type Queue = {
     enableExpress: boolean;
     enablePartitioning: boolean;
   },
+}
+
+export type QueueWithMetaData = Queue & {
   metadata: {
     /**
      * Created at timestamp
@@ -67,5 +69,9 @@ export type Queue = {
      *
      */
     sizeInBytes?: number;
+    /**
+     * The endpoint URL for the entity.
+     */
+    endpoint: string;
   }
 }

@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Queue } from '@service-bus-browser/topology-contracts';
+import { QueueWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
@@ -15,7 +15,7 @@ import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
   styleUrl: './queue-tree-node.component.scss',
 })
 export class QueueTreeNodeComponent {
-  queue = input.required<Queue>();
+  queue = input.required<QueueWithMetaData>();
   icon = faFolder;
-  contextMenuItems = input<SbbMenuItem<Queue>[]>();
+  contextMenuItems = input<SbbMenuItem<QueueWithMetaData>[]>();
 }

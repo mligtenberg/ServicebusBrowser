@@ -8,10 +8,10 @@ export interface QueueForm {
     userMetadata: FormControl<string | null>;
     forwardMessagesTo: FormControl<string | null>;
     forwardDeadLetteredMessagesTo: FormControl<string | null>;
-    duplicateDetectionHistoryTimeWindow: FormControl<string>;
-    autoDeleteOnIdle: FormControl<string>;
-    defaultMessageTimeToLive: FormControl<string>;
-    lockDuration: FormControl<string>;
+    duplicateDetectionHistoryTimeWindow: FormControl<string | null>;
+    autoDeleteOnIdle: FormControl<string | null>;
+    defaultMessageTimeToLive: FormControl<string | null>;
+    lockDuration: FormControl<string | null>;
   }>;
   settings: FormGroup<{
     enableBatchedOperations: FormControl<boolean>;

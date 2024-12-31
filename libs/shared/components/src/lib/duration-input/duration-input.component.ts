@@ -11,7 +11,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Duration } from 'luxon';
 import { InputGroup } from 'primeng/inputgroup';
-import { IftaLabel } from 'primeng/iftalabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { FloatLabel } from 'primeng/floatlabel';
 
@@ -77,7 +76,15 @@ export class DurationInputComponent implements ControlValueAccessor {
 
   writeValue(obj: string): void {
     if (!obj) {
-      this.form.reset({}, { emitEvent: false });
+      this.form.reset({
+        seconds: 0,
+        minutes: 0,
+        hours: 0,
+        days: 0,
+        weeks: 0,
+        months: 0,
+        years: 0,
+      }, { emitEvent: false });
       return;
     }
 

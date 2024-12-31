@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
-import { Namespace, Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Namespace, QueueWithMetaData, Subscription, Topic } from '@service-bus-browser/topology-contracts';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import {
@@ -27,32 +27,51 @@ export class SidebarComponent {
   namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
     {
       label: 'Remove Namespace',
+      icon: 'pi pi-trash',
       onSelect: (data: Namespace, event: MenuItemCommandEvent) => {
         this.store.dispatch(ConnectionsActions.removeConnection({ connectionId: data.id }));
       },
     },
+    {
+      label: 'Add queue',
+      icon: 'pi pi-plus',
+      onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
+      },
+    }
   ];
 
-  onQueueSelected($event: { namespaceId: string; queue: Queue }) {
-    this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', $event.queue.id]);
+  queuesGroupNodeContextMenu: SbbMenuItem<Namespace>[] = [
+    {
+      label: 'Add queue',
+      icon: 'pi pi-plus',
+      onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
+        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
+      },
+    },
+  ];
+
+  async onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
+    await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', 'edit', $event.queue.id]);
   }
 
-  onTopicSelected($event: { namespaceId: string; topic: Topic }) {
-    this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'topics', $event.topic.id]);
+  async onTopicSelected($event: { namespaceId: string; topic: Topic }) {
+    await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'topics', 'edit', $event.topic.id]);
   }
 
-  onSubscriptionSelected($event: {
+  async onSubscriptionSelected($event: {
     namespaceId: string;
     topicId: string;
     subscription: Subscription;
   }) {
-    this.router.navigate([
+    await this.router.navigate([
       'manage-topology',
       'namespaces',
       $event.namespaceId,
       'topics',
       $event.topicId,
       'subscriptions',
+      'edit',
       $event.subscription.id,
     ]);
   }

@@ -90,6 +90,24 @@ export class TopologyEffects implements OnInitEffects {
     )),
   ));
 
+  addQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.addQueue),
+    mergeMap(({ namespaceId, queue }) => from(this.serviceBusClient.createQueue(namespaceId, queue)).pipe(
+      map(() => queue),
+      catchError((error) => [{ problem: { title: 'failed to add queue', detail: error.toString()} }]),
+      switchMap((queue) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+        map((namespace) => ({ namespace, queue })),
+        take(1)
+      )),
+      map(({ namespace, queue }) => {
+        if ('problem' in queue) {
+          return internalActions.failedToAddQueue({ namespace: namespace!, error: queue.problem });
+        }
+        return internalActions.queueAdded({ namespace: namespace!, queue: queue });
+      })
+    )),
+  ));
+
   loadQueuesOnNamespaceLoaded$ = createEffect(() => this.actions$.pipe(
     ofType(internalActions.namespacesLoaded),
     mergeMap(({ namespaces }) =>

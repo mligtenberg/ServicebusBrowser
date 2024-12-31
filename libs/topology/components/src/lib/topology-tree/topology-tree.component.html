@@ -13,16 +13,22 @@
     <sbb-tpl-namespace-tree-node [namespace]="node.data" [contextMenuItems]="namespaceContextMenuItems()" />
   </ng-template>
   <ng-template let-node pTemplate="queues">
-    <div class="category-divider">
+    <div class="category-divider" #queues>
       <span class="name">{{ node.label }}</span>
       <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
     </div>
+    @if (queuesGroupNodeContextMenu(); as contextMenu) {
+      <sbb-context-menu [target]="queues" [data]="node.data" [model]="contextMenu"></sbb-context-menu>
+    }
   </ng-template>
   <ng-template let-node pTemplate="topics">
-    <div class="category-divider">
+    <div class="category-divider" #topics>
       <span class="name">{{ node.label }}</span>
       <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
     </div>
+    @if (topicsGroupNodeContextMenu(); as contextMenu) {
+      <sbb-context-menu [target]="topics" [data]="node.data" [model]="contextMenu"></sbb-context-menu>
+    }
   </ng-template>
   <ng-template let-node pTemplate="queue">
     <sbb-tpl-queue-tree-node [contextMenuItems]="queueContextMenu()" [queue]="node.data.queue" />

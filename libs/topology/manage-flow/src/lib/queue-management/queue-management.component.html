@@ -44,19 +44,19 @@
     </div>
     <div class="line duration-input">
       <label for="duplicateDetectionHistoryTimeWindow">Duplicate detection time window</label>
-      <sbb-duration-input id="duplicateDetectionHistoryTimeWindow" formGroupName="duplicateDetectionHistoryTimeWindow"></sbb-duration-input>
+      <sbb-duration-input id="duplicateDetectionHistoryTimeWindow" formControlName="duplicateDetectionHistoryTimeWindow"></sbb-duration-input>
     </div>
     <div class="line duration-input">
       <label for="autoDeleteOnIdle">Auto delete on idle</label>
-      <sbb-duration-input id="autoDeleteOnIdle" formGroupName="autoDeleteOnIdle"></sbb-duration-input>
+      <sbb-duration-input id="autoDeleteOnIdle" formControlName="autoDeleteOnIdle"></sbb-duration-input>
     </div>
     <div class="line duration-input">
       <label for="defaultMessageTimeToLive">Default message time to live</label>
-      <sbb-duration-input id="defaultMessageTimeToLive" formGroupName="defaultMessageTimeToLive"></sbb-duration-input>
+      <sbb-duration-input id="defaultMessageTimeToLive" formControlName="defaultMessageTimeToLive"></sbb-duration-input>
     </div>
     <div class="line duration-input">
       <label for="lockDuration">Lock duration</label>
-      <sbb-duration-input id="lockDuration" formGroupName="lockDuration"></sbb-duration-input>
+      <sbb-duration-input id="lockDuration" formControlName="lockDuration"></sbb-duration-input>
     </div>
   </p-card>
 
@@ -92,4 +92,5 @@
       <label for="requiresSession">Requires session</label>
     </div>
   </p-card>
+  <button pButton type="button" (click)="save()">Save</button>
 </form>

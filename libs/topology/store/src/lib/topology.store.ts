@@ -1,7 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import {
   Namespace,
-  Queue,
+  QueueWithMetaData,
   Subscription,
   Topic,
 } from '@service-bus-browser/topology-contracts';
@@ -12,7 +12,7 @@ export const featureKey = 'topology';
 
 export type TopologyState = {
   namespaces: Namespace[];
-  queuesPerNamespace: Record<string, Queue[]>;
+  queuesPerNamespace: Record<string, QueueWithMetaData[]>;
   topicsPerNamespace: Record<string, Topic[]>;
   subscriptionsPerNamespaceAndTopic: Record<
     string,

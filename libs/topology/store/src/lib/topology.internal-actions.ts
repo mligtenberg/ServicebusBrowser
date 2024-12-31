@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Namespace, Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Namespace, Queue, QueueWithMetaData, Subscription, Topic } from '@service-bus-browser/topology-contracts';
 import { Problem } from '@service-bus-browser/shared-contracts';
 
 export const namespacesLoaded = createAction(
@@ -14,7 +14,7 @@ export const failedToLoadNamespaces = createAction(
 
 export const queuesLoaded = createAction(
   '[Topology] Queues Loaded',
-  props<{ namespace: Namespace; queues: Queue[] }>()
+  props<{ namespace: Namespace; queues: QueueWithMetaData[] }>()
 );
 
 export const failedToLoadQueues = createAction(
@@ -40,4 +40,14 @@ export const subscriptionsLoaded = createAction(
 export const failedToLoadSubscriptions = createAction(
   '[Topology] Failed To Load Subscriptions',
   props<{ namespace?: Namespace; topic?: Topic; error: Problem }>()
+);
+
+export const queueAdded = createAction(
+  '[Topology] Queue Added',
+  props<{ namespace: Namespace; queue: Queue }>()
+);
+
+export const failedToAddQueue = createAction(
+  '[Topology] Failed To Add Queue',
+  props<{ namespace?: Namespace; error: Problem }>()
 );

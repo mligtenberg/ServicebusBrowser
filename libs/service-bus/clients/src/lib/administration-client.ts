@@ -1,6 +1,6 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
-import { RuleProperties, ServiceBusAdministrationClient } from '@azure/service-bus';
-import { Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { CorrelationRuleFilter, RuleProperties, ServiceBusAdministrationClient } from '@azure/service-bus';
+import { QueueWithMetaData, Subscription, SubscriptionRule, Topic } from '@service-bus-browser/topology-contracts';
 
 export class AdministrationClient {
   constructor(private connection: Connection) {
@@ -19,17 +19,16 @@ export class AdministrationClient {
     }
   }
 
-  async getQueues(): Promise<Queue[]> {
+  async getQueues(): Promise<QueueWithMetaData[]> {
     const administrationClient = this.getAdministrationClient();
     const queuesPages = administrationClient.listQueues();
-    const queues: Queue[] = [];
+    const queues: QueueWithMetaData[] = [];
 
     for await (const queue of queuesPages) {
       const runtimeProps = await administrationClient.getQueueRuntimeProperties(queue.name);
 
       queues.push({
         namespaceId: this.connection.id,
-        endpoint: this.getEndpoint() + queue.name,
         id: queue.name,
         name: queue.name,
         metadata: {
@@ -43,6 +42,7 @@ export class AdministrationClient {
           deadLetterMessageCount: runtimeProps.deadLetterMessageCount,
           transferDeadLetterMessageCount: runtimeProps.transferDeadLetterMessageCount,
           transferMessageCount: runtimeProps.transferMessageCount,
+          endpoint: this.getEndpoint() + queue.name,
         },
         settings: {
           deadLetteringOnMessageExpiration: queue.deadLetteringOnMessageExpiration,
@@ -110,6 +110,7 @@ export class AdministrationClient {
 
     for await (const subscription of subscriptionsPages) {
       const runtimeProps = await administrationClient.getSubscriptionRuntimeProperties(topicId, subscription.subscriptionName);
+      const rules = await this.getSubscriptionRules(administrationClient, topicId, subscription.subscriptionName);
 
       subscriptions.push({
         namespaceId: this.connection.id,
@@ -132,11 +133,59 @@ export class AdministrationClient {
           enableBatchedOperations: subscription.enableBatchedOperations,
           requiresSession: subscription.requiresSession,
         },
-        metaData: runtimeProps
+        metaData: runtimeProps,
+        rules: rules.map((rule) => {
+          return ('sqlExpression' in rule.filter ? {
+            filterType: 'sql',
+            filter: rule.filter.sqlExpression,
+            action: rule.action.sqlExpression
+          } : {
+            filterType: 'correlation',
+            systemProperties: Object.keys(rule.filter).map((key) => {
+              const filter = rule.filter as CorrelationRuleFilter;
+              // @ts-expect-error - TS doesn't know that the key is a valid key
+              const value = filter[key] as unknown;
+              if (typeof value !== 'string') {
+                return null;
+              }
+
+              return {
+                key: key,
+                value: value
+              }
+            }).filter((value) => value !== null),
+            applicationProperties: rule.filter.applicationProperties
+          }) as SubscriptionRule;
+        })
       });
     }
 
     return subscriptions
+  }
+
+  async addQueue(queue: QueueWithMetaData): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    const body = {
+      autoDeleteOnIdle: !queue.properties.autoDeleteOnIdle ? undefined : queue.properties.autoDeleteOnIdle,
+      defaultMessageTimeToLive: queue.properties.defaultMessageTimeToLive,
+      duplicateDetectionHistoryTimeWindow: !queue.properties.duplicateDetectionHistoryTimeWindow ? undefined : queue.properties.duplicateDetectionHistoryTimeWindow,
+      forwardDeadLetteredMessagesTo: queue.properties.forwardDeadLetteredMessagesTo ?? undefined,
+      forwardTo: queue.properties.forwardMessagesTo ?? undefined,
+      lockDuration: !queue.properties.lockDuration ? undefined : queue.properties.lockDuration,
+      userMetadata: !queue.properties.userMetadata ? undefined : queue.properties.userMetadata,
+      enableExpress: queue.settings.enableExpress,
+      enablePartitioning: queue.settings.enablePartitioning,
+      requiresSession: queue.settings.requiresSession,
+      requiresDuplicateDetection: queue.settings.requiresDuplicateDetection,
+      enableBatchedOperations: queue.settings.enableBatchedOperations,
+      deadLetteringOnMessageExpiration: queue.settings.deadLetteringOnMessageExpiration,
+      maxSizeInMegabytes: queue.properties.maxSizeInMegabytes,
+      maxDeliveryCount: queue.properties.maxDeliveryCount
+    };
+
+    console.log('Creating queue', queue.name, body);
+
+    await administrationClient.createQueue(queue.name, body);
   }
 
   private async getSubscriptionRules(client: ServiceBusAdministrationClient, topicName: string, subscriptionName: string)

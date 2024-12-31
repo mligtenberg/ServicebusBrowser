@@ -51,4 +51,14 @@ export class TopologyLoggingEffects {
     ofType(internalActions.failedToLoadSubscriptions),
     tap(({ error, namespace, topic }) => this.logger.error(`Failed to load subscriptions for topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
   ), { dispatch: false });
+
+  logQueueAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.queueAdded),
+    tap(({ queue, namespace }) => this.logger.info(`Queue ${queue.name} added to namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToAddQueue$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToAddQueue),
+    tap(({ error, namespace }) => this.logger.error(`Failed to add queue to namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
 }

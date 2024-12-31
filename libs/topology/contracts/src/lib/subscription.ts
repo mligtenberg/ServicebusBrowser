@@ -1,4 +1,5 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { SubscriptionRule } from './subscription-rules';
 
 export type Subscription = {
   namespaceId: UUID;
@@ -63,5 +64,6 @@ export type Subscription = {
      * Accessed at timestamp
      */
     accessedAt: Date;
-  }
+  },
+  rules: SubscriptionRule[];
 }
