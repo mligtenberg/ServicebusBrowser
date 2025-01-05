@@ -361,9 +361,17 @@ export class AdministrationClient {
       rules: rules.map((rule) => {
         return ('sqlExpression' in rule.filter ? {
           filterType: 'sql',
+          subscriptionId: subscription.subscriptionName,
+          topicId: topicId,
+          namespaceId: this.connection.id,
+          name: rule.name,
           filter: rule.filter.sqlExpression,
           action: rule.action.sqlExpression
         } : {
+          name: rule.name,
+          subscriptionId: subscription.subscriptionName,
+          topicId: topicId,
+          namespaceId: this.connection.id,
           filterType: 'correlation',
           systemProperties: Object.keys(rule.filter).map((key) => {
             const filter = rule.filter as CorrelationRuleFilter;

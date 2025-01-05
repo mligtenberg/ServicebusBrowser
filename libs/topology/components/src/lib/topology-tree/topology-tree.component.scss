@@ -1,6 +1,6 @@
 :host {
   ::ng-deep .p-tree-node-label {
-    width: calc(100% - 32px);
+    width: calc(100% - var(--p-tree-node-toggle-button-size));
   }
 
   ::ng-deep .p-tree-node-leaf .p-tree-node-label {
@@ -14,7 +14,7 @@
   ::ng-deep .p-tree-node-leaf {
     line-height: 28px;
     .p-tree-node-content sbb-tpl-topic-tree-node.show-subscriptions {
-      padding: 0 0 0 32px;
+      padding: 0 0 0 var(--p-tree-node-toggle-button-size);
     }
   }
 }
@@ -22,7 +22,8 @@
 p-tree {
   --p-tree-padding: 0.6rem;
   --p-tree-node-padding: 0;
-  --p-tree-indent: 28px;
+  --p-tree-node-toggle-button-size: calc(var(--p-tree-indent) + 0.2rem);
+  --p-tree-indent: 1.2rem;
 }
 
 .category-divider {

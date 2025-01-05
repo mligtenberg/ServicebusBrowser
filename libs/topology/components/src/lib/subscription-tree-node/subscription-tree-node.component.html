@@ -1,6 +1,9 @@
 <div class="line-container" #sub>
   <span class="name" [pTooltip]="subscription().name"><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
   <span>({{subscription().metaData.activeMessageCount}},{{subscription().metaData.deadLetterMessageCount}},{{subscription().metaData.transferDeadLetterMessageCount}})</span>
+  @if (showRefresh()) {
+    <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
+  }
 </div>
 
 @if (contextMenuItems()) {

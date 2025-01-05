@@ -80,7 +80,7 @@ export const logsReducer = createReducer(
       ...state.subscriptionsPerNamespaceAndTopic,
       [namespace.id]: {
         ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
-        [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id], subscription],
+        [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id].filter(s => s.id !== subscription.id), subscription],
       },
     }
   })),

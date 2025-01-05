@@ -5,7 +5,7 @@ import {
   NamespaceWithChildren,
   QueueWithMetaData,
   SubscriptionWithMetaData, TopicWithMetaData,
-  TopicWithChildren
+  TopicWithChildren, SubscriptionRule
 } from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
@@ -18,6 +18,9 @@ import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
 import { ContextMenuComponent } from '@service-bus-browser/shared-components';
+import {
+  SubscriptionRuleTreeNodeComponent
+} from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -31,23 +34,28 @@ import { ContextMenuComponent } from '@service-bus-browser/shared-components';
     PrimeTemplate,
     Button,
     ContextMenuComponent,
+    SubscriptionRuleTreeNodeComponent,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
 })
 export class TopologyTreeComponent {
   namespaces =
-    input.required<NamespaceWithChildren<QueueWithMetaData, TopicWithChildren>[]>();
+    input.required<
+      NamespaceWithChildren<QueueWithMetaData, TopicWithChildren>[]
+    >();
   namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
   queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   queueContextMenu = input<SbbMenuItem<QueueWithMetaData>[]>();
   topicContextMenu = input<SbbMenuItem<TopicWithMetaData>[]>();
   subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
+  subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
 
   displayQueues = input<boolean>(true);
   displayTopics = input<boolean>(true);
   displaySubscriptions = input<boolean>(true);
+  displaySubscriptionRules = input<boolean>(true);
 
   store = inject(Store);
 
@@ -106,17 +114,37 @@ export class TopologyTreeComponent {
             };
 
             if (this.displaySubscriptions()) {
-              topNode.children = topic.subscriptions.map<TreeNode>((sub) => ({
-                key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
-                label: sub.name,
-                type: 'subscription',
-                data: {
-                  namespace: ns,
-                  topic,
-                  subscription: sub,
-                },
-                leaf: true,
-              }));
+              topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
+                const subNode: TreeNode =
+                  {
+                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
+                    label: sub.name,
+                    type: 'subscription',
+                    expanded: this.opened().includes(`${ns.id}-topic-${topic.id}-subscription-${sub.id}`),
+                    data: {
+                      namespace: ns,
+                      topic,
+                      subscription: sub,
+                    }
+                }
+
+                if (this.displaySubscriptionRules()) {
+                  subNode.children = sub.rules.map<TreeNode>((rule) => ({
+                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
+                    label: rule.name,
+                    type: 'subscription-rule',
+                    data: {
+                      namespace: ns,
+                      topic,
+                      subscription: sub,
+                      rule,
+                    },
+                    leaf: true,
+                  }));
+                }
+
+                return subNode;
+              });
             }
 
             return topNode;
@@ -216,18 +244,28 @@ export class TopologyTreeComponent {
   }
 
   refreshQueues($event: MouseEvent, namespace: Namespace) {
-    this.store.dispatch(TopologyActions.loadQueues({ namespaceId: namespace.id }));
+    this.store.dispatch(
+      TopologyActions.loadQueues({ namespaceId: namespace.id })
+    );
     $event.stopPropagation();
   }
 
   refreshTopics($event: MouseEvent, namespace: Namespace) {
-    this.store.dispatch(TopologyActions.loadTopics({ namespaceId: namespace.id }));
+    this.store.dispatch(
+      TopologyActions.loadTopics({ namespaceId: namespace.id })
+    );
     $event.stopPropagation();
   }
 
   refreshSubscriptions(namespaceId: UUID, topicId: string) {
     this.store.dispatch(
       TopologyActions.loadSubscriptions({ namespaceId, topicId })
+    );
+  }
+
+  refreshSubscription(namespaceId: UUID, topicId: string, subscriptionId: string) {
+    this.store.dispatch(
+      TopologyActions.loadSubscription({ namespaceId, topicId, subscriptionId })
     );
   }
 }

@@ -1,0 +1,11 @@
+<div class="line-container" #sub>
+  <span class="name" [pTooltip]="rule().name"><fa-icon [icon]="icon"></fa-icon> {{ rule().name }}</span>
+</div>
+
+@if (contextMenuItems()) {
+  <sbb-context-menu
+    [target]="sub"
+    [model]="contextMenuItems() ?? []"
+    [data]="rule()"
+  />
+}

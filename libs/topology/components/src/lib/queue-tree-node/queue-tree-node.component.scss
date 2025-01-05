@@ -9,6 +9,8 @@
   flex-direction: row;
   justify-content: space-between;
   overflow: hidden;
+  --p-button-icon-only-width: 1.5rem;
+  align-items: center;
 }
 
 span {
@@ -17,6 +19,7 @@ span {
 }
 
 .name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 }

@@ -43,6 +43,14 @@
     />
   </ng-template>
   <ng-template let-node pTemplate="subscription">
-    <sbb-tpl-subscription-tree-node [contextMenuItems]="subscriptionContextMenu()" [subscription]="node.data.subscription" />
+    <sbb-tpl-subscription-tree-node
+      [contextMenuItems]="subscriptionContextMenu()"
+      [subscription]="node.data.subscription"
+      [showRefresh]="displaySubscriptionRules()"
+      (refreshSubscription)="refreshSubscription($event.namespaceId, $event.topicId, $event.id)"
+    />
+  </ng-template>
+  <ng-template let-node pTemplate="subscription-rule">
+    <sbb-tpl-subscription-rule-tree-node [contextMenuItems]="subscriptionRuleContextMenu()" [rule]="node.data.rule" />
   </ng-template>
 </p-tree>
