@@ -4,7 +4,6 @@ import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-elect
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, from, map, mergeMap, switchMap, take } from 'rxjs';
-import { Namespace } from '@service-bus-browser/topology-contracts';
 import { Action, Store } from '@ngrx/store';
 import { selectNamespaceById, selectTopicById } from './topology.selectors';
 

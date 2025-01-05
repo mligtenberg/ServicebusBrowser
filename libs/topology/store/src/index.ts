@@ -7,6 +7,7 @@ import { TopologyNamespacesEffects } from './lib/topology-namespaces.effects';
 import { TopologyQueueEffects } from './lib/topology-queue.effects';
 import { TopologyTopicEffects } from './lib/topology-topic.effects';
 import { TopologySubscriptionEffects } from './lib/topology-subscription.effects';
+import { TopologyToastsEffects } from './lib/topology-toasts.effects';
 
 export * as TopologyActions from './lib/topology.actions'
 export * as TopologySelectors from './lib/topology.selectors'
@@ -22,6 +23,8 @@ export function provideTopologyState(): (
       TopologyQueueEffects,
       TopologyTopicEffects,
       TopologySubscriptionEffects,
-      TopologyLoggingEffects])
+      TopologyLoggingEffects,
+      TopologyToastsEffects
+    ])
   ];
 }

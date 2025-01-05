@@ -1,4 +1,4 @@
-import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -9,6 +9,7 @@ import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +23,10 @@ export const appConfig: ApplicationConfig = {
         }
       }
     }),
+    {
+      provide: MessageService,
+      useClass: MessageService
+    },
 
     // config
     provideZoneChangeDetection({ eventCoalescing: true }),
