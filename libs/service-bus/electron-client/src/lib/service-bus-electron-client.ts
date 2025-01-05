@@ -1,7 +1,7 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
 import {
   Queue,
-  QueueWithMetaData,
+  QueueWithMetaData, Subscription,
   SubscriptionWithMetaData,
   Topic,
   TopicWithMetaData
@@ -80,5 +80,17 @@ export class ServiceBusElectronClient {
 
   async getSubscription(connectionId: string, topicId: string, subscriptionId: string): Promise<SubscriptionWithMetaData> {
     return await serviceBusApi.doRequest('getSubscription', { connectionId, topicId, subscriptionId }) as SubscriptionWithMetaData;
+  }
+
+  async createSubscription(connectionId: string, topicId: string, subscription: Subscription): Promise<void> {
+    await serviceBusApi.doRequest('createSubscription', { connectionId, topicId, subscription });
+  }
+
+  async editSubscription(connectionId: string, topicId: string, subscription: Subscription): Promise<void> {
+    await serviceBusApi.doRequest('updateSubscription', { connectionId, topicId, subscription });
+  }
+
+  async removeSubscription(connectionId: string, topicId: string, subscriptionId: string): Promise<void> {
+    await serviceBusApi.doRequest('deleteSubscription', { connectionId, topicId, subscriptionId });
   }
 }

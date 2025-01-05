@@ -29,21 +29,35 @@ export class SidebarComponent {
       label: 'Remove Namespace',
       icon: 'pi pi-trash',
       onSelect: (data: Namespace, event: MenuItemCommandEvent) => {
-        this.store.dispatch(ConnectionsActions.removeConnection({ connectionId: data.id }));
+        this.store.dispatch(
+          ConnectionsActions.removeConnection({ connectionId: data.id })
+        );
       },
     },
     {
       label: 'Add queue',
       icon: 'pi pi-plus',
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.id,
+          'queues',
+          'create',
+        ]);
       },
     },
     {
       label: 'Add topic',
       icon: 'pi pi-plus',
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'topics', 'create']);
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.id,
+          'topics',
+          'create',
+        ]);
       },
     },
   ];
@@ -53,7 +67,13 @@ export class SidebarComponent {
       label: 'Add queue',
       icon: 'pi pi-plus',
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'queues', 'create']);
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.id,
+          'queues',
+          'create',
+        ]);
       },
     },
   ];
@@ -63,7 +83,13 @@ export class SidebarComponent {
       label: 'Add topic',
       icon: 'pi pi-plus',
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.id, 'topics', 'create']);
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.id,
+          'topics',
+          'create',
+        ]);
       },
     },
   ];
@@ -72,42 +98,148 @@ export class SidebarComponent {
     {
       label: 'Edit Queue',
       icon: 'pi pi-pencil',
-      onSelect: async (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.namespaceId, 'queues', 'edit', data.id]);
+      onSelect: async (
+        data: QueueWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'queues',
+          'edit',
+          data.id,
+        ]);
       },
     },
     {
       label: 'Remove Queue',
       icon: 'pi pi-trash',
       onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(TopologyActions.removeQueue({ namespaceId: data.namespaceId, queueId: data.id }));
+        this.store.dispatch(
+          TopologyActions.removeQueue({
+            namespaceId: data.namespaceId,
+            queueId: data.id,
+          })
+        );
       },
     },
   ];
 
   topicContextMenuItems: SbbMenuItem<TopicWithMetaData>[] = [
     {
+      label: 'Add Subscription',
+      icon: 'pi pi-plus',
+      onSelect: async (
+        data: TopicWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'topics',
+          data.id,
+          'subscriptions',
+          'create',
+        ]);
+      },
+    },
+    {
+      separator: true,
+    },
+    {
       label: 'Edit Topic',
       icon: 'pi pi-pencil',
-      onSelect: async (data: TopicWithMetaData, event: MenuItemCommandEvent) => {
-        await this.router.navigate(['manage-topology', 'namespaces', data.namespaceId, 'topics', 'edit', data.id]);
+      onSelect: async (
+        data: TopicWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'topics',
+          'edit',
+          data.id,
+        ]);
       },
     },
     {
       label: 'Remove Topic',
       icon: 'pi pi-trash',
       onSelect: (data: TopicWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(TopologyActions.removeTopic({ namespaceId: data.namespaceId, topicId: data.id }));
+        this.store.dispatch(
+          TopologyActions.removeTopic({
+            namespaceId: data.namespaceId,
+            topicId: data.id,
+          })
+        );
       },
     },
   ];
 
-  async onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
-    await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'queues', 'edit', $event.queue.id]);
+  subscriptionContextMenuItems: SbbMenuItem<SubscriptionWithMetaData>[] = [
+    {
+      label: 'Edit Subscription',
+      icon: 'pi pi-pencil',
+      onSelect: (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ): void => {
+        this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'topics',
+          data.topicId,
+          'subscriptions',
+          'edit',
+          data.id,
+        ]);
+      },
+    },
+    {
+      label: 'Remove Subscription',
+      icon: 'pi pi-trash',
+      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          TopologyActions.removeSubscription({
+            namespaceId: data.namespaceId,
+            topicId: data.topicId,
+            subscriptionId: data.id,
+          })
+        );
+      },
+    },
+  ];
+
+  async onQueueSelected($event: {
+    namespaceId: string;
+    queue: QueueWithMetaData;
+  }) {
+    await this.router.navigate([
+      'manage-topology',
+      'namespaces',
+      $event.namespaceId,
+      'queues',
+      'edit',
+      $event.queue.id,
+    ]);
   }
 
-  async onTopicSelected($event: { namespaceId: string; topic: TopicWithMetaData }) {
-    await this.router.navigate(['manage-topology', 'namespaces', $event.namespaceId, 'topics', 'edit', $event.topic.id]);
+  async onTopicSelected($event: {
+    namespaceId: string;
+    topic: TopicWithMetaData;
+  }) {
+    await this.router.navigate([
+      'manage-topology',
+      'namespaces',
+      $event.namespaceId,
+      'topics',
+      'edit',
+      $event.topic.id,
+    ]);
   }
 
   async onSubscriptionSelected($event: {

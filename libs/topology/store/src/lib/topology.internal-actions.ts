@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import {
   Namespace,
   Queue,
-  QueueWithMetaData,
+  QueueWithMetaData, Subscription,
   SubscriptionWithMetaData,
   Topic,
   TopicWithMetaData
@@ -144,5 +144,35 @@ export const subscriptionLoaded = createAction(
 
 export const failedToLoadSubscription = createAction(
   '[Topology] Failed To Load Subscription',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
+);
+
+export const subscriptionAdded = createAction(
+  '[Topology] Subscription Added',
+  props<{ namespace: Namespace; topic: TopicWithMetaData; subscription: Subscription }>()
+);
+
+export const failedToAddSubscription = createAction(
+  '[Topology] Failed To Add Subscription',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
+);
+
+export const subscriptionEdited = createAction(
+  '[Topology] Subscription Edited',
+  props<{ namespace: Namespace; topic: TopicWithMetaData; subscription: Subscription }>()
+);
+
+export const failedToEditSubscription = createAction(
+  '[Topology] Failed To Edit Subscription',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
+);
+
+export const subscriptionRemoved = createAction(
+  '[Topology] Subscription Removed',
+  props<{ namespace: Namespace; topic: TopicWithMetaData; subscriptionId: string }>()
+);
+
+export const failedToRemoveSubscription = createAction(
+  '[Topology] Failed To Remove Subscription',
   props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
 );

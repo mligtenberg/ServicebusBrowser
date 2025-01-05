@@ -24,14 +24,16 @@ form {
   grid-template-areas:
     'name settings'
     'properties settings'
-    'properties .';
+    'properties .'
+    'actions actions';
   grid-template-columns: 3fr 2fr;
 
   @media (max-width: 1024px) {
     grid-template-areas:
     'name'
     'settings'
-    'properties';
+    'properties'
+    'actions';
     grid-template-columns: 1fr;
   }
 
@@ -45,6 +47,13 @@ form {
 
   .settings {
     grid-area: settings;
+  }
+
+  .actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
   }
 }
 

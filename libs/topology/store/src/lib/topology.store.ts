@@ -99,6 +99,16 @@ export const logsReducer = createReducer(
       }
     }
   )),
+  on(internalActions.subscriptionRemoved, (state, {namespace, topic, subscriptionId}) => ({
+    ...state,
+    subscriptionsPerNamespaceAndTopic: {
+      ...state.subscriptionsPerNamespaceAndTopic,
+      [namespace.id]: {
+        ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
+        [topic.id]: state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id].filter(subscription => subscription.id !== subscriptionId)
+      }
+    }
+  }))
 );
 
 export const topologyFeature = createFeature({

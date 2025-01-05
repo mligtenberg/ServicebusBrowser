@@ -1,6 +1,6 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
 import {
-  CorrelationRuleFilter, QueueProperties, QueueRuntimeProperties,
+  CorrelationRuleFilter, CreateSubscriptionOptions, QueueProperties, QueueRuntimeProperties,
   RuleProperties,
   ServiceBusAdministrationClient,
   SubscriptionProperties, SubscriptionRuntimeProperties, TopicProperties, TopicRuntimeProperties
@@ -9,7 +9,7 @@ import {
   QueueWithMetaData,
   SubscriptionWithMetaData,
   SubscriptionRule,
-  TopicWithMetaData, Topic
+  TopicWithMetaData, Topic, Subscription
 } from '@service-bus-browser/topology-contracts';
 
 export class AdministrationClient {
@@ -51,6 +51,53 @@ export class AdministrationClient {
     ]);
 
     return this.mapQueue(queue, queueMeta);
+  }
+
+  async addQueue(queue: QueueWithMetaData): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    const body = {
+      autoDeleteOnIdle: !queue.properties.autoDeleteOnIdle ? undefined : queue.properties.autoDeleteOnIdle,
+      defaultMessageTimeToLive: queue.properties.defaultMessageTimeToLive,
+      duplicateDetectionHistoryTimeWindow: !queue.properties.duplicateDetectionHistoryTimeWindow ? undefined : queue.properties.duplicateDetectionHistoryTimeWindow,
+      forwardDeadLetteredMessagesTo: queue.properties.forwardDeadLetteredMessagesTo ?? undefined,
+      forwardTo: queue.properties.forwardMessagesTo ?? undefined,
+      lockDuration: !queue.properties.lockDuration ? undefined : queue.properties.lockDuration,
+      userMetadata: !queue.properties.userMetadata ? undefined : queue.properties.userMetadata,
+      enableExpress: queue.settings.enableExpress,
+      enablePartitioning: queue.settings.enablePartitioning,
+      requiresSession: queue.settings.requiresSession,
+      requiresDuplicateDetection: queue.settings.requiresDuplicateDetection,
+      enableBatchedOperations: queue.settings.enableBatchedOperations,
+      deadLetteringOnMessageExpiration: queue.settings.deadLetteringOnMessageExpiration,
+      maxSizeInMegabytes: queue.properties.maxSizeInMegabytes,
+      maxDeliveryCount: queue.properties.maxDeliveryCount
+    };
+
+    await administrationClient.createQueue(queue.name, body);
+  }
+
+  async updateQueue(queue: QueueWithMetaData): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    const queueProperties = await administrationClient.getQueue(queue.name);
+
+    queueProperties.autoDeleteOnIdle = !queue.properties.autoDeleteOnIdle ? queueProperties.autoDeleteOnIdle : queue.properties.autoDeleteOnIdle;
+    queueProperties.defaultMessageTimeToLive = queue.properties.defaultMessageTimeToLive;
+    queueProperties.duplicateDetectionHistoryTimeWindow = !queue.properties.duplicateDetectionHistoryTimeWindow ? queueProperties.duplicateDetectionHistoryTimeWindow : queue.properties.duplicateDetectionHistoryTimeWindow;
+    queueProperties.forwardDeadLetteredMessagesTo = queue.properties.forwardDeadLetteredMessagesTo ?? undefined;
+    queueProperties.forwardTo = queue.properties.forwardMessagesTo ?? undefined;
+    queueProperties.lockDuration = !queue.properties.lockDuration ? queueProperties.lockDuration : queue.properties.lockDuration;
+    queueProperties.userMetadata = !queue.properties.userMetadata ? '' : queue.properties.userMetadata;
+    queueProperties.enableBatchedOperations = queue.settings.enableBatchedOperations;
+    queueProperties.deadLetteringOnMessageExpiration = queue.settings.deadLetteringOnMessageExpiration;
+    queueProperties.maxSizeInMegabytes = queue.properties.maxSizeInMegabytes;
+    queueProperties.maxDeliveryCount = queue.properties.maxDeliveryCount;
+
+    await administrationClient.updateQueue(queueProperties);
+  }
+
+  async deleteQueue(queueId: string): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    await administrationClient.deleteQueue(queueId);
   }
 
   async getTopics(): Promise<TopicWithMetaData[]> {
@@ -143,51 +190,52 @@ export class AdministrationClient {
     return this.mapSubscription(topicId, subscription, subscriptionMeta, rules);
   }
 
-  async addQueue(queue: QueueWithMetaData): Promise<void> {
+  async addSubscription(topicId: string, subscription: Subscription): Promise<void> {
     const administrationClient = this.getAdministrationClient();
-    const body = {
-      autoDeleteOnIdle: !queue.properties.autoDeleteOnIdle ? undefined : queue.properties.autoDeleteOnIdle,
-      defaultMessageTimeToLive: queue.properties.defaultMessageTimeToLive,
-      duplicateDetectionHistoryTimeWindow: !queue.properties.duplicateDetectionHistoryTimeWindow ? undefined : queue.properties.duplicateDetectionHistoryTimeWindow,
-      forwardDeadLetteredMessagesTo: queue.properties.forwardDeadLetteredMessagesTo ?? undefined,
-      forwardTo: queue.properties.forwardMessagesTo ?? undefined,
-      lockDuration: !queue.properties.lockDuration ? undefined : queue.properties.lockDuration,
-      userMetadata: !queue.properties.userMetadata ? undefined : queue.properties.userMetadata,
-      enableExpress: queue.settings.enableExpress,
-      enablePartitioning: queue.settings.enablePartitioning,
-      requiresSession: queue.settings.requiresSession,
-      requiresDuplicateDetection: queue.settings.requiresDuplicateDetection,
-      enableBatchedOperations: queue.settings.enableBatchedOperations,
-      deadLetteringOnMessageExpiration: queue.settings.deadLetteringOnMessageExpiration,
-      maxSizeInMegabytes: queue.properties.maxSizeInMegabytes,
-      maxDeliveryCount: queue.properties.maxDeliveryCount
+    const body: CreateSubscriptionOptions = {
+      autoDeleteOnIdle: !subscription.properties.autoDeleteOnIdle ? undefined : subscription.properties.autoDeleteOnIdle,
+      defaultMessageTimeToLive: subscription.properties.defaultMessageTimeToLive,
+      forwardDeadLetteredMessagesTo: subscription.properties.forwardDeadLetteredMessagesTo ?? undefined,
+      forwardTo: subscription.properties.forwardMessagesTo ?? undefined,
+      lockDuration: !subscription.properties.lockDuration ? undefined : subscription.properties.lockDuration,
+      userMetadata: !subscription.properties.userMetadata ? undefined : subscription.properties.userMetadata,
+      enableBatchedOperations: subscription.settings.enableBatchedOperations,
+      requiresSession: subscription.settings.requiresSession,
+      maxDeliveryCount: subscription.properties.maxDeliveryCount,
+      deadLetteringOnFilterEvaluationExceptions: subscription.settings.deadLetteringOnFilterEvaluationExceptions,
+      deadLetteringOnMessageExpiration: subscription.settings.deadLetteringOnMessageExpiration,
+      defaultRuleOptions: {
+        name: '$Default',
+        filter: {
+          sqlExpression: '1=1'
+        },
+      },
     };
 
-    await administrationClient.createQueue(queue.name, body);
+    await administrationClient.createSubscription(topicId, subscription.name, body);
   }
 
-  async updateQueue(queue: QueueWithMetaData): Promise<void> {
+  async updateSubscription(topicId: string, subscription: Subscription): Promise<void> {
     const administrationClient = this.getAdministrationClient();
-    const queueProperties = await administrationClient.getQueue(queue.name);
+    const subscriptionProperties = await administrationClient.getSubscription(topicId, subscription.name);
 
-    queueProperties.autoDeleteOnIdle = !queue.properties.autoDeleteOnIdle ? queueProperties.autoDeleteOnIdle : queue.properties.autoDeleteOnIdle;
-    queueProperties.defaultMessageTimeToLive = queue.properties.defaultMessageTimeToLive;
-    queueProperties.duplicateDetectionHistoryTimeWindow = !queue.properties.duplicateDetectionHistoryTimeWindow ? queueProperties.duplicateDetectionHistoryTimeWindow : queue.properties.duplicateDetectionHistoryTimeWindow;
-    queueProperties.forwardDeadLetteredMessagesTo = queue.properties.forwardDeadLetteredMessagesTo ?? undefined;
-    queueProperties.forwardTo = queue.properties.forwardMessagesTo ?? undefined;
-    queueProperties.lockDuration = !queue.properties.lockDuration ? queueProperties.lockDuration : queue.properties.lockDuration;
-    queueProperties.userMetadata = !queue.properties.userMetadata ? '' : queue.properties.userMetadata;
-    queueProperties.enableBatchedOperations = queue.settings.enableBatchedOperations;
-    queueProperties.deadLetteringOnMessageExpiration = queue.settings.deadLetteringOnMessageExpiration;
-    queueProperties.maxSizeInMegabytes = queue.properties.maxSizeInMegabytes;
-    queueProperties.maxDeliveryCount = queue.properties.maxDeliveryCount;
+    subscriptionProperties.autoDeleteOnIdle = !subscription.properties.autoDeleteOnIdle ? subscriptionProperties.autoDeleteOnIdle : subscription.properties.autoDeleteOnIdle;
+    subscriptionProperties.defaultMessageTimeToLive = subscription.properties.defaultMessageTimeToLive;
+    subscriptionProperties.forwardDeadLetteredMessagesTo = subscription.properties.forwardDeadLetteredMessagesTo ?? undefined;
+    subscriptionProperties.forwardTo = subscription.properties.forwardMessagesTo ?? undefined;
+    subscriptionProperties.lockDuration = !subscription.properties.lockDuration ? subscriptionProperties.lockDuration : subscription.properties.lockDuration;
+    subscriptionProperties.userMetadata = !subscription.properties.userMetadata ? '' : subscription.properties.userMetadata;
+    subscriptionProperties.enableBatchedOperations = subscription.settings.enableBatchedOperations;
+    subscriptionProperties.maxDeliveryCount = subscription.properties.maxDeliveryCount;
+    subscriptionProperties.deadLetteringOnFilterEvaluationExceptions = subscription.settings.deadLetteringOnFilterEvaluationExceptions;
+    subscriptionProperties.deadLetteringOnMessageExpiration = subscription.settings.deadLetteringOnMessageExpiration;
 
-    await administrationClient.updateQueue(queueProperties);
+    await administrationClient.updateSubscription(subscriptionProperties);
   }
 
-  async deleteQueue(queueId: string): Promise<void> {
+  async deleteSubscription(topicId: string, subscriptionId: string): Promise<void> {
     const administrationClient = this.getAdministrationClient();
-    await administrationClient.deleteQueue(queueId);
+    await administrationClient.deleteSubscription(topicId, subscriptionId);
   }
 
   private async getSubscriptionRules(client: ServiceBusAdministrationClient, topicName: string, subscriptionName: string)

@@ -111,4 +111,34 @@ export class TopologyLoggingEffects {
     ofType(internalActions.failedToRemoveTopic),
     tap(({ error, namespace }) => this.logger.error(`Failed to remove topic from namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
   ), { dispatch: false });
+
+  logSubscriptionAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionAdded),
+    tap(({ subscription, namespace, topic }) => this.logger.info(`Subscription ${subscription.name} added to topic ${topic.name} in namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToAddSubscription$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToAddSubscription),
+    tap(({ error, namespace, topic }) => this.logger.error(`Failed to add subscription to topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logSubscriptionEdited$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionEdited),
+    tap(({ subscription, namespace, topic }) => this.logger.info(`Subscription ${subscription.name} edited in topic ${topic.name} in namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToEditSubscription$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToEditSubscription),
+    tap(({ error, namespace, topic }) => this.logger.error(`Failed to edit subscription in topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logSubscriptionRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRemoved),
+    tap(({ subscriptionId, namespace, topic }) => this.logger.info(`Subscription ${subscriptionId} removed from topic ${topic.name} in namespace ${namespace.name}`))
+  ), { dispatch: false });
+
+  logFailedToRemoveSubscription$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToRemoveSubscription),
+    tap(({ error, namespace, topic }) => this.logger.error(`Failed to remove subscription from topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
 }

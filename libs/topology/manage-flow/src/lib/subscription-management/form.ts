@@ -7,9 +7,9 @@ export interface SubscriptionForm {
     userMetadata: FormControl<string | null>;
     forwardMessagesTo: FormControl<string | null>;
     forwardDeadLetteredMessagesTo: FormControl<string | null>;
-    autoDeleteOnIdle: FormControl<string>;
-    defaultMessageTimeToLive: FormControl<string>;
-    lockDuration: FormControl<string>;
+    autoDeleteOnIdle: FormControl<string | null>;
+    defaultMessageTimeToLive: FormControl<string | null>;
+    lockDuration: FormControl<string | null>;
   }>;
   settings: FormGroup<{
     enableBatchedOperations: FormControl<boolean>;

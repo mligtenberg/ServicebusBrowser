@@ -66,4 +66,7 @@
       <label for="requiresSession">Requires session</label>
     </div>
   </p-card>
+  <div class="actions">
+    <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
+  </div>
 </form>
