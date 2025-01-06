@@ -1,15 +1,14 @@
-<div class="line-container" #sub>
-  <span class="name" [pTooltip]="subscription().name"><fa-icon [icon]="icon"></fa-icon> {{ subscription().name }}</span>
-  <span>({{subscription().metaData.activeMessageCount}},{{subscription().metaData.deadLetterMessageCount}},{{subscription().metaData.transferDeadLetterMessageCount}})</span>
-  @if (showRefresh()) {
-    <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
-  }
-</div>
-
-@if (contextMenuItems()) {
-  <sbb-context-menu
-    [target]="sub"
-    [model]="contextMenuItems() ?? []"
-    [data]="subscription()"
-  />
-}
+<sbb-tpl-generic-tree-node
+  [data]="subscription()"
+  [icon]="icon"
+  [label]="subscription().name"
+  [contextMenuItems]="contextMenuItems()"
+  [quickAmounts]="{
+    activeMessageCount: subscription().metaData.activeMessageCount,
+    deadLetterMessageCount: subscription().metaData.deadLetterMessageCount,
+    transferDeadLetterMessageCount: subscription().metaData.transferDeadLetterMessageCount
+  }"
+  [showRefresh]="true"
+  [isRefreshing]="subscription().isLoading"
+  (refreshData)="refresh()"
+/>

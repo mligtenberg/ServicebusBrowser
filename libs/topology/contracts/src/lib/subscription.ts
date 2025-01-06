@@ -1,5 +1,6 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { SubscriptionRule } from './subscription-rules';
+import { TopicWithChildren } from './topic';
 
 export type Subscription = {
   namespaceId: UUID;
@@ -74,3 +75,5 @@ export type SubscriptionWithMetaData = Subscription & {
   },
   rules: SubscriptionRule[];
 }
+
+export type SubscriptionWithMetaDataAndLoadingState = SubscriptionWithMetaData & { isLoading: boolean };

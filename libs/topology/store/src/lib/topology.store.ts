@@ -7,6 +7,8 @@ import {
 } from '@service-bus-browser/topology-contracts';
 
 import * as internalActions from './topology.internal-actions';
+import * as actions from './topology.actions';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const featureKey = 'topology';
 
@@ -18,6 +20,10 @@ export type TopologyState = {
     string,
     Record<string, SubscriptionWithMetaData[]>
   >;
+  queueLoadActions: Array<{ namespaceId: UUID }>
+  topicLoadActions: Array<{ namespaceId: UUID }>
+  subscriptionLoadActions: Array<{ namespaceId: UUID, topicId: string }>,
+  rulesLoadActions: Array<{ namespaceId: UUID, topicId: string, subscriptionId: string }>
 };
 
 export const initialState: TopologyState = {
@@ -25,45 +31,72 @@ export const initialState: TopologyState = {
   queuesPerNamespace: {},
   topicsPerNamespace: {},
   subscriptionsPerNamespaceAndTopic: {},
+  queueLoadActions: [],
+  topicLoadActions: [],
+  subscriptionLoadActions: [],
+  rulesLoadActions: []
 };
 
 export const logsReducer = createReducer(
   initialState,
-  on(internalActions.namespacesLoaded, (state, { namespaces }) => ({
+  on(actions.loadQueues, actions.loadQueue, (state, { namespaceId }): TopologyState => ({
+    ...state,
+    queueLoadActions: [...state.queueLoadActions, { namespaceId }],
+  })),
+  on(internalActions.namespacesLoaded, (state, { namespaces }): TopologyState  => ({
     ...state,
     namespaces,
   })),
-  on(internalActions.queuesLoaded, (state, { namespace, queues }) => ({
+  on(internalActions.queuesLoaded, (state, { namespace, queues }): TopologyState  => ({
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
       [namespace.id]: queues,
     },
+    queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
-  on(internalActions.queueLoaded, (state, { namespace, queue }) => ({
+  on(internalActions.queueLoaded, (state, { namespace, queue }): TopologyState  => ({
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
       [namespace.id]: [...state.queuesPerNamespace[namespace.id], queue],
     },
+    queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
-  on(internalActions.topicsLoaded, (state, { namespace, topics }) => ({
+  on(actions.loadTopics, actions.loadTopic, (state, { namespaceId }): TopologyState => ({
+    ...state,
+    topicLoadActions: [...state.topicLoadActions, { namespaceId }],
+  })),
+  on(internalActions.topicsLoaded, (state, { namespace, topics }): TopologyState  => ({
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
       [namespace.id]: topics,
     },
+    topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
-  on(internalActions.topicLoaded, (state, { namespace, topic }) => ({
+  on(internalActions.topicLoaded, (state, { namespace, topic }): TopologyState  => ({
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
       [namespace.id]: [...state.topicsPerNamespace[namespace.id], topic],
     },
+    topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
+  })),
+  on(actions.loadSubscriptions, (state, { namespaceId, topicId }): TopologyState => ({
+    ...state,
+    topicLoadActions: [...state.topicLoadActions, { namespaceId }],
+    subscriptionLoadActions: [...state.subscriptionLoadActions, { namespaceId, topicId }],
+  })),
+  on(actions.loadSubscription, (state, { namespaceId, topicId, subscriptionId }): TopologyState => ({
+    ...state,
+    topicLoadActions: [...state.topicLoadActions, { namespaceId }],
+    subscriptionLoadActions: [...state.subscriptionLoadActions, { namespaceId, topicId }],
+    rulesLoadActions: [...state.rulesLoadActions, { namespaceId, topicId, subscriptionId }]
   })),
   on(
     internalActions.subscriptionsLoaded,
-    (state, { namespace, topic, subscriptions }) => ({
+    (state, { namespace, topic, subscriptions }): TopologyState  => ({
       ...state,
       subscriptionsPerNamespaceAndTopic: {
         ...state.subscriptionsPerNamespaceAndTopic,
@@ -72,9 +105,11 @@ export const logsReducer = createReducer(
           [topic.id]: subscriptions,
         },
       },
+      topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
+      subscriptionLoadActions: state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id)
     })
   ),
-  on(internalActions.subscriptionLoaded, (state, { namespace, topic, subscription }) => ({
+  on(internalActions.subscriptionLoaded, (state, { namespace, topic, subscription }): TopologyState  => ({
     ...state,
     subscriptionsPerNamespaceAndTopic: {
       ...state.subscriptionsPerNamespaceAndTopic,
@@ -82,16 +117,19 @@ export const logsReducer = createReducer(
         ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
         [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id].filter(s => s.id !== subscription.id), subscription],
       },
-    }
+    },
+    topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
+    subscriptionLoadActions: state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id),
+    rulesLoadActions: state.rulesLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id && a.subscriptionId !== subscription.id)
   })),
-  on(internalActions.queueRemoved, (state, {namespace, queueId}) => ({
+  on(internalActions.queueRemoved, (state, {namespace, queueId}): TopologyState  => ({
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
       [namespace.id]: state.queuesPerNamespace[namespace.id].filter(queue => queue.id !== queueId)
     }
   })),
-  on(internalActions.topicRemoved, (state, {namespace, topicId}) => ({
+  on(internalActions.topicRemoved, (state, {namespace, topicId}): TopologyState  => ({
       ...state,
       topicsPerNamespace: {
         ...state.topicsPerNamespace,
@@ -99,7 +137,7 @@ export const logsReducer = createReducer(
       }
     }
   )),
-  on(internalActions.subscriptionRemoved, (state, {namespace, topic, subscriptionId}) => ({
+  on(internalActions.subscriptionRemoved, (state, {namespace, topic, subscriptionId}): TopologyState  => ({
     ...state,
     subscriptionsPerNamespaceAndTopic: {
       ...state.subscriptionsPerNamespaceAndTopic,

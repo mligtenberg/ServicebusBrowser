@@ -6,7 +6,7 @@ import { ContextMenuComponent } from '@service-bus-browser/shared-components';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
 import { faCheckToSlot } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'primeng/button';
+import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
 
 @Component({
   selector: 'sbb-tpl-subscription-rule-tree-node',
@@ -15,7 +15,7 @@ import { Button } from 'primeng/button';
     ContextMenuComponent,
     FaIconComponent,
     Tooltip,
-    Button,
+    GenericTreeNodeComponent,
   ],
   templateUrl: './subscription-rule-tree-node.component.html',
   styleUrl: './subscription-rule-tree-node.component.scss',

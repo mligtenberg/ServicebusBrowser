@@ -1,10 +1,10 @@
-<div class="line-container" #q>
-<span class="name" [pTooltip]="queue().name"><fa-icon [icon]="icon"></fa-icon> {{ queue().name }}</span>
-<span class="counters">({{queue().metadata.activeMessageCount}},{{queue().metadata.deadLetterMessageCount}},{{queue().metadata.transferDeadLetterMessageCount}})</span>
-</div>
-@if (contextMenuItems()) {
-  <sbb-context-menu
-    [target]="q"
-    [model]="contextMenuItems() ?? []"
-    [data]="queue()" />
-}
+<sbb-tpl-generic-tree-node
+  [data]="queue()"
+  [icon]="icon"
+  [label]="queue().name"
+  [contextMenuItems]="contextMenuItems()"
+  [quickAmounts]="{
+    activeMessageCount: queue().metadata.activeMessageCount,
+    deadLetterMessageCount: queue().metadata.deadLetterMessageCount,
+    transferDeadLetterMessageCount: queue().metadata.transferDeadLetterMessageCount
+  }"/>

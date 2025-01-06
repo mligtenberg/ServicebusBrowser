@@ -1,9 +1,6 @@
-<div class="line-container" #ns>
-  <span class="name" [pTooltip]="namespace().name"><fa-icon [icon]="icon"></fa-icon> {{ namespace().name }}</span>
-</div>
-@if (contextMenuItems()) {
-  <sbb-context-menu
-    [target]="ns"
-    [model]="contextMenuItems() ?? []"
-    [data]="namespace()" />
-}
+<sbb-tpl-generic-tree-node
+  [data]="namespace()"
+  [icon]="icon"
+  [label]="namespace().name"
+  [contextMenuItems]="contextMenuItems()"
+/>

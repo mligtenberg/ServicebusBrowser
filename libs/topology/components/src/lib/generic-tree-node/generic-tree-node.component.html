@@ -1,0 +1,20 @@
+<div class="line-container" #node>
+  <span class="name" [pTooltip]="label()"><fa-icon [icon]="icon()"></fa-icon> {{ label() }}</span>
+  @if (quickAmounts(); as amounts) {
+    <span>({{amounts.activeMessageCount}},{{amounts.deadLetterMessageCount}},{{amounts.transferDeadLetterMessageCount}})</span>
+  }
+
+  @if (showRefresh()) {
+    <div class="refresh-button" [ngClass]="{ 'spin': isRefreshing() }">
+      <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
+    </div>
+  }
+</div>
+
+@if (contextMenuItems()) {
+  <sbb-context-menu
+    [target]="node"
+    [model]="contextMenuItems() ?? []"
+    [data]="data()"
+  />
+}

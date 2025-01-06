@@ -15,7 +15,9 @@
   <ng-template let-node pTemplate="queues">
     <div class="category-divider" #queues>
       <span class="name">{{ node.label }}</span>
-      <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
+      <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingQueues }">
+        <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
+      </div>
     </div>
     @if (queuesGroupNodeContextMenu(); as contextMenu) {
       <sbb-context-menu [target]="queues" [data]="node.data" [model]="contextMenu"></sbb-context-menu>
@@ -24,7 +26,9 @@
   <ng-template let-node pTemplate="topics">
     <div class="category-divider" #topics>
       <span class="name">{{ node.label }}</span>
-      <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
+      <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingTopics }">
+        <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
+      </div>
     </div>
     @if (topicsGroupNodeContextMenu(); as contextMenu) {
       <sbb-context-menu [target]="topics" [data]="node.data" [model]="contextMenu"></sbb-context-menu>

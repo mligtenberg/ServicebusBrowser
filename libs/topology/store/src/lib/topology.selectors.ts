@@ -1,18 +1,29 @@
 import { featureKey, TopologyState } from './topology.store';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { NamespaceWithChildren, QueueWithMetaData, TopicWithChildren } from '@service-bus-browser/topology-contracts';
+import {
+  NamespaceWithChildren, NamespaceWithChildrenAndLoadingState,
+  QueueWithMetaData,
+  SubscriptionWithMetaData,
+  TopicWithChildren, TopicWithChildrenAndLoadingState
+} from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 const featureSelector = createFeatureSelector<TopologyState>(featureKey);
 
 export const selectNamespaces = createSelector(
   featureSelector,
-  (state) => state.namespaces.map<NamespaceWithChildren<QueueWithMetaData, TopicWithChildren>>((ns) => ({
+  (state) => state.namespaces.map<NamespaceWithChildrenAndLoadingState>((ns) => ({
     ...ns,
+    isLoadingQueues: state.queueLoadActions.some((a) => a.namespaceId === ns.id),
+    isLoadingTopics: state.topicLoadActions.some((a) => a.namespaceId === ns.id),
     queues: state.queuesPerNamespace[ns.id] ?? [],
-    topics: (state.topicsPerNamespace[ns.id] ?? []).map((topic) => ({
+    topics: (state.topicsPerNamespace[ns.id] ?? []).map((topic): TopicWithChildrenAndLoadingState => ({
       ...topic,
-      subscriptions: state.subscriptionsPerNamespaceAndTopic[ns.id]?.[topic.id] ?? [],
+      isLoading: state.subscriptionLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id),
+      subscriptions: state.subscriptionsPerNamespaceAndTopic[ns.id]?.[topic.id].map(s => ({
+        ...s,
+        isLoading: state.rulesLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id && a.subscriptionId === s.id),
+      })) ?? [],
     })),
   }))
 );

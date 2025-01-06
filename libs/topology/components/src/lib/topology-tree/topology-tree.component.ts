@@ -2,10 +2,9 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import {
   Namespace,
-  NamespaceWithChildren,
   QueueWithMetaData,
   SubscriptionWithMetaData, TopicWithMetaData,
-  TopicWithChildren, SubscriptionRule
+  TopicWithChildren, SubscriptionRule, NamespaceWithChildrenAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
@@ -41,9 +40,7 @@ import {
 })
 export class TopologyTreeComponent {
   namespaces =
-    input.required<
-      NamespaceWithChildren<QueueWithMetaData, TopicWithChildren>[]
-    >();
+    input.required<NamespaceWithChildrenAndLoadingState[]>();
   namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
   queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();

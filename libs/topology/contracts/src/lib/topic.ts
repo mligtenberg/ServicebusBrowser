@@ -1,4 +1,4 @@
-import { SubscriptionWithMetaData } from './subscription';
+import { SubscriptionWithMetaData, SubscriptionWithMetaDataAndLoadingState } from './subscription';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export type Topic = {
@@ -63,3 +63,5 @@ export type TopicWithMetaData = Topic & {
 export type TopicWithChildren<TSubscription extends SubscriptionWithMetaData = SubscriptionWithMetaData> = TopicWithMetaData & {
   subscriptions: TSubscription[];
 }
+
+export type TopicWithChildrenAndLoadingState = TopicWithChildren<SubscriptionWithMetaDataAndLoadingState> & { isLoading: boolean };
