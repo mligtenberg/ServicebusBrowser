@@ -1,18 +1,14 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, from, map, mergeMap, switchMap, take } from 'rxjs';
-import { Namespace } from '@service-bus-browser/topology-contracts';
-import { Action, Store } from '@ngrx/store';
-import { selectNamespaceById, selectTopicById } from './topology.selectors';
+import { Store } from '@ngrx/store';
+import { selectNamespaceById } from './topology.selectors';
 
 @Injectable()
-export class TopologyQueueEffects implements OnInitEffects {
-  ngrxOnInitEffects(): Action {
-    return actions.loadNamespaces();
-  }
+export class TopologyQueueEffects {
   store = inject(Store);
   actions$ = inject(Actions);
   serviceBusClient = inject(ServiceBusElectronClient);

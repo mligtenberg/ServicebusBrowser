@@ -1,17 +1,14 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, from, map, mergeMap, switchMap, take } from 'rxjs';
-import { Action, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { selectNamespaceById, selectTopicById } from './topology.selectors';
 
 @Injectable()
-export class TopologySubscriptionEffects implements OnInitEffects {
-  ngrxOnInitEffects(): Action {
-    return actions.loadNamespaces();
-  }
+export class TopologySubscriptionEffects {
   store = inject(Store);
   actions$ = inject(Actions);
   serviceBusClient = inject(ServiceBusElectronClient);
@@ -141,6 +138,20 @@ export class TopologySubscriptionEffects implements OnInitEffects {
     ofType(internalActions.subscriptionAdded),
     mergeMap(({ subscription, namespace, topic }) =>
       from([actions.loadSubscription({ namespaceId: namespace.id, topicId: topic.id, subscriptionId: subscription.id })])
+    )
+  ));
+
+  loadSubscriptionOnRuleAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleAdded),
+    mergeMap(({ namespace, topic, subscription }) =>
+      from([actions.loadSubscription({ namespaceId: namespace!.id, topicId: topic!.id, subscriptionId: subscription!.id })])
+    )
+  ));
+
+  loadSubscriptionOnRuleRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleRemoved),
+    mergeMap(({ namespace, topic, subscription }) =>
+      from([actions.loadSubscription({ namespaceId: namespace!.id, topicId: topic!.id, subscriptionId: subscription!.id })])
     )
   ));
 }

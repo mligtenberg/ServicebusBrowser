@@ -68,6 +68,12 @@ importers:
       luxon:
         specifier: ^3.5.0
         version: 3.5.0
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
+      ngx-monaco-editor-v2:
+        specifier: ^19.0.2
+        version: 19.0.2(@angular/common@19.0.5(@angular/core@19.0.5(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@19.0.5(rxjs@7.8.1)(zone.js@0.15.0))(monaco-editor@0.52.2)
       primeicons:
         specifier: ^7.0.0
         version: 7.0.0
@@ -5753,6 +5759,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  monaco-editor@0.52.2:
+    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+
   mrmime@2.0.0:
     resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
     engines: {node: '>=10'}
@@ -5809,6 +5818,13 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  ngx-monaco-editor-v2@19.0.2:
+    resolution: {integrity: sha512-hkPiCnLU0vdIF2DW7Ko/EHoGCtLxuN85eygKuk3fXL2GRbEIl5VcbUXmRX9ItfLOI1F5QcH80HhavY5r0gNfEw==}
+    peerDependencies:
+      '@angular/common': ^19.0.4
+      '@angular/core': ^19.0.4
+      monaco-editor: ^0.52.2
 
   node-abi@3.71.0:
     resolution: {integrity: sha512-SZ40vRiy/+wRTf21hxkkEjPJZpARzUMVcJoQse2EF8qkUWbbO2z7vd5oA/H6bVH6SZQ5STGcu0KRDS7biNRfxw==}
@@ -14551,6 +14567,8 @@ snapshots:
 
   mkdirp@3.0.1: {}
 
+  monaco-editor@0.52.2: {}
+
   mrmime@2.0.0: {}
 
   ms@2.0.0: {}
@@ -14600,6 +14618,13 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
+
+  ngx-monaco-editor-v2@19.0.2(@angular/common@19.0.5(@angular/core@19.0.5(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1))(@angular/core@19.0.5(rxjs@7.8.1)(zone.js@0.15.0))(monaco-editor@0.52.2):
+    dependencies:
+      '@angular/common': 19.0.5(@angular/core@19.0.5(rxjs@7.8.1)(zone.js@0.15.0))(rxjs@7.8.1)
+      '@angular/core': 19.0.5(rxjs@7.8.1)(zone.js@0.15.0)
+      monaco-editor: 0.52.2
+      tslib: 2.8.1
 
   node-abi@3.71.0:
     dependencies:

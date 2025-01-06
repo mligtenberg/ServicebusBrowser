@@ -8,6 +8,7 @@ import { TopologyQueueEffects } from './lib/topology-queue.effects';
 import { TopologyTopicEffects } from './lib/topology-topic.effects';
 import { TopologySubscriptionEffects } from './lib/topology-subscription.effects';
 import { TopologyToastsEffects } from './lib/topology-toasts.effects';
+import { TopologySubscriptionRuleEffects } from './lib/topology-subscription-rule.effects';
 
 export * as TopologyActions from './lib/topology.actions'
 export * as TopologySelectors from './lib/topology.selectors'
@@ -23,6 +24,7 @@ export function provideTopologyState(): (
       TopologyQueueEffects,
       TopologyTopicEffects,
       TopologySubscriptionEffects,
+      TopologySubscriptionRuleEffects,
       TopologyLoggingEffects,
       TopologyToastsEffects
     ])

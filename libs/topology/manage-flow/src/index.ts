@@ -41,5 +41,19 @@ export const routes: Routes = [
     data: {
       action: 'modify'
     }
+  },
+  {
+    path: 'namespaces/:namespaceId/topics/:topicId/subscriptions/:subscriptionId/rules/create',
+    loadComponent: () => import('./lib/subscription-rule-management/subscription-rule-management.component').then(m => m.SubscriptionRuleManagementComponent),
+    data: {
+      action: 'create'
+    }
+  },
+  {
+    path: 'namespaces/:namespaceId/topics/:topicId/subscriptions/:subscriptionId/rules/edit/:ruleName',
+    loadComponent: () => import('./lib/subscription-rule-management/subscription-rule-management.component').then(m => m.SubscriptionRuleManagementComponent),
+    data: {
+      action: 'modify'
+    }
   }
 ]

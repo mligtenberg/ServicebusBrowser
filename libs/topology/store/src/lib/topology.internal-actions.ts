@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import {
   Namespace,
   Queue,
-  QueueWithMetaData, Subscription,
+  QueueWithMetaData, Subscription, SubscriptionRule,
   SubscriptionWithMetaData,
   Topic,
   TopicWithMetaData
@@ -175,4 +175,35 @@ export const subscriptionRemoved = createAction(
 export const failedToRemoveSubscription = createAction(
   '[Topology] Failed To Remove Subscription',
   props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
+);
+
+// SUBSCRIPTION RULES
+export const subscriptionRuleAdded = createAction(
+  '[Topology] Subscription Rule Added',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; rule: SubscriptionRule }>()
+);
+
+export const failedToAddSubscriptionRule = createAction(
+  '[Topology] Failed To Add Subscription Rule',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; ruleName: string, error: Problem }>()
+);
+
+export const subscriptionRuleEdited = createAction(
+  '[Topology] Subscription Rule Edited',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; rule: SubscriptionRule }>()
+);
+
+export const failedToEditSubscriptionRule = createAction(
+  '[Topology] Failed To Edit Subscription Rule',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; ruleName: string, error: Problem }>()
+);
+
+export const subscriptionRuleRemoved = createAction(
+  '[Topology] Subscription Rule Removed',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; ruleName: string }>()
+);
+
+export const failedToRemoveSubscriptionRule = createAction(
+  '[Topology] Failed To Remove Subscription Rule',
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; ruleName: string, error: Problem }>()
 );

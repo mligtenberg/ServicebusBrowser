@@ -47,3 +47,8 @@ export const selectSubscriptionById = (namespaceId: UUID, topicId: string, subsc
   selectTopicById(namespaceId, topicId),
   (topic) => topic?.subscriptions.find((s) => s.id === subscriptionId)
 );
+
+export const selectSubscriptionRuleById = (namespaceId: UUID, topicId: string, subscriptionId: string, ruleName: string) => createSelector(
+  selectSubscriptionById(namespaceId, topicId, subscriptionId),
+  (subscription) => subscription?.rules.find((r) => r.name === ruleName)
+);

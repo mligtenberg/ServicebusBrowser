@@ -169,6 +169,12 @@ export class TopologyTreeComponent {
     topicId: string;
     subscription: SubscriptionWithMetaData;
   }>();
+  subscriptionRuleSelected = output<{
+    namespaceId: string;
+    topicId: string;
+    subscriptionId: string;
+    ruleName: string;
+  }>();
 
   onSelectionChange(event: TreeNode | TreeNode[] | null) {
     // should not be an array since we have selection mode single
@@ -191,6 +197,14 @@ export class TopologyTreeComponent {
           event.data.namespace,
           event.data.topic,
           event.data.subscription
+        );
+        break;
+      case 'subscription-rule':
+        this.onSubscriptionRuleSelected(
+          event.data.namespace,
+          event.data.topic,
+          event.data.subscription,
+          event.data.rule
         );
         break;
     }
@@ -237,6 +251,20 @@ export class TopologyTreeComponent {
       namespaceId: namespace.id,
       topicId: topic.id,
       subscription,
+    });
+  }
+
+  private onSubscriptionRuleSelected(
+    namespace: Namespace,
+    topic: TopicWithChildren,
+    subscription: SubscriptionWithMetaData,
+    rule: SubscriptionRule
+  ) {
+    this.subscriptionRuleSelected.emit({
+      namespaceId: namespace.id,
+      topicId: topic.id,
+      subscriptionId: subscription.id,
+      ruleName: rule.name,
     });
   }
 

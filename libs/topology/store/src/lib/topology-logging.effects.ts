@@ -141,4 +141,35 @@ export class TopologyLoggingEffects {
     ofType(internalActions.failedToRemoveSubscription),
     tap(({ error, namespace, topic }) => this.logger.error(`Failed to remove subscription from topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
   ), { dispatch: false });
+
+  logSubscriptionRuleAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleAdded),
+    tap(({ rule, namespace, topic, subscription }) => this.logger.info(`Rule ${rule.name} added to subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`))
+  ), { dispatch: false });
+
+  logFailedToAddSubscriptionRule$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToAddSubscriptionRule),
+    tap(({ error, namespace, topic, subscription }) => this.logger.error(`Failed to add rule to subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logSubscriptionRuleEdited$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleEdited),
+    tap(({ rule, namespace, topic, subscription }) => this.logger.info(`Rule ${rule.name} edited in subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`))
+  ), { dispatch: false });
+
+  logFailedToEditSubscriptionRule$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToEditSubscriptionRule),
+    tap(({ error, namespace, topic, subscription }) => this.logger.error(`Failed to edit rule in subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
+  logSubscriptionRuleRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleRemoved),
+    tap(({ ruleName, namespace, topic, subscription }) => this.logger.info(`Rule ${ruleName} removed from subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`))
+  ), { dispatch: false });
+
+  logFailedToRemoveSubscriptionRule$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToRemoveSubscriptionRule),
+    tap(({ error, namespace, topic, subscription }) => this.logger.error(`Failed to remove rule from subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}: ${error.title} - ${error.detail}`))
+  ), { dispatch: false });
+
 }

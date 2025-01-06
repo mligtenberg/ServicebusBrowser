@@ -10,6 +10,7 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
 import { MessageService } from 'primeng/api';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +28,11 @@ export const appConfig: ApplicationConfig = {
       provide: MessageService,
       useClass: MessageService
     },
+
+    // monaco
+    importProvidersFrom([
+      MonacoEditorModule.forRoot()
+    ]),
 
     // config
     provideZoneChangeDetection({ eventCoalescing: true }),

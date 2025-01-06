@@ -7,14 +7,17 @@ type SubscriptionRuleBase = {
   namespaceId: UUID;
   topicId: string;
   subscriptionId: string;
+  action: string;
 }
 
-export type SubscriptionRule = SubscriptionRuleBase & ({
+type SqlSubscriptionRule = SubscriptionRuleBase & {
   filterType: 'sql',
   filter: string;
-  action: string;
-} | {
+}
+type CorrelationSubscriptionRule = SubscriptionRuleBase & {
   filterType: 'correlation',
   systemProperties?: Array<{key: systemPropertyKeys, value: string}>;
   applicationProperties?: Array<{key: string, value: string | number | boolean | Date}>;
-})
+}
+
+export type SubscriptionRule = SqlSubscriptionRule | CorrelationSubscriptionRule;

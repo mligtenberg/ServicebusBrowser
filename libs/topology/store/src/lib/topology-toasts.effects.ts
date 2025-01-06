@@ -225,4 +225,76 @@ export class TopologyToastsEffects {
     })
   ), { dispatch: false });
 
+  showToastOnSubscriptionRuleAdded$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleAdded),
+    tap(({ rule, namespace, topic, subscription }) => {
+      this.messageService.add({
+        severity: 'success',
+        icon: 'pi pi-plus',
+        summary: 'Rule Added',
+        detail: `Rule ${rule.name} added to subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`,
+      });
+    })
+  ), { dispatch: false });
+
+  showToastOnSubscriptionRuleAddFailed$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToAddSubscriptionRule),
+    tap(({ error }) => {
+      this.messageService.add({
+        severity: 'error',
+        icon: 'pi pi-exclamation-triangle',
+        summary: 'Failed to Add Rule',
+        detail: `Failed to add rule: ${error.title} - ${error.detail}`,
+      });
+    })
+  ), { dispatch: false });
+
+  showToastOnSubscriptionRuleEdited$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleEdited),
+    tap(({ rule, namespace, topic, subscription }) => {
+      this.messageService.add({
+        severity: 'success',
+        icon: 'pi pi-edit',
+        summary: 'Rule Edited',
+        detail: `Rule ${rule.name} edited in subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`,
+      });
+    })
+  ), { dispatch: false });
+
+  showToastOnSubscriptionRuleEditFailed$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToEditSubscriptionRule),
+    tap(({ error }) => {
+      this.messageService.add({
+        severity: 'error',
+        icon: 'pi pi-exclamation-triangle',
+        summary: 'Failed to Edit Rule',
+        detail: `Failed to edit rule: ${error.title} - ${error.detail}`,
+      });
+    })
+  ), { dispatch: false });
+
+  showToastOnSubscriptionRuleRemoved$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.subscriptionRuleRemoved),
+    tap(({ ruleName, namespace, topic, subscription }) => {
+      this.messageService.add({
+        severity: 'success',
+        icon: 'pi pi-trash',
+        summary: 'Rule Removed',
+        detail: `Rule ${ruleName} removed from subscription ${subscription?.name} in topic ${topic?.name} in namespace ${namespace?.name}`,
+      });
+    }),
+  ), { dispatch: false });
+
+  showToastOnSubscriptionRuleRemoveFailed$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.failedToRemoveSubscriptionRule),
+    tap(({ error }) => {
+      this.messageService.add({
+        severity: 'error',
+        icon: 'pi pi-exclamation-triangle',
+        summary: 'Failed to Remove Rule',
+        detail: `Failed to remove rule: ${error.title} - ${error.detail}`,
+      });
+    }),
+  ), { dispatch: false });
+
 }

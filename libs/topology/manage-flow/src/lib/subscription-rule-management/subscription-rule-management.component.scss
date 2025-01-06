@@ -1,0 +1,79 @@
+:host {
+  ::ng-deep .p-card {
+    height: 100%;
+
+    .p-card-body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .p-card-content {
+        flex: 1;
+      }
+    }
+  }
+}
+
+input, textarea, p-inputnumber {
+  width: 100%;
+}
+
+form {
+  display: grid;
+  grid-template-areas:
+    'name type'
+    'filter rule-action'
+    'actions actions';
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  margin: 1rem;
+  min-height: 80%;
+
+  .name {
+    grid-area: name;
+  }
+
+  .type {
+    grid-area: type;
+  }
+
+  .filter {
+    grid-area: filter;
+  }
+
+  .rule-action {
+    grid-area: rule-action;
+  }
+
+  .actions {
+    grid-area: actions;
+  }
+}
+
+.type__options {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+}
+
+p-card {
+  height: 100%;
+}
+
+ngx-monaco-editor {
+  height: 100%;
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

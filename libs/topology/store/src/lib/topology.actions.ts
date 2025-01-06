@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { Queue, Subscription, Topic } from '@service-bus-browser/topology-contracts';
+import { Queue, Subscription, SubscriptionRule, Topic } from '@service-bus-browser/topology-contracts';
 
 // NAMESPACES
 
@@ -87,4 +87,20 @@ export const editSubscription = createAction(
 export const removeSubscription = createAction(
   '[Topology] Remove Subscription',
   props<{ namespaceId: UUID; topicId: string; subscriptionId: string }>()
+);
+
+// subscription rules
+export const addSubscriptionRule = createAction(
+  '[Topology] Add Subscription Rule',
+  props<{ namespaceId: UUID; topicId: string; subscriptionId: string; rule: SubscriptionRule }>()
+);
+
+export const editSubscriptionRule = createAction(
+  '[Topology] Edit Subscription Rule',
+  props<{ namespaceId: UUID; topicId: string; subscriptionId: string; rule: SubscriptionRule }>()
+);
+
+export const removeSubscriptionRule = createAction(
+  '[Topology] Remove Subscription Rule',
+  props<{ namespaceId: UUID; topicId: string; subscriptionId: string; ruleName: string }>()
 );

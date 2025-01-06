@@ -2,7 +2,7 @@ import { Connection } from '@service-bus-browser/service-bus-contracts';
 import {
   CorrelationRuleFilter, CreateSubscriptionOptions, QueueProperties, QueueRuntimeProperties,
   RuleProperties,
-  ServiceBusAdministrationClient,
+  ServiceBusAdministrationClient, SqlRuleFilter,
   SubscriptionProperties, SubscriptionRuntimeProperties, TopicProperties, TopicRuntimeProperties
 } from '@azure/service-bus';
 import {
@@ -236,6 +236,94 @@ export class AdministrationClient {
   async deleteSubscription(topicId: string, subscriptionId: string): Promise<void> {
     const administrationClient = this.getAdministrationClient();
     await administrationClient.deleteSubscription(topicId, subscriptionId);
+  }
+
+  async addSubscriptionRule(topicId: string, subscriptionId: string, rule: SubscriptionRule): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    if (rule.filterType === 'sql') {
+      await administrationClient.createRule(topicId, subscriptionId, rule.name, {
+        sqlExpression: rule.filter,
+      }, {
+        sqlExpression: rule.action === '' ? undefined : rule.action
+      });
+    }
+    if (rule.filterType === 'correlation') {
+      const filter = rule.systemProperties?.reduce((acc, prop) => {
+        acc[prop.key] = prop.value;
+        return acc;
+      }, {} as Record<string, string>) ?? {};
+
+      await administrationClient.createRule(topicId, subscriptionId, rule.name, {
+          correlationId: filter['correlationId'],
+          messageId: filter['messageId'],
+          to: filter['to'],
+          replyTo: filter['replyTo'],
+          subject: filter['subject'],
+          sessionId: filter['sessionId'],
+          replyToSessionId: filter['replyToSessionId'],
+          contentType: filter['contentType'],
+          applicationProperties: rule.applicationProperties?.reduce((acc, prop) => {
+            acc[prop.key] = prop.value;
+            return acc;
+          }, {} as Record<string, string | number | boolean | Date>) ?? {},
+        },
+        {
+          sqlExpression: rule.action === '' ? undefined : rule.action
+        });
+    }
+  }
+
+  async updateSubscriptionRule(topicId: string, subscriptionId: string, rule: SubscriptionRule): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    if (rule.filterType === 'sql') {
+      const ruleToUpdate = await administrationClient.getRule(topicId, subscriptionId, rule.name);
+      const filter = ruleToUpdate?.filter as SqlRuleFilter;
+
+      if (!ruleToUpdate || !filter.sqlExpression) {
+        throw new Error(`Rule ${rule.name} not found`);
+      }
+
+      filter.sqlExpression = rule.filter;
+      ruleToUpdate.action.sqlExpression = rule.action === '' ? undefined : rule.action;
+      ruleToUpdate.filter = filter;
+
+
+      await administrationClient.updateRule(topicId, subscriptionId, ruleToUpdate);
+    }
+    if (rule.filterType === 'correlation') {
+      const ruleToUpdate = await administrationClient.getRule(topicId, subscriptionId, rule.name);
+      const filter = ruleToUpdate?.filter as CorrelationRuleFilter;
+
+      if (!ruleToUpdate || !filter) {
+        throw new Error(`Rule ${rule.name} not found`);
+      }
+
+      filter.correlationId = rule.systemProperties?.find((prop) => prop.key === 'correlationId')?.value ?? filter.correlationId;
+      filter.messageId = rule.systemProperties?.find((prop) => prop.key === 'messageId')?.value ?? filter.messageId;
+      filter.to = rule.systemProperties?.find((prop) => prop.key === 'to')?.value ?? filter.to;
+      filter.replyTo = rule.systemProperties?.find((prop) => prop.key === 'replyTo')?.value ?? filter.replyTo;
+      filter.subject = rule.systemProperties?.find((prop) => prop.key === 'subject')?.value ?? filter.subject;
+      filter.sessionId = rule.systemProperties?.find((prop) => prop.key === 'sessionId')?.value ?? filter.sessionId;
+      filter.replyToSessionId = rule.systemProperties?.find((prop) => prop.key === 'replyToSessionId')?.value ?? filter.replyToSessionId;
+      filter.contentType = rule.systemProperties?.find((prop) => prop.key === 'contentType')?.value ?? filter.contentType;
+      filter.applicationProperties = rule.applicationProperties?.reduce(
+        (acc, prop) => {
+          acc[prop.key] = prop.value;
+          return acc;
+        },
+        {} as Record<string, string | number | boolean | Date>
+      );
+
+      ruleToUpdate.filter = filter;
+      ruleToUpdate.action.sqlExpression = rule.action === '' ? undefined : rule.action;
+
+      await administrationClient.updateRule(topicId, subscriptionId, ruleToUpdate);
+    }
+  }
+
+  async deleteSubscriptionRule(topicId: string, subscriptionId: string, ruleName: string): Promise<void> {
+    const administrationClient = this.getAdministrationClient();
+    await administrationClient.deleteRule(topicId, subscriptionId, ruleName);
   }
 
   private async getSubscriptionRules(client: ServiceBusAdministrationClient, topicName: string, subscriptionName: string)

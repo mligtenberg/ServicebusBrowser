@@ -1,0 +1,31 @@
+<form [formGroup]="form">
+  <p-card class="name" header="Name">
+    <input pInputText formControlName="name" />
+  </p-card>
+  <p-card class="type" header="Type">
+    <div class="type__options">
+      <div>
+        <p-radio-button formControlName="type" value="sql" inputId="sql" />
+        <label for="sql">SQL</label>
+      </div>
+      <div>
+        <p-radio-button formControlName="type" value="correlation" inputId="correlation" />
+        <label for="correlation">Correlation</label>
+      </div>
+    </div>
+  </p-card>
+
+  @if (form.controls.type.value === 'sql') {
+    <p-card class="filter" header="SQL Rule">
+      <ngx-monaco-editor [options]="filterEditorOptions" formControlName="sqlFilter"></ngx-monaco-editor>
+    </p-card>
+  }
+
+  <p-card class="rule-action" header="Action">
+    <ngx-monaco-editor [options]="actionEditorOptions" formControlName="sqlAction" id="sqlAction"></ngx-monaco-editor>
+  </p-card>
+
+  <div class="actions">
+    <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
+  </div>
+</form>

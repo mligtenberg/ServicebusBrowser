@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
-import { Namespace, QueueWithMetaData, SubscriptionWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
+import {
+  Namespace,
+  QueueWithMetaData,
+  SubscriptionRule,
+  SubscriptionWithMetaData,
+  TopicWithMetaData
+} from '@service-bus-browser/topology-contracts';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { Store } from '@ngrx/store';
 import {
@@ -181,6 +187,29 @@ export class SidebarComponent {
 
   subscriptionContextMenuItems: SbbMenuItem<SubscriptionWithMetaData>[] = [
     {
+      label: 'Add Rule',
+      icon: 'pi pi-plus',
+      onSelect: async (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'topics',
+          data.topicId,
+          'subscriptions',
+          data.id,
+          'rules',
+          'create',
+        ]);
+      },
+    },
+    {
+      separator: true,
+    },
+    {
       label: 'Edit Subscription',
       icon: 'pi pi-pencil',
       onSelect: (
@@ -208,6 +237,44 @@ export class SidebarComponent {
             namespaceId: data.namespaceId,
             topicId: data.topicId,
             subscriptionId: data.id,
+          })
+        );
+      },
+    },
+  ];
+
+  subscriptionRuleContextMenuItems: SbbMenuItem<SubscriptionRule>[] = [
+    {
+      label: 'Edit Rule',
+      icon: 'pi pi-pencil',
+      onSelect: async (
+        data: SubscriptionRule,
+        event: MenuItemCommandEvent
+      ) => {
+        await this.router.navigate([
+          'manage-topology',
+          'namespaces',
+          data.namespaceId,
+          'topics',
+          data.topicId,
+          'subscriptions',
+          data.subscriptionId,
+          'rules',
+          'edit',
+          data.name,
+        ]);
+      },
+    },
+    {
+      label: 'Remove Rule',
+      icon: 'pi pi-trash',
+      onSelect: (data: SubscriptionRule, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          TopologyActions.removeSubscriptionRule({
+            namespaceId: data.namespaceId,
+            topicId: data.topicId,
+            subscriptionId: data.subscriptionId,
+            ruleName: data.name,
           })
         );
       },
@@ -256,6 +323,26 @@ export class SidebarComponent {
       'subscriptions',
       'edit',
       $event.subscription.id,
+    ]);
+  }
+
+  async onSubscriptionRuleSelected($event: {
+    namespaceId: string;
+    topicId: string;
+    subscriptionId: string;
+    ruleName: string;
+  }) {
+    await this.router.navigate([
+      'manage-topology',
+      'namespaces',
+      $event.namespaceId,
+      'topics',
+      $event.topicId,
+      'subscriptions',
+      $event.subscriptionId,
+      'rules',
+      'edit',
+      $event.ruleName,
     ]);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
@@ -41,7 +41,7 @@ import { Subscription } from '@service-bus-browser/topology-contracts';
   templateUrl: './subscription-management.component.html',
   styleUrl: './subscription-management.component.scss',
 })
-export class SubscriptionManagementComponent {
+export class SubscriptionManagementComponent implements OnDestroy {
   destroy$ = new Subject<void>();
   newParams$ = new Subject<void>();
   activeRoute = inject(ActivatedRoute);
@@ -111,13 +111,11 @@ export class SubscriptionManagementComponent {
   configureFormAsEdit(): void {
     this.form.controls.name.disable();
     this.form.controls.settings.controls.requiresSession.disable();
-    this.form.controls.properties.controls.autoDeleteOnIdle.disable();
   }
 
   configureFormAsCreate(): void {
     this.form.controls.name.enable();
     this.form.controls.settings.controls.requiresSession.enable();
-    this.form.controls.properties.controls.autoDeleteOnIdle.enable();
   }
 
   ngOnDestroy(): void {
@@ -175,8 +173,6 @@ export class SubscriptionManagementComponent {
       })
     );
   }
-
-
 
   private createForm() {
     return new FormGroup<SubscriptionForm>({
