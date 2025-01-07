@@ -20,7 +20,7 @@ export const selectNamespaces = createSelector(
     topics: (state.topicsPerNamespace[ns.id] ?? []).map((topic): TopicWithChildrenAndLoadingState => ({
       ...topic,
       isLoading: state.subscriptionLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id),
-      subscriptions: state.subscriptionsPerNamespaceAndTopic[ns.id]?.[topic.id].map(s => ({
+      subscriptions: state.subscriptionsPerNamespaceAndTopic[ns.id]?.[topic.id]?.map(s => ({
         ...s,
         isLoading: state.rulesLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id && a.subscriptionId === s.id),
       })) ?? [],

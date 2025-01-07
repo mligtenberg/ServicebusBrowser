@@ -1,0 +1,8 @@
+sbb-task-list-summary {
+  cursor: pointer;
+  width: 100%;
+}
+
+.task:not(:first-child) {
+  margin-top: 0.5rem;
+}

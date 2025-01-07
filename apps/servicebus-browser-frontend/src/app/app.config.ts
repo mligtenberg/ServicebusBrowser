@@ -11,6 +11,7 @@ import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
 import { MessageService } from 'primeng/api';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { provideTasksState } from '@service-bus-browser/tasks-store';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -38,6 +39,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes, withHashLocation()),
     provideLogsState(),
+    provideTasksState(),
     provideTopologyState(),
     provideServiceBusClient(),
 

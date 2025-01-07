@@ -18,10 +18,13 @@ import {
 } from '@service-bus-browser/topology-store';
 import { ConnectionsActions } from '@service-bus-browser/connections-store';
 import { Router } from '@angular/router';
+import { TasksComponent } from '@service-bus-browser/tasks-components';
+import { Task } from '@service-bus-browser/tasks-contracts';
+import { TasksSelectors } from '@service-bus-browser/tasks-store';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, TopologyTreeComponent],
+  imports: [CommonModule, TopologyTreeComponent, TasksComponent, ScrollPanel],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -231,7 +234,10 @@ export class SidebarComponent {
     {
       label: 'Remove Subscription',
       icon: 'pi pi-trash',
-      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
         this.store.dispatch(
           TopologyActions.removeSubscription({
             namespaceId: data.namespaceId,
@@ -247,10 +253,7 @@ export class SidebarComponent {
     {
       label: 'Edit Rule',
       icon: 'pi pi-pencil',
-      onSelect: async (
-        data: SubscriptionRule,
-        event: MenuItemCommandEvent
-      ) => {
+      onSelect: async (data: SubscriptionRule, event: MenuItemCommandEvent) => {
         await this.router.navigate([
           'manage-topology',
           'namespaces',
@@ -345,4 +348,6 @@ export class SidebarComponent {
       $event.ruleName,
     ]);
   }
+
+  openTasks = this.store.selectSignal(TasksSelectors.selectTasks);
 }

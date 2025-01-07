@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.icon {
+  font-size: 1.3rem;
+}

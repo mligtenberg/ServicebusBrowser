@@ -1,0 +1,6 @@
+@if (hasOpenTasks()) {
+  <p-progress-spinner strokeWidth="6" fill="transparent" animationDuration=".5s" [style]="{ width: '1.3rem', height: '1.3rem' }" />
+} @else {
+  <fa-icon class="icon" [icon]="completedIcon"/>
+}
+<div><span class="bold">{{numberOfOpenTasks()}}</span> running tasks</div>

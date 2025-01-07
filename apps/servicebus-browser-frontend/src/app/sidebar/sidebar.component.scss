@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  ::ng-deep .p-tree {
+    height: 100%;
+
+    .p-tree-root {
+      min-height: 100%;
+    }
+  }
+}
+
+p-scroll-panel {
+  flex: 1;
+}
+
+sbb-task-tasks {
+  border-top: solid 2px var(--p-surface-200);
+}

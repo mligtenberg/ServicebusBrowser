@@ -53,6 +53,13 @@
       "@service-bus-browser/shared-contracts": [
         "libs/shared/contracts/src/index.ts"
       ],
+      "@service-bus-browser/tasks-components": [
+        "libs/tasks/components/src/index.ts"
+      ],
+      "@service-bus-browser/tasks-contracts": [
+        "libs/tasks/contracts/src/index.ts"
+      ],
+      "@service-bus-browser/tasks-store": ["libs/tasks/store/src/index.ts"],
       "@service-bus-browser/topology-components": [
         "libs/topology/components/src/index.ts"
       ],

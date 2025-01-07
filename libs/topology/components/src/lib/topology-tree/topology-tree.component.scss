@@ -23,7 +23,8 @@ p-tree {
   --p-tree-padding: 0.6rem;
   --p-tree-node-padding: 0;
   --p-tree-node-toggle-button-size: 1.2rem;
-  --p-tree-indent: calc(var(--p-tree-node-toggle-button-size) + 0.1rem);
+  --p-tree-indent: var(--p-tree-node-toggle-button-size);
+  --p-tree-node-gap: 0;
 }
 
 .category-divider {

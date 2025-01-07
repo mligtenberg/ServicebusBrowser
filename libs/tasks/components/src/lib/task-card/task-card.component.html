@@ -1,0 +1,18 @@
+<div>
+  <div class="description">{{ task().description }}</div>
+  @if (task().statusDescription) {
+    <div class="status">{{ task().statusDescription }}</div>
+  }
+  @if (task().hasProgress) {
+    <p-progress-bar [value]="task().progress" [style]="{'height': '6px'}">
+      <ng-template #content>
+      </ng-template>
+    </p-progress-bar>
+  } @else {
+    @if (task().status === 'completed') {
+      <p-progress-bar mode="determinate" [value]="100" [style]="{'height': '6px'}" />
+    } @else {
+      <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}" />
+    }
+  }
+</div>

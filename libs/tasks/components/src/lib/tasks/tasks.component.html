@@ -1,0 +1,15 @@
+<sbb-task-list-summary
+  [tasks]="tasks()"
+  (click)="togglePopover(op, $event)"
+  role="button"
+  aria-label="open tasks"
+  tabindex
+  (keydown.enter)="togglePopover(op, $event)"
+/>
+<p-popover #op appendTo="body">
+  @for(task of tasks(); track task.id) {
+    <div class="task">
+      <sbb-task-card [task]="task"/>
+    </div>
+  }
+</p-popover>
