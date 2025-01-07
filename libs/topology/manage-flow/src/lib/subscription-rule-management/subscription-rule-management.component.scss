@@ -12,9 +12,19 @@
       }
     }
   }
+
+  ::ng-deep p-input-group p-date-picker {
+    .p-component.p-inputwrapper {
+      width: 100%;
+
+      input {
+        border-radius: 0;
+      }
+    }
+  }
 }
 
-input, textarea, p-inputnumber {
+input, textarea, p-inputnumber, p-select {
   width: 100%;
 }
 
@@ -28,6 +38,18 @@ form {
   grid-template-rows: auto 1fr auto;
   gap: 1rem;
   margin: 1rem;
+
+  @media (max-width: 1024px) {
+    grid-template-areas:
+    'name'
+    'type'
+    'filter'
+    'rule-action'
+    'actions';
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto;
+  }
+
   min-height: 80%;
 
   .name {
@@ -69,6 +91,7 @@ p-card {
 
 ngx-monaco-editor {
   height: 100%;
+  min-height: 10rem;
 }
 
 .actions {

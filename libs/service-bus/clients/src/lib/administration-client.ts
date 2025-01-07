@@ -253,6 +253,14 @@ export class AdministrationClient {
         return acc;
       }, {} as Record<string, string>) ?? {};
 
+      const applicationProperties = rule.applicationProperties?.reduce(
+        (acc, prop) => {
+          acc[prop.key] = prop.value;
+          return acc;
+        },
+        {} as Record<string, string | number | boolean | Date>
+      );
+
       await administrationClient.createRule(topicId, subscriptionId, rule.name, {
           correlationId: filter['correlationId'],
           messageId: filter['messageId'],
@@ -262,10 +270,7 @@ export class AdministrationClient {
           sessionId: filter['sessionId'],
           replyToSessionId: filter['replyToSessionId'],
           contentType: filter['contentType'],
-          applicationProperties: rule.applicationProperties?.reduce((acc, prop) => {
-            acc[prop.key] = prop.value;
-            return acc;
-          }, {} as Record<string, string | number | boolean | Date>) ?? {},
+          applicationProperties: rule.applicationProperties?.length === 0 ? undefined : applicationProperties,
         },
         {
           sqlExpression: rule.action === '' ? undefined : rule.action
@@ -293,6 +298,13 @@ export class AdministrationClient {
     if (rule.filterType === 'correlation') {
       const ruleToUpdate = await administrationClient.getRule(topicId, subscriptionId, rule.name);
       const filter = ruleToUpdate?.filter as CorrelationRuleFilter;
+      const applicationProperties = rule.applicationProperties?.reduce(
+          (acc, prop) => {
+            acc[prop.key] = prop.value;
+            return acc;
+          },
+          {} as Record<string, string | number | boolean | Date>
+        );
 
       if (!ruleToUpdate || !filter) {
         throw new Error(`Rule ${rule.name} not found`);
@@ -306,13 +318,7 @@ export class AdministrationClient {
       filter.sessionId = rule.systemProperties?.find((prop) => prop.key === 'sessionId')?.value ?? filter.sessionId;
       filter.replyToSessionId = rule.systemProperties?.find((prop) => prop.key === 'replyToSessionId')?.value ?? filter.replyToSessionId;
       filter.contentType = rule.systemProperties?.find((prop) => prop.key === 'contentType')?.value ?? filter.contentType;
-      filter.applicationProperties = rule.applicationProperties?.reduce(
-        (acc, prop) => {
-          acc[prop.key] = prop.value;
-          return acc;
-        },
-        {} as Record<string, string | number | boolean | Date>
-      );
+      filter.applicationProperties = rule.applicationProperties?.length === 0 ? undefined : applicationProperties;
 
       ruleToUpdate.filter = filter;
       ruleToUpdate.action.sqlExpression = rule.action === '' ? undefined : rule.action;
@@ -474,7 +480,12 @@ export class AdministrationClient {
               value: value
             }
           }).filter((value) => value !== null),
-          applicationProperties: rule.filter.applicationProperties
+          applicationProperties: Object.keys(rule.filter.applicationProperties ?? {}).map((key) => {
+            return {
+              key: key,
+              value: (rule.filter as CorrelationRuleFilter)?.applicationProperties?.[key] ?? ''
+            }
+          })
         }) as SubscriptionRule;
       })
     };

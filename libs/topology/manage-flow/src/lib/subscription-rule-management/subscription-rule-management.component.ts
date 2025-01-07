@@ -6,7 +6,7 @@ import { Card } from 'primeng/card';
 import { InputText } from 'primeng/inputtext';
 import { RadioButton } from 'primeng/radiobutton';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
-import { ButtonDirective } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ActivatedRoute } from '@angular/router';
@@ -16,6 +16,10 @@ import {
   TopologySelectors,
 } from '@service-bus-browser/topology-store';
 import { SubscriptionRule, systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { Select } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { DatePicker } from 'primeng/datepicker';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -27,6 +31,11 @@ import { SubscriptionRule, systemPropertyKeys } from '@service-bus-browser/topol
     RadioButton,
     EditorComponent,
     ButtonDirective,
+    Select,
+    InputGroup,
+    Button,
+    DatePicker,
+    InputNumber,
   ],
   templateUrl: './subscription-rule-management.component.html',
   styleUrl: './subscription-rule-management.component.scss',
@@ -56,11 +65,23 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   destroy$ = new Subject<void>();
   newParams$ = new Subject<void>();
   action: 'create' | 'modify' = 'create';
+  systemFieldOptions: systemPropertyKeys[] = [
+    'to',
+    'subject',
+    'replyTo',
+    'contentType',
+    'messageId',
+    'correlationId',
+    'replyToSessionId',
+    'sessionId',
+  ];
+
+  dataTypeOptions = ['string', 'number', 'boolean', 'date'];
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([ params, data ]) => {
+      .subscribe(([params, data]) => {
         this.action = data['action'] as 'create' | 'modify';
         this.form = this.createForm();
 
@@ -127,11 +148,64 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
                 {
                   name: rule.name,
                   type: 'correlation',
-                  correlationSystemProperties: rule.systemProperties,
-                  correlationApplicationProperties: rule.applicationProperties,
                 },
                 { emitEvent: false }
               );
+
+              for (const systemProperty of rule.systemProperties ?? []) {
+                this.form.controls.correlationSystemProperties.push(
+                  new FormGroup({
+                    key: new FormControl<systemPropertyKeys | null>(
+                      systemProperty.key,
+                      {
+                        validators: [Validators.required],
+                        nonNullable: true,
+                      }
+                    ),
+                    value: new FormControl<string>(systemProperty.value, {
+                      validators: [Validators.required],
+                      nonNullable: true,
+                    }),
+                  })
+                );
+              }
+
+              for (const applicationProperty of rule.applicationProperties ??
+                []) {
+                let datatype: 'string' | 'date' | 'number' | 'boolean' =
+                  'string';
+                if (applicationProperty.value instanceof Date) {
+                  datatype = 'date';
+                }
+                if (typeof applicationProperty.value === 'number') {
+                  datatype = 'number';
+                }
+                if (typeof applicationProperty.value === 'boolean') {
+                  datatype = 'boolean';
+                }
+
+                this.form.controls.correlationApplicationProperties.push(
+                  new FormGroup({
+                    key: new FormControl<string>(applicationProperty.key, {
+                      validators: [Validators.required],
+                      nonNullable: true,
+                    }),
+                    datatype: new FormControl<
+                      'string' | 'number' | 'date' | 'boolean'
+                    >(datatype, {
+                      validators: [Validators.required],
+                      nonNullable: true,
+                    }),
+                    value: new FormControl<string | number | Date | boolean>(
+                      applicationProperty.value,
+                      {
+                        validators: [Validators.required],
+                        nonNullable: true,
+                      }
+                    ),
+                  })
+                );
+              }
             }
           });
       });
@@ -144,32 +218,38 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
     }
 
     const formValue = this.form.getRawValue();
-    const subscriptionRule: SubscriptionRule = formValue.type === 'sql'
-      ? {
-        filterType: 'sql',
-        filter: formValue.sqlFilter ?? '1=1',
-        action: formValue.sqlAction ?? '',
-        name: formValue.name ?? 'error',
-        subscriptionId: this.activeRoute.snapshot.params['subscriptionId'],
-        topicId: this.activeRoute.snapshot.params['topicId'],
-        namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-        }
-      : {
-        filterType: 'correlation',
-        subscriptionId: this.activeRoute.snapshot.params['subscriptionId'],
-        topicId: this.activeRoute.snapshot.params['topicId'],
-        namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-        action: formValue.sqlAction ?? '',
-        name: formValue.name ?? 'error',
-        systemProperties: formValue.correlationSystemProperties.map((sp) => ({
-          key: sp.key,
-          value: sp.value,
-        })),
-        applicationProperties: formValue.correlationApplicationProperties.map((ap) => ({
-          key: ap.key,
-          value: ap.value,
-        })),
-      };
+    const subscriptionRule: SubscriptionRule =
+      formValue.type === 'sql'
+        ? {
+            filterType: 'sql',
+            filter: formValue.sqlFilter ?? '1=1',
+            action: formValue.sqlAction ?? '',
+            name: formValue.name ?? 'error',
+            subscriptionId: this.activeRoute.snapshot.params['subscriptionId'],
+            topicId: this.activeRoute.snapshot.params['topicId'],
+            namespaceId: this.activeRoute.snapshot.params['namespaceId'],
+          }
+        : {
+            filterType: 'correlation',
+            subscriptionId: this.activeRoute.snapshot.params['subscriptionId'],
+            topicId: this.activeRoute.snapshot.params['topicId'],
+            namespaceId: this.activeRoute.snapshot.params['namespaceId'],
+            action: formValue.sqlAction ?? '',
+            name: formValue.name ?? 'error',
+            systemProperties: formValue.correlationSystemProperties.map(
+              (sp) => ({
+                key: sp.key ?? 'subject',
+                value: sp.value,
+              })
+            ),
+            applicationProperties:
+              formValue.correlationApplicationProperties.map((ap) => {
+                return {
+                  key: ap.key,
+                  value: ap.value,
+                };
+              }),
+          };
 
     // Save the form
     if (this.action === 'create') {
@@ -224,16 +304,61 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
       sqlAction: new FormControl<string | null>(null),
       correlationSystemProperties: new FormArray<
         FormGroup<{
-          key: FormControl<systemPropertyKeys>;
+          key: FormControl<systemPropertyKeys | null>;
           value: FormControl<string>;
         }>
       >([]),
       correlationApplicationProperties: new FormArray<
         FormGroup<{
           key: FormControl<string>;
+          datatype: FormControl<'string' | 'number' | 'date' | 'boolean'>;
           value: FormControl<string | number | Date | boolean>;
         }>
       >([]),
     });
+  }
+
+  removeCorrelationSystemProperty(i: number) {
+    this.form.controls.correlationSystemProperties.removeAt(i);
+  }
+
+  addCorrelationSystemProperty() {
+    this.form.controls.correlationSystemProperties.push(
+      new FormGroup({
+        key: new FormControl<systemPropertyKeys | null>(null, {
+          validators: [Validators.required],
+        }),
+        value: new FormControl<string>('', {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+      })
+    );
+  }
+
+  removeCorrelationApplicationProperty(i: number) {
+    this.form.controls.correlationApplicationProperties.removeAt(i);
+  }
+
+  addCorrelationApplicationProperty() {
+    this.form.controls.correlationApplicationProperties.push(
+      new FormGroup({
+        key: new FormControl<string>('', {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+        datatype: new FormControl<'string' | 'number' | 'date' | 'boolean'>(
+          'string',
+          {
+            validators: [Validators.required],
+            nonNullable: true,
+          }
+        ),
+        value: new FormControl<string | number | Date | boolean>('', {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+      })
+    );
   }
 }

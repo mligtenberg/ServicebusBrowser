@@ -1,6 +1,6 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
 
-export type systemPropertyKeys = 'contentType' | 'correlationId' | 'subject' | 'messageId' | 'replyTo' | 'replyToSessionId' | 'sessionId' | 'to' | 'applicationProperties';
+export type systemPropertyKeys = 'contentType' | 'correlationId' | 'subject' | 'messageId' | 'replyTo' | 'replyToSessionId' | 'sessionId' | 'to';
 
 type SubscriptionRuleBase = {
   name: string;

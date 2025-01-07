@@ -7,11 +7,12 @@ export interface SubscriptionRuleForm {
   sqlFilter: FormControl<string | null>;
   sqlAction: FormControl<string | null>;
   correlationSystemProperties: FormArray<FormGroup<{
-    key: FormControl<systemPropertyKeys>;
+    key: FormControl<systemPropertyKeys | null>;
     value: FormControl<string>;
   }>>,
   correlationApplicationProperties: FormArray<FormGroup<{
     key: FormControl<string>;
+    datatype: FormControl<'string' | 'number' | 'date' | 'boolean'>;
     value: FormControl<string | number | Date | boolean>;
   }>>;
 }
