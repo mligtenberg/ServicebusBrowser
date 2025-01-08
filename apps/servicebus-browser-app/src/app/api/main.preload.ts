@@ -6,5 +6,6 @@ contextBridge.exposeInMainWorld('electron', {
 });
 
 contextBridge.exposeInMainWorld('serviceBusApi', {
-  doRequest: (requestType: string, request) => ipcRenderer.invoke('service-bus:do-request', requestType, request),
+  managementDoRequest: (requestType: string, request) => ipcRenderer.invoke('service-bus:management-do-request', requestType, request),
+  messagesDoRequest: (requestType: string, request) => ipcRenderer.invoke('service-bus:messages-do-request', requestType, request),
 })

@@ -1,5 +1,5 @@
 import { EnvironmentProviders, Provider } from '@angular/core';
-import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
 
 export function provideServiceBusClient(): (
   | Provider
@@ -7,8 +7,8 @@ export function provideServiceBusClient(): (
   )[] {
   return [
     {
-      provide: ServiceBusElectronClient,
-      useClass: ServiceBusElectronClient
+      provide: ServiceBusManagementElectronClient,
+      useClass: ServiceBusManagementElectronClient
     }
   ];
 }

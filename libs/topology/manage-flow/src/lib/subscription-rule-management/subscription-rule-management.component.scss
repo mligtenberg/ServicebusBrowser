@@ -38,6 +38,7 @@ form {
   grid-template-rows: auto 1fr auto;
   gap: 1rem;
   margin: 1rem;
+  min-height: 80%;
 
   @media (max-width: 1024px) {
     grid-template-areas:
@@ -49,8 +50,6 @@ form {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto auto auto;
   }
-
-  min-height: 80%;
 
   .name {
     grid-area: name;

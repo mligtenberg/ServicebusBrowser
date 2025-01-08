@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as actions from './connections.actions';
 import * as internalActions from './connections.internal-actions';
-import { ServiceBusElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
 import { catchError, from, map, switchMap, tap } from 'rxjs';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 
@@ -11,7 +11,7 @@ import { TopologyActions } from '@service-bus-browser/topology-store';
 })
 export class ConnectionsEffects {
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusElectronClient);
+  serviceBusClient = inject(ServiceBusManagementElectronClient);
 
   addConnection$ = createEffect(
     () => this.actions$.pipe(

@@ -10,6 +10,10 @@ export const appRoutes: Route[] = [
     loadChildren: () => import('@service-bus-browser/manage-topology-flow').then(m => m.routes)
   },
   {
+    path: 'messages',
+    loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes)
+  },
+  {
     path: '',
     redirectTo: 'connections',
     pathMatch: 'full'

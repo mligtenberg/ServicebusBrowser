@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { execute } from '@service-bus-browser/service-bus-server';
+import { managementExecute, messagesExecute } from '@service-bus-browser/service-bus-server';
 
 export default class ServiceBusEvents {
   static bootstrapServiceBusEvents(): Electron.IpcMain {
@@ -7,6 +7,10 @@ export default class ServiceBusEvents {
   }
 }
 
-ipcMain.handle('service-bus:do-request', async (event, requestType: string, request: unknown) => {
-  return await execute(requestType, request);
+ipcMain.handle('service-bus:management-do-request', async (event, requestType: string, request: unknown) => {
+  return await managementExecute(requestType, request);
+});
+
+ipcMain.handle('service-bus:messages-do-request', async (event, requestType: string, request: unknown) => {
+  return await messagesExecute(requestType, request);
 });

@@ -1,0 +1,6 @@
+{
+  "name": "@service-bus-browser/messages-contracts",
+  "version": "0.0.1",
+  "dependencies": {},
+  "private": true
+}

@@ -7,14 +7,13 @@
   </ng-template>
   <ng-template pTemplate>
     <div class="main-content">
-      <p-tabs value="/dashboard" class="open-data-tabs" scrollable="">
+      <p-tabs [value]="currentRoute()" class="open-data-tabs" scrollable="">
         <p-tablist>
-          <p-tab value="/dashboard">
-            tab 1
-          </p-tab>
-          <p-tab value="/dashboard2">
-            tab2
-          </p-tab>
+          @for (page of messagePages(); track page.id) {
+            <p-tab [value]="'/messages/page/' + page.id" [routerLink]="'/messages/page/' + page.id">
+              <span>{{ page.name }}</span>
+            </p-tab>
+          }
         </p-tablist>
       </p-tabs>
       <p-scroll-panel>

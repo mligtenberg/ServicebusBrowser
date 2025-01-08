@@ -1,1 +1,1 @@
-export * from './lib/service-bus-electron-client';
+export * from './lib/service-bus-management-electron-client';
