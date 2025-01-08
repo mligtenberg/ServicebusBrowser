@@ -15,10 +15,6 @@ export class TasksComponent {
   tasks = input.required<Task[]>();
 
   togglePopover(op: Popover, $event: Event) {
-    if (this.tasks().length === 0) {
-      return;
-    }
-
     op.toggle($event);
   }
 }

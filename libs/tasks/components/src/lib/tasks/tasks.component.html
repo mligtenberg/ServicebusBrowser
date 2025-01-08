@@ -3,13 +3,18 @@
   (click)="togglePopover(op, $event)"
   role="button"
   aria-label="open tasks"
-  tabindex
+  tabindex=""
   (keydown.enter)="togglePopover(op, $event)"
 />
 <p-popover #op appendTo="body">
   @for(task of tasks(); track task.id) {
     <div class="task">
       <sbb-task-card [task]="task"/>
+    </div>
+  }
+  @if(tasks().length === 0) {
+    <div class="no-tasks-message">
+      <span>No running tasks</span>
     </div>
   }
 </p-popover>
