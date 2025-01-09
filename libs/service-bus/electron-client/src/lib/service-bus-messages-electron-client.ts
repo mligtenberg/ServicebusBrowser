@@ -1,6 +1,7 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import Long from 'long';
+import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
 
 interface ElectronWindow {
   serviceBusApi: {
@@ -18,12 +19,14 @@ export class ServiceBusMessagesElectronClient {
   async peakFromQueue(
     connectionId: UUID,
     queueName: string,
+    channel: MessageChannels,
     maxMessageCount: number,
     fromSequenceNumber?: Long
   ) {
     return (await serviceBusApi.messagesDoRequest('peakFromQueue', {
       connectionId,
       queueName,
+      channel,
       maxMessageCount,
       fromSequenceNumber: fromSequenceNumber?.toString(),
     })) as ServiceBusReceivedMessage[];
@@ -33,6 +36,7 @@ export class ServiceBusMessagesElectronClient {
     connectionId: UUID,
     topicName: string,
     subscriptionName: string,
+    channel: MessageChannels,
     maxMessageCount: number,
     fromSequenceNumber?: Long
   ) {
@@ -40,6 +44,7 @@ export class ServiceBusMessagesElectronClient {
       connectionId,
       topicName,
       subscriptionName,
+      channel,
       maxMessageCount,
       fromSequenceNumber: fromSequenceNumber?.toString(),
     })) as ServiceBusReceivedMessage[];

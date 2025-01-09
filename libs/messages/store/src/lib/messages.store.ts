@@ -21,7 +21,10 @@ export const logsReducer = createReducer(
       return state;
     }
 
-    const name = 'queueName' in endpoint ? endpoint.queueName : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+    let name = 'queueName' in endpoint ? endpoint.queueName : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+    if (endpoint.channel) {
+      name += ` (${endpoint.channel})`;
+    }
 
     return {
       ...state,

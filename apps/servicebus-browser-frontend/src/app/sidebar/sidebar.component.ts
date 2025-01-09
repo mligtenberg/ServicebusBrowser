@@ -115,7 +115,42 @@ export class SidebarComponent {
         this.store.dispatch(MessagesActions.peakMessages({
           connectionId: data.namespaceId,
           endpoint: {
-            queueName: data.name
+            queueName: data.name,
+            channel: undefined
+          },
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      label: 'Peak deadletter messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: QueueWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakMessages({
+          connectionId: data.namespaceId,
+          endpoint: {
+            queueName: data.name,
+            channel: 'deadLetter'
+          },
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      label: 'Peak transfer deadletter messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: QueueWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakMessages({
+          connectionId: data.namespaceId,
+          endpoint: {
+            queueName: data.name,
+            channel: 'transferDeadLetter'
           },
           maxAmount: 10
         }))
@@ -209,6 +244,63 @@ export class SidebarComponent {
   ];
 
   subscriptionContextMenuItems: SbbMenuItem<SubscriptionWithMetaData>[] = [
+    {
+      label: 'Peak messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakMessages({
+          connectionId: data.namespaceId,
+          endpoint: {
+            topicName: data.topicId,
+            subscriptionName: data.name,
+            channel: undefined
+          },
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      label: 'Peak deadletter messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakMessages({
+          connectionId: data.namespaceId,
+          endpoint: {
+            topicName: data.topicId,
+            subscriptionName: data.name,
+            channel: 'deadLetter'
+          },
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      label: 'Peak transfer deadletter messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: SubscriptionWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakMessages({
+          connectionId: data.namespaceId,
+          endpoint: {
+            topicName: data.topicId,
+            subscriptionName: data.name,
+            channel: 'transferDeadLetter'
+          },
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      separator: true,
+    },
     {
       label: 'Add Rule',
       icon: 'pi pi-plus',

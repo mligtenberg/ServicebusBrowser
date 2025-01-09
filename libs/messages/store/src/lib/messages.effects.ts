@@ -32,8 +32,8 @@ export class MessagesEffects {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
       const messages$ = 'queueName' in endpoint
-        ? from(this.messagesService.peakFromQueue(connectionId, endpoint.queueName, maxAmountToLoad, Long.fromString(fromSequenceNumber)))
-        : from(this.messagesService.peakFromSubscription(connectionId, endpoint.topicName, endpoint.subscriptionName, maxAmountToLoad, Long.fromString(fromSequenceNumber)));
+        ? from(this.messagesService.peakFromQueue(connectionId, endpoint.queueName, endpoint.channel, maxAmountToLoad, Long.fromString(fromSequenceNumber)))
+        : from(this.messagesService.peakFromSubscription(connectionId, endpoint.topicName, endpoint.subscriptionName, endpoint.channel, maxAmountToLoad, Long.fromString(fromSequenceNumber)));
 
       return messages$
         .pipe(

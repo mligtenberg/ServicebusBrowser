@@ -1,4 +1,4 @@
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection, MessageChannels } from '@service-bus-browser/service-bus-contracts';
 import { AdministrationClient } from './administration-client';
 import { MessageReceiveClient } from './message-receive-client';
 
@@ -9,7 +9,7 @@ export class ConnectionClient {
     return new AdministrationClient(this.connection);
   }
 
-  getMessageReceiveClient(endpoint: { queueName: string; } | { topicName: string; subscriptionName: string; }) {
+  getMessageReceiveClient(endpoint: { queueName: string; channel: MessageChannels } | { topicName: string; subscriptionName: string; channel: MessageChannels }) {
     return new MessageReceiveClient(this.connection, endpoint);
   }
 }

@@ -1,10 +1,10 @@
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection, MessageChannels } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import * as contracts from '@service-bus-browser/messages-contracts';
 import Long from 'long';
 
 export class MessageReceiveClient {
-  constructor(private connection: Connection, private endpoint: { queueName: string; } | { topicName: string; subscriptionName: string; })
+  constructor(private connection: Connection, private endpoint: { queueName: string; channel: MessageChannels } | { topicName: string; subscriptionName: string; channel: MessageChannels;})
   {}
 
   async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
@@ -37,10 +37,19 @@ export class MessageReceiveClient {
     }
 
     if ('queueName' in this.endpoint) {
-      return client.createReceiver(this.endpoint.queueName);
+      return client.createReceiver(this.endpoint.queueName, {
+        receiveMode: "receiveAndDelete",
+        subQueueType: this.endpoint.channel,
+        skipParsingBodyAsJson: true
+      });
     }
 
-    return client.createReceiver(this.endpoint.topicName, this.endpoint.subscriptionName);
+    return client.createReceiver(
+      this.endpoint.topicName,
+      this.endpoint.subscriptionName, {
+        receiveMode: "receiveAndDelete",
+        subQueueType: this.endpoint.channel
+      });
   }
 
   private mapMessage(message: ServiceBusReceivedMessage): contracts.ServiceBusReceivedMessage {
