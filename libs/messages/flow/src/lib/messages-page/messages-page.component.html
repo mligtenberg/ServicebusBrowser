@@ -1,1 +1,42 @@
-<p>messages-page works!</p>
+<div class="container">
+  <p-card header="Messages" class="messages">
+    <p-table
+      [columns]="cols"
+      [value]="currentPage()?.messages ?? []"
+      [scrollable]="true"
+      scrollHeight="250px"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="30"
+      selectionMode="single"
+      [(selection)]="selectedMessage"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" style="width: 20%;">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height:30px"
+          [pSelectableRow]="rowData"
+        >
+          <td *ngFor="let col of columns">
+            {{ rowData[col.field] }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card header="Body" class="body">
+    <ngx-monaco-editor
+      [options]="editorOptions()"
+      [ngModel]="body()"
+    />
+  </p-card>
+</div>

@@ -1,3 +1,5 @@
+import Long from 'long';
+
 /**
  * Describes the message to be sent to Service Bus.
  */
@@ -183,7 +185,7 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
    * to use the **`Long`** type exported by this library.
    * @readonly
    */
-  readonly sequenceNumber?: bigint;
+  readonly sequenceNumber?: string;
   /**
    * The name of the queue or subscription that this message
    * was enqueued on, before it was deadlettered. Only set in messages that have been dead-lettered

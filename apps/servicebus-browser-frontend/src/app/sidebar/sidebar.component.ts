@@ -112,9 +112,11 @@ export class SidebarComponent {
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakQueueMessages({
+        this.store.dispatch(MessagesActions.peakMessages({
           connectionId: data.namespaceId,
-          queueName: data.name,
+          endpoint: {
+            queueName: data.name
+          },
           maxAmount: 10
         }))
       },

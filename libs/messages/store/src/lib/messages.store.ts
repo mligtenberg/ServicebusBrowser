@@ -1,29 +1,66 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
-import { UUID } from '@service-bus-browser/shared-contracts';
+import { MessagePage } from '@service-bus-browser/messages-contracts';
 
 export const featureKey = 'messages';
 
+import * as internalActions from './messages.internal-actions';
+
 export type MessagesState = {
-  receivedMessages: Array<{
-    id: UUID;
-    name: string;
-    retrievedAt: Date;
-    messages: ServiceBusReceivedMessage[]
-  }>;
+  receivedMessages: Array<MessagePage>;
 }
 
 export const initialState: MessagesState = {
-  receivedMessages: [{
-      id: crypto.randomUUID(),
-    retrievedAt: new Date(),
-    name: 'queue1 (0 results)',
-    messages: []
-  }]
+  receivedMessages: []
 };
 
 export const logsReducer = createReducer(
   initialState,
+  on(internalActions.peakMessagesLoad, (state, { pageId, endpoint }): MessagesState => {
+    const page = state.receivedMessages.find(page => page.id === pageId);
+    if (page) {
+      return state;
+    }
+
+    const name = 'queueName' in endpoint ? endpoint.queueName : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+
+    return {
+      ...state,
+      receivedMessages: [
+        ...state.receivedMessages,
+        {
+          id: pageId,
+          name: `${name} (loading...)`,
+          retrievedAt: new Date(),
+          loaded: false,
+          messages: []
+        }
+      ]
+    }
+  }),
+  on(internalActions.peakMessagesPartLoaded, (state, { pageId, messages }): MessagesState => {
+    const page = state.receivedMessages.find(page => page.id === pageId);
+    if (!page) {
+      return state;
+    }
+
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, messages: [
+        ...page.messages,
+          ...messages
+        ] } : page)
+    };
+  }),
+  on(internalActions.peakMessagesLoadingDone, (state, { pageId }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
+        ...page,
+        name: page.name.replace(' (loading...)', ` (${page.messages.length})`),
+        loaded: true
+      } : page)
+    }
+  })
 );
 
 export const feature = createFeature({

@@ -1,15 +1,16 @@
 import { Connection } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import * as contracts from '@service-bus-browser/messages-contracts';
+import Long from 'long';
 
 export class MessageReceiveClient {
   constructor(private connection: Connection, private endpoint: { queueName: string; } | { topicName: string; subscriptionName: string; })
   {}
 
-  async peakMessages(maxMessageCount: number, fromSequenceNumber?: bigint) {
+  async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
     const receiver = this.getReceiver();
     const messages = await receiver.peekMessages(maxMessageCount, {
-      fromSequenceNumber: fromSequenceNumber ?? 0
+      fromSequenceNumber: fromSequenceNumber ?? Long.fromNumber(0)
     });
 
     return messages.map(this.mapMessage);
@@ -51,9 +52,13 @@ export class MessageReceiveClient {
       ? message.correlationId.toString('utf-8')
       : message.correlationId;
 
+    const body = message.body instanceof Uint8Array
+      ? Buffer.from(message.body).toString('utf-8')
+      : message.body;
+
     return {
       messageId: mappedMessageId,
-      body: message.body,
+      body: body,
       applicationProperties: message.applicationProperties,
       contentType: message.contentType,
       correlationId: mappedCorrelationId,
@@ -74,7 +79,7 @@ export class MessageReceiveClient {
       timeToLive: message.timeToLive,
       state: message.state,
       lockedUntilUtc: message.lockedUntilUtc,
-      sequenceNumber: message.sequenceNumber,
+      sequenceNumber: message.sequenceNumber?.toString(),
       enqueuedSequenceNumber: message.enqueuedSequenceNumber,
     };
   }

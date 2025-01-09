@@ -11,14 +11,5 @@ export function provideTasksState(): (
   )[] {
   return [
     provideState(feature),
-    // provideEffects([
-    //   TopologyNamespacesEffects,
-    //   TopologyQueueEffects,
-    //   TopologyTopicEffects,
-    //   TopologySubscriptionEffects,
-    //   TopologySubscriptionRuleEffects,
-    //   TopologyLoggingEffects,
-    //   TopologyToastsEffects
-    // ])
   ];
 }
