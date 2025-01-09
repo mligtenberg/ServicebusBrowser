@@ -1,4 +1,10 @@
-import { ApplicationConfig, importProvidersFrom, isDevMode, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  isDevMode,
+  provideExperimentalZonelessChangeDetection,
+  provideZoneChangeDetection
+} from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -39,7 +45,7 @@ export const appConfig: ApplicationConfig = {
     ]),
 
     // config
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideExperimentalZonelessChangeDetection(),
     provideRouter(appRoutes, withHashLocation()),
     provideLogsState(),
     provideTasksState(),

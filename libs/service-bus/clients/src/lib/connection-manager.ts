@@ -9,9 +9,9 @@ export class ConnectionManager {
     this.connections.set(connection.id, connection);
   }
 
-  removeConnection(options: { connectionId: UUID }) {
-    if (!this.connections.delete(options.connectionId)) {
-      throw new Error(`Connection ${ options.connectionId } not found`);
+  removeConnection(connectionId: UUID) {
+    if (!this.connections.delete(connectionId)) {
+      throw new Error(`Connection ${ connectionId } not found`);
     }
   }
 

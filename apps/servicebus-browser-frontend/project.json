@@ -13,7 +13,7 @@
         "outputPath": "dist/apps/servicebus-browser-frontend",
         "index": "apps/servicebus-browser-frontend/src/index.html",
         "browser": "apps/servicebus-browser-frontend/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [],
         "tsConfig": "apps/servicebus-browser-frontend/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [

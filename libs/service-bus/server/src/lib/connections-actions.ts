@@ -6,8 +6,8 @@ export const addConnection =  (connection: Connection) => {
   return connectionManager.addConnection(connection);
 };
 
-export const removeConnection = (id: UUID) => {
-  return connectionManager.removeConnection({connectionId: id});
+export const removeConnection = (body: { connectionId: UUID }) => {
+  return connectionManager.removeConnection(body.connectionId);
 }
 
 export const listConnections = async () => {
