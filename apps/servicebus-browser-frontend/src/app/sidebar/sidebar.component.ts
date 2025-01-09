@@ -21,6 +21,7 @@ import { Router } from '@angular/router';
 import { TasksComponent } from '@service-bus-browser/tasks-components';
 import { Task } from '@service-bus-browser/tasks-contracts';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
+import { MessagesActions } from '@service-bus-browser/messages-store';
 
 @Component({
   selector: 'app-sidebar',
@@ -104,6 +105,23 @@ export class SidebarComponent {
   ];
 
   queueContextMenuItems: SbbMenuItem<QueueWithMetaData>[] = [
+    {
+      label: 'Peak messages',
+      icon: 'pi pi-download',
+      onSelect: async (
+        data: QueueWithMetaData,
+        event: MenuItemCommandEvent
+      ) => {
+        this.store.dispatch(MessagesActions.peakQueueMessages({
+          connectionId: data.namespaceId,
+          queueName: data.name,
+          maxAmount: 10
+        }))
+      },
+    },
+    {
+      separator: true
+    },
     {
       label: 'Edit Queue',
       icon: 'pi pi-pencil',
