@@ -56,11 +56,12 @@ export const logsReducer = createReducer(
     };
   }),
   on(internalActions.peakMessagesLoadingDone, (state, { pageId }): MessagesState => {
+
     return {
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
         ...page,
-        name: page.name.replace(' (loading...)', ` (${page.messages.length})`),
+        name: page.name.replace(' (loading...)', ` (${page?.messages[0]?.sequenceNumber ?? '0'} - ${page?.messages[page.messages.length - 1]?.sequenceNumber ?? '0'})`),
         loaded: true
       } : page)
     }
