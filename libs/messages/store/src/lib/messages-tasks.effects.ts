@@ -12,18 +12,24 @@ export class MessagesTasksEffects {
   actions = inject(Actions);
 
   createTask$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakQueueMessagesLoad),
-    map(({ pageId, maxAmount, queueName }) => TasksActions.createTask({
-      id: pageId,
-      statusDescription: `0/${maxAmount}`,
-      description: `loading messages from ${queueName}`,
-      hasProgress: true,
-      initialProgress: 0
-    })),
+    ofType(internalActions.peakMessagesLoad),
+    map(({ pageId, maxAmount, endpoint }) => {
+      const endpointName = 'queueName' in endpoint
+        ? endpoint.queueName
+        : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+
+      return TasksActions.createTask({
+        id: pageId,
+        statusDescription: `0/${maxAmount}`,
+        description: `loading messages from ${endpointName}`,
+        hasProgress: true,
+        initialProgress: 0
+      })
+    }),
   ));
 
   updateTaskProgress$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakQueueMessagesPartLoaded),
+    ofType(internalActions.peakMessagesPartLoaded),
     map(({ pageId, maxAmount, amountLoaded }) => TasksActions.setProgress({
       id: pageId,
       statusDescription: `${amountLoaded}/${maxAmount + amountLoaded}`,
@@ -32,7 +38,7 @@ export class MessagesTasksEffects {
   ));
 
   completeTask$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakQueueMessagesLoadingDone),
+    ofType(internalActions.peakMessagesLoadingDone),
     map(({ pageId }) => TasksActions.completeTask({ id: pageId })),
   ));
 }

@@ -17,3 +17,10 @@ export const peakMessages = createAction(
     maxAmount: number,
   }>()
 )
+
+export const closePage = createAction(
+  '[Messages] close page',
+  props<{
+    pageId: UUID,
+  }>()
+)

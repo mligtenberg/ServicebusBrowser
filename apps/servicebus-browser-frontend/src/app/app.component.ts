@@ -10,8 +10,13 @@ import { Store } from '@ngrx/store';
 import { LogsSelectors } from '@service-bus-browser/logs-store';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { Toast } from 'primeng/toast';
-import { MessagesSelectors } from '@service-bus-browser/messages-store';
+import {
+  MessagesActions,
+  MessagesSelectors,
+} from '@service-bus-browser/messages-store';
 import { selectRoute } from './ngrx/route.selectors';
+import { UUID } from '@service-bus-browser/shared-contracts';
+import { Button } from 'primeng/button';
 
 @Component({
   imports: [
@@ -26,6 +31,7 @@ import { selectRoute } from './ngrx/route.selectors';
     Tab,
     SidebarComponent,
     Toast,
+    Button,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -56,5 +62,10 @@ export class AppComponent {
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
+  }
+
+  closePage(pageId: UUID, event: Event) {
+    this.store.dispatch(MessagesActions.closePage({ pageId: pageId }));
+    event.stopPropagation();
   }
 }

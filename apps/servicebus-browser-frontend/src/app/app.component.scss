@@ -43,6 +43,8 @@
     flex-direction: column;
     align-items: stretch;
     justify-items: stretch;
+    container-name: mainContent;
+    container-type: size;
 
     p-scroll-panel {
       flex: 1;
@@ -75,4 +77,8 @@
   &:hover {
     background-color: var(--p-primary-700);
   }
+}
+
+.close-button {
+  --p-button-icon-only-width: 1rem;
 }

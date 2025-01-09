@@ -3,6 +3,7 @@ import { MessagePage } from '@service-bus-browser/messages-contracts';
 
 export const featureKey = 'messages';
 
+import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 
 export type MessagesState = {
@@ -62,6 +63,12 @@ export const logsReducer = createReducer(
         name: page.name.replace(' (loading...)', ` (${page.messages.length})`),
         loaded: true
       } : page)
+    }
+  }),
+  on(actions.closePage, (state, { pageId }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
     }
   })
 );

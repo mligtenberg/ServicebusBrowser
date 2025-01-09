@@ -1,0 +1,66 @@
+:host {
+  ::ng-deep .p-card.p-component {
+    height: 100%;
+  }
+
+  ::ng-deep .p-card-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .p-card-content {
+      height: 100%;
+    }
+  }
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 2fr;
+  grid-template-areas:
+    'messages properties'
+    'body custom-properties';
+  gap: 1rem;
+  padding: 1rem;
+  width: 100cqw;
+
+  @container mainContent (min-width: 1px) {
+    width: 100cqw;
+  }
+
+  @container mainContent (max-width: 900px) {
+    grid-template-areas:
+    'messages'
+    'body'
+    'properties'
+    'custom-properties';
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+  }
+}
+
+.messages {
+  grid-area: messages;
+}
+
+.body {
+  grid-area: body;
+}
+
+.properties {
+  grid-area: properties;
+}
+
+.custom-properties {
+  grid-area: custom-properties;
+}
+
+p-card {
+  height: 100%;
+}
+
+ngx-monaco-editor {
+  width: 100%;
+  height: 100% !important;
+}

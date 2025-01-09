@@ -12,6 +12,7 @@
           @for (page of messagePages(); track page.id) {
             <p-tab [value]="'/messages/page/' + page.id" [routerLink]="'/messages/page/' + page.id">
               <span>{{ page.name }}</span>
+              <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closePage(page.id, $event)" class="close-button"></p-button>
             </p-tab>
           }
         </p-tablist>

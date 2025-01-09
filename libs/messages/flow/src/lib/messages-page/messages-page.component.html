@@ -39,4 +39,50 @@
       [ngModel]="body()"
     />
   </p-card>
+  <p-card header="Properties" class="properties">
+    <p-table
+      [columns]="propertiesCols"
+      [value]="properties()"
+      [scrollable]="true"
+      scrollHeight="250px"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="30"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height:30px">
+          <td *ngFor="let col of columns">
+            {{ rowData[col.field] }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card header="Custom Properties" class="custom-properties">
+    <p-table
+      [columns]="propertiesCols"
+      [value]="customProperties()"
+      [scrollable]="true"
+      scrollHeight="250px"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="30"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height:30px">
+          <td *ngFor="let col of columns">
+            {{ rowData[col.field] }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 </div>
