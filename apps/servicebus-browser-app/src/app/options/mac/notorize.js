@@ -7,9 +7,12 @@ exports.default = async function notarizeApp(context) {
     return;
   }
 
+  console.log(appOutDir, appName);
+
   const appName = context.packager.appInfo.productFilename;
 
   await notarize({
+    tool: 'notarytool',
     appBundleId: 'digital.ligtenberg.servicebusbrowser',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,
