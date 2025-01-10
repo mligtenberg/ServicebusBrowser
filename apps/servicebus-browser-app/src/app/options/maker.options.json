@@ -4,5 +4,14 @@
   "artifactName": "Servicebus browser.${ext}",
   "copyright": "Copyright © 2024 Martin Ligtenberg",
   "productName": "Servicebus Browser",
-  "icon": "assets/icon.png"
+  "icon": "assets/icon.png",
+  "linux": {
+    "target": ["AppImage"]
+  },
+  "win": {
+    "target": ["nsis"]
+  },
+  "mac": {
+    "target": ["dmg"]
+  }
 }
