@@ -1,35 +1,42 @@
-export async function managementExecute(actionName: string, requestBody: unknown) {
-  const module = require(`./lib/service-bus-server`);
-  const func = module.management[actionName];
+import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 
-  if (func && typeof func === 'function') {
-    const result = func(requestBody);
-
-    // if is a promise, wait for it to resolve
-    if (result instanceof Promise) {
-      return await result;
-    }
-
-    return result;
+export class Server {
+  constructor(private connectionManager: ConnectionManager) {
   }
 
-  throw new Error(`Action ${actionName} not found`);
-}
+  async managementExecute(actionName: string, requestBody: unknown) {
+    const module = require(`./lib/service-bus-server`);
+    const func = module.management[actionName];
 
-export async function messagesExecute(actionName: string, requestBody: unknown) {
-  const module = require(`./lib/service-bus-server`);
-  const func = module.messages[actionName];
+    if (func && typeof func === 'function') {
+      const result = func(requestBody, this.connectionManager);
 
-  if (func && typeof func === 'function') {
-    const result = func(requestBody);
+      // if is a promise, wait for it to resolve
+      if (result instanceof Promise) {
+        return await result;
+      }
 
-    // if is a promise, wait for it to resolve
-    if (result instanceof Promise) {
-      return await result;
+      return result;
     }
 
-    return result;
+    throw new Error(`Action ${actionName} not found`);
   }
 
-  throw new Error(`Action ${actionName} not found`);
+  async messagesExecute(actionName: string, requestBody: unknown) {
+    const module = require(`./lib/service-bus-server`);
+    const func = module.messages[actionName];
+
+    if (func && typeof func === 'function') {
+      const result = func(requestBody, this.connectionManager);
+
+      // if is a promise, wait for it to resolve
+      if (result instanceof Promise) {
+        return await result;
+      }
+
+      return result;
+    }
+
+    throw new Error(`Action ${actionName} not found`);
+  }
 }
