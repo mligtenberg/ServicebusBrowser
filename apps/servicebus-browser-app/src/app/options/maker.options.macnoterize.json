@@ -18,5 +18,5 @@
     "entitlements": "apps/servicebus-browser-app/src/app/options/mac/entitelments.mac.plist",
     "entitlementsInherit": "apps/servicebus-browser-app/src/app/options/mac/entitelments.mac.plist"
   },
-  "afterSign": "scripts/notarize.js"
+  "afterSign": "apps/servicebus-browser-app/src/app/options/mac/notorize.js"
 }
