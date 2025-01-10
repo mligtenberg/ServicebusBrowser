@@ -107,7 +107,7 @@ jobs:
       - name: Download Mac Build
         uses: actions/download-artifact@v4
         with:
-          name: mac-release
+          name: macos-release
           path: mac
       - name: Download Linux Build
         uses: actions/download-artifact@v4
