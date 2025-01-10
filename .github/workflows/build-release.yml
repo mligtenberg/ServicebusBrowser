@@ -85,7 +85,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
       - run: pnpm exec nx run-many -t build --configuration=production
-      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
+      - name: Build executable
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
+        run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }} --configuration=macos-notarize
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
         with:

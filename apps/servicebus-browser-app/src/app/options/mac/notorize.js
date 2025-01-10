@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { notarize } = require('@electron/notarize');
 
 exports.default = async function notarizeApp(context) {
@@ -13,8 +12,8 @@ exports.default = async function notarizeApp(context) {
   await notarize({
     appBundleId: 'digital.ligtenberg.servicebusbrowser',
     appPath: `${appOutDir}/${appName}.app`,
-    appleId: process.env.APPLE_ID,
-    appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS,
     teamId: process.env.APPLE_TEAM_ID,
   });
 };

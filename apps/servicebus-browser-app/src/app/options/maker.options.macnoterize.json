@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../../../node_modules/nx-electron/src/validation/maker.schema.json",
+  "appId": "digital.ligtenberg.servicebusbrowser",
+  "artifactName": "Servicebus browser.${ext}",
+  "copyright": "Copyright © 2024 Martin Ligtenberg",
+  "productName": "Servicebus Browser",
+  "icon": "assets/icon.png",
+  "linux": {
+    "target": ["AppImage"]
+  },
+  "win": {
+    "target": ["nsis"]
+  },
+  "mac": {
+    "category": "public.app-category.developer-tools",
+    "hardenedRuntime" : true,
+    "gatekeeperAssess": false,
+    "entitlements": "apps/servicebus-browser-app/src/app/options/mac/entitelments.mac.plist",
+    "entitlementsInherit": "apps/servicebus-browser-app/src/app/options/mac/entitelments.mac.plist"
+  },
+  "afterSign": "scripts/notarize.js"
+}

@@ -51,6 +51,12 @@
         "frontendProject": "servicebus-browser-frontend",
         "sourcePath": "dist/apps",
         "outputPath": "dist/executables"
+      },
+      "configurations": {
+        "macos-notarize": {
+          "publishPolicy": "never",
+          "makerOptionsPath": "apps/servicebus-browser-app/src/app/options/maker.options.macnoterize.json"
+        }
       }
     },
     "lint": {
