@@ -33,7 +33,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
@@ -59,7 +59,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
@@ -84,7 +84,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
