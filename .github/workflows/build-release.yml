@@ -1,0 +1,90 @@
+name: build-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTitle:
+        description: "Release title"
+        required: true
+      tagVersion:
+        description: "Tag version"
+        required: true
+
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  linuxBuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - uses: nrwl/nx-set-shas@v4
+      - run: pnpm exec nx affected -t build make
+      - name: Publish release as artifect
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-release
+          path: dist/executables
+
+
+  windowsBuild:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - uses: nrwl/nx-set-shas@v4
+      - run: pnpm exec nx affected -t build make
+      - name: Publish release as artifect
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-release
+          path: dist/executables
+
+  macBuild:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - uses: nrwl/nx-set-shas@v4
+      - run: pnpm exec nx affected -t build make
+      - name: Publish release as artifect
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-release
+          path: dist/executables
