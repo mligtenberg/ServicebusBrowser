@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
@@ -8,10 +8,9 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
-import { QueueForm } from '../queue-management/form';
 import { SubscriptionForm } from './form';
 import { Textarea } from 'primeng/textarea';
-import { combineLatest, Subject, takeUntil } from 'rxjs';
+import { combineLatest, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
@@ -20,7 +19,10 @@ import {
   TopologySelectors,
 } from '@service-bus-browser/topology-store';
 import { ButtonDirective } from 'primeng/button';
-import { Subscription } from '@service-bus-browser/topology-contracts';
+import { Subscription, SubscriptionWithMetaData } from '@service-bus-browser/topology-contracts';
+import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from 'primeng/table';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'lib-subscription-management',
@@ -37,75 +39,97 @@ import { Subscription } from '@service-bus-browser/topology-contracts';
     ReactiveFormsModule,
     Textarea,
     ButtonDirective,
+    PrimeTemplate,
+    TableModule,
   ],
   templateUrl: './subscription-management.component.html',
   styleUrl: './subscription-management.component.scss',
 })
-export class SubscriptionManagementComponent implements OnDestroy {
-  destroy$ = new Subject<void>();
-  newParams$ = new Subject<void>();
+export class SubscriptionManagementComponent {
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
   form = this.createForm();
-  action: 'create' | 'modify' = 'create';
+  action = signal<'create' | 'modify'>('create');
+  currentSubscription = signal<SubscriptionWithMetaData | undefined>(undefined);
+  currentSubscriptionInformation = computed(() => {
+    const subscription = this.currentSubscription();
+    if (!subscription) {
+      return [];
+    }
+
+    return Object.entries(subscription.metaData).map(([key, value]) => ({
+      key,
+      value,
+    }));
+  });
+
+  informationCols = [
+    { field: 'key', header: 'Key' },
+    { field: 'value', header: 'Value' },
+  ]
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([ params, data ]) => {
-        this.action = data['action'] as 'create' | 'modify';
+      .pipe(
+        switchMap(([params, data]) => {
+          const action = data['action'] as 'create' | 'modify';
+          const namespaceId = params['namespaceId'] as UUID | undefined;
+          const topicId = params['topicId'] as string | undefined;
+          const subscriptionId = params['subscriptionId'] as string | undefined;
+
+            if (namespaceId === undefined) {
+              throw new Error('Namespace ID is required');
+            }
+
+            if (topicId === undefined) {
+              throw new Error('Topic ID is required');
+            }
+
+            if (action === 'create') {
+              return of({ action, subscription: undefined });
+            }
+
+            if (!subscriptionId) {
+              throw new Error('Subscription ID is required for modify action');
+            }
+
+            return this.store.select(
+              TopologySelectors.selectSubscriptionById(
+                namespaceId,
+                topicId,
+                subscriptionId
+              )
+            ).pipe(
+              map(subscription => ({ action, subscription }))
+            );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({action, subscription}) => {
+        this.action.set(action);
+        this.currentSubscription.set(subscription);
         this.form = this.createForm();
 
-        const namespaceId = params['namespaceId'] as UUID | undefined;
-        const topicId = params['topicId'] as string | undefined;
-        const subscriptionId = params['subscriptionId'] as string | undefined;
-
-        if (namespaceId === undefined) {
-          throw new Error('Namespace ID is required');
-        }
-
-        if (topicId === undefined) {
-          throw new Error('Topic ID is required');
-        }
-
-        if (this.action === 'create') {
+        if (action === 'create') {
           this.configureFormAsCreate();
           return;
         }
 
-        this.newParams$.next();
-        this.newParams$.complete();
-        this.newParams$ = new Subject<void>();
-
-        if (!subscriptionId) {
-          throw new Error('Subscription ID is required for modify action');
-        }
         this.configureFormAsEdit();
 
-        this.store
-          .select(
-            TopologySelectors.selectSubscriptionById(
-              namespaceId,
-              topicId,
-              subscriptionId
-            )
-          )
-          .pipe(takeUntil(this.newParams$), takeUntil(this.destroy$))
-          .subscribe((queue) => {
-            if (!queue) {
-              return;
-            }
+          if (!subscription) {
+            return;
+          }
 
-            this.form.setValue(
-              {
-                name: queue.name,
-                properties: queue.properties,
-                settings: queue.settings,
-              },
-              { emitEvent: false }
-            );
-          });
-      });
+          this.form.setValue(
+            {
+              name: subscription.name,
+              properties: subscription.properties,
+              settings: subscription.settings,
+            },
+            { emitEvent: false }
+          );
+        });
   }
 
   configureFormAsEdit(): void {
@@ -116,11 +140,6 @@ export class SubscriptionManagementComponent implements OnDestroy {
   configureFormAsCreate(): void {
     this.form.controls.name.enable();
     this.form.controls.settings.controls.requiresSession.enable();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   save(): void {
@@ -137,28 +156,33 @@ export class SubscriptionManagementComponent implements OnDestroy {
       name: formValue.name ?? '',
       properties: {
         lockDuration: formValue.properties.lockDuration ?? '',
-        defaultMessageTimeToLive: formValue.properties.defaultMessageTimeToLive ?? '',
+        defaultMessageTimeToLive:
+          formValue.properties.defaultMessageTimeToLive ?? '',
         maxDeliveryCount: formValue.properties.maxDeliveryCount ?? 0,
         userMetadata: formValue.properties.userMetadata ?? null,
         autoDeleteOnIdle: formValue.properties.autoDeleteOnIdle ?? '',
         forwardMessagesTo: formValue.properties.forwardMessagesTo ?? null,
-        forwardDeadLetteredMessagesTo: formValue.properties.forwardDeadLetteredMessagesTo ?? null,
+        forwardDeadLetteredMessagesTo:
+          formValue.properties.forwardDeadLetteredMessagesTo ?? null,
       },
       settings: {
         requiresSession: formValue.settings.requiresSession ?? false,
-        deadLetteringOnMessageExpiration: formValue.settings.deadLetteringOnMessageExpiration ?? false,
-        enableBatchedOperations: formValue.settings.enableBatchedOperations ?? false,
-        deadLetteringOnFilterEvaluationExceptions: formValue.settings.deadLetteringOnFilterEvaluationExceptions ?? false,
+        deadLetteringOnMessageExpiration:
+          formValue.settings.deadLetteringOnMessageExpiration ?? false,
+        enableBatchedOperations:
+          formValue.settings.enableBatchedOperations ?? false,
+        deadLetteringOnFilterEvaluationExceptions:
+          formValue.settings.deadLetteringOnFilterEvaluationExceptions ?? false,
       },
-    }
+    };
 
     // save queue
-    if (this.action === 'create') {
+    if (this.action() === 'create') {
       this.store.dispatch(
         TopologyActions.addSubscription({
           namespaceId: this.activeRoute.snapshot.params['namespaceId'],
           topicId: this.activeRoute.snapshot.params['topicId'],
-          subscription: subscription
+          subscription: subscription,
         })
       );
       return;
@@ -169,7 +193,7 @@ export class SubscriptionManagementComponent implements OnDestroy {
       TopologyActions.editSubscription({
         namespaceId: this.activeRoute.snapshot.params['namespaceId'],
         topicId: this.activeRoute.snapshot.params['topicId'],
-        subscription
+        subscription,
       })
     );
   }
@@ -208,5 +232,9 @@ export class SubscriptionManagementComponent implements OnDestroy {
         requiresSession: new FormControl<boolean>(false, { nonNullable: true }),
       }),
     });
+  }
+
+  isDate(value: unknown): boolean {
+    return value instanceof Date;
   }
 }
