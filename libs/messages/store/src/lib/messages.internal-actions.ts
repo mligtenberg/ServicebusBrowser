@@ -4,7 +4,7 @@ import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contrac
 import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
 
 export const peakMessagesLoad = createAction(
-  '[Messages] load peak queue messages',
+  '[Messages] load peak messages',
   props<{
     connectionId: UUID,
     pageId: UUID,

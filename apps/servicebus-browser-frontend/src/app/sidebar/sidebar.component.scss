@@ -19,3 +19,18 @@ p-scroll-panel {
 sbb-task-tasks {
   border-top: solid 2px var(--p-surface-200);
 }
+
+.load-form {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

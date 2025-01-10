@@ -17,12 +17,12 @@ export class MessagesEffects {
 
   loadPeakQueueMessages$ = createEffect(() => this.actions.pipe(
     ofType(actions.peakMessages),
-    map(({ connectionId, endpoint, maxAmount }) => internalActions.peakMessagesLoad({
-      connectionId,
+    map(({ endpoint, maxAmount, fromSequenceNumber }) => internalActions.peakMessagesLoad({
+      connectionId: endpoint.connectionId,
       pageId: crypto.randomUUID(),
       endpoint,
       maxAmount,
-      fromSequenceNumber: '0'
+      fromSequenceNumber: fromSequenceNumber ?? '0'
     }))
   ));
 

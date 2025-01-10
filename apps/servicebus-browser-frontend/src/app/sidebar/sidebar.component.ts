@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
-import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
+import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
 import {
   Namespace,
   QueueWithMetaData,
@@ -22,10 +22,27 @@ import { TasksComponent } from '@service-bus-browser/tasks-components';
 import { Task } from '@service-bus-browser/tasks-contracts';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
+import { Dialog } from 'primeng/dialog';
+import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
+import { FloatLabel } from 'primeng/floatlabel';
+import { InputNumber } from 'primeng/inputnumber';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, TopologyTreeComponent, TasksComponent, ScrollPanel],
+  imports: [
+    CommonModule,
+    TopologyTreeComponent,
+    TasksComponent,
+    ScrollPanel,
+    Dialog,
+    FloatLabel,
+    InputNumber,
+    ReactiveFormsModule,
+    FormsModule,
+    Button,
+  ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -33,6 +50,21 @@ export class SidebarComponent {
   store = inject(Store);
   router = inject(Router);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
+  loadMessagesDialogVisible = computed(
+    () => this.currentEndpoint() !== undefined
+  );
+  currentEndpoint = signal<
+    | undefined
+    | { connectionId: UUID; queueName: string; channel: MessageChannels }
+    | {
+        connectionId: UUID;
+        topicName: string;
+        subscriptionName: string;
+        channel: MessageChannels;
+      }
+  >(undefined);
+  maxAmount = model<number>(10);
+  fromSequenceNumber = model<number>(0);
 
   namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
     {
@@ -112,14 +144,11 @@ export class SidebarComponent {
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            queueName: data.name,
-            channel: undefined
-          },
-          maxAmount: 10
-        }))
+          queueName: data.name,
+          channel: undefined,
+        });
       },
     },
     {
@@ -129,14 +158,11 @@ export class SidebarComponent {
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            queueName: data.name,
-            channel: 'deadLetter'
-          },
-          maxAmount: 10
-        }))
+          queueName: data.name,
+          channel: 'deadLetter',
+        });
       },
     },
     {
@@ -146,18 +172,15 @@ export class SidebarComponent {
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            queueName: data.name,
-            channel: 'transferDeadLetter'
-          },
-          maxAmount: 10
-        }))
+          queueName: data.name,
+          channel: 'transferDeadLetter',
+        });
       },
     },
     {
-      separator: true
+      separator: true,
     },
     {
       label: 'Edit Queue',
@@ -251,15 +274,12 @@ export class SidebarComponent {
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            topicName: data.topicId,
-            subscriptionName: data.name,
-            channel: undefined
-          },
-          maxAmount: 10
-        }))
+          topicName: data.topicId,
+          subscriptionName: data.name,
+          channel: undefined
+        });
       },
     },
     {
@@ -269,15 +289,12 @@ export class SidebarComponent {
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            topicName: data.topicId,
-            subscriptionName: data.name,
-            channel: 'deadLetter'
-          },
-          maxAmount: 10
-        }))
+          topicName: data.topicId,
+          subscriptionName: data.name,
+          channel: 'deadLetter'
+        });
       },
     },
     {
@@ -287,15 +304,12 @@ export class SidebarComponent {
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(MessagesActions.peakMessages({
+        this.openLoadDialog({
           connectionId: data.namespaceId,
-          endpoint: {
-            topicName: data.topicId,
-            subscriptionName: data.name,
-            channel: 'transferDeadLetter'
-          },
-          maxAmount: 10
-        }))
+          topicName: data.topicId,
+          subscriptionName: data.name,
+          channel: 'transferDeadLetter'
+        });
       },
     },
     {
@@ -462,4 +476,40 @@ export class SidebarComponent {
   }
 
   openTasks = this.store.selectSignal(TasksSelectors.selectTasks);
+
+  private openLoadDialog(
+    endpoint:
+      | { connectionId: UUID; queueName: string; channel: MessageChannels }
+      | {
+          connectionId: UUID;
+          topicName: string;
+          subscriptionName: string;
+          channel: MessageChannels;
+        }
+  ) {
+    this.maxAmount.set(10);
+    this.fromSequenceNumber.set(0);
+    this.currentEndpoint.set(endpoint);
+  }
+
+  loadMessages() {
+    const currentEndpoint = this.currentEndpoint();
+    if (currentEndpoint === undefined) {
+      return;
+    }
+
+    this.store.dispatch(
+      MessagesActions.peakMessages({
+        endpoint: currentEndpoint,
+        maxAmount: this.maxAmount(),
+        fromSequenceNumber: this.fromSequenceNumber().toString(),
+      })
+    );
+
+    this.currentEndpoint.set(undefined);
+  }
+
+  cancelLoadMessages() {
+    this.currentEndpoint.set(undefined);
+  }
 }

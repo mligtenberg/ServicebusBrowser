@@ -17,3 +17,28 @@
   </div>
 </p-scroll-panel>
 <sbb-task-tasks [tasks]="openTasks()"></sbb-task-tasks>
+
+<p-dialog
+  [modal]="true"
+  [visible]="loadMessagesDialogVisible()"
+  [closable]="true"
+  (close)="cancelLoadMessages()"
+  header="Load messages"
+>
+  <div class="load-form">
+    <p-float-label variant="on">
+      <p-inputnumber [(ngModel)]="maxAmount" inputId="maxAmountOfMessages"></p-inputnumber>
+      <!--suppress XmlInvalidId -->
+      <label for="maxAmountOfMessages">Max amount of messages</label>
+    </p-float-label>
+    <p-float-label variant="on">
+      <p-inputnumber [(ngModel)]="fromSequenceNumber" inputId="fromSequenceNumber"></p-inputnumber>
+      <!--suppress XmlInvalidId -->
+      <label for="fromSequenceNumber">From sequence number</label>
+    </p-float-label>
+    <div class="actions">
+      <p-button label="Cancel" (click)="cancelLoadMessages()" class="cancel-button"></p-button>
+      <p-button label="Load" (click)="loadMessages()" class="load-button"></p-button>
+    </div>
+  </div>
+</p-dialog>

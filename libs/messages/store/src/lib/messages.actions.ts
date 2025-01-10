@@ -5,16 +5,18 @@ import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
 export const peakMessages = createAction(
   '[Messages] peak messages',
   props<{
-    connectionId: UUID,
     endpoint: {
+      connectionId: UUID,
       queueName: string,
       channel: MessageChannels,
     } | {
+      connectionId: UUID,
       topicName: string,
       subscriptionName: string,
       channel: MessageChannels,
     },
     maxAmount: number,
+    fromSequenceNumber?: string
   }>()
 )
 
