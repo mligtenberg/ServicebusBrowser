@@ -21,8 +21,8 @@ export class ConnectionManager {
       : this.connectionStore.getConnection(options.id);
 
     if (connection === undefined) {
-      // @ts-expect-error - when id is provided, connection is undefined
-      throw new Error(`Connection ${ options['id'] as string } not found`);
+      const optionsId = 'id' in options ? options.id : undefined;
+      throw new Error(`Connection ${ optionsId as string } not found`);
     }
 
     return new ConnectionClient(connection);

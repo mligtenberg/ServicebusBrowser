@@ -468,8 +468,7 @@ export class AdministrationClient {
           namespaceId: this.connection.id,
           filterType: 'correlation',
           systemProperties: Object.keys(rule.filter).map((key) => {
-            const filter = rule.filter as CorrelationRuleFilter;
-            // @ts-expect-error - TS doesn't know that the key is a valid key
+            const filter = rule.filter as { [key: string]: unknown };
             const value = filter[key] as unknown;
             if (typeof value !== 'string') {
               return null;
