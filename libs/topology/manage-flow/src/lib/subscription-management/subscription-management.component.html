@@ -22,6 +22,7 @@
         <sbb-tpl-endpoint-selector-input
           id="forwardMessagesTo"
           formControlName="forwardMessagesTo"
+          [connectionsFilter]="endpointFilter()"
         />
         <label for="forwardMessagesTo">Forward to</label>
       </p-float-label>
@@ -31,6 +32,7 @@
         <sbb-tpl-endpoint-selector-input
           id="forwardDeadLetteredMessagesTo"
           formControlName="forwardDeadLetteredMessagesTo"
+          [connectionsFilter]="endpointFilter()"
         />
         <label for="forwardDeadLetteredMessagesTo">Forward dead letters to</label>
       </p-float-label>

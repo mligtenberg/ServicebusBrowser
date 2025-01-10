@@ -44,6 +44,7 @@ export class TopicManagementComponent {
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
   form = this.createForm();
+
   action = signal<'create' | 'modify'>('create');
   currentTopic = signal<TopicWithMetaData | undefined>(undefined);
   currentTopicInformation = computed(() => {
@@ -57,6 +58,7 @@ export class TopicManagementComponent {
       value,
     }));
   });
+
   informationCols = [
     { field: 'key', header: 'Key' },
     { field: 'value', header: 'Value' },

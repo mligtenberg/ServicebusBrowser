@@ -1,4 +1,4 @@
-import { Component, effect, forwardRef, inject, signal } from '@angular/core';
+import { Component, effect, forwardRef, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InputGroup } from 'primeng/inputgroup';
 import { Dialog } from 'primeng/dialog';
@@ -43,6 +43,8 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   dialogVisible = signal(false);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   value = signal<string | null>(null);
+
+  connectionsFilter = input<string[]>();
 
   constructor() {
     effect(() => {

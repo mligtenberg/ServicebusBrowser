@@ -62,6 +62,14 @@ export class SubscriptionManagementComponent {
       value,
     }));
   });
+  endpointFilter = computed(() => {
+    const currentSubscription = this.currentSubscription();
+    if (!currentSubscription) {
+      return [];
+    }
+
+    return [currentSubscription.namespaceId];
+  })
 
   informationCols = [
     { field: 'key', header: 'Key' },

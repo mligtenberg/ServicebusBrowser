@@ -49,6 +49,8 @@ export class TopologyTreeComponent {
   subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
   subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
 
+  connectionsFilter = input<string[]>();
+
   displayQueues = input<boolean>(true);
   displayTopics = input<boolean>(true);
   displaySubscriptions = input<boolean>(true);
@@ -58,8 +60,13 @@ export class TopologyTreeComponent {
 
   opened = signal<string[]>([]);
 
-  nodes = computed<TreeNode[]>(() =>
-    this.namespaces().map<TreeNode>((ns) => {
+  nodes = computed<TreeNode[]>(() => {
+    return this.namespaces()
+      .filter((ns) => {
+        const filter = this.connectionsFilter();
+        return !filter || filter.includes(ns.id)
+      })
+      .map<TreeNode>((ns) => {
       const node: TreeNode = {
         key: ns.id,
         label: ns.name,
@@ -123,7 +130,7 @@ export class TopologyTreeComponent {
                       topic,
                       subscription: sub,
                     }
-                }
+                  }
 
                 if (this.displaySubscriptionRules()) {
                   subNode.children = sub.rules.map<TreeNode>((rule) => ({
@@ -151,7 +158,7 @@ export class TopologyTreeComponent {
 
       return node;
     })
-  );
+  });
 
   namespaceSelected = output<{
     namespace: Namespace;

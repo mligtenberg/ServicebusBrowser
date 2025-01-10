@@ -45,7 +45,8 @@ import { TableModule } from 'primeng/table';
 export class QueueManagementComponent {
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
-  form = this.createForm();
+  form = this.createForm()
+
   action = signal<'create' | 'modify'>('create');
   currentQueue = signal<QueueWithMetaData | undefined>(undefined);
   currentQueueInformation = computed(() => {
@@ -59,6 +60,15 @@ export class QueueManagementComponent {
       value,
     }));
   });
+  endpointFilter = computed(() => {
+    const currentQueue = this.currentQueue();
+    if (!currentQueue) {
+      return [];
+    }
+
+    return [currentQueue.namespaceId];
+  })
+
   informationCols = [
     { field: 'key', header: 'Key' },
     { field: 'value', header: 'Value' },
