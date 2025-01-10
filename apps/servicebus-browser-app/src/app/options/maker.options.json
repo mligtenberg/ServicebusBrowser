@@ -12,10 +12,6 @@
     "target": ["nsis"]
   },
   "mac": {
-    "target": ["dmg"],
-    "hardenedRuntime": true,
-    "entitlements": "app/options/mac/entitlements.mac.plist",
-    "entitlementsInherit": "app/options/mac/entitlements.mac.plist",
-    "gatekeeperAssess": false
+    "target": ["dmg"]
   }
 }
