@@ -33,9 +33,10 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build make
+      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-release
           path: dist/executables
@@ -58,9 +59,10 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build make
+      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-release
           path: dist/executables
@@ -82,9 +84,10 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
-      - run: pnpm exec nx affected -t build make
+      - run: pnpm exec nx affected -t build
+      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=1.0.0
       - name: Publish release as artifect
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: macos-release
           path: dist/executables
