@@ -7,9 +7,10 @@ exports.default = async function notarizeApp(context) {
     return;
   }
 
-  console.log(appOutDir, appName);
-
   const appName = context.packager.appInfo.productFilename;
+
+
+  console.log(appOutDir, appName);
 
   await notarize({
     tool: 'notarytool',
