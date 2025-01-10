@@ -39,19 +39,3 @@ export const peakMessagesPartLoaded = createAction(
     messages: ServiceBusReceivedMessage[]
   }>()
 )
-
-export const peakMessagesLoadingDone = createAction(
-  '[Messages] peak messages finished loading',
-  props<{
-    connectionId: UUID,
-    pageId: UUID,
-    endpoint: {
-      queueName: string,
-      channel: MessageChannels
-    } | {
-      topicName: string,
-      subscriptionName: string,
-      channel: MessageChannels
-    },
-  }>()
-)

@@ -3,6 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 import { map } from 'rxjs';
 
+import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 
 @Injectable({
@@ -38,7 +39,7 @@ export class MessagesTasksEffects {
   ));
 
   completeTask$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakMessagesLoadingDone),
+    ofType(actions.peakMessagesLoadingDone),
     map(({ pageId }) => TasksActions.completeTask({ id: pageId })),
   ));
 }

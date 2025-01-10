@@ -55,7 +55,7 @@ export const logsReducer = createReducer(
         ] } : page)
     };
   }),
-  on(internalActions.peakMessagesLoadingDone, (state, { pageId }): MessagesState => {
+  on(actions.peakMessagesLoadingDone, (state, { pageId }): MessagesState => {
 
     return {
       ...state,

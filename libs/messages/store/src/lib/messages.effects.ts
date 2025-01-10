@@ -38,7 +38,7 @@ export class MessagesEffects {
       return messages$
         .pipe(
           map(messages => messages.length === 0
-            ? internalActions.peakMessagesLoadingDone({ connectionId, pageId, endpoint })
+            ? actions.peakMessagesLoadingDone({ connectionId, pageId, endpoint })
             : internalActions.peakMessagesPartLoaded({
               connectionId,
               pageId,

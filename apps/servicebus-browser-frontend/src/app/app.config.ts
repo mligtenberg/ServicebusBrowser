@@ -3,7 +3,6 @@ import {
   importProvidersFrom,
   isDevMode,
   provideExperimentalZonelessChangeDetection,
-  provideZoneChangeDetection
 } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { appRoutes } from './app.routes';
@@ -21,6 +20,8 @@ import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import { routeFeature } from './ngrx/route.store';
+import { provideEffects } from '@ngrx/effects';
+import { RouterEffects } from './ngrx/router.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -53,6 +54,7 @@ export const appConfig: ApplicationConfig = {
     provideTopologyState(),
     provideServiceBusClient(),
     provideState(routeFeature),
+    provideEffects([RouterEffects]),
 
     // ngrx
     provideStore(),
