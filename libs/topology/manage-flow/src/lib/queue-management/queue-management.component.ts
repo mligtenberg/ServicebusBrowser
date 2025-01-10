@@ -43,7 +43,6 @@ import { TableModule } from 'primeng/table';
   styleUrl: './queue-management.component.scss',
 })
 export class QueueManagementComponent {
-  newParams$ = new Subject<void>();
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
   form = this.createForm();
@@ -68,7 +67,6 @@ export class QueueManagementComponent {
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
       .pipe(
-        takeUntilDestroyed(),
         switchMap(([params, data]) => {
           const action = data['action'] as 'create' | 'modify';
 
@@ -82,10 +80,6 @@ export class QueueManagementComponent {
           if (action === 'create') {
             return of({ action: 'create', queue: undefined });
           }
-
-          this.newParams$.next();
-          this.newParams$.complete();
-          this.newParams$ = new Subject<void>();
 
           // new queue form
           if (!queueId) {
@@ -101,7 +95,8 @@ export class QueueManagementComponent {
                 queue,
               }))
             );
-        })
+        }),
+        takeUntilDestroyed(),
       )
       .subscribe(({ action, queue }) => {
         this.form = this.createForm();

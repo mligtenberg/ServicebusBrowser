@@ -28,15 +28,6 @@ form {
     'actions actions';
   grid-template-columns: 3fr 2fr;
 
-  @media (max-width: 1024px) {
-    grid-template-areas:
-    'name'
-    'settings'
-    'properties'
-    'actions';
-    grid-template-columns: 1fr;
-  }
-
   .name {
     grid-area: name;
   }
@@ -49,11 +40,24 @@ form {
     grid-area: settings;
   }
 
+  .information {
+    grid-area: information;
+  }
+
   .actions {
     grid-area: actions;
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
+  }
+
+  @container mainContent (width < 900px) {
+    grid-template-areas:
+    'name actions'
+    'settings settings'
+    'properties properties'
+    'information information';
+    grid-template-columns: 1fr;
   }
 }
 

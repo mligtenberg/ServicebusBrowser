@@ -1,24 +1,24 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { FloatLabel } from 'primeng/floatlabel';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
-import { QueueForm } from '../queue-management/form';
 import { TopicForm } from './form';
 import { Textarea } from 'primeng/textarea';
-import { combineLatest, Subject, takeUntil } from 'rxjs';
+import { combineLatest, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { TopologyActions, TopologySelectors } from '@service-bus-browser/topology-store';
-import { latestValueFrom } from 'nx/src/adapter/rxjs-for-await';
 import { ButtonDirective } from 'primeng/button';
-import { Queue, Topic } from '@service-bus-browser/topology-contracts';
+import { Topic, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'lib-topic-management',
@@ -34,64 +34,85 @@ import { Queue, Topic } from '@service-bus-browser/topology-contracts';
     ReactiveFormsModule,
     Textarea,
     ButtonDirective,
+    PrimeTemplate,
+    TableModule,
   ],
   templateUrl: './topic-management.component.html',
   styleUrl: './topic-management.component.scss',
 })
 export class TopicManagementComponent {
-  destroy$ = new Subject<void>();
-  newParams$ = new Subject<void>();
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
   form = this.createForm();
-  action: 'create' | 'modify' = 'create';
+  action = signal<'create' | 'modify'>('create');
+  currentTopic = signal<TopicWithMetaData | undefined>(undefined);
+  currentTopicInformation = computed(() => {
+    const topic = this.currentTopic();
+    if (!topic) {
+      return [];
+    }
+
+    return Object.entries(topic.metadata).map(([key, value]) => ({
+      key,
+      value,
+    }));
+  });
+  informationCols = [
+    { field: 'key', header: 'Key' },
+    { field: 'value', header: 'Value' },
+  ];
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([params, data]) => {
-        const namespaceId = params['namespaceId'] as UUID | undefined;
-        const topicId = params['topicId'] as string | undefined;
-        this.action = data['action'] as 'create' | 'modify';
+      .pipe(
+        switchMap(([params, data]) => {
+          const namespaceId = params['namespaceId'] as UUID | undefined;
+          const topicId = params['topicId'] as string | undefined;
+          const action = data['action'] as 'create' | 'modify';
 
-        this.newParams$.next();
-        this.newParams$.complete();
-        this.newParams$ = new Subject<void>();
+          if (namespaceId === undefined) {
+            throw new Error('Namespace ID is required');
+          }
 
-        if (namespaceId === undefined) {
-          throw new Error('Namespace ID is required');
-        }
+          if (action === 'create') {
+            return of({ action: action, topic: undefined });
+          }
+
+          if (topicId === undefined) {
+            throw new Error('Topic ID is required for modify action');
+          }
+
+          return this.store
+            .select(TopologySelectors.selectTopicById(namespaceId, topicId))
+            .pipe(map((topic) => ({ action: action, topic: topic })));
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe(({ topic, action }) => {
+        this.action.set(action);
+        this.currentTopic.set(topic);
 
         // new queue form
-        if (this.action === 'create') {
+        if (action === 'create') {
           this.form = this.createForm();
           this.configureFormAsCreate();
           return;
         }
 
-        if (topicId === undefined) {
-          throw new Error('Topic ID is required for modify action');
-        }
-
         this.configureFormAsEdit();
 
-        this.store
-          .select(TopologySelectors.selectTopicById(namespaceId, topicId))
-          .pipe(takeUntil(this.newParams$), takeUntil(this.destroy$))
-          .subscribe((topic) => {
-            if (!topic) {
-              return;
-            }
+        if (!topic) {
+          return;
+        }
 
-            this.form.setValue(
-              {
-                name: topic.name,
-                properties: topic.properties,
-                settings: topic.settings,
-              },
-              { emitEvent: false }
-            );
-          });
+        this.form.setValue(
+          {
+            name: topic.name,
+            properties: topic.properties,
+            settings: topic.settings,
+          },
+          { emitEvent: false }
+        );
       });
   }
 
@@ -107,11 +128,6 @@ export class TopicManagementComponent {
     this.form.controls.settings.controls.enablePartitioning.enable();
     this.form.controls.settings.controls.enableExpress.enable();
     this.form.controls.settings.controls.requiresDuplicateDetection.enable();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   createForm() {
@@ -165,26 +181,30 @@ export class TopicManagementComponent {
       name: formValue.name ?? '',
       properties: {
         maxSizeInMegabytes: formValue.properties.maxSizeInMegabytes ?? 0,
-        defaultMessageTimeToLive: formValue.properties.defaultMessageTimeToLive ?? '',
-        duplicateDetectionHistoryTimeWindow: formValue.properties.duplicateDetectionHistoryTimeWindow ?? '',
+        defaultMessageTimeToLive:
+          formValue.properties.defaultMessageTimeToLive ?? '',
+        duplicateDetectionHistoryTimeWindow:
+          formValue.properties.duplicateDetectionHistoryTimeWindow ?? '',
         userMetadata: formValue.properties.userMetadata ?? null,
         autoDeleteOnIdle: formValue.properties.autoDeleteOnIdle ?? '',
       },
       settings: {
-        requiresDuplicateDetection: formValue.settings.requiresDuplicateDetection ?? false,
+        requiresDuplicateDetection:
+          formValue.settings.requiresDuplicateDetection ?? false,
         supportOrdering: formValue.settings.supportOrdering ?? false,
-        enableBatchedOperations: formValue.settings.enableBatchedOperations ?? false,
+        enableBatchedOperations:
+          formValue.settings.enableBatchedOperations ?? false,
         enableExpress: formValue.settings.enableExpress ?? false,
         enablePartitioning: formValue.settings.enablePartitioning ?? false,
       },
-    }
+    };
 
     // save queue
-    if (this.action === 'create') {
+    if (this.action() === 'create') {
       this.store.dispatch(
         TopologyActions.addTopic({
           namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-          topic
+          topic,
         })
       );
       return;
@@ -194,8 +214,12 @@ export class TopicManagementComponent {
     this.store.dispatch(
       TopologyActions.editTopic({
         namespaceId: this.activeRoute.snapshot.params['namespaceId'],
-        topic
+        topic,
       })
     );
+  }
+
+  isDate(value: unknown): boolean {
+    return value instanceof Date;
   }
 }
