@@ -1,8 +1,7 @@
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 
 export class Server {
-  constructor(private connectionManager: ConnectionManager) {
-  }
+  constructor(private connectionManager: ConnectionManager) {}
 
   async managementExecute(actionName: string, requestBody: unknown) {
     const module = require(`./lib/service-bus-server`);

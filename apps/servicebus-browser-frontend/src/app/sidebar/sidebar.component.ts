@@ -183,6 +183,54 @@ export class SidebarComponent {
       separator: true,
     },
     {
+      label: 'Clear messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              queueName: data.name,
+              channel: undefined,
+              connectionId: data.namespaceId,
+            }
+          })
+        );
+      }
+    },
+    {
+      label: 'Clear deadletter messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              queueName: data.name,
+              channel: 'deadLetter',
+              connectionId: data.namespaceId,
+            }
+          })
+        );
+      }
+    },
+    {
+      label: 'Clear transfer deadletter messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              queueName: data.name,
+              channel: 'transferDeadLetter',
+              connectionId: data.namespaceId,
+            }
+          })
+        );
+      }
+    },
+    {
+      separator: true,
+    },
+    {
       label: 'Edit Queue',
       icon: 'pi pi-pencil',
       onSelect: async (
@@ -311,6 +359,57 @@ export class SidebarComponent {
           channel: 'transferDeadLetter'
         });
       },
+    },
+    {
+      separator: true,
+    },
+    {
+      label: 'Clear messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              channel: undefined,
+              connectionId: data.namespaceId,
+              topicName: data.topicId,
+              subscriptionName: data.name,
+            }
+          })
+        );
+      }
+    },
+    {
+      label: 'Clear deadletter messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              connectionId: data.namespaceId,
+              topicName: data.topicId,
+              subscriptionName: data.name,
+              channel: 'deadLetter',
+            }
+          })
+        );
+      }
+    },
+    {
+      label: 'Clear transfer deadletter messages',
+      icon: 'pi pi-eraser',
+      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
+        this.store.dispatch(
+          MessagesActions.clearEndpoint({
+            endpoint: {
+              connectionId: data.namespaceId,
+              topicName: data.topicId,
+              subscriptionName: data.name,
+              channel: 'transferDeadLetter',
+            }
+          })
+        );
+      }
     },
     {
       separator: true,

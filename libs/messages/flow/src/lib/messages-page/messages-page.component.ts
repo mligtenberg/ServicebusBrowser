@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { MessagesSelectors } from '@service-bus-browser/messages-store';
@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 export class MessagesPageComponent {
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
-  changeDetection = inject(ChangeDetectorRef);
 
   currentPage = signal<MessagePage | null>(null);
   selectedMessage = model<ServiceBusReceivedMessage | undefined>(undefined);
@@ -92,11 +91,6 @@ export class MessagesPageComponent {
       )
       .subscribe((page) => {
         this.currentPage.set(page ?? null);
-        this.changeDetection.detectChanges();
       });
-
-    effect(() => {
-      console.log(this.selectedMessage());
-    });
   }
 }

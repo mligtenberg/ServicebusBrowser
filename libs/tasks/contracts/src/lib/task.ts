@@ -1,7 +1,5 @@
-import { UUID } from '@service-bus-browser/shared-contracts';
-
 export type Task = {
-  id: UUID;
+  id: string;
   description: string;
   createdAt: Date;
   statusDescription?: string;

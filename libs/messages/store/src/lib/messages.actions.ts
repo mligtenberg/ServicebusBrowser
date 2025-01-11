@@ -1,20 +1,11 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 export const peakMessages = createAction(
   '[Messages] peak messages',
   props<{
-    endpoint: {
-      connectionId: UUID,
-      queueName: string,
-      channel: MessageChannels,
-    } | {
-      connectionId: UUID,
-      topicName: string,
-      subscriptionName: string,
-      channel: MessageChannels,
-    },
+    endpoint: ReceiveEndpoint,
     maxAmount: number,
     fromSequenceNumber?: string
   }>()
@@ -30,15 +21,21 @@ export const closePage = createAction(
 export const peakMessagesLoadingDone = createAction(
   '[Messages] peak messages finished loading',
   props<{
-    connectionId: UUID,
     pageId: UUID,
-    endpoint: {
-      queueName: string,
-      channel: MessageChannels
-    } | {
-      topicName: string,
-      subscriptionName: string,
-      channel: MessageChannels
-    },
+    endpoint: ReceiveEndpoint,
+  }>()
+)
+
+export const clearEndpoint = createAction(
+  '[Messages] clear endpoint',
+  props<{
+    endpoint: ReceiveEndpoint
+  }>()
+)
+
+export const clearedEndpoint = createAction(
+  '[Messages] cleared endpoint',
+  props<{
+    endpoint: ReceiveEndpoint
   }>()
 )

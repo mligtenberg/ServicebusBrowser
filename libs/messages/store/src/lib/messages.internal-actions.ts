@@ -1,21 +1,13 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
-import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 export const peakMessagesLoad = createAction(
   '[Messages] load peak messages',
   props<{
-    connectionId: UUID,
     pageId: UUID,
-    endpoint: {
-      queueName: string,
-      channel: MessageChannels
-    } | {
-      topicName: string,
-      subscriptionName: string,
-      channel: MessageChannels
-    },
+    endpoint: ReceiveEndpoint,
     maxAmount: number,
     alreadyLoadedAmount: number,
     fromSequenceNumber: string
@@ -25,18 +17,17 @@ export const peakMessagesLoad = createAction(
 export const peakMessagesPartLoaded = createAction(
   '[Messages] peak messages partially loaded',
   props<{
-    connectionId: UUID,
     pageId: UUID,
-    endpoint: {
-      queueName: string,
-      channel: MessageChannels
-    } | {
-      topicName: string,
-      subscriptionName: string,
-      channel: MessageChannels
-    },
+    endpoint: ReceiveEndpoint,
     maxAmount: number,
     amountLoaded: number,
     messages: ServiceBusReceivedMessage[]
+  }>()
+)
+
+export const continueClearingEndpoint = createAction(
+  '[Messages] continue clearing endpoint',
+  props<{
+    endpoint: ReceiveEndpoint
   }>()
 )

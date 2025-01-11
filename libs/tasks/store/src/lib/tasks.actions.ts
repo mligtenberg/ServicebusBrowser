@@ -1,10 +1,9 @@
 import { createAction, props } from '@ngrx/store';
-import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const createTask = createAction(
   '[Tasks] Create Task',
   props<{
-    id: UUID,
+    id: string,
     description: string,
     statusDescription?: string,
     hasProgress?: boolean,
@@ -15,7 +14,7 @@ export const createTask = createAction(
 export const setProgress = createAction(
   '[Tasks] Set Progress',
   props<{
-    id: UUID,
+    id: string,
     progress: number,
     statusDescription?: string,
   }>()
@@ -24,7 +23,7 @@ export const setProgress = createAction(
 export const completeTask = createAction(
   '[Tasks] Complete Task',
   props<{
-    id: UUID,
+    id: string,
     statusDescription?: string,
   }>()
 )

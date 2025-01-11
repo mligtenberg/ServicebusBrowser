@@ -18,7 +18,6 @@ export class MessagesEffects {
   loadPeakQueueMessages$ = createEffect(() => this.actions.pipe(
     ofType(actions.peakMessages),
     map(({ endpoint, maxAmount, fromSequenceNumber }) => internalActions.peakMessagesLoad({
-      connectionId: endpoint.connectionId,
       pageId: crypto.randomUUID(),
       endpoint,
       maxAmount,
@@ -29,19 +28,17 @@ export class MessagesEffects {
 
   loadPeakQueueMessagesPart$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesLoad),
-    switchMap(({ connectionId, pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
+    switchMap(({ pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
-      const messages$ = 'queueName' in endpoint
-        ? from(this.messagesService.peakFromQueue(connectionId, endpoint.queueName, endpoint.channel, maxAmountToLoad, Long.fromString(fromSequenceNumber)))
-        : from(this.messagesService.peakFromSubscription(connectionId, endpoint.topicName, endpoint.subscriptionName, endpoint.channel, maxAmountToLoad, Long.fromString(fromSequenceNumber)));
+      const messages$ =  from(this.messagesService.peakMessages(
+        endpoint, maxAmountToLoad, Long.fromString(fromSequenceNumber)));
 
       return messages$
         .pipe(
           map(messages => messages.length === 0 || messages.length >= maxAmount
-            ? actions.peakMessagesLoadingDone({ connectionId, pageId, endpoint })
+            ? actions.peakMessagesLoadingDone({ pageId, endpoint })
             : internalActions.peakMessagesPartLoaded({
-              connectionId,
               pageId,
               endpoint,
               maxAmount: maxAmount - messages.length,
@@ -54,7 +51,7 @@ export class MessagesEffects {
 
   loadMoreMessages$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
-    map(({ connectionId, pageId, endpoint, maxAmount, messages, amountLoaded }) => {
+    map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
       const sequenceNumbers = messages.map(m => Long.fromString(m.sequenceNumber ?? '0'));
       const highestSequenceNumber = sequenceNumbers.length === 0
         ? Long.fromNumber(0)
@@ -65,7 +62,6 @@ export class MessagesEffects {
       const fromSequenceNumber = highestSequenceNumber.add(1).toString();
 
       return internalActions.peakMessagesLoad({
-        connectionId,
         pageId,
         endpoint,
         maxAmount,
@@ -74,4 +70,14 @@ export class MessagesEffects {
       })
     })
   ));
+
+  clearEndpoint$ = createEffect(() => this.actions.pipe(
+    ofType(actions.clearEndpoint, internalActions.continueClearingEndpoint),
+    switchMap(({ endpoint }) => from(this.messagesService.receiveMessages(
+      endpoint,
+      this.MAX_PAGE_SIZE
+    )).pipe(map((messages) => messages.length === 0
+        ? actions.clearedEndpoint({ endpoint })
+        : internalActions.continueClearingEndpoint({ endpoint }))),
+    )));
 }

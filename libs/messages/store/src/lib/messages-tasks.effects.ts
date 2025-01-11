@@ -42,4 +42,33 @@ export class MessagesTasksEffects {
     ofType(actions.peakMessagesLoadingDone),
     map(({ pageId }) => TasksActions.completeTask({ id: pageId })),
   ));
+
+  clearTask$ = createEffect(() => this.actions.pipe(
+    ofType(actions.clearEndpoint),
+    map(({ endpoint }) => {
+      const endpointName = 'queueName' in endpoint
+        ? endpoint.queueName
+        : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+
+      return TasksActions.createTask({
+        id: `${endpoint.connectionId}/${endpointName}/${endpoint.channel}`,
+        statusDescription: '0',
+        description: `clearing messages from ${endpointName}`,
+        hasProgress: false,
+      })
+    }),
+  ));
+
+  doneClearingTask$ = createEffect(() => this.actions.pipe(
+    ofType(actions.clearedEndpoint),
+    map(({ endpoint }) => {
+      const endpointName = 'queueName' in endpoint
+        ? endpoint.queueName
+        : `${endpoint.topicName}/${endpoint.subscriptionName}`;
+
+      return TasksActions.completeTask({
+        id: `${endpoint.connectionId}/${endpointName}/${endpoint.channel}`
+      })
+    }),
+  ));
 }

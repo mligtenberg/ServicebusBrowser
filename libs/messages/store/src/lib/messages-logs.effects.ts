@@ -28,4 +28,18 @@ export class MessagesLogsEffects {
       this.logger.info(`Finished loading messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
     })
   ), { dispatch: false });
+
+  logClearingEndpoint$ = createEffect(() => this.actions.pipe(
+    ofType(actions.clearEndpoint),
+    tap(({ endpoint }) => {
+      this.logger.info(`Clearing messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
+    })
+  ), { dispatch: false });
+
+  logClearedEndpoint$ = createEffect(() => this.actions.pipe(
+    ofType(actions.clearedEndpoint),
+    tap(({ endpoint }) => {
+      this.logger.info(`Cleared messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
+    })
+  ), { dispatch: false });
 }
