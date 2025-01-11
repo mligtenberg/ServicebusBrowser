@@ -1,13 +1,13 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { MessageChannels } from './message-channels';
 
-interface QueueReceiveEndpoint {
+export interface QueueReceiveEndpoint {
   connectionId: UUID;
   queueName: string;
   channel: MessageChannels;
 }
 
-interface SubscriptionReceiveEndpoint {
+export interface SubscriptionReceiveEndpoint {
   connectionId: UUID;
   topicName: string;
   subscriptionName: string;

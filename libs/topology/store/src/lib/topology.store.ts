@@ -51,7 +51,7 @@ export const logsReducer = createReducer(
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
-      [namespace.id]: queues,
+      [namespace.id]: queues.sort((a, b) => a.name.localeCompare(b.name)),
     },
     queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -59,7 +59,7 @@ export const logsReducer = createReducer(
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
-      [namespace.id]: [...state.queuesPerNamespace[namespace.id], queue],
+      [namespace.id]: [...state.queuesPerNamespace[namespace.id], queue].sort((a, b) => a.name.localeCompare(b.name)),
     },
     queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -71,7 +71,7 @@ export const logsReducer = createReducer(
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
-      [namespace.id]: topics,
+      [namespace.id]: topics.sort((a, b) => a.name.localeCompare(b.name)),
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -79,7 +79,7 @@ export const logsReducer = createReducer(
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
-      [namespace.id]: [...state.topicsPerNamespace[namespace.id], topic],
+      [namespace.id]: [...state.topicsPerNamespace[namespace.id], topic].sort((a, b) => a.name.localeCompare(b.name)),
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -102,7 +102,7 @@ export const logsReducer = createReducer(
         ...state.subscriptionsPerNamespaceAndTopic,
         [namespace.id]: {
           ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
-          [topic.id]: subscriptions,
+          [topic.id]: subscriptions.sort((a, b) => a.name.localeCompare(b.name)),
         },
       },
       topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
@@ -115,7 +115,7 @@ export const logsReducer = createReducer(
       ...state.subscriptionsPerNamespaceAndTopic,
       [namespace.id]: {
         ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
-        [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id].filter(s => s.id !== subscription.id), subscription],
+        [topic.id]: [...state.subscriptionsPerNamespaceAndTopic[namespace.id][topic.id].filter(s => s.id !== subscription.id), subscription].sort((a, b) => a.name.localeCompare(b.name)),
       },
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
