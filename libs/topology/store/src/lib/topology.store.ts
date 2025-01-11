@@ -59,7 +59,8 @@ export const logsReducer = createReducer(
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
-      [namespace.id]: [...state.queuesPerNamespace[namespace.id], queue].sort((a, b) => a.name.localeCompare(b.name)),
+      [namespace.id]: [...state.queuesPerNamespace[namespace.id].filter(q => q.id !== queue.id), queue]
+        .sort((a, b) => a.name.localeCompare(b.name)),
     },
     queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
