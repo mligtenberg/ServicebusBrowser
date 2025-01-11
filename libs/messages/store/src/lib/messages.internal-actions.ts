@@ -17,6 +17,7 @@ export const peakMessagesLoad = createAction(
       channel: MessageChannels
     },
     maxAmount: number,
+    alreadyLoadedAmount: number,
     fromSequenceNumber: string
   }>()
 )

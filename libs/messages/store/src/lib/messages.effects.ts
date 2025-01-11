@@ -11,7 +11,7 @@ import Long from 'long';
   providedIn: 'root'
 })
 export class MessagesEffects {
-  MAX_PAGE_SIZE = 100;
+  MAX_PAGE_SIZE = 500;
   actions = inject(Actions);
   messagesService = inject(ServiceBusMessagesElectronClient);
 
@@ -22,13 +22,14 @@ export class MessagesEffects {
       pageId: crypto.randomUUID(),
       endpoint,
       maxAmount,
+      alreadyLoadedAmount: 0,
       fromSequenceNumber: fromSequenceNumber ?? '0'
     }))
   ));
 
   loadPeakQueueMessagesPart$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesLoad),
-    switchMap(({ connectionId, pageId, endpoint, maxAmount, fromSequenceNumber }) => {
+    switchMap(({ connectionId, pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
       const messages$ = 'queueName' in endpoint
@@ -37,14 +38,14 @@ export class MessagesEffects {
 
       return messages$
         .pipe(
-          map(messages => messages.length === 0
+          map(messages => messages.length === 0 || messages.length >= maxAmount
             ? actions.peakMessagesLoadingDone({ connectionId, pageId, endpoint })
             : internalActions.peakMessagesPartLoaded({
               connectionId,
               pageId,
               endpoint,
               maxAmount: maxAmount - messages.length,
-              amountLoaded: messages.length,
+              amountLoaded: alreadyLoadedAmount + messages.length,
               messages
           }))
         );
@@ -53,7 +54,7 @@ export class MessagesEffects {
 
   loadMoreMessages$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
-    map(({ connectionId, pageId, endpoint, maxAmount, messages }) => {
+    map(({ connectionId, pageId, endpoint, maxAmount, messages, amountLoaded }) => {
       const sequenceNumbers = messages.map(m => Long.fromString(m.sequenceNumber ?? '0'));
       const highestSequenceNumber = sequenceNumbers.length === 0
         ? Long.fromNumber(0)
@@ -68,6 +69,7 @@ export class MessagesEffects {
         pageId,
         endpoint,
         maxAmount,
+        alreadyLoadedAmount: amountLoaded,
         fromSequenceNumber
       })
     })

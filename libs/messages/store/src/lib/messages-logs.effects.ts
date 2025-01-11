@@ -17,15 +17,15 @@ export class MessagesLogsEffects {
 
   logLoadingProgress$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
-    tap(({ connectionId, endpoint, maxAmount, amountLoaded }) => {
-      this.logger.info(`Loaded ${amountLoaded} of ${maxAmount + amountLoaded} messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName} in ${connectionId}`);
+    tap(({ endpoint, maxAmount, amountLoaded }) => {
+      this.logger.info(`Loaded ${amountLoaded} of ${maxAmount + amountLoaded} messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
     })
   ), { dispatch: false });
 
   logLoadingDone$ = createEffect(() => this.actions.pipe(
     ofType(actions.peakMessagesLoadingDone),
-    tap(({ connectionId, endpoint }) => {
-      this.logger.info(`Finished loading messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName} in ${connectionId}`);
+    tap(({ endpoint }) => {
+      this.logger.info(`Finished loading messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
     })
   ), { dispatch: false });
 }
