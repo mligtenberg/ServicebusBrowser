@@ -85,6 +85,7 @@ export class MessagesPageComponent {
       .pipe(
         switchMap((params) => {
           const pageId: string = params['pageId'];
+          this.selectedMessage.set(undefined);
           return this.store.select(MessagesSelectors.selectPage(pageId));
         }),
         takeUntilDestroyed()
