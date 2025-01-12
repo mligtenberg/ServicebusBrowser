@@ -27,7 +27,7 @@ const macTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
   }
 ];
 
-const winlinTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
+const winLinTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
   // { role: 'fileMenu' }
   {
     label: 'File',
@@ -37,4 +37,4 @@ const winlinTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
   }
 ];
 
-export const menu = Menu.buildFromTemplate(isMac ? macTemplate : winlinTemplate);
+export const menu = Menu.buildFromTemplate(isMac ? macTemplate : winLinTemplate);

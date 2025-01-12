@@ -9,24 +9,20 @@
 </div>
 
 This project aims to build a cross platform tool to manage Azure Servicebus instances.
-Currently you are able to:
-- View your queues, topics and subscriptions
-- View the details of your queues, topics and subscriptions
+Currently, you are able to:
+- View and manage your queues, topics, subscriptions and subscription rules
 - Peek (View without deleting) messages in your queues and subscriptions. From the main, deadletter and trasfered dead letter channels
-- Send messages to your queues and topics
+- Clear messages from your queues and subscriptions
 
 ## How to run
 ### Installer
 Download the Windows, Linux versions of the app here:
 - https://github.com/mligtenberg/ServicebusBrowser/releases
 
-For mac users a manual release is advised for now
-since the build is required to be signed.
-
 ### Manual build (release build)
 #### Requirements
-- Node V20
-- PNPM V9
+- Node V22
+- PNPM V10
 
 #### Steps
 - Clone the project
@@ -37,5 +33,5 @@ since the build is required to be signed.
 - Clone the project
 - Install the dependencies with ``pnpm install`` in the main directory
 - Build and start the project by running ``pnpm exec nx run-many -t serve`` in the main directory
-- A electron window should open with the app running
+- An electron window should open with the app running
   - you might need to hit Ff (or CMD + R on mac) to refresh the window, this is a timing issue caused by the dev server
