@@ -7,9 +7,15 @@ const macTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
   {
     label: app.name,
     submenu: [
-      { role: 'about' },
+      {
+        label: 'About ' + app.name,
+        role: 'about'
+      },
       { type: 'separator' },
-      { role: 'quit' }
+      {
+        label: 'Quit ' + app.name,
+        role: 'quit'
+      }
     ]
   },
   // { role: 'fileMenu' }
