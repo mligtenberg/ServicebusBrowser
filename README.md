@@ -22,7 +22,7 @@ Download the Windows, Linux versions of the app here:
 ### Manual build (release build)
 #### Requirements
 - Node V22
-- PNPM V10
+- PNPM V9
 
 #### Steps
 - Clone the project
