@@ -123,10 +123,18 @@ jobs:
           path: linux
       - name: Display structure of downloaded files
         run: ls -R
+      - name: prepare resource folder
+        run: |
+            mkdir -p release
+            cp "windows/Servicebus browser.exe" "release/servicebus-browser.exe"
+            cp "linux/Servicebus browser.AppImage" "release/servicebus-browser.AppImage"
+            cp "mac/Servicebus browser.dmg" "release/servicebus-browser.dmg"
+            cp "mac/Servicebus browser.zip" "release/servicebus-browser-mac.zip"
+
       - uses: ncipollo/release-action@v1
         with:
             name: ${{ github.event.inputs.releaseTitle }}
             tag: ${{ github.event.inputs.tagVersion }}
             body: This is a release
             draft: true
-            artifacts: 'windows/Servicebus browser.exe,linux/Servicebus browser.AppImage,mac/Servicebus browser.dmg'
+            artifacts: release/*.*

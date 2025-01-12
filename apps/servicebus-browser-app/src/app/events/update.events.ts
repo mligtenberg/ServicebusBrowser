@@ -7,11 +7,15 @@ export default class UpdateEvents {
   // initialize auto update service - most be invoked only in production
   static initAutoUpdateService() {
     const platform_arch =
-      platform() === 'win32' ? platform() : platform() + '_' + arch();
+      platform() === 'win32' ? platform() : platform() + "-" + arch();
     const version = app.getVersion();
+
+    console.log(`${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`);
+
     const feed: Electron.FeedURLOptions = {
-      url: `${updateServerUrl}/update/${platform_arch}/${version}`,
+      url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`,
     };
+
 
     if (!App.isDevelopmentMode()) {
       console.log('Initializing auto update service...\n');
