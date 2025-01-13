@@ -35,6 +35,14 @@
   </p-card>
   <p-card header="Body" class="body">
     @if (body()) {
+      <div class="fullscreen-button">
+        <p-button
+          icon="pi pi-window-maximize"
+          (click)="displayBodyFullscreen.set(true)"
+          [rounded]="true"
+          [text]="true"
+        ></p-button>
+      </div>
       <p-scroll-panel>
         <pre><code
           [highlight]="body()"
@@ -92,3 +100,19 @@
     </div>
   </p-card>
 </div>
+
+<p-dialog
+  header="Message body"
+  appendTo="body"
+  [(visible)]="displayBodyFullscreen"
+  [style]="{ width: '100%', height: '100%' }"
+  [modal]="true"
+  >
+  <p-scrollPanel>
+    <pre><code
+      class="fullscreen-code"
+      [highlight]="body()"
+      [language]="bodyLanguage()"
+    ></code></pre>
+  </p-scrollPanel>
+</p-dialog>

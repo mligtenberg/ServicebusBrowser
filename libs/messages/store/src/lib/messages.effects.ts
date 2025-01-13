@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { from, map, switchMap, tap } from 'rxjs';
+import { from, map, switchMap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
@@ -50,7 +50,7 @@ export class MessagesEffects {
   loadMoreMessages$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
     map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
-      if (maxAmount <= 0) {
+      if (maxAmount <= 0 || messages.length === 0) {
         return actions.peakMessagesLoadingDone({ pageId, endpoint });
       }
 

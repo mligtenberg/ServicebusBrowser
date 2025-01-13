@@ -53,6 +53,14 @@ pre {
 
 .body {
   grid-area: body;
+  position: relative;
+}
+
+.fullscreen-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
 }
 
 .properties {
@@ -70,4 +78,9 @@ p-card {
 .table-container {
   height: 100%;
   container: table / size;
+}
+
+.fullscreen-code {
+  width: 100%;
+  height: 100%;
 }

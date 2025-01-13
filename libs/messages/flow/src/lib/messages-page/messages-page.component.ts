@@ -11,6 +11,8 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Highlight } from 'ngx-highlightjs';
 import { ScrollPanel } from 'primeng/scrollpanel';
+import { Dialog } from 'primeng/dialog';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'lib-messages-page',
@@ -21,6 +23,8 @@ import { ScrollPanel } from 'primeng/scrollpanel';
     FormsModule,
     Highlight,
     ScrollPanel,
+    Dialog,
+    Button,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -28,6 +32,7 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 export class MessagesPageComponent {
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
+  displayBodyFullscreen = model<boolean>(false);
 
   currentPage = signal<MessagePage | null>(null);
   selectedMessage = model<ServiceBusReceivedMessage | undefined>(undefined);
@@ -89,7 +94,10 @@ export class MessagesPageComponent {
       return 'xml';
     }
 
-    if (message.contentType.includes('yaml') || message.contentType.includes('yml')) {
+    if (
+      message.contentType.includes('yaml') ||
+      message.contentType.includes('yml')
+    ) {
       return 'yaml';
     }
 
