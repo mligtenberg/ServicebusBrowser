@@ -16,18 +16,7 @@ export function getMenu(isDev: boolean) {
         {
           label: 'Quit ' + app.name,
           role: 'quit'
-        },
-        ...(isDev ? [
-          {
-            type: 'separator'
-          } as MenuItemConstructorOptions,
-          {
-            role: 'reload'
-          } as MenuItemConstructorOptions,
-          {
-            role: 'toggleDevTools'
-          } as MenuItemConstructorOptions
-        ] : [])
+        }
       ]
     },
     // { role: 'fileMenu' }
@@ -39,7 +28,7 @@ export function getMenu(isDev: boolean) {
     },
     {
       role: 'editMenu'
-    }
+    },
   ];
 
   const winLinTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
@@ -47,6 +36,10 @@ export function getMenu(isDev: boolean) {
     {
       label: 'File',
       submenu: [
+        {
+          label: 'About ' + app.name,
+          role: 'about'
+        },
         { role: 'quit' }
       ]
     },
@@ -55,5 +48,26 @@ export function getMenu(isDev: boolean) {
     }
   ];
 
-  return Menu.buildFromTemplate(isMac ? macTemplate : winLinTemplate);
+  const sharedTemplate: Array<MenuItemConstructorOptions | MenuItem> = []
+
+  if (isDev) {
+    sharedTemplate.push({
+      label: 'Development',
+      submenu: [
+        {
+          label: 'Reload',
+          role: 'reload'
+        },
+        {
+          label: 'Toggle Developer Tools',
+          role: 'toggleDevTools'
+        }
+      ]
+    });
+  }
+
+  return Menu.buildFromTemplate([
+    ...(isMac ? macTemplate : winLinTemplate),
+    ...sharedTemplate
+  ]);
 }

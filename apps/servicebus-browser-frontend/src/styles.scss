@@ -1,5 +1,5 @@
-@use 'highlight.js/styles/github.css' as *;
 @use "primeicons/primeicons.css" as *;
+@use "./styles/highlightjs-themes" as hightlightjsThemes;
 
 head, body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -17,7 +17,21 @@ head, body {
   margin: 0 0 0.5rem 0;
 }
 
+@media (prefers-color-scheme: light), (prefers-color-scheme: no-preference) {
+  @include hightlightjsThemes.light;
+}
+
+@media (prefers-color-scheme: dark) {
+  @include hightlightjsThemes.dark;
+}
+
 .hljs {
+  display: block;
+  width: fit-content;
   background: var(--p-surface-50);
   font: 13px Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+
+  @media (prefers-color-scheme: dark) {
+    background: var(--p-surface-950);
+  }
 }

@@ -39,8 +39,12 @@
 }
 
 pre {
-  background-color: hsl(0, 0%, 95%);
   margin: 0;
+
+  code {
+    padding: 0.5rem;
+    padding-right: 2rem;
+  }
 }
 
 .messages {
