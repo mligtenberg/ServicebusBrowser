@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { from, map, switchMap } from 'rxjs';
+import { from, map, switchMap, tap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
@@ -36,9 +36,7 @@ export class MessagesEffects {
 
       return messages$
         .pipe(
-          map(messages => messages.length === 0 || messages.length >= maxAmount
-            ? actions.peakMessagesLoadingDone({ pageId, endpoint })
-            : internalActions.peakMessagesPartLoaded({
+          map(messages => internalActions.peakMessagesPartLoaded({
               pageId,
               endpoint,
               maxAmount: maxAmount - messages.length,
@@ -52,6 +50,10 @@ export class MessagesEffects {
   loadMoreMessages$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
     map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
+      if (maxAmount <= 0) {
+        return actions.peakMessagesLoadingDone({ pageId, endpoint });
+      }
+
       const sequenceNumbers = messages.map(m => Long.fromString(m.sequenceNumber ?? '0'));
       const highestSequenceNumber = sequenceNumbers.length === 0
         ? Long.fromNumber(0)

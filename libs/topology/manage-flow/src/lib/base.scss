@@ -33,8 +33,10 @@ input, textarea, p-inputnumber {
 }
 
 form {
-  margin: 0.5rem;
+  padding: 0.5rem;
 
+  box-sizing: border-box;
+  height: 100cqh;
   display: grid;
   gap: 1rem;
   grid-template-areas:

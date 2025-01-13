@@ -34,12 +34,14 @@
     </p-table>
   </p-card>
   <p-card header="Body" class="body">
-    <p-scroll-panel>
-      <pre><code
-        [highlight]="body()"
-        [language]="bodyLanguage()"
-      ></code></pre>
-    </p-scroll-panel>
+    @if (body()) {
+      <p-scroll-panel>
+        <pre><code
+          [highlight]="body()"
+          [language]="bodyLanguage()"
+        ></code></pre>
+      </p-scroll-panel>
+    }
   </p-card>
   <p-card header="Properties" class="properties">
     <div class="table-container">

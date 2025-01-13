@@ -8,7 +8,7 @@ export class MessageReceiveClient {
   {}
 
   async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
-    const receiver = this.getReceiver();
+    const receiver = this.getReceiver('peekLock');
     const messages = await receiver.peekMessages(maxMessageCount, {
       fromSequenceNumber: fromSequenceNumber ?? Long.fromNumber(0)
     });
@@ -18,15 +18,15 @@ export class MessageReceiveClient {
 
   async receiveMessages(maxMessageCount: number) {
 
-      const receiver = this.getReceiver();
+      const receiver = this.getReceiver('receiveAndDelete');
       const messages = await receiver.receiveMessages(maxMessageCount, {
-        maxWaitTimeInMs: 200
+        maxWaitTimeInMs: 100
       });
 
       return messages.map(this.mapMessage);
   }
 
-  private getReceiver(): ServiceBusReceiver {
+  private getReceiver(receiveMode: "peekLock" | "receiveAndDelete"): ServiceBusReceiver {
     let client: ServiceBusClient | undefined = undefined;
     if (this.connection.type === "connectionString") {
       client = new ServiceBusClient(this.connection.connectionString);
@@ -38,7 +38,7 @@ export class MessageReceiveClient {
 
     if ('queueName' in this.endpoint) {
       return client.createReceiver(this.endpoint.queueName, {
-        receiveMode: "receiveAndDelete",
+        receiveMode,
         subQueueType: this.endpoint.channel,
         skipParsingBodyAsJson: true
       });

@@ -586,7 +586,7 @@ export class SidebarComponent {
           channel: MessageChannels;
         }
   ) {
-    this.maxAmount.set(10);
+    this.maxAmount.set(100);
     this.fromSequenceNumber.set(0);
     this.currentEndpoint.set(endpoint);
   }

@@ -26,6 +26,7 @@ head, body {
 }
 
 .hljs {
+  user-select: text;
   display: block;
   width: fit-content;
   background: var(--p-surface-50);
