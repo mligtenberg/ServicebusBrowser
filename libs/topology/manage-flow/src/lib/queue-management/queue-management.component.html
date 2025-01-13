@@ -103,6 +103,7 @@
           [value]="currentQueueInformation()"
           [scrollable]="true"
           scrollHeight="100cqh"
+          [virtualScroll]="false"
         >
           <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
             <tr style="height:30px">
