@@ -49,6 +49,9 @@ export function getMenu(isDev: boolean) {
       submenu: [
         { role: 'quit' }
       ]
+    },
+    {
+      role: 'editMenu'
     }
   ];
 
