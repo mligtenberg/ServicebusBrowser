@@ -90,18 +90,6 @@ export default class App {
     //     App.onRedirect(event, url);
     // });
 
-    App.mainWindow.webContents.on('before-input-event', (event, input) => {
-      // Check for F5 or Ctrl+R (Cmd+R on macOS)
-      if (
-        input.type === 'keyDown' &&
-        ((input.key === 'F5') ||
-          (input.key === 'r' && input.control) || // Ctrl+R
-          (input.key === 'r' && input.meta)) // Cmd+R on macOS
-      ) {
-        event.preventDefault();
-      }
-    });
-
     // Emitted when the window is closed.
     App.mainWindow.on('closed', () => {
       // Dereference the window object, usually you would store windows

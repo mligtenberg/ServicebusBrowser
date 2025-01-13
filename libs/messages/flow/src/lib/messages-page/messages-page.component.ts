@@ -8,12 +8,20 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessagePage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { FormsModule } from '@angular/forms';
+import { Highlight } from 'ngx-highlightjs';
+import { ScrollPanel } from 'primeng/scrollpanel';
 
 @Component({
   selector: 'lib-messages-page',
-  imports: [CommonModule, Card, TableModule, EditorComponent, FormsModule],
+  imports: [
+    CommonModule,
+    Card,
+    TableModule,
+    FormsModule,
+    Highlight,
+    ScrollPanel,
+  ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
 })
@@ -35,7 +43,7 @@ export class MessagesPageComponent {
 
     return JSON.stringify(message.body, null, 2);
   });
-  properties = computed<Array<{key: string, value: unknown}>>(() => {
+  properties = computed<Array<{ key: string; value: unknown }>>(() => {
     const currentPage = this.currentPage();
     const message = this.selectedMessage();
     if (!currentPage || !message) {
@@ -52,7 +60,7 @@ export class MessagesPageComponent {
       { key: 'subject', value: message.subject },
       { key: 'timeToLive', value: message.timeToLive },
       { key: 'to', value: message.to },
-    ]
+    ];
   });
   customProperties = computed(() => {
     const applicationProperties = this.selectedMessage()?.applicationProperties;
@@ -61,8 +69,39 @@ export class MessagesPageComponent {
       return [];
     }
 
-    return Object.entries(applicationProperties)
-      .map(([key, value]) => ({ key, value }));
+    return Object.entries(applicationProperties).map(([key, value]) => ({
+      key,
+      value,
+    }));
+  });
+
+  bodyLanguage = computed(() => {
+    const message = this.selectedMessage();
+    if (!message?.contentType) {
+      return '';
+    }
+
+    if (message.contentType.includes('json')) {
+      return 'json';
+    }
+
+    if (message.contentType.includes('xml')) {
+      return 'xml';
+    }
+
+    if (message.contentType.includes('yaml') || message.contentType.includes('yml')) {
+      return 'yaml';
+    }
+
+    if (message.contentType.includes('ini')) {
+      return 'ini';
+    }
+
+    if (message.contentType.includes('TOML')) {
+      return 'TOML';
+    }
+
+    return 'text';
   });
 
   cols = [
@@ -73,12 +112,7 @@ export class MessagesPageComponent {
   propertiesCols = [
     { field: 'key', header: 'Key' },
     { field: 'value', header: 'Value' },
-  ]
-  editorOptions = computed<unknown>(() => ({
-    theme: 'vs-light',
-    language: this.selectedMessage()?.contentType ?? 'text/plain',
-    readOnly: true,
-  }));
+  ];
 
   constructor() {
     this.activatedRoute.params

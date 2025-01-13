@@ -16,18 +16,16 @@
 
 .container {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr 2fr;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto 1fr;
   grid-template-areas:
     'messages properties'
     'body custom-properties';
   gap: 1rem;
   padding: 1rem;
   width: 100cqw;
-
-  @container mainContent (width > 1px) {
-    width: 100cqw;
-  }
+  height: 100cqh;
+  box-sizing: border-box;
 
   @container mainContent (width < 900px) {
     grid-template-areas:
@@ -36,8 +34,13 @@
     'properties'
     'custom-properties';
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto repeat(3, minmax(20rem, 1fr));
   }
+}
+
+pre {
+  background-color: hsl(0, 0%, 95%);
+  margin: 0;
 }
 
 .messages {
@@ -60,7 +63,7 @@ p-card {
   height: 100%;
 }
 
-ngx-monaco-editor {
-  width: 100%;
-  height: 100% !important;
+.table-container {
+  height: 100%;
+  container: table / size;
 }

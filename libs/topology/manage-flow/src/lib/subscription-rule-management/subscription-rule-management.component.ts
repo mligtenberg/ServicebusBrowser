@@ -5,7 +5,6 @@ import { SubscriptionRuleForm } from './form';
 import { Card } from 'primeng/card';
 import { InputText } from 'primeng/inputtext';
 import { RadioButton } from 'primeng/radiobutton';
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { Button, ButtonDirective } from 'primeng/button';
 import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
@@ -20,6 +19,7 @@ import { Select } from 'primeng/select';
 import { InputGroup } from 'primeng/inputgroup';
 import { DatePicker } from 'primeng/datepicker';
 import { InputNumber } from 'primeng/inputnumber';
+import { Textarea } from 'primeng/textarea';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -29,13 +29,13 @@ import { InputNumber } from 'primeng/inputnumber';
     Card,
     InputText,
     RadioButton,
-    EditorComponent,
     ButtonDirective,
     Select,
     InputGroup,
     Button,
     DatePicker,
     InputNumber,
+    Textarea,
   ],
   templateUrl: './subscription-rule-management.component.html',
   styleUrl: './subscription-rule-management.component.scss',
@@ -44,23 +44,6 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
   form = this.createForm();
-  filterEditorOptions = {
-    theme: 'vs-light',
-    readOnly: false,
-    language: 'text/plain',
-    minimap: {
-      enabled: false,
-    },
-  };
-
-  actionEditorOptions = {
-    theme: 'vs-light',
-    readOnly: false,
-    language: 'text/plain',
-    minimap: {
-      enabled: false,
-    },
-  };
 
   destroy$ = new Subject<void>();
   newParams$ = new Subject<void>();

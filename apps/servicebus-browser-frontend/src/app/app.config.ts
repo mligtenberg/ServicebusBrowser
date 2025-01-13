@@ -15,13 +15,13 @@ import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
 import { MessageService } from 'primeng/api';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
 import { RouterEffects } from './ngrx/router.effects';
+import { provideHighlightOptions } from 'ngx-highlightjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,10 +40,10 @@ export const appConfig: ApplicationConfig = {
       useClass: MessageService
     },
 
-    // monaco
-    importProvidersFrom([
-      MonacoEditorModule.forRoot()
-    ]),
+    // highlight js
+    provideHighlightOptions({
+      fullLibraryLoader: () => import('highlight.js')
+    }),
 
     // config
     provideExperimentalZonelessChangeDetection(),

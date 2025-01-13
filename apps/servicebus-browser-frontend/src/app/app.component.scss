@@ -43,13 +43,18 @@
     flex-direction: column;
     align-items: stretch;
     justify-items: stretch;
-    container-name: mainContent;
-    container-type: size;
 
     p-scroll-panel {
       flex: 1;
     }
   }
+}
+
+.router-outlet {
+  height: 100%;
+  width: 100%;
+  container-name: mainContent;
+  container-type: size;
 }
 
 .open-data-tabs {

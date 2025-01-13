@@ -17,9 +17,11 @@
           }
         </p-tablist>
       </p-tabs>
-      <p-scroll-panel>
-        <router-outlet></router-outlet>
-      </p-scroll-panel>
+      <div class="router-outlet">
+        <p-scroll-panel>
+          <router-outlet></router-outlet>
+        </p-scroll-panel>
+      </div>
       <div class="logs">
         <button class="logs-header" (click)="toggleLogs()">
           <span class="text">Logs</span>

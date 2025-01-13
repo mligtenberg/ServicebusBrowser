@@ -17,7 +17,10 @@
 
   @if (form.controls.type.value === 'sql') {
     <p-card class="filter" header="SQL Rule">
-      <ngx-monaco-editor [options]="filterEditorOptions" formControlName="sqlFilter"></ngx-monaco-editor>
+      <textarea
+        class="sql-textarea"
+        pTextarea
+        formControlName="sqlFilter"></textarea>
     </p-card>
   }
   @if (form.controls.type.value === 'correlation') {
@@ -64,7 +67,7 @@
   }
 
   <p-card class="rule-action" header="Action">
-    <ngx-monaco-editor [options]="actionEditorOptions" formControlName="sqlAction" id="sqlAction"></ngx-monaco-editor>
+    <textarea class="sql-textarea" pTextarea formControlName="sqlAction"></textarea>
   </p-card>
 
   <div class="actions">

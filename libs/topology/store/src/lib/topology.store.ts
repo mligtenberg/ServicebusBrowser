@@ -51,7 +51,7 @@ export const logsReducer = createReducer(
     ...state,
     queuesPerNamespace: {
       ...state.queuesPerNamespace,
-      [namespace.id]: queues.sort((a, b) => a.name.localeCompare(b.name)),
+      [namespace.id]: [...queues].sort((a, b) => a.name.localeCompare(b.name)),
     },
     queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -72,7 +72,7 @@ export const logsReducer = createReducer(
     ...state,
     topicsPerNamespace: {
       ...state.topicsPerNamespace,
-      [namespace.id]: topics.sort((a, b) => a.name.localeCompare(b.name)),
+      [namespace.id]: [...topics].sort((a, b) => a.name.localeCompare(b.name)),
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
   })),
@@ -103,7 +103,7 @@ export const logsReducer = createReducer(
         ...state.subscriptionsPerNamespaceAndTopic,
         [namespace.id]: {
           ...state.subscriptionsPerNamespaceAndTopic[namespace.id],
-          [topic.id]: subscriptions.sort((a, b) => a.name.localeCompare(b.name)),
+          [topic.id]: [...subscriptions].sort((a, b) => a.name.localeCompare(b.name)),
         },
       },
       topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),

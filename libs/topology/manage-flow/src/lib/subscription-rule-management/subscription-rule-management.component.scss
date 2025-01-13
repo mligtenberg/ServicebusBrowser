@@ -88,9 +88,15 @@ p-card {
   height: 100%;
 }
 
-ngx-monaco-editor {
+.sql-textarea {
+  width: 100%;
   height: 100%;
-  min-height: 10rem;
+  resize: none;
+
+  // code text area
+  font: 13px Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  background: var(--p-surface-50);
+  border-radius: 0;
 }
 
 .actions {

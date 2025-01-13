@@ -4,7 +4,7 @@
       [columns]="cols"
       [value]="currentPage()?.messages ?? []"
       [scrollable]="true"
-      scrollHeight="250px"
+      scrollHeight="300px"
       [virtualScroll]="true"
       [virtualScrollItemSize]="30"
       selectionMode="single"
@@ -34,42 +34,45 @@
     </p-table>
   </p-card>
   <p-card header="Body" class="body">
-    <ngx-monaco-editor
-      [options]="editorOptions()"
-      [ngModel]="body()"
-    />
+    <p-scroll-panel>
+      <pre><code
+        [highlight]="body()"
+        [language]="bodyLanguage()"
+      ></code></pre>
+    </p-scroll-panel>
   </p-card>
   <p-card header="Properties" class="properties">
-    <p-table
-      [columns]="propertiesCols"
-      [value]="properties()"
-      [scrollable]="true"
-      scrollHeight="250px"
-      [virtualScroll]="true"
-      [virtualScrollItemSize]="30"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
+    <div class="table-container">
+      <p-table
+        [columns]="propertiesCols"
+        [value]="properties()"
+        [scrollable]="true"
+        scrollHeight="100cqh"
+        [virtualScroll]="false"
       >
-        <tr style="height:30px">
-          <td *ngFor="let col of columns">
-            {{ rowData[col.field] }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        <ng-template
+          pTemplate="body"
+          let-rowData
+          let-rowIndex="rowIndex"
+          let-columns="columns"
+        >
+          <tr style="height:30px">
+            <td *ngFor="let col of columns">
+              {{ rowData[col.field] }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </p-card>
   <p-card header="Custom Properties" class="custom-properties">
-    <p-table
+    <div class="table-container">
+      <p-table
       [columns]="propertiesCols"
       [value]="customProperties()"
       [scrollable]="true"
-      scrollHeight="250px"
-      [virtualScroll]="true"
-      [virtualScrollItemSize]="30"
+      scrollHeight="100cqh"
+      [virtualScroll]="false"
     >
       <ng-template
         pTemplate="body"
@@ -84,5 +87,6 @@
         </tr>
       </ng-template>
     </p-table>
+    </div>
   </p-card>
 </div>
