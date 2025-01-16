@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, screen, Menu } from 'electron';
+import { BrowserWindow, shell, screen, Menu, nativeTheme } from 'electron';
 import { rendererAppName, rendererAppPort } from './constants';
 import { environment } from '../environments/environment';
 import { join } from 'path';
@@ -97,6 +97,14 @@ export default class App {
       // when you should delete the corresponding element.
       App.mainWindow = null;
     });
+  }
+
+  static setTheme(source: 'system' | 'dark' | 'light') {
+    nativeTheme.themeSource = source;
+  }
+
+  static getTheme() {
+    return nativeTheme.themeSource;
   }
 
   private static loadMainWindow() {

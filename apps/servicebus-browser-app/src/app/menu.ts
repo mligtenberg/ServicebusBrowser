@@ -1,4 +1,11 @@
-import { app, Menu, MenuItemConstructorOptions, MenuItem } from 'electron'
+import {
+  app,
+  Menu,
+  MenuItemConstructorOptions,
+  MenuItem,
+  nativeTheme
+} from 'electron'
+import App from './app';
 
 export function getMenu(isDev: boolean) {
   const isMac = process.platform === 'darwin';
@@ -48,7 +55,42 @@ export function getMenu(isDev: boolean) {
     }
   ];
 
-  const sharedTemplate: Array<MenuItemConstructorOptions | MenuItem> = []
+  const sharedTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
+    {
+      label: 'Settings',
+      submenu: [
+        {
+          label: 'Preferred color scheme',
+          submenu: [
+            {
+              label: 'System',
+              type: 'radio',
+              checked: App.getTheme() === 'system',
+              click: () => {
+                App.setTheme('system');
+              }
+            },
+            {
+              label: 'Dark',
+              type: 'radio',
+              checked: App.getTheme() === 'dark',
+              click: () => {
+                App.setTheme('dark');
+              }
+            },
+            {
+              label: 'Light',
+              type: 'radio',
+              checked: App.getTheme() === 'light',
+              click: () => {
+                App.setTheme('light');
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
 
   if (isDev) {
     sharedTemplate.push({
