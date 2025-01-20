@@ -1,9 +1,10 @@
 import { BrowserWindow, shell, screen, Menu, nativeTheme } from 'electron';
 import { rendererAppName, rendererAppPort } from './constants';
 import { environment } from '../environments/environment';
-import { join } from 'path';
+import path, { join } from 'path';
 import { format } from 'url';
 import { getMenu } from './menu';
+import * as fs from 'fs';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
@@ -100,6 +101,7 @@ export default class App {
   }
 
   static setTheme(source: 'system' | 'dark' | 'light') {
+    this.saveSetting('theme', source);
     nativeTheme.themeSource = source;
   }
 
@@ -122,6 +124,32 @@ export default class App {
     }
   }
 
+  private static saveSetting<T>(key: string, value: T) {
+    const userData = App.application.getPath('userData');
+    const settingsPath = path.join(userData, 'settings.json');
+
+    let settings = {};
+    if (fs.existsSync(settingsPath)) {
+      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    }
+
+    settings[key] = value;
+
+    fs.writeFileSync(settingsPath, JSON.stringify(settings), 'utf8');
+  }
+
+  private static getSetting<T>(key: string): T | undefined {
+    const userData = App.application.getPath('userData');
+    const settingsPath = path.join(userData, 'settings.json');
+
+    let settings = {};
+    if (fs.existsSync(settingsPath)) {
+      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    }
+
+    return settings[key];
+  }
+
   static main(app: Electron.App, browserWindow: typeof BrowserWindow) {
     // we pass the Electron.App object and the
     // Electron.BrowserWindow into this function
@@ -130,6 +158,8 @@ export default class App {
 
     App.BrowserWindow = browserWindow;
     App.application = app;
+
+    nativeTheme.themeSource = App.getSetting('theme') ?? 'system';
 
     App.application.on('window-all-closed', App.onWindowAllClosed); // Quit when all windows are closed.
     App.application.on('ready', App.onReady); // App is ready to load data
