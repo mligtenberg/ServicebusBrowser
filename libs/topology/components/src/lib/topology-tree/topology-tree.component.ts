@@ -7,7 +7,7 @@ import {
   TopicWithChildren, SubscriptionRule, NamespaceWithChildrenAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
+import { MenuItemCommandEvent, PrimeTemplate, TreeNode } from 'primeng/api';
 import { NamespaceTreeNodeComponent } from '../namespace-tree-node/namespace-tree-node.component';
 import { TopicTreeNodeComponent } from '../topic-tree-node/topic-tree-node.component';
 import { SubscriptionTreeNodeComponent } from '../subscription-tree-node/subscription-tree-node.component';
@@ -384,9 +384,16 @@ export class TopologyTreeComponent {
     return menuItems.map((item): SbbMenuItem<unknown> => {
       return {
         ...item,
-        command: (event: any) => {
+        command: (event: MenuItemCommandEvent) => {
+          const selection = this.selection();
+          if (!selection) {
+            return;
+          }
+
           console.log(this.selection());
-          item.onSelect?.(this.selection()?.map((node) => node.data), event)
+          const data = selection.length === 1 ? selection[0].data : selection.map((node) => node.data);
+
+          item.onSelect?.(data, event)
         },
         menuItems: item.menuItems ? this.patchContextMenuItems(item.menuItems) : undefined,
       };
