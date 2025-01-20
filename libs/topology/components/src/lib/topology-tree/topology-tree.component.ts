@@ -52,7 +52,11 @@ export class TopologyTreeComponent {
   subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
   subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
 
-  selectionMode = signal<'single' | 'multiple'>('single');
+  ctrlSelected = signal<boolean>(false);
+  shiftSelected = signal<boolean>(false);
+  selectionMode = computed<'single' | 'multiple'>(() => {
+    return this.ctrlSelected() || this.shiftSelected() ? 'multiple' : 'single';
+  });
 
   connectionsFilter = input<string[]>();
 
@@ -150,6 +154,15 @@ export class TopologyTreeComponent {
         return node;
       });
   });
+  flatNodes = computed<TreeNode[]>(() => {
+    const flatten = (nodes: TreeNode[]): TreeNode[] => {
+      return nodes.flatMap((node) => {
+        return [node, ...(node.children ? flatten(node.children) : [])];
+      });
+    };
+
+    return flatten(this.nodes());
+  });
   contextMenu = computed(() => {
     const selection = this.selection();
     const nodeType = selection?.[0]?.type;
@@ -231,19 +244,37 @@ export class TopologyTreeComponent {
       if (!(event instanceof Array) && event) {
         event = [event];
       }
+
+      if (this.shiftSelected()) {
+        const flatNodes = this.flatNodes();
+        const newestSelected = event[event.length - 1];
+        const oneBefore = event[event.length - 2];
+        const nodeType = newestSelected.type;
+
+        const newestSelectedIndex = flatNodes.findIndex((node) => node.key === newestSelected.key);
+        const oneBeforeIndex = flatNodes.findIndex((node) => node.key === oneBefore.key);
+
+        const inbetweenNodes = flatNodes.slice(
+          Math.min(oneBeforeIndex, newestSelectedIndex),
+          Math.max(oneBeforeIndex, newestSelectedIndex) + 1
+        ).filter((node) => node.type === nodeType);
+
+        event = [
+          ...event.filter((node) => !inbetweenNodes.includes(node)),
+          ...inbetweenNodes,
+        ];
+      }
+
       this.selection.set(event as TreeNode[]);
       this.onMultipleSelectionChange(event ?? []);
       return;
     }
 
     if (event instanceof Array) {
-      console.log(event);
       event = event[event.length - 1];
     }
 
-    console.log('single selection', event);
     this.selection.set([event]);
-
 
     switch (event.type) {
       case 'namespace':
@@ -363,13 +394,19 @@ export class TopologyTreeComponent {
 
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
-      this.selectionMode.set('multiple');
+      this.shiftSelected.set(true);
+    }
+    if (event.key === 'Control') {
+      this.ctrlSelected.set(true);
     }
   }
 
   onKeyUp(event: KeyboardEvent) {
     if (event.key === 'Shift') {
-      this.selectionMode.set('single');
+      this.shiftSelected.set(false);
+    }
+    if (event.key === 'Control') {
+      this.ctrlSelected.set(false);
     }
   }
 
