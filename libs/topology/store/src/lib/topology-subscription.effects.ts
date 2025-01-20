@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
-import { catchError, filter, from, map, mergeMap, switchMap, take } from 'rxjs';
+import { catchError, filter, from, map, mergeMap, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectNamespaceById, selectTopicById } from './topology.selectors';
 import { MessagesActions } from '@service-bus-browser/messages-store';
@@ -19,11 +19,11 @@ export class TopologySubscriptionEffects {
     ofType(actions.loadSubscriptions),
     mergeMap(({ namespaceId, topicId }) => from(this.serviceBusClient.listSubscriptions(namespaceId, topicId)).pipe(
       catchError((error) => [{ problem: { title: 'failed to load subscriptions', detail: error.toString()} }]),
-      switchMap((subscriptions) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+      mergeMap((subscriptions) => this.store.select(selectNamespaceById(namespaceId)).pipe(
         map((namespace) => ({ namespace, subscriptions })),
         take(1)
       )),
-      switchMap(({subscriptions, namespace}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
+      mergeMap(({subscriptions, namespace}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
         map((topic) => ({ namespace, subscriptions, topic })),
         take(1)
       )),
@@ -40,11 +40,11 @@ export class TopologySubscriptionEffects {
     ofType(actions.loadSubscription),
     mergeMap(({ namespaceId, topicId, subscriptionId }) => from(this.serviceBusClient.getSubscription(namespaceId, topicId, subscriptionId)).pipe(
       catchError((error) => [{ problem: { title: 'failed to load subscription', detail: error.toString()} }]),
-      switchMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+      mergeMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
         map((namespace) => ({ namespace, subscription })),
         take(1)
       )),
-      switchMap(({subscription, namespace}) => this.store.select(selectTopicById(namespaceId
+      mergeMap(({subscription, namespace}) => this.store.select(selectTopicById(namespaceId
         , topicId)).pipe(
         map((topic) => ({ namespace, subscription, topic })),
         take(1)
@@ -63,11 +63,11 @@ export class TopologySubscriptionEffects {
     mergeMap(({ namespaceId, topicId, subscription }) => from(this.serviceBusClient.createSubscription(namespaceId, topicId, subscription)).pipe(
       map(() => subscription),
       catchError((error) => [{ problem: { title: 'failed to add subscription', detail: error.toString()} }]),
-      switchMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+      mergeMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
         map((namespace) => ({ namespace, subscription })),
         take(1)
       )),
-      switchMap(({namespace, subscription}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
+      mergeMap(({namespace, subscription}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
         map((topic) => ({ namespace, subscription, topic })),
         take(1)
       )),
@@ -84,11 +84,11 @@ export class TopologySubscriptionEffects {
     mergeMap(({ namespaceId, topicId, subscription }) => from(this.serviceBusClient.editSubscription(namespaceId, topicId, subscription)).pipe(
       map(() => subscription),
       catchError((error) => [{ problem: { title: 'failed to edit subscription', detail: error.toString()} }]),
-      switchMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+      mergeMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
         map((namespace) => ({ namespace, subscription })),
         take(1)
       )),
-      switchMap(({namespace, subscription}) => this.store.select(selectTopicById(namespaceId
+      mergeMap(({namespace, subscription}) => this.store.select(selectTopicById(namespaceId
         , topicId)).pipe(
         map((topic) => ({ namespace, subscription, topic })),
         take(1)
@@ -106,11 +106,11 @@ export class TopologySubscriptionEffects {
     mergeMap(({ namespaceId, topicId, subscriptionId }) => from(this.serviceBusClient.removeSubscription(namespaceId, topicId, subscriptionId)).pipe(
       map(() => subscriptionId),
       catchError((error) => [{ problem: { title: 'failed to remove subscription', detail: error.toString()} }]),
-      switchMap((subscriptionId) => this.store.select(selectNamespaceById(namespaceId)).pipe(
+      mergeMap((subscriptionId) => this.store.select(selectNamespaceById(namespaceId)).pipe(
         map((namespace) => ({ namespace, subscriptionId })),
         take(1)
       )),
-      switchMap(({namespace, subscriptionId}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
+      mergeMap(({namespace, subscriptionId}) => this.store.select(selectTopicById(namespaceId, topicId)).pipe(
         map((topic) => ({ namespace, subscriptionId, topic })),
         take(1)
       )),

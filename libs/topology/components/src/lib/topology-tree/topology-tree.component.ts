@@ -222,7 +222,8 @@ export class TopologyTreeComponent {
 
   onSelectionChange(event: TreeNode | TreeNode[] | null) {
     // should not be an array since we have selection mode single
-    if (!event) {
+    if (!event || (event instanceof Array && event.length === 0)) {
+      this.selection.set(null);
       return;
     }
 
@@ -236,34 +237,32 @@ export class TopologyTreeComponent {
     }
 
     if (event instanceof Array) {
+      console.log(event);
       event = event[event.length - 1];
     }
 
+    console.log('single selection', event);
     this.selection.set([event]);
+
 
     switch (event.type) {
       case 'namespace':
         this.onNamespaceSelected(event.data);
         break;
       case 'queue':
-        this.onQueueSelected(event.data.namespace, event.data.queue);
+        this.onQueueSelected(event.data);
         break;
       case 'topic':
-        this.onTopicSelected(event.data.namespace, event.data.topic);
+        this.onTopicSelected(event.data);
         break;
       case 'subscription':
         this.onSubscriptionSelected(
-          event.data.namespace,
-          event.data.topic,
-          event.data.subscription
+          event.data
         );
         break;
       case 'subscription-rule':
         this.onSubscriptionRuleSelected(
-          event.data.namespace,
-          event.data.topic,
-          event.data.subscription,
-          event.data.rule
+          event.data
         );
         break;
     }
@@ -298,42 +297,36 @@ export class TopologyTreeComponent {
     });
   }
 
-  private onQueueSelected(namespace: Namespace, queue: QueueWithMetaData) {
+  private onQueueSelected(queue: QueueWithMetaData) {
     this.queueSelected.emit({
-      namespaceId: namespace.id,
+      namespaceId: queue.namespaceId,
       queue,
     });
   }
 
-  private onTopicSelected(namespace: Namespace, topic: TopicWithChildren) {
+  private onTopicSelected(topic: TopicWithChildren) {
     this.topicSelected.emit({
-      namespaceId: namespace.id,
+      namespaceId: topic.namespaceId,
       topic,
     });
   }
 
-  private onSubscriptionSelected(
-    namespace: Namespace,
-    topic: TopicWithChildren,
-    subscription: SubscriptionWithMetaData
-  ) {
+  private onSubscriptionSelected(subscription: SubscriptionWithMetaData) {
+
     this.subscriptionSelected.emit({
-      namespaceId: namespace.id,
-      topicId: topic.id,
+      namespaceId: subscription.namespaceId,
+      topicId: subscription.topicId,
       subscription,
     });
   }
 
   private onSubscriptionRuleSelected(
-    namespace: Namespace,
-    topic: TopicWithChildren,
-    subscription: SubscriptionWithMetaData,
     rule: SubscriptionRule
   ) {
     this.subscriptionRuleSelected.emit({
-      namespaceId: namespace.id,
-      topicId: topic.id,
-      subscriptionId: subscription.id,
+      namespaceId: rule.namespaceId,
+      topicId: rule.topicId,
+      subscriptionId: rule.subscriptionId,
       ruleName: rule.name,
     });
   }
@@ -390,7 +383,6 @@ export class TopologyTreeComponent {
             return;
           }
 
-          console.log(this.selection());
           const data = selection.length === 1 ? selection[0].data : selection.map((node) => node.data);
 
           item.onSelect?.(data, event)

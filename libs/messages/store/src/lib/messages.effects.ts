@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { from, map, switchMap } from 'rxjs';
+import { from, map, mergeMap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
@@ -28,7 +28,7 @@ export class MessagesEffects {
 
   loadPeakQueueMessagesPart$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.peakMessagesLoad),
-    switchMap(({ pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
+    mergeMap(({ pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
       const messages$ =  from(this.messagesService.peakMessages(
@@ -75,7 +75,7 @@ export class MessagesEffects {
 
   clearEndpoint$ = createEffect(() => this.actions.pipe(
     ofType(actions.clearEndpoint, internalActions.continueClearingEndpoint),
-    switchMap(({ endpoint }) => from(this.messagesService.receiveMessages(
+    mergeMap(({ endpoint }) => from(this.messagesService.receiveMessages(
       endpoint,
       this.MAX_PAGE_SIZE
     )).pipe(map((messages) => messages.length === 0
