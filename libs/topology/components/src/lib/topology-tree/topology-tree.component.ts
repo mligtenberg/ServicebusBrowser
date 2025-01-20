@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Namespace,
@@ -16,10 +16,10 @@ import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
-import { ContextMenuComponent } from '@service-bus-browser/shared-components';
 import {
   SubscriptionRuleTreeNodeComponent
 } from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
+import { ContextMenu } from 'primeng/contextmenu';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -32,15 +32,18 @@ import {
     QueueTreeNodeComponent,
     PrimeTemplate,
     Button,
-    ContextMenuComponent,
     SubscriptionRuleTreeNodeComponent,
+    ContextMenu,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
+  host: {
+    '(document:keydown)': 'onKeyDown($event)',
+    '(document:keyup)': 'onKeyUp($event)',
+  },
 })
 export class TopologyTreeComponent {
-  namespaces =
-    input.required<NamespaceWithChildrenAndLoadingState[]>();
+  namespaces = input.required<NamespaceWithChildrenAndLoadingState[]>();
   namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
   queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
   topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
@@ -48,6 +51,8 @@ export class TopologyTreeComponent {
   topicContextMenu = input<SbbMenuItem<TopicWithMetaData>[]>();
   subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
   subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
+
+  selectionMode = signal<'single' | 'multiple'>('single');
 
   connectionsFilter = input<string[]>();
 
@@ -59,105 +64,137 @@ export class TopologyTreeComponent {
   store = inject(Store);
 
   opened = signal<string[]>([]);
-
+  selection = model<TreeNode[] | null>(null);
   nodes = computed<TreeNode[]>(() => {
     return this.namespaces()
       .filter((ns) => {
         const filter = this.connectionsFilter();
-        return !filter || filter.includes(ns.id)
+        return !filter || filter.includes(ns.id);
       })
       .map<TreeNode>((ns) => {
-      const node: TreeNode = {
-        key: ns.id,
-        label: ns.name,
-        type: 'namespace',
-        data: ns,
-        children: [],
-        expanded: this.opened().includes(ns.id),
-      };
-
-      if (this.displayQueues()) {
-        node.children?.push({
-          key: `${ns.id}-queues`,
-          label: 'Queues',
-          type: 'queues',
-          selectable: false,
+        const node: TreeNode = {
+          key: ns.id,
+          label: ns.name,
+          type: 'namespace',
           data: ns,
-          expanded: this.opened().includes(`${ns.id}-queues`),
-          children: ns.queues.map<TreeNode>((queue) => ({
-            key: `${ns.id}-queue-${queue.id}`,
-            label: queue.name,
-            type: 'queue',
-            data: {
-              namespace: ns,
-              queue,
-            },
-            leaf: true,
-          })),
-        });
-      }
+          children: [],
+          expanded: this.opened().includes(ns.id),
+        };
 
-      if (this.displayTopics()) {
-        node.children?.push({
-          key: `${ns.id}-topics`,
-          label: 'Topics',
-          type: 'topics',
-          selectable: false,
-          data: ns,
-          expanded: this.opened().includes(`${ns.id}-topics`),
-          children: ns.topics.map<TreeNode>((topic) => {
-            const topNode: TreeNode = {
-              key: `${ns.id}-topic-${topic.id}`,
-              expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
-              label: topic.name,
-              type: 'topic',
-              data: {
-                namespace: ns,
-                topic,
-              },
-            };
+        if (this.displayQueues()) {
+          node.children?.push({
+            key: `${ns.id}-queues`,
+            label: 'Queues',
+            type: 'queues',
+            selectable: false,
+            data: ns,
+            expanded: this.opened().includes(`${ns.id}-queues`),
+            children: ns.queues.map<TreeNode>((queue) => ({
+              key: `${ns.id}-queue-${queue.id}`,
+              label: queue.name,
+              type: 'queue',
+              data: queue,
+              leaf: true,
+            })),
+          });
+        }
 
-            if (this.displaySubscriptions()) {
-              topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
-                const subNode: TreeNode =
-                  {
+        if (this.displayTopics()) {
+          node.children?.push({
+            key: `${ns.id}-topics`,
+            label: 'Topics',
+            type: 'topics',
+            selectable: false,
+            data: ns,
+            expanded: this.opened().includes(`${ns.id}-topics`),
+            children: ns.topics.map<TreeNode>((topic) => {
+              const topNode: TreeNode = {
+                key: `${ns.id}-topic-${topic.id}`,
+                expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
+                label: topic.name,
+                type: 'topic',
+                data: topic,
+              };
+
+              if (this.displaySubscriptions()) {
+                topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
+                  const subNode: TreeNode = {
                     key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
                     label: sub.name,
                     type: 'subscription',
-                    expanded: this.opened().includes(`${ns.id}-topic-${topic.id}-subscription-${sub.id}`),
-                    data: {
-                      namespace: ns,
-                      topic,
-                      subscription: sub,
-                    }
+                    expanded: this.opened().includes(
+                      `${ns.id}-topic-${topic.id}-subscription-${sub.id}`
+                    ),
+                    data: sub,
+                  };
+
+                  if (this.displaySubscriptionRules()) {
+                    subNode.children = sub.rules.map<TreeNode>((rule) => ({
+                      key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
+                      label: rule.name,
+                      type: 'subscription-rule',
+                      data: rule,
+                      leaf: true,
+                    }));
                   }
 
-                if (this.displaySubscriptionRules()) {
-                  subNode.children = sub.rules.map<TreeNode>((rule) => ({
-                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
-                    label: rule.name,
-                    type: 'subscription-rule',
-                    data: {
-                      namespace: ns,
-                      topic,
-                      subscription: sub,
-                      rule,
-                    },
-                    leaf: true,
-                  }));
-                }
+                  return subNode;
+                });
+              }
 
-                return subNode;
-              });
-            }
+              return topNode;
+            }),
+          });
+        }
 
-            return topNode;
-          }),
-        });
-      }
+        return node;
+      });
+  });
+  contextMenu = computed(() => {
+    const selection = this.selection();
+    const nodeType = selection?.[0]?.type;
+    if (!nodeType) {
+      return undefined;
+    }
 
-      return node;
-    })
+    let menuItems: SbbMenuItem<unknown>[] = [];
+    if (nodeType === 'namespace') {
+      menuItems = this.namespaceContextMenuItems() ?? [];
+    }
+
+    if (nodeType === 'queues') {
+      menuItems = this.queuesGroupNodeContextMenu() ?? [];
+    }
+
+    if (nodeType === 'topics') {
+      menuItems = this.topicsGroupNodeContextMenu() ?? [];
+    }
+
+    if (nodeType === 'queue') {
+      menuItems = this.queueContextMenu() ?? [];
+    }
+
+    if (nodeType === 'topic') {
+      menuItems = this.topicContextMenu() ?? [];
+    }
+
+    if (nodeType === 'subscription') {
+      menuItems = this.subscriptionContextMenu() ?? [];
+    }
+
+    if (nodeType === 'subscription-rule') {
+      menuItems = this.subscriptionRuleContextMenu() ?? [];
+    }
+
+    if (selection.length > 1) {
+      menuItems = menuItems.filter((item) => item.supportedMultiSelection);
+    }
+
+    if (menuItems.length === 0) {
+      return undefined;
+    }
+
+    return this.patchContextMenuItems(menuItems);
   });
 
   namespaceSelected = output<{
@@ -185,9 +222,24 @@ export class TopologyTreeComponent {
 
   onSelectionChange(event: TreeNode | TreeNode[] | null) {
     // should not be an array since we have selection mode single
-    if (!event || event instanceof Array) {
+    if (!event) {
       return;
     }
+
+    if (this.selectionMode() === 'multiple') {
+      if (!(event instanceof Array) && event) {
+        event = [event];
+      }
+      this.selection.set(event as TreeNode[]);
+      this.onMultipleSelectionChange(event ?? []);
+      return;
+    }
+
+    if (event instanceof Array) {
+      event = event[event.length - 1];
+    }
+
+    this.selection.set([event]);
 
     switch (event.type) {
       case 'namespace':
@@ -226,6 +278,17 @@ export class TopologyTreeComponent {
   onNodeCollapse(event: TreeNodeCollapseEvent) {
     this.opened.update((opened) =>
       opened.filter((key) => key !== event.node.key)
+    );
+  }
+
+  private onMultipleSelectionChange(event: TreeNode[]) {
+    if (event.length === 0) {
+      return;
+    }
+
+    const first = event[0];
+    this.selection.update(
+      (selection) => selection?.filter((s) => s.type === first.type) ?? null
     );
   }
 
@@ -295,9 +358,38 @@ export class TopologyTreeComponent {
     );
   }
 
-  refreshSubscription(namespaceId: UUID, topicId: string, subscriptionId: string) {
+  refreshSubscription(
+    namespaceId: UUID,
+    topicId: string,
+    subscriptionId: string
+  ) {
     this.store.dispatch(
       TopologyActions.loadSubscription({ namespaceId, topicId, subscriptionId })
     );
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.selectionMode.set('multiple');
+    }
+  }
+
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.selectionMode.set('single');
+    }
+  }
+
+  patchContextMenuItems(menuItems: SbbMenuItem<unknown>[]) {
+    return menuItems.map((item): SbbMenuItem<unknown> => {
+      return {
+        ...item,
+        command: (event: any) => {
+          console.log(this.selection());
+          item.onSelect?.(this.selection()?.map((node) => node.data), event)
+        },
+        menuItems: item.menuItems ? this.patchContextMenuItems(item.menuItems) : undefined,
+      };
+    });
   }
 }

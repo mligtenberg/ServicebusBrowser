@@ -1,11 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Button } from 'primeng/button';
-import { ContextMenuComponent } from '@service-bus-browser/shared-components';
 import { FaIconComponent, IconDefinition } from '@fortawesome/angular-fontawesome';
-import { SubscriptionWithMetaData } from '@service-bus-browser/topology-contracts';
-import { faFolder } from '@fortawesome/free-regular-svg-icons';
-import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 import { Tooltip } from 'primeng/tooltip';
 
 @Component({
@@ -13,7 +9,6 @@ import { Tooltip } from 'primeng/tooltip';
   imports: [
     CommonModule,
     Button,
-    ContextMenuComponent,
     FaIconComponent,
     Tooltip,
   ],
@@ -24,7 +19,6 @@ export class GenericTreeNodeComponent<T> {
   label = input.required<string>();
   data = input.required<T>();
   icon = input.required<IconDefinition>();
-  contextMenuItems = input<SbbMenuItem<T>[]>();
   quickAmounts = input<{
     activeMessageCount: number;
     deadLetterMessageCount: number;

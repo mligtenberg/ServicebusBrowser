@@ -1,8 +1,9 @@
 <p-tree
   [value]="nodes()"
-  selectionMode="single"
+  selectionMode="multiple"
+  [(selection)]="selection"
+  [contextMenu]="cm"
   (selectionChange)="onSelectionChange($event)"
-  emptyMessage="No namespaces found"
   (onNodeExpand)="onNodeExpand($event)"
   (onNodeCollapse)="onNodeCollapse($event)"
 >
@@ -10,37 +11,30 @@
     <b>{{ node.label }}</b>
   </ng-template>
   <ng-template let-node pTemplate="namespace">
-    <sbb-tpl-namespace-tree-node [namespace]="node.data" [contextMenuItems]="namespaceContextMenuItems()" />
+    <sbb-tpl-namespace-tree-node [namespace]="node.data" />
   </ng-template>
   <ng-template let-node pTemplate="queues">
-    <div class="category-divider" #queues>
+    <div class="category-divider">
       <span class="name">{{ node.label }}</span>
       <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingQueues }">
         <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
       </div>
     </div>
-    @if (queuesGroupNodeContextMenu(); as contextMenu) {
-      <sbb-context-menu [target]="queues" [data]="node.data" [model]="contextMenu"></sbb-context-menu>
-    }
   </ng-template>
   <ng-template let-node pTemplate="topics">
-    <div class="category-divider" #topics>
+    <div class="category-divider">
       <span class="name">{{ node.label }}</span>
       <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingTopics }">
         <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
       </div>
     </div>
-    @if (topicsGroupNodeContextMenu(); as contextMenu) {
-      <sbb-context-menu [target]="topics" [data]="node.data" [model]="contextMenu"></sbb-context-menu>
-    }
   </ng-template>
   <ng-template let-node pTemplate="queue">
-    <sbb-tpl-queue-tree-node [contextMenuItems]="queueContextMenu()" [queue]="node.data.queue" />
+    <sbb-tpl-queue-tree-node [queue]="node.data" />
   </ng-template>
   <ng-template let-node pTemplate="topic">
     <sbb-tpl-topic-tree-node
-      [contextMenuItems]="topicContextMenu()"
-      [topic]="node.data.topic"
+      [topic]="node.data"
       [showRefresh]="displaySubscriptions()"
       (refreshTopic)="refreshSubscriptions($event.namespaceId, $event.id)"
       [ngClass]="{ 'show-subscriptions': displaySubscriptions() }"
@@ -48,13 +42,14 @@
   </ng-template>
   <ng-template let-node pTemplate="subscription">
     <sbb-tpl-subscription-tree-node
-      [contextMenuItems]="subscriptionContextMenu()"
-      [subscription]="node.data.subscription"
+      [subscription]="node.data"
       [showRefresh]="displaySubscriptionRules()"
       (refreshSubscription)="refreshSubscription($event.namespaceId, $event.topicId, $event.id)"
     />
   </ng-template>
   <ng-template let-node pTemplate="subscription-rule">
-    <sbb-tpl-subscription-rule-tree-node [contextMenuItems]="subscriptionRuleContextMenu()" [rule]="node.data.rule" />
+    <sbb-tpl-subscription-rule-tree-node [rule]="node.data" />
   </ng-template>
 </p-tree>
+
+<p-context-menu #cm [model]="contextMenu()" appendTo="body"></p-context-menu>

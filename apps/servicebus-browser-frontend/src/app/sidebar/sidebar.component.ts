@@ -19,7 +19,6 @@ import {
 import { ConnectionsActions } from '@service-bus-browser/connections-store';
 import { Router } from '@angular/router';
 import { TasksComponent } from '@service-bus-browser/tasks-components';
-import { Task } from '@service-bus-browser/tasks-contracts';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Dialog } from 'primeng/dialog';
@@ -70,15 +69,20 @@ export class SidebarComponent {
     {
       label: 'Remove Namespace',
       icon: 'pi pi-trash',
-      onSelect: (data: Namespace, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          ConnectionsActions.removeConnection({ connectionId: data.id })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: Namespace | Namespace[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+        for (const namespace of data) {
+          this.store.dispatch(
+            ConnectionsActions.removeConnection({ connectionId: namespace.id })
+          );
+        }
       },
     },
     {
       label: 'Add queue',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate([
           'manage-topology',
@@ -92,6 +96,7 @@ export class SidebarComponent {
     {
       label: 'Add topic',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate([
           'manage-topology',
@@ -108,6 +113,7 @@ export class SidebarComponent {
     {
       label: 'Add queue',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate([
           'manage-topology',
@@ -124,6 +130,7 @@ export class SidebarComponent {
     {
       label: 'Add topic',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (data: Namespace, event: MenuItemCommandEvent) => {
         await this.router.navigate([
           'manage-topology',
@@ -140,6 +147,7 @@ export class SidebarComponent {
     {
       label: 'Peak messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
@@ -154,6 +162,7 @@ export class SidebarComponent {
     {
       label: 'Peak deadletter messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
@@ -168,6 +177,7 @@ export class SidebarComponent {
     {
       label: 'Peak transfer deadletter messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
@@ -185,54 +195,71 @@ export class SidebarComponent {
     {
       label: 'Clear messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              queueName: data.name,
-              channel: undefined,
-              connectionId: data.namespaceId,
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const queue of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                queueName: queue.name,
+                channel: undefined,
+                connectionId: queue.namespaceId,
+              }
+            })
+          );
+        }
       }
     },
     {
       label: 'Clear deadletter messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              queueName: data.name,
-              channel: 'deadLetter',
-              connectionId: data.namespaceId,
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const queue of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                queueName: queue.name,
+                channel: 'deadLetter',
+                connectionId: queue.namespaceId,
+              }
+            })
+          );
+        }
       }
     },
     {
       label: 'Clear transfer deadletter messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              queueName: data.name,
-              channel: 'transferDeadLetter',
-              connectionId: data.namespaceId,
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const queue of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                queueName: queue.name,
+                channel: 'transferDeadLetter',
+                connectionId: queue.namespaceId,
+              }
+            })
+          );
+        }
       }
     },
     {
       separator: true,
+      supportedMultiSelection: true,
     },
     {
       label: 'Edit Queue',
       icon: 'pi pi-pencil',
+      supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
         event: MenuItemCommandEvent
@@ -250,13 +277,18 @@ export class SidebarComponent {
     {
       label: 'Remove Queue',
       icon: 'pi pi-trash',
-      onSelect: (data: QueueWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          TopologyActions.removeQueue({
-            namespaceId: data.namespaceId,
-            queueId: data.id,
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const queue of data) {
+          this.store.dispatch(
+            TopologyActions.removeQueue({
+              namespaceId: queue.namespaceId,
+              queueId: queue.id,
+            })
+          );
+        }
       },
     },
   ];
@@ -265,6 +297,7 @@ export class SidebarComponent {
     {
       label: 'Add Subscription',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (
         data: TopicWithMetaData,
         event: MenuItemCommandEvent
@@ -282,10 +315,12 @@ export class SidebarComponent {
     },
     {
       separator: true,
+      supportedMultiSelection: false,
     },
     {
       label: 'Edit Topic',
       icon: 'pi pi-pencil',
+      supportedMultiSelection: false,
       onSelect: async (
         data: TopicWithMetaData,
         event: MenuItemCommandEvent
@@ -303,13 +338,18 @@ export class SidebarComponent {
     {
       label: 'Remove Topic',
       icon: 'pi pi-trash',
-      onSelect: (data: TopicWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          TopologyActions.removeTopic({
-            namespaceId: data.namespaceId,
-            topicId: data.id,
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: TopicWithMetaData | TopicWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const topic of data) {
+          this.store.dispatch(
+            TopologyActions.removeTopic({
+              namespaceId: topic.namespaceId,
+              topicId: topic.id,
+            })
+          );
+        }
       },
     },
   ];
@@ -318,6 +358,7 @@ export class SidebarComponent {
     {
       label: 'Peak messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
@@ -333,6 +374,7 @@ export class SidebarComponent {
     {
       label: 'Peak deadletter messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
@@ -348,6 +390,7 @@ export class SidebarComponent {
     {
       label: 'Peak transfer deadletter messages',
       icon: 'pi pi-download',
+      supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
@@ -366,57 +409,72 @@ export class SidebarComponent {
     {
       label: 'Clear messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              channel: undefined,
-              connectionId: data.namespaceId,
-              topicName: data.topicId,
-              subscriptionName: data.name,
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+
+        for (const subscription of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                channel: undefined,
+                connectionId: subscription.namespaceId,
+                topicName: subscription.topicId,
+                subscriptionName: subscription.name,
+              }
+            })
+          );
+        }
       }
     },
     {
       label: 'Clear deadletter messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              connectionId: data.namespaceId,
-              topicName: data.topicId,
-              subscriptionName: data.name,
-              channel: 'deadLetter',
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+        for (const subscription of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                connectionId: subscription.namespaceId,
+                topicName: subscription.topicId,
+                subscriptionName: subscription.name,
+                channel: 'deadLetter',
+              }
+            })
+          );
+        }
       }
     },
     {
       label: 'Clear transfer deadletter messages',
       icon: 'pi pi-eraser',
-      onSelect: (data: SubscriptionWithMetaData, event: MenuItemCommandEvent) => {
-        this.store.dispatch(
-          MessagesActions.clearEndpoint({
-            endpoint: {
-              connectionId: data.namespaceId,
-              topicName: data.topicId,
-              subscriptionName: data.name,
-              channel: 'transferDeadLetter',
-            }
-          })
-        );
+      supportedMultiSelection: true,
+      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+        data = Array.isArray(data) ? data : [data];
+        for (const subscription of data) {
+          this.store.dispatch(
+            MessagesActions.clearEndpoint({
+              endpoint: {
+                connectionId: subscription.namespaceId,
+                topicName: subscription.topicId,
+                subscriptionName: subscription.name,
+                channel: 'transferDeadLetter',
+              }
+            })
+          );
+        }
       }
     },
     {
       separator: true,
+      supportedMultiSelection: true,
     },
     {
       label: 'Add Rule',
       icon: 'pi pi-plus',
+      supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
@@ -436,10 +494,12 @@ export class SidebarComponent {
     },
     {
       separator: true,
+      supportedMultiSelection: false,
     },
     {
       label: 'Edit Subscription',
       icon: 'pi pi-pencil',
+      supportedMultiSelection: false,
       onSelect: (
         data: SubscriptionWithMetaData,
         event: MenuItemCommandEvent
@@ -459,17 +519,22 @@ export class SidebarComponent {
     {
       label: 'Remove Subscription',
       icon: 'pi pi-trash',
+      supportedMultiSelection: true,
       onSelect: (
-        data: SubscriptionWithMetaData,
+        data: SubscriptionWithMetaData | SubscriptionWithMetaData[],
         event: MenuItemCommandEvent
       ) => {
-        this.store.dispatch(
-          TopologyActions.removeSubscription({
-            namespaceId: data.namespaceId,
-            topicId: data.topicId,
-            subscriptionId: data.id,
-          })
-        );
+        data = Array.isArray(data) ? data : [data];
+
+        for (const subscription of data) {
+          this.store.dispatch(
+            TopologyActions.removeSubscription({
+              namespaceId: subscription.namespaceId,
+              topicId: subscription.topicId,
+              subscriptionId: subscription.id,
+            })
+          );
+        }
       },
     },
   ];

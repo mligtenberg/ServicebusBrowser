@@ -2,7 +2,6 @@ import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TopicWithChildrenAndLoadingState, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolderTree } from '@fortawesome/free-solid-svg-icons';
-import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
 
 @Component({
@@ -20,7 +19,6 @@ export class TopicTreeNodeComponent {
   icon = faFolderTree;
 
   refreshTopic = output<TopicWithMetaData>();
-  contextMenuItems = input<SbbMenuItem<TopicWithMetaData>[]>();
 
   onRefresh() {
     this.refreshTopic.emit(this.topic());

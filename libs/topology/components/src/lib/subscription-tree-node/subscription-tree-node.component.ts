@@ -5,7 +5,6 @@ import {
   SubscriptionWithMetaDataAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
-import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
 
 @Component({
@@ -20,7 +19,6 @@ import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node
 export class SubscriptionTreeNodeComponent {
   subscription = input.required<SubscriptionWithMetaDataAndLoadingState>();
   icon = faFolder;
-  contextMenuItems = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
   showRefresh = input<boolean>(false);
   refreshSubscription = output<SubscriptionWithMetaData>();
 
