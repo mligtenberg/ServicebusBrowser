@@ -50,6 +50,16 @@ export class AppComponent {
         },
       ],
     },
+    {
+      label: 'Messages',
+      items: [
+        {
+          label: 'Send',
+          icon: 'pi pi-send',
+          routerLink: '/messages/send',
+        }
+      ],
+    }
   ];
 
   activeRoute = inject(ActivatedRoute);

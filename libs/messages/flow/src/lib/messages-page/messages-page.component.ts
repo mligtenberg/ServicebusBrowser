@@ -13,6 +13,7 @@ import { Highlight } from 'ngx-highlightjs';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
+import { EditorComponent } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'lib-messages-page',
@@ -25,6 +26,7 @@ import { Button } from 'primeng/button';
     ScrollPanel,
     Dialog,
     Button,
+    EditorComponent,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -48,6 +50,7 @@ export class MessagesPageComponent {
 
     return JSON.stringify(message.body, null, 2);
   });
+
   properties = computed<Array<{ key: string; value: unknown }>>(() => {
     const currentPage = this.currentPage();
     const message = this.selectedMessage();
@@ -111,6 +114,15 @@ export class MessagesPageComponent {
 
     return 'text';
   });
+  editorOptions = computed(() => ({
+    theme: 'vs-light',
+    readOnly: true,
+    language: this.bodyLanguage(),
+    automaticLayout: false,
+    minimap: {
+      enabled: false
+    }
+  }));
 
   cols = [
     { field: 'sequenceNumber', header: 'Sequence Number' },

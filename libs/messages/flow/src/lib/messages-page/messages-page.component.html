@@ -43,12 +43,12 @@
           [text]="true"
         ></p-button>
       </div>
-      <p-scroll-panel>
-        <pre><code
-          [highlight]="body()"
-          [language]="bodyLanguage()"
-        ></code></pre>
-      </p-scroll-panel>
+      <div class="editor">
+        <ngx-monaco-editor
+          [options]="editorOptions()"
+          [ngModel]="body()"
+        ></ngx-monaco-editor>
+      </div>
     }
   </p-card>
   <p-card header="Properties" class="properties">
@@ -108,11 +108,9 @@
   [style]="{ width: '100%', height: '100%' }"
   [modal]="true"
   >
-  <p-scrollPanel>
-    <pre><code
-      class="fullscreen-code"
-      [highlight]="body()"
-      [language]="bodyLanguage()"
-    ></code></pre>
-  </p-scrollPanel>
+  @if (displayBodyFullscreen()) {
+    <div class="editor">
+      <ngx-monaco-editor [options]="editorOptions()" [ngModel]="body()"></ngx-monaco-editor>
+    </div>
+  }
 </p-dialog>

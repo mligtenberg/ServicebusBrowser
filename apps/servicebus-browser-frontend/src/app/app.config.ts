@@ -22,6 +22,12 @@ import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
 import { RouterEffects } from './ngrx/router.effects';
 import { provideHighlightOptions } from 'ngx-highlightjs';
+import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+
+const monacoConfig: NgxMonacoEditorConfig = {
+  baseUrl: 'assets',
+  requireConfig: { preferScriptTags: true }
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -52,6 +58,11 @@ export const appConfig: ApplicationConfig = {
     provideServiceBusClient(),
     provideState(routeFeature),
     provideEffects([RouterEffects]),
+
+    // monaco
+    importProvidersFrom([
+      MonacoEditorModule.forRoot(monacoConfig)
+    ]),
 
     // ngrx
     provideStore(),
