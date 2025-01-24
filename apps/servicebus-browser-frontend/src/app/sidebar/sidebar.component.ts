@@ -27,6 +27,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
+import { ColorThemeService } from '@service-bus-browser/services';
 
 @Component({
   selector: 'app-sidebar',
@@ -638,6 +639,8 @@ export class SidebarComponent {
       $event.ruleName,
     ]);
   }
+
+  darkMode = inject(ColorThemeService).darkMode;
 
   openTasks = this.store.selectSignal(TasksSelectors.selectTasks);
 

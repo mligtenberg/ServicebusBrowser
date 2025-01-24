@@ -21,7 +21,6 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
 import { RouterEffects } from './ngrx/router.effects';
-import { provideHighlightOptions } from 'ngx-highlightjs';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
 
 const monacoConfig: NgxMonacoEditorConfig = {
@@ -36,17 +35,15 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: theme,
+        options: {
+          darkModeSelector: '.darkMode'
+        }
       }
     }),
     {
       provide: MessageService,
       useClass: MessageService
     },
-
-    // highlight js
-    provideHighlightOptions({
-      fullLibraryLoader: () => import('highlight.js')
-    }),
 
     // config
     provideExperimentalZonelessChangeDetection(),

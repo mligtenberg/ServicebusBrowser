@@ -4,7 +4,7 @@ sbb-logs-log-line {
   &.odd {
     background: var(--p-surface-100);
 
-    @media (prefers-color-scheme: dark) {
+    &.darkMode {
       background: var(--p-surface-800);
     }
   }

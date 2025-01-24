@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
@@ -17,6 +17,7 @@ import {
 import { selectRoute } from './ngrx/route.selectors';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Button } from 'primeng/button';
+import { ColorThemeService } from '@service-bus-browser/services';
 
 @Component({
   imports: [
@@ -62,13 +63,14 @@ export class AppComponent {
     }
   ];
 
-  activeRoute = inject(ActivatedRoute);
   store = inject(Store);
+  themeService = inject(ColorThemeService);
   logsOpened = signal(false);
 
   currentRoute = this.store.selectSignal(selectRoute);
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
   messagePages = this.store.selectSignal(MessagesSelectors.selectPages);
+  darkMode = this.themeService.darkMode;
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
@@ -77,5 +79,22 @@ export class AppComponent {
   closePage(pageId: UUID, event: Event) {
     this.store.dispatch(MessagesActions.closePage({ pageId: pageId }));
     event.stopPropagation();
+  }
+
+  constructor() {
+    this.setDarkMode(this.darkMode());
+    effect(() => this.setDarkMode(this.darkMode()));
+  }
+
+  setDarkMode(darkMode: boolean) {
+    const element = document.querySelector('html');
+    const darkModeSet = element?.classList.contains('darkMode');
+    if (darkMode && !darkModeSet) {
+      element?.classList.add('darkMode');
+    }
+
+    if (!darkMode && darkModeSet) {
+      element?.classList.remove('darkMode');
+    }
   }
 }

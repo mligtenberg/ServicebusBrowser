@@ -20,6 +20,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { DatePicker } from 'primeng/datepicker';
 import { InputNumber } from 'primeng/inputnumber';
 import { Textarea } from 'primeng/textarea';
+import { ColorThemeService } from '@service-bus-browser/services';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -60,6 +61,7 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   ];
 
   dataTypeOptions = ['string', 'number', 'boolean', 'date'];
+  darkMode = inject(ColorThemeService).darkMode;
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])

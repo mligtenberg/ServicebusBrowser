@@ -9,11 +9,10 @@ import { MessagePage, ServiceBusReceivedMessage } from '@service-bus-browser/mes
 import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
-import { Highlight } from 'ngx-highlightjs';
-import { ScrollPanel } from 'primeng/scrollpanel';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
+import { ColorThemeService } from '@service-bus-browser/services';
 
 @Component({
   selector: 'lib-messages-page',
@@ -22,8 +21,6 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
     Card,
     TableModule,
     FormsModule,
-    Highlight,
-    ScrollPanel,
     Dialog,
     Button,
     EditorComponent,
@@ -89,33 +86,37 @@ export class MessagesPageComponent {
       return '';
     }
 
-    if (message.contentType.includes('json')) {
+    const contentType = message.contentType.toLowerCase();
+
+    if (contentType.includes('json')) {
       return 'json';
     }
 
-    if (message.contentType.includes('xml')) {
+    if (contentType.includes('xml')) {
       return 'xml';
     }
 
     if (
-      message.contentType.includes('yaml') ||
-      message.contentType.includes('yml')
+      contentType.includes('yaml') ||
+      contentType.includes('yml')
     ) {
       return 'yaml';
     }
 
-    if (message.contentType.includes('ini')) {
+    if (contentType.includes('ini')) {
       return 'ini';
     }
 
-    if (message.contentType.includes('TOML')) {
+    if (contentType.includes('toml')) {
       return 'TOML';
     }
 
     return 'text';
   });
+
+  colorThemeService = inject(ColorThemeService);
   editorOptions = computed(() => ({
-    theme: 'vs-light',
+    theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
     readOnly: true,
     language: this.bodyLanguage(),
     automaticLayout: false,

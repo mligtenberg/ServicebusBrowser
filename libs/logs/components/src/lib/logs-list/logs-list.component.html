@@ -4,6 +4,8 @@
   scrollHeight="20rem"
 >
   <ng-template #item let-item let-options="options">
-    <sbb-logs-log-line [logLine]="item" [ngClass]="{'odd': options.index % 2 === 1}"></sbb-logs-log-line>
+    <sbb-logs-log-line
+      [logLine]="item"
+      [ngClass]="{'odd': options.index % 2 === 1, 'darkMode': darkMode()}"></sbb-logs-log-line>
   </ng-template>
 </p-virtual-scroller>

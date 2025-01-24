@@ -16,7 +16,7 @@
     />
   </div>
 </p-scroll-panel>
-<sbb-task-tasks [tasks]="openTasks()"></sbb-task-tasks>
+<sbb-task-tasks [tasks]="openTasks()" [ngClass]="{darkMode: darkMode()}"></sbb-task-tasks>
 
 <p-dialog
   [modal]="true"

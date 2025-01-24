@@ -98,7 +98,7 @@ p-card {
   background: var(--p-surface-50);
   border-radius: 0;
 
-  @media (prefers-color-scheme: dark) {
+  &.darkMode {
     background: var(--p-surface-950);
   }
 }

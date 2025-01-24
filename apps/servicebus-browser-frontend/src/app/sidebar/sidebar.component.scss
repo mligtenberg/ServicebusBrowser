@@ -19,7 +19,7 @@ p-scroll-panel {
 sbb-task-tasks {
   border-top: solid 2px var(--p-surface-200);
 
-  @media (prefers-color-scheme: dark) {
+  &.darkMode {
     border-top: solid 2px var(--p-surface-700);
   }
 }
