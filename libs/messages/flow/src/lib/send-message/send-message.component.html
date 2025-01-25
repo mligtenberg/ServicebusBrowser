@@ -1,0 +1,33 @@
+<form class="send-message-container" [formGroup]="form">
+  <div class="properties">
+    <p-card header="Properties">
+      <div class="properties-container">
+        <p-floatlabel variant="on">
+          <p-auto-complete
+            [dropdown]="true"
+            [suggestions]="contentTypeSuggestions()"
+            (completeMethod)="contentTypeSearch.set($event.query)"
+            (onHide)="contentTypeSearch.set(null)"
+            inputId="contentType"
+            formControlName="contentType"
+          />
+          <label for="contentType">Content type</label>
+        </p-floatlabel>
+      </div>
+    </p-card>
+  </div>
+  <div class="custom-properties">
+    <p-card header="Custom properties">
+
+    </p-card>
+  </div>
+  <div class="editor">
+    <p-card header="Body">
+      <div class="editor-container">
+        <ngx-monaco-editor
+          [options]="editorOptions()"
+        ></ngx-monaco-editor>
+      </div>
+    </p-card>
+  </div>
+</form>

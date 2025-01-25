@@ -59,7 +59,7 @@ export class MessagesPageComponent {
       { key: 'contentType', value: message.contentType },
       { key: 'correlationId', value: message.correlationId },
       { key: 'enqueueSequenceNumber', value: message.enqueuedSequenceNumber },
-      { key: 'enqueueTimeUtc', value: message.enqueuedTimeUtc },
+      { key: 'enqueuedTimeUtc', value: message.enqueuedTimeUtc },
       { key: 'messageId', value: message.messageId },
       { key: 'sequenceNumber', value: message.sequenceNumber },
       { key: 'subject', value: message.subject },
