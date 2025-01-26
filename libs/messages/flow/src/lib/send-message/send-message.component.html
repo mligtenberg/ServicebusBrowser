@@ -1,24 +1,131 @@
 <form class="send-message-container" [formGroup]="form">
   <div class="properties">
     <p-card header="Properties">
-      <div class="properties-container">
-        <p-floatlabel variant="on">
-          <p-auto-complete
-            [dropdown]="true"
-            [suggestions]="contentTypeSuggestions()"
-            (completeMethod)="contentTypeSearch.set($event.query)"
-            (onHide)="contentTypeSearch.set(null)"
-            inputId="contentType"
-            formControlName="contentType"
-          />
-          <label for="contentType">Content type</label>
-        </p-floatlabel>
-      </div>
+      <p-scroll-panel>
+        <div class="properties-container">
+          <p-floatlabel variant="on">
+            <p-auto-complete
+              [dropdown]="true"
+              [suggestions]="contentTypeSuggestions()"
+              (completeMethod)="contentTypeSearch.set($event.query)"
+              (onHide)="contentTypeSearch.set(null)"
+              appendTo="body"
+              inputId="contentType"
+              formControlName="contentType"
+            />
+            <!--suppress XmlInvalidId -->
+            <label for="contentType">Content type</label>
+          </p-floatlabel>
+          @for (control of form.controls.properties.controls; track $index) {
+            <p-input-group [formGroup]="control">
+              <p-select
+                appendTo="body"
+                formControlName="key"
+                [options]="getAvailablePropertyKeys($index)"/>
+
+              @if (propertyIsText($index)) {
+                <input
+                  pInputText
+                  formControlName="value"
+                  placeholder="Value"/>
+              }
+              @if (propertyIsDate($index)) {
+                <p-date-picker
+                  formControlName="value"
+                  appendTo="body"
+                  placeholder="Value"/>
+              }
+              @if (propertyIsTimeSpan($index)) {
+                <input
+                  #timeSpanInput
+                  (click)="popover.toggle($event)"
+                  pInputText
+                  readonly
+                  [value]="control.controls.value.value"
+                  class="time-span-trigger"
+                  aria-disabled="false"
+                  placeholder="Value" />
+                <p-popover
+                  appendTo="body"
+                  #popover
+                  >
+                  <sbb-duration-input
+                    [formControl]="control.controls.value"/>
+                </p-popover>
+              }
+
+              @if (propertyUnknownType($index)) {
+                <input
+                  pInputText
+                  formControlName="value"
+                  placeholder="Value"/>
+              }
+
+              <p-inputgroup-addon>
+                <p-button
+                  type="button"
+                  icon="pi pi-times"
+                  [text]="true"
+                  severity="danger"
+                  (click)="removeProperty($index)"/>
+              </p-inputgroup-addon>
+            </p-input-group>
+          }
+          <div class="actions">
+            <button pButton type="button" (click)="addProperty()">Add</button>
+          </div>
+        </div>
+      </p-scroll-panel>
     </p-card>
   </div>
   <div class="custom-properties">
     <p-card header="Custom properties">
-
+      <p-scroll-panel>
+        <div class="custom-properties-container">
+          @for (control of form.controls.customProperties.controls; track $index) {
+            <p-input-group [formGroup]="control">
+              <input
+                pInputText
+                formControlName="key"
+                placeholder="Key"/>
+              <p-select
+                appendTo="body"
+                #customPropertyTypeSelect
+                [options]="typeOptions"
+              />
+              @if (customPropertyTypeSelect.value === 'string') {
+                <input
+                  pInputText
+                  formControlName="value"
+                  placeholder="Value"/>
+              }
+              @if (customPropertyTypeSelect.value === 'date') {
+                <p-date-picker
+                  formControlName="value"
+                  appendTo="body"
+                  placeholder="Value"/>
+              }
+              @if (customPropertyTypeSelect.value === 'number') {
+                <input
+                  pInputText
+                  formControlName="value"
+                  placeholder="Value"/>
+              }
+              <p-inputgroup-addon>
+                <p-button
+                  type="button"
+                  icon="pi pi-times"
+                  [text]="true"
+                  severity="danger"
+                  (click)="removeCustomProperty($index)"/>
+              </p-inputgroup-addon>
+            </p-input-group>
+          }
+          <div class="actions">
+            <button pButton type="button" (click)="addCustomProperty()">Add</button>
+          </div>
+        </div>
+      </p-scroll-panel>
     </p-card>
   </div>
   <div class="editor">
@@ -29,5 +136,10 @@
         ></ngx-monaco-editor>
       </div>
     </p-card>
+  </div>
+  <div class="message-actions">
+    <sbb-tpl-endpoint-selector-input
+      formControlName="endpoint"/>
+    <button pButton type="button" (click)="send()" [disabled]="form.invalid">Send</button>
   </div>
 </form>

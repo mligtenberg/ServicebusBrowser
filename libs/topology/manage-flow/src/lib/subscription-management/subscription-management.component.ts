@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
+import {
+  EndpointSelectorInputComponent,
+  EndpointStringSelectorInputComponent
+} from '@service-bus-browser/topology-components';
 import { FloatLabel } from 'primeng/floatlabel';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputNumber } from 'primeng/inputnumber';
@@ -41,6 +44,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ButtonDirective,
     PrimeTemplate,
     TableModule,
+    EndpointStringSelectorInputComponent,
   ],
   templateUrl: './subscription-management.component.html',
   styleUrl: './subscription-management.component.scss',
@@ -69,12 +73,12 @@ export class SubscriptionManagementComponent {
     }
 
     return [currentSubscription.namespaceId];
-  })
+  });
 
   informationCols = [
     { field: 'key', header: 'Key' },
     { field: 'value', header: 'Value' },
-  ]
+  ];
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
@@ -85,35 +89,35 @@ export class SubscriptionManagementComponent {
           const topicId = params['topicId'] as string | undefined;
           const subscriptionId = params['subscriptionId'] as string | undefined;
 
-            if (namespaceId === undefined) {
-              throw new Error('Namespace ID is required');
-            }
+          if (namespaceId === undefined) {
+            throw new Error('Namespace ID is required');
+          }
 
-            if (topicId === undefined) {
-              throw new Error('Topic ID is required');
-            }
+          if (topicId === undefined) {
+            throw new Error('Topic ID is required');
+          }
 
-            if (action === 'create') {
-              return of({ action, subscription: undefined });
-            }
+          if (action === 'create') {
+            return of({ action, subscription: undefined });
+          }
 
-            if (!subscriptionId) {
-              throw new Error('Subscription ID is required for modify action');
-            }
+          if (!subscriptionId) {
+            throw new Error('Subscription ID is required for modify action');
+          }
 
-            return this.store.select(
+          return this.store
+            .select(
               TopologySelectors.selectSubscriptionById(
                 namespaceId,
                 topicId,
                 subscriptionId
               )
-            ).pipe(
-              map(subscription => ({ action, subscription }))
-            );
+            )
+            .pipe(map((subscription) => ({ action, subscription })));
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed()
       )
-      .subscribe(({action, subscription}) => {
+      .subscribe(({ action, subscription }) => {
         this.action.set(action);
         this.currentSubscription.set(subscription);
         this.form = this.createForm();
@@ -125,19 +129,19 @@ export class SubscriptionManagementComponent {
 
         this.configureFormAsEdit();
 
-          if (!subscription) {
-            return;
-          }
+        if (!subscription) {
+          return;
+        }
 
-          this.form.setValue(
-            {
-              name: subscription.name,
-              properties: subscription.properties,
-              settings: subscription.settings,
-            },
-            { emitEvent: false }
-          );
-        });
+        this.form.setValue(
+          {
+            name: subscription.name,
+            properties: subscription.properties,
+            settings: subscription.settings,
+          },
+          { emitEvent: false }
+        );
+      });
   }
 
   configureFormAsEdit(): void {

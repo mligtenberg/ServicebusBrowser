@@ -11,6 +11,7 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 import { QueueWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 @Component({
   selector: 'sbb-tpl-endpoint-selector-input',
@@ -35,14 +36,14 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrl: './endpoint-selector-input.component.scss',
 })
 export class EndpointSelectorInputComponent implements ControlValueAccessor {
-  private onChange?: (_: string | null) => void;
+  private onChange?: (_: SendEndpoint | null) => void;
   private onTouched?: () => void;
 
   store = inject(Store);
   disabled = signal(false);
   dialogVisible = signal(false);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
-  value = signal<string | null>(null);
+  value = signal<SendEndpoint | null>(null);
 
   connectionsFilter = input<string[]>();
 
@@ -55,20 +56,29 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   }
 
   onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
-    this.value.set($event.queue.metadata.endpoint);
+    this.value.set({
+      endpoint: $event.queue.metadata.endpoint,
+      queueName: $event.queue.name,
+      connectionId: $event.queue.namespaceId,
+
+    });
     this.dialogVisible.set(false);
   }
 
   onTopicSelected($event: { namespaceId: string; topic: TopicWithMetaData }) {
-    this.value.set($event.topic.metadata.endpoint);
+    this.value.set({
+      endpoint: $event.topic.metadata.endpoint,
+      topicName: $event.topic.name,
+      connectionId: $event.topic.namespaceId,
+    });
     this.dialogVisible.set(false);
   }
 
-  writeValue(obj: string | null): void {
+  writeValue(obj: SendEndpoint | null): void {
     this.value.set(obj);
   }
 
-  registerOnChange(fn: (_: string | null) => void): void {
+  registerOnChange(fn: (_: SendEndpoint | null) => void): void {
     this.onChange = fn;
   }
 

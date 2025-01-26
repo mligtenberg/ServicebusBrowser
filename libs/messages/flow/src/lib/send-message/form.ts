@@ -1,4 +1,5 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 type SystemStringPropertyKeys = 'correlationId'
   | 'partitionKey'
@@ -17,9 +18,7 @@ export type SystemPropertyKeys = SystemStringPropertyKeys
   | SystemDatePropertyKeys
   | SystemTimeSpanPropertyKeys;
 
-export type SystemPropertyGroup = { key: FormControl<SystemStringPropertyKeys>; value: FormControl<string>}
-| { key: FormControl<SystemDatePropertyKeys>; value: FormControl<Date> }
-| { key: FormControl<SystemTimeSpanPropertyKeys>; value: FormControl<string> }
+export type SystemPropertyGroup = { key: FormControl<SystemPropertyKeys | null>; value: FormControl<string | Date>};
 
 export type CustomPropertyGroup = { key: FormControl<string>; value: FormControl<string | number | Date> };
 
@@ -28,4 +27,5 @@ export interface SendMessagesForm {
   contentType: FormControl<string | null>;
   properties: FormArray<FormGroup<SystemPropertyGroup>>;
   customProperties: FormArray<FormGroup<CustomPropertyGroup>>;
+  endpoint: FormControl<SendEndpoint | null>;
 }

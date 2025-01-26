@@ -1,5 +1,5 @@
 <p-input-group>
-  <input pInputText disabled [value]="value()" />
+  <input pInputText readonly [value]="value()?.endpoint" (click)="dialogVisible.set(true)" />
   <p-inputgroup-addon>
     <p-button icon="pi pi-times"
               ariaLabel="clear selection"

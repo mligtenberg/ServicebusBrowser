@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +8,7 @@ import {
   TopologyActions,
   TopologySelectors,
 } from '@service-bus-browser/topology-store';
-import { combineLatest, map, of, Subject, switchMap } from 'rxjs';
+import { combineLatest, map, of, switchMap } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { Card } from 'primeng/card';
@@ -16,7 +16,9 @@ import { InputText } from 'primeng/inputtext';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Textarea } from 'primeng/textarea';
-import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
+import {
+  EndpointStringSelectorInputComponent
+} from '@service-bus-browser/topology-components';
 import { Checkbox } from 'primeng/checkbox';
 import { ButtonDirective } from 'primeng/button';
 import { Queue, QueueWithMetaData } from '@service-bus-browser/topology-contracts';
@@ -34,10 +36,10 @@ import { TableModule } from 'primeng/table';
     FloatLabel,
     InputNumber,
     Textarea,
-    EndpointSelectorInputComponent,
     Checkbox,
     ButtonDirective,
     TableModule,
+    EndpointStringSelectorInputComponent,
   ],
   templateUrl: './queue-management.component.html',
   styleUrl: './queue-management.component.scss',
@@ -45,7 +47,7 @@ import { TableModule } from 'primeng/table';
 export class QueueManagementComponent {
   activeRoute = inject(ActivatedRoute);
   store = inject(Store);
-  form = this.createForm()
+  form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
   currentQueue = signal<QueueWithMetaData | undefined>(undefined);
@@ -67,12 +69,12 @@ export class QueueManagementComponent {
     }
 
     return [currentQueue.namespaceId];
-  })
+  });
 
   informationCols = [
     { field: 'key', header: 'Key' },
     { field: 'value', header: 'Value' },
-  ]
+  ];
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])
@@ -106,7 +108,7 @@ export class QueueManagementComponent {
               }))
             );
         }),
-        takeUntilDestroyed(),
+        takeUntilDestroyed()
       )
       .subscribe(({ action, queue }) => {
         this.form = this.createForm();

@@ -3,12 +3,23 @@ import { CommonModule } from '@angular/common';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { Card } from 'primeng/card';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup } from './form';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup, SystemPropertyKeys } from './form';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
+import { ScrollPanel } from 'primeng/scrollpanel';
+import { Button, ButtonDirective } from 'primeng/button';
+import { InputGroup } from 'primeng/inputgroup';
+import { Select } from 'primeng/select';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { DatePicker } from 'primeng/datepicker';
+import { Popover } from 'primeng/popover';
+import { DurationInputComponent } from '@service-bus-browser/shared-components';
+import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
+import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 @Component({
   selector: 'lib-send-message',
@@ -19,6 +30,17 @@ import { FloatLabel } from 'primeng/floatlabel';
     ReactiveFormsModule,
     AutoCompleteModule,
     FloatLabel,
+    ScrollPanel,
+    ButtonDirective,
+    InputGroup,
+    Select,
+    Button,
+    InputGroupAddon,
+    InputText,
+    DatePicker,
+    Popover,
+    DurationInputComponent,
+    EndpointSelectorInputComponent,
   ],
   templateUrl: './send-message.component.html',
   styleUrl: './send-message.component.scss',
@@ -32,7 +54,12 @@ export class SendMessageComponent {
     contentType: new FormControl(''),
     properties: new FormArray<FormGroup<SystemPropertyGroup>>([]),
     customProperties: new FormArray<FormGroup<CustomPropertyGroup>>([]),
+    endpoint: new FormControl<SendEndpoint | null>(null, {
+      validators: [Validators.required],
+    })
   });
+
+  typeOptions = ['string', 'date', 'number'];
 
   contentTypeSuggestions = computed(() => {
     if (this.contentTypeSearch() === null) {
@@ -95,4 +122,109 @@ export class SendMessageComponent {
       enabled: false,
     },
   }));
+
+  addProperty() {
+    this.form.controls.properties.push(
+      new FormGroup<SystemPropertyGroup>({
+        key: new FormControl<SystemPropertyKeys | null>(null, [
+          Validators.required,
+        ]),
+        value: new FormControl<string | Date>('', {
+          nonNullable: true,
+          validators: [Validators.required],
+        }),
+      })
+    );
+  }
+
+  removeProperty(index: number) {
+    this.form.controls.properties.removeAt(index);
+  }
+
+  getAvailablePropertyKeys(index: number) {
+    const keys = [
+      'correlationId',
+      'partitionKey',
+      'sessionId',
+      'replyToSessionId',
+      'messageId',
+      'subject',
+      'to',
+      'replyTo',
+      'scheduledEnqueueTimeUtc',
+      'timeToLive',
+    ];
+    return keys.filter(
+      (key) =>
+        !this.form.controls.properties.value.some(
+          (p, i) => p.key === key && i !== index
+        )
+    );
+  }
+
+  propertyIsText(index: number) {
+    const stringKeys = [
+      'correlationId',
+      'partitionKey',
+      'sessionId',
+      'replyToSessionId',
+      'messageId',
+      'subject',
+      'to',
+      'replyTo',
+    ];
+    return stringKeys.includes(
+      this.form.controls.properties.value[index].key ?? ''
+    );
+  }
+
+  propertyIsDate(index: number) {
+    const dateKeys = ['scheduledEnqueueTimeUtc'];
+    return dateKeys.includes(
+      this.form.controls.properties.value[index].key ?? ''
+    );
+  }
+
+  propertyIsTimeSpan(index: number) {
+    const timeSpanKeys = ['timeToLive'];
+    return timeSpanKeys.includes(
+      this.form.controls.properties.value[index].key ?? ''
+    );
+  }
+
+  propertyUnknownType(index: number) {
+    return (
+      !this.propertyIsText(index) &&
+      !this.propertyIsDate(index) &&
+      !this.propertyIsTimeSpan(index)
+    );
+  }
+
+  addCustomProperty() {
+    this.form.controls.customProperties.push(
+      new FormGroup<CustomPropertyGroup>({
+        key: new FormControl<string>('', {
+          nonNullable: true,
+          validators: [Validators.required],
+        }),
+        value: new FormControl<string | number | Date>('', {
+          nonNullable: true,
+          validators: [Validators.required],
+        }),
+      })
+    );
+  }
+
+  removeCustomProperty(index: number) {
+    this.form.controls.customProperties.removeAt(index);
+  }
+
+  send() {
+    if (!this.form.valid) {
+      return;
+    }
+
+    // send message
+    console.log(this.form.getRawValue());
+  }
 }

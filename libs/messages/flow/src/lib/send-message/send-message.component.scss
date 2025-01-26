@@ -21,12 +21,21 @@
       width: 100%;
     }
   }
+
+  ::ng-deep p-input-group p-date-picker {
+    .p-component.p-inputwrapper {
+      width: 100%;
+
+      input {
+        border-radius: 0;
+      }
+    }
+  }
 }
 
 .send-message-container {
   width: 100cqw;
-  height: 100cqh;
-  min-height: 50rem;
+  min-height: 100cqh;
 
   display: grid;
   grid-template-areas:
@@ -39,18 +48,20 @@
   padding: 1rem;
   gap: 1rem;
 
-  @container (width < 1000px) {
+  @container (width < 1100px) {
     grid-template-areas:
     'properties custom-properties'
-    'body body';
+    'body body'
+    'actions actions';
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: minmax(20rem, 1fr) minmax(40rem, 100cqh);
+    grid-template-rows: minmax(20rem, 1fr) minmax(40rem, 90cqh);
 
-    @container (width < 700px) {
+    @container (width < 800px) {
       grid-template-areas:
       'properties'
       'custom-properties'
-      'body';
+      'body'
+      'actions';
       grid-template-columns: 1fr;
       grid-template-rows: repeat(2, minmax(20rem, 1fr)) minmax(40rem, 100cqh);
     }
@@ -96,12 +107,27 @@ ngx-monaco-editor {
   position: absolute;
 }
 
-.properties-container {
+.properties-container,
+.custom-properties-container
+{
   width: 100%;
+  padding-right: 0.6rem;
+  & > * {
+    margin-top: 0.5rem;
+  }
+}
+
+.actions {
   display: flex;
-  justify-content: stretch;
-  align-items: stretch;
-  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  grid-area: actions;
+  gap: .5rem;
 }
 
 p-auto-complete {
@@ -109,4 +135,9 @@ p-auto-complete {
   display: flex;
   justify-content: stretch;
   align-items: stretch;
+}
+
+p-virtual-scroller {
+  width: 100%;
+  height: 100%;
 }

@@ -15,7 +15,6 @@ export class ColorThemeService {
     this.internalMode.set(darkModeMediaQuery.matches ? 'dark' : 'light');
 
     darkModeMediaQuery.addEventListener('change', (e) => {
-      console.log('change', e);
       this.internalMode.set(e.matches ? 'dark' : 'light');
     });
   }
