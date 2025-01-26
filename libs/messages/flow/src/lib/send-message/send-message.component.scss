@@ -54,7 +54,7 @@
     'body body'
     'actions actions';
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: minmax(20rem, 1fr) minmax(40rem, 90cqh);
+    grid-template-rows: minmax(20rem, 1fr) minmax(30rem, calc(100cqh - 4rem));
 
     @container (width < 800px) {
       grid-template-areas:
@@ -63,7 +63,7 @@
       'body'
       'actions';
       grid-template-columns: 1fr;
-      grid-template-rows: repeat(2, minmax(20rem, 1fr)) minmax(40rem, 100cqh);
+      grid-template-rows: repeat(2, minmax(20rem, 1fr)) minmax(30rem, calc(100cqh - 4rem));
     }
   }
 
@@ -128,6 +128,10 @@ ngx-monaco-editor {
   justify-content: flex-end;
   grid-area: actions;
   gap: .5rem;
+
+  sbb-tpl-endpoint-selector-input {
+    flex: 1;
+  }
 }
 
 p-auto-complete {
