@@ -86,7 +86,7 @@ export class MessageReceiveClient {
       partitionKey: message.partitionKey,
       lockToken: message.lockToken,
       scheduledEnqueueTimeUtc: message.scheduledEnqueueTimeUtc,
-      timeToLive: message.timeToLive ? Duration.fromObject({ minutes: message.timeToLive }).toISO() : undefined,
+      timeToLive: message.timeToLive ? Duration.fromObject({ milliseconds: message.timeToLive }).toISO() : undefined,
       state: message.state,
       lockedUntilUtc: message.lockedUntilUtc,
       sequenceNumber: message.sequenceNumber?.toString(),

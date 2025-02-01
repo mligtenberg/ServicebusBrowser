@@ -14,7 +14,7 @@ export class MessageSendClient {
 
   mapMessage(message: contracts.ServiceBusMessage): ServiceBusMessage {
     const duration = message.timeToLive ? Duration.fromISO(message.timeToLive) : null;
-    const timeToLive = duration ? duration.as('minutes') : undefined;
+    const timeToLive = duration ? duration.as('milliseconds') : undefined;
     const encoder = new TextEncoder();
 
     return {
