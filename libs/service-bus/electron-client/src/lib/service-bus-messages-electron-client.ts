@@ -1,6 +1,6 @@
-import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import Long from 'long';
-import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 interface ElectronWindow {
   serviceBusApi: {
@@ -35,5 +35,15 @@ export class ServiceBusMessagesElectronClient {
       endpoint,
       maxMessageCount
     })) as ServiceBusReceivedMessage[];
+  }
+
+  async sendMessage(
+    endpoint: SendEndpoint,
+    message: ServiceBusMessage
+  ) {
+    await serviceBusApi.messagesDoRequest('sendMessage', {
+      endpoint,
+      message
+    });
   }
 }

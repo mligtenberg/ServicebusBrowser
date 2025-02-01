@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
-import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 export const peakMessagesLoad = createAction(
   '[Messages] load peak messages',
@@ -29,5 +29,21 @@ export const continueClearingEndpoint = createAction(
   '[Messages] continue clearing endpoint',
   props<{
     endpoint: ReceiveEndpoint
+  }>()
+)
+
+export const sendedMessage = createAction(
+  '[Messages] message sended',
+  props<{
+    endpoint: SendEndpoint,
+    message: ServiceBusMessage
+  }>()
+)
+
+export const messageSendFailed = createAction(
+  '[Messages] message send failed',
+  props<{
+    endpoint: SendEndpoint,
+    message: ServiceBusMessage
   }>()
 )

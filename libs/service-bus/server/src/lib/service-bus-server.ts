@@ -4,6 +4,7 @@ import * as topicsActions from './topics-actions';
 import * as subscriptionsActions from './subscriptions-actions';
 import * as rulesActions from './subscription-rule-actions';
 import * as receiveMessagesActions from './receive-messages-actions';
+import * as sendMessagesActions from './send-messages-actions';
 
 export const management = {
   ...connectionActions,
@@ -14,5 +15,6 @@ export const management = {
 }
 
 export const messages = {
-  ...receiveMessagesActions
+  ...receiveMessagesActions,
+  ...sendMessagesActions,
 }

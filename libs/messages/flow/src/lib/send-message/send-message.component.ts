@@ -20,6 +20,8 @@ import { Popover } from 'primeng/popover';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { Store } from '@ngrx/store';
+import { MessagesActions } from '@service-bus-browser/messages-store';
 
 @Component({
   selector: 'lib-send-message',
@@ -47,19 +49,10 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 })
 export class SendMessageComponent {
   colorThemeService = inject(ColorThemeService);
-  form = new FormGroup<SendMessagesForm>({
-    body: new FormControl<string>('', {
-      nonNullable: true,
-    }),
-    contentType: new FormControl(''),
-    properties: new FormArray<FormGroup<SystemPropertyGroup>>([]),
-    customProperties: new FormArray<FormGroup<CustomPropertyGroup>>([]),
-    endpoint: new FormControl<SendEndpoint | null>(null, {
-      validators: [Validators.required],
-    })
-  });
+  form = this.createForm();
+  store = inject(Store);
 
-  typeOptions = ['string', 'date', 'number'];
+  typeOptions = ['string', 'datetime', 'number', 'boolean'];
 
   contentTypeSuggestions = computed(() => {
     if (this.contentTypeSearch() === null) {
@@ -113,7 +106,6 @@ export class SendMessageComponent {
 
     return 'text';
   });
-
   editorOptions = computed(() => ({
     theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
     automaticLayout: true,
@@ -207,7 +199,7 @@ export class SendMessageComponent {
           nonNullable: true,
           validators: [Validators.required],
         }),
-        value: new FormControl<string | number | Date>('', {
+        value: new FormControl<string | number | Date | boolean>('', {
           nonNullable: true,
           validators: [Validators.required],
         }),
@@ -225,6 +217,44 @@ export class SendMessageComponent {
     }
 
     // send message
-    console.log(this.form.getRawValue());
+    const formValue = this.form.getRawValue();
+
+    this.store.dispatch(
+      MessagesActions.sendMessage({
+        endpoint: formValue.endpoint!,
+        message: {
+          body: formValue.body,
+          contentType: formValue.contentType ?? undefined,
+          timeToLive: (formValue.properties.find(x => x.key === "timeToLive")?.value ?? undefined) as string | undefined,
+          messageId: (formValue.properties.find(x => x.key === "messageId")?.value ?? undefined) as string | undefined,
+          correlationId: (formValue.properties.find(x => x.key === "correlationId")?.value ?? undefined) as string | undefined,
+          to: (formValue.properties.find(x => x.key === "to")?.value ?? undefined) as string | undefined,
+          replyTo: (formValue.properties.find(x => x.key === "replyTo")?.value ?? undefined) as string | undefined,
+          replyToSessionId: (formValue.properties.find(x => x.key === "replyToSessionId")?.value ?? undefined) as string | undefined,
+          sessionId: (formValue.properties.find(x => x.key === "sessionId")?.value ?? undefined) as string | undefined,
+          subject: (formValue.properties.find(x => x.key === "subject")?.value ?? undefined) as string | undefined,
+          partitionKey: (formValue.properties.find(x => x.key === "partitionKey")?.value ?? undefined) as string | undefined,
+          scheduledEnqueueTimeUtc: (formValue.properties.find(x => x.key === "scheduledEnqueueTimeUtc")?.value ?? undefined) as Date | undefined,
+          applicationProperties: formValue.customProperties.reduce((acc, x) => {
+            acc[x.key] = x.value;
+            return acc;
+          }, {} as Record<string, string | number | Date | boolean>),
+        }
+      })
+    )
+  }
+
+  private createForm() {
+    return new FormGroup<SendMessagesForm>({
+      body: new FormControl<string>('', {
+        nonNullable: true,
+      }),
+      contentType: new FormControl(''),
+      properties: new FormArray<FormGroup<SystemPropertyGroup>>([]),
+      customProperties: new FormArray<FormGroup<CustomPropertyGroup>>([]),
+      endpoint: new FormControl<SendEndpoint | null>(null, {
+        validators: [Validators.required],
+      })
+    });
   }
 }

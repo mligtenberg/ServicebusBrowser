@@ -35,6 +35,13 @@ import { FloatLabel } from 'primeng/floatlabel';
 })
 export class DurationInputComponent implements ControlValueAccessor {
   inputId = input<string>();
+  disableSeconds = input<boolean>();
+  disableMinutes = input<boolean>();
+  disableHours = input<boolean>();
+  disableDays = input<boolean>();
+  disableWeeks = input<boolean>();
+  disableMonths = input<boolean>();
+  disableYears = input<boolean>();
 
   form = new FormGroup({
     seconds: new FormControl<number>(0, Validators.required),
@@ -55,13 +62,13 @@ export class DurationInputComponent implements ControlValueAccessor {
       }
 
       const duration = Duration.fromObject({
-        seconds: value.seconds ?? undefined,
-        minutes: value.minutes ?? undefined,
-        hours: value.hours ?? undefined,
-        days: value.days ?? undefined,
-        weeks: value.weeks ?? undefined,
-        months: value.months ?? undefined,
-        years: value.years ?? undefined,
+        seconds: (this.disableSeconds() ? undefined : value.seconds) ?? undefined,
+        minutes: (this.disableMinutes() ? undefined : value.minutes) ?? undefined,
+        hours: (this.disableHours() ? undefined : value.hours) ?? undefined,
+        days: (this.disableDays() ? undefined : value.days) ?? undefined,
+        weeks: (this.disableWeeks() ? undefined : value.weeks) ?? undefined,
+        months: (this.disableMonths() ? undefined : value.months) ?? undefined,
+        years: (this.disableYears() ? undefined : value.years) ?? undefined
       });
 
       if (this.onChange) {

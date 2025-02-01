@@ -4,13 +4,10 @@ import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 
 const getReceiveClient = (receiveEndpoint: ReceiveEndpoint, connectionManager: ConnectionManager) => {
   const connectionId = receiveEndpoint.connectionId;
-  const clientEndpoint = 'queueName' in receiveEndpoint
-  ? { queueName: receiveEndpoint.queueName, channel: receiveEndpoint.channel }
-  : { topicName: receiveEndpoint.topicName, subscriptionName: receiveEndpoint.subscriptionName, channel: receiveEndpoint.channel };
 
   return connectionManager
     .getConnectionClient({ id: connectionId })
-    .getMessageReceiveClient(clientEndpoint);
+    .getMessageReceiveClient(receiveEndpoint);
 }
 
 export const peakMessages = (body: {

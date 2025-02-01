@@ -33,6 +33,8 @@
                 <p-date-picker
                   formControlName="value"
                   appendTo="body"
+                  [showTime]="true"
+                  hourFormat="24"
                   placeholder="Value"/>
               }
               @if (propertyIsTimeSpan($index)) {
@@ -99,8 +101,10 @@
                   formControlName="value"
                   placeholder="Value"/>
               }
-              @if (customPropertyTypeSelect.value === 'date') {
+              @if (customPropertyTypeSelect.value === 'datetime') {
                 <p-date-picker
+                  [showTime]="true"
+                  hourFormat="24"
                   formControlName="value"
                   appendTo="body"
                   placeholder="Value"/>
@@ -110,6 +114,12 @@
                   pInputText
                   formControlName="value"
                   placeholder="Value"/>
+              }
+              @if (customPropertyTypeSelect.value === 'boolean') {
+                <p-select
+                  appendTo="body"
+                  formControlName="value"
+                  [options]="[true, false]"/>
               }
               <p-inputgroup-addon>
                 <p-button
@@ -133,6 +143,7 @@
       <div class="editor-container">
         <ngx-monaco-editor
           [options]="editorOptions()"
+          formControlName="body"
         ></ngx-monaco-editor>
       </div>
     </p-card>

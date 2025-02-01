@@ -42,4 +42,18 @@ export class MessagesLogsEffects {
       this.logger.info(`Cleared messages from ${'queueName' in endpoint ? endpoint.queueName : endpoint.subscriptionName}`);
     })
   ), { dispatch: false });
+
+  logMessageSend$ = createEffect(() => this.actions.pipe(
+    ofType(internalActions.sendedMessage),
+    tap(({ endpoint, message }) => {
+      this.logger.info(`Sended message to ${'queueName' in endpoint ? endpoint.queueName : endpoint.topicName}`);
+    })
+  ), { dispatch: false });
+
+  logMessageSendFailed$ = createEffect(() => this.actions.pipe(
+    ofType(internalActions.messageSendFailed),
+    tap(({ endpoint, message }) => {
+      this.logger.error(`Failed to send message to ${'queueName' in endpoint ? endpoint.queueName : endpoint.topicName}`);
+    })
+  ), { dispatch: false });
 }

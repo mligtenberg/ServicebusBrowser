@@ -4,7 +4,6 @@ import { Card } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import {
-  EndpointSelectorInputComponent,
   EndpointStringSelectorInputComponent
 } from '@service-bus-browser/topology-components';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -34,7 +33,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     Card,
     Checkbox,
     DurationInputComponent,
-    EndpointSelectorInputComponent,
     FloatLabel,
     FormsModule,
     InputNumber,

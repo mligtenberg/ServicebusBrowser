@@ -1,10 +1,11 @@
-import { Connection, MessageChannels } from '@service-bus-browser/service-bus-contracts';
+import { Connection, ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import * as contracts from '@service-bus-browser/messages-contracts';
 import Long from 'long';
+import { Duration } from 'luxon';
 
 export class MessageReceiveClient {
-  constructor(private connection: Connection, private endpoint: { queueName: string; channel: MessageChannels } | { topicName: string; subscriptionName: string; channel: MessageChannels;})
+  constructor(private connection: Connection, private endpoint: ReceiveEndpoint)
   {}
 
   async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
@@ -85,7 +86,7 @@ export class MessageReceiveClient {
       partitionKey: message.partitionKey,
       lockToken: message.lockToken,
       scheduledEnqueueTimeUtc: message.scheduledEnqueueTimeUtc,
-      timeToLive: message.timeToLive,
+      timeToLive: message.timeToLive ? Duration.fromObject({ minutes: message.timeToLive }).toISO() : undefined,
       state: message.state,
       lockedUntilUtc: message.lockedUntilUtc,
       sequenceNumber: message.sequenceNumber?.toString(),

@@ -20,7 +20,7 @@ export type SystemPropertyKeys = SystemStringPropertyKeys
 
 export type SystemPropertyGroup = { key: FormControl<SystemPropertyKeys | null>; value: FormControl<string | Date>};
 
-export type CustomPropertyGroup = { key: FormControl<string>; value: FormControl<string | number | Date> };
+export type CustomPropertyGroup = { key: FormControl<string>; value: FormControl<string | number | Date | boolean> };
 
 export interface SendMessagesForm {
   body: FormControl<string>;

@@ -75,7 +75,7 @@ export interface ServiceBusMessage {
    * silently adjusted if it does. See
    * {@link https://docs.microsoft.com/azure/service-bus-messaging/message-expiration | Expiration}.
    */
-  timeToLive?: number;
+  timeToLive?: string;
   /**
    * The application specific label. This property enables the
    * application to indicate the purpose of the message to the receiver in a standardized. fashion,
