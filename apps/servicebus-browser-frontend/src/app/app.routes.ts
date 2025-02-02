@@ -11,7 +11,9 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'messages',
-    loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes)
+    loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes({
+      baseRoute: 'messages'
+    }))
   },
   {
     path: '',

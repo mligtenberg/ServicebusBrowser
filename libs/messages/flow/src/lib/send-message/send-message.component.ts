@@ -6,7 +6,7 @@ import { Card } from 'primeng/card';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup, SystemPropertyKeys } from './form';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map, startWith } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
@@ -21,7 +21,9 @@ import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Store } from '@ngrx/store';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
+import { ActivatedRoute } from '@angular/router';
+import { selectMessage } from '../../../../store/src/lib/messages.selectors';
 
 @Component({
   selector: 'lib-send-message',
@@ -49,8 +51,10 @@ import { MessagesActions } from '@service-bus-browser/messages-store';
 })
 export class SendMessageComponent {
   colorThemeService = inject(ColorThemeService);
-  form = this.createForm();
   store = inject(Store);
+  activatedRoute = inject(ActivatedRoute);
+
+  form = this.createForm();
 
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
 
@@ -242,6 +246,44 @@ export class SendMessageComponent {
         }
       })
     )
+  }
+
+  constructor() {
+    this.activatedRoute.params.pipe(
+      takeUntilDestroyed(),
+      switchMap((params) => {
+        console.log(params);
+        if (params['pageId'] && params['messageId']) {
+          return this.store.select(MessagesSelectors.selectMessage(params['pageId'], params['messageId']));
+        }
+
+        return [undefined];
+      })
+    ).subscribe((message) => {
+      this.form = this.createForm();
+
+      if (!message) {
+        return;
+      }
+
+      this.form.patchValue({
+        body: message.body,
+        contentType: message.contentType,
+        customProperties: message.applicationProperties ? Object
+          .entries(message.applicationProperties)
+          .map(([key, value]) => ({
+            key,
+            value: value ?? ''
+          })) : [],
+        properties: Object
+          .entries(message)
+          .filter(([key]) => key !== 'body' && key !== 'contentType' && key !== 'applicationProperties')
+          .map(([key, value]) => ({
+            key: key as SystemPropertyKeys,
+            value: value ?? ''
+        }))
+    });
+  });
   }
 
   private createForm() {

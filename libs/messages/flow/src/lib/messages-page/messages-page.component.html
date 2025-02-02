@@ -1,4 +1,8 @@
 <div class="container">
+  <p-contextmenu #cm
+                 appendTo="body"
+                 [model]="messageContextMenu()"
+                 (onHide)="contextMenuSection.set(undefined)"></p-contextmenu>
   <p-card header="Messages" class="messages">
     <p-table
       [columns]="cols"
@@ -7,8 +11,10 @@
       scrollHeight="300px"
       [virtualScroll]="true"
       [virtualScrollItemSize]="30"
-      selectionMode="single"
-      [(selection)]="selectedMessage"
+      selectionMode="multiple"
+      [(selection)]="selection"
+      [(contextMenuSelection)]="contextMenuSection"
+      [contextMenu]="cm"
     >
       <ng-template pTemplate="header" let-columns>
         <tr>
@@ -24,8 +30,8 @@
         let-columns="columns"
       >
         <tr style="height:30px"
-          [pSelectableRow]="rowData"
-        >
+            [pContextMenuRow]="rowData"
+            [pSelectableRow]="rowData">
           <td *ngFor="let col of columns">
             {{ rowData[col.field] }}
           </td>

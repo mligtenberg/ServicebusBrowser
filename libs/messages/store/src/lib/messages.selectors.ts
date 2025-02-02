@@ -18,3 +18,8 @@ export const selectPage = (pageId: string) => createSelector(
   featureSelector,
   (state) => state.receivedMessages.find((page) => page.id === pageId)
 );
+
+export const selectMessage = (pageId: string, messageId: string) => createSelector(
+  selectPage(pageId),
+  (page) => page?.messages.find((message) => message.messageId === messageId)
+)
