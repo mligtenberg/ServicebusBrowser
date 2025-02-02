@@ -2,7 +2,7 @@
   [data]="topic()"
   [icon]="icon"
   [label]="topic().name"
-  [showRefresh]="true"
+  [showRefresh]="showRefresh()"
   [isRefreshing]="topic().isLoading"
   (refreshData)="onRefresh()"
 />

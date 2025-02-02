@@ -1,7 +1,7 @@
-import { Component, computed, inject, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { MessagesSelectors } from '@service-bus-browser/messages-store';
+import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -10,12 +10,15 @@ import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { BASE_ROUTE } from '../const';
+import { ScrollPanel } from 'primeng/scrollpanel';
+import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
+import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 @Component({
   selector: 'lib-messages-page',
@@ -28,6 +31,9 @@ import { BASE_ROUTE } from '../const';
     Button,
     EditorComponent,
     ContextMenu,
+    ScrollPanel,
+    EndpointSelectorTreeInputComponent,
+    ButtonDirective,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -35,12 +41,16 @@ import { BASE_ROUTE } from '../const';
 export class MessagesPageComponent {
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
-  displayBodyFullscreen = model<boolean>(false);
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
 
+  displayBodyFullscreen = model<boolean>(false);
+  displaySendMessages = model<boolean>(false);
+  sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
-  selection = model<ServiceBusReceivedMessage | ServiceBusReceivedMessage[] | undefined>(undefined);
+  selection = model<
+    ServiceBusReceivedMessage | ServiceBusReceivedMessage[] | undefined
+  >(undefined);
   selectedMessage = computed(() => {
     const selection = this.selection();
     if (Array.isArray(selection) && selection.length === 1) {
@@ -155,17 +165,23 @@ export class MessagesPageComponent {
       return [];
     }
 
-    if (Array.isArray(contextMenuSelection) && contextMenuSelection.length === 0) {
+    if (
+      Array.isArray(contextMenuSelection) &&
+      contextMenuSelection.length === 0
+    ) {
       return [];
     }
 
-    if (Array.isArray(contextMenuSelection) && contextMenuSelection.length > 1) {
+    if (
+      Array.isArray(contextMenuSelection) &&
+      contextMenuSelection.length > 1
+    ) {
       return [
         {
           label: 'Resend messages',
           icon: 'pi pi-envelope',
           command: () => {
-            console.log('Resend messages', contextMenuSelection);
+            this.displaySendMessages.set(true);
           },
         },
       ];
@@ -180,7 +196,12 @@ export class MessagesPageComponent {
         label: 'Resend message',
         icon: 'pi pi-envelope',
         command: () => {
-          this.router.navigate([this.baseRoute, 'resend', this.currentPage()!.id, selectedMessage!.messageId])
+          this.router.navigate([
+            this.baseRoute,
+            'resend',
+            this.currentPage()!.id,
+            selectedMessage!.messageId,
+          ]);
         },
       },
     ];
@@ -199,5 +220,22 @@ export class MessagesPageComponent {
       .subscribe((page) => {
         this.currentPage.set(page ?? null);
       });
+  }
+
+  sendMessages() {
+    const endpoint = this.sendEndpoint();
+    const messages = this.selection();
+    if (!endpoint || !messages || !Array.isArray(messages) || messages.length === 0) {
+      console.error('Invalid endpoint or messages');
+      return;
+    }
+
+    this.displaySendMessages.set(false);
+    this.store.dispatch(
+      MessagesActions.sendMessages({
+        endpoint,
+        messages,
+      })
+    );
   }
 }

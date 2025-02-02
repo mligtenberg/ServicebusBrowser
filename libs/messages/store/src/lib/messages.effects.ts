@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { catchError, from, map, mergeMap } from 'rxjs';
+import { catchError, from, map, mergeMap, tap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
@@ -92,5 +92,39 @@ export class MessagesEffects {
       map(() => internalActions.sendedMessage({ endpoint, message })),
       catchError(() => [internalActions.messageSendFailed({ endpoint, message })])
     ))
+  ));
+
+  sendMessages$ = createEffect(() => this.actions.pipe(
+    ofType(actions.sendMessages),
+    map(({ endpoint, messages }) => {
+      return internalActions.messagesSending({
+        taskId: crypto.randomUUID(),
+        sendAmount: 0,
+        messagesToSend: messages,
+        endpoint
+      })
+    })
+  ));
+
+  continueSendingMessages$ = createEffect(() => this.actions.pipe(
+    ofType(internalActions.messagesSending),
+    mergeMap(({ taskId, endpoint, messagesToSend, sendAmount }) => {
+      const message = messagesToSend[0];
+      const rest = messagesToSend.slice(1);
+
+      return from(this.messagesService.sendMessage(endpoint, message))
+        .pipe(
+          map(() => rest.length === 0
+            ? internalActions.messagesSendSucceeded({ taskId })
+            : internalActions.messagesSending({
+              taskId,
+              endpoint,
+              messagesToSend: rest,
+              sendAmount: sendAmount + 1
+            })
+          ),
+          catchError(() => [internalActions.messageSendFailed({ endpoint, message })])
+        );
+    })
   ));
 }

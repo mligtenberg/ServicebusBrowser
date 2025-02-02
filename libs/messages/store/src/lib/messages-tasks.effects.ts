@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TasksActions } from '@service-bus-browser/tasks-store';
-import { map } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
@@ -71,4 +71,31 @@ export class MessagesTasksEffects {
       })
     }),
   ));
+
+  messagesSending$ = createEffect(() => this.actions.pipe(
+    ofType(internalActions.messagesSending),
+    map(({ endpoint, messagesToSend, sendAmount, taskId }) => {
+      console.log('messagesSending', { endpoint, messagesToSend, sendAmount, taskId });
+      if (sendAmount > 0) {
+        return TasksActions.setProgress({
+          id: taskId,
+          statusDescription: `${sendAmount}/${messagesToSend.length}`,
+          progress: sendAmount / (sendAmount + messagesToSend.length) * 100
+        });
+      }
+
+      return TasksActions.createTask({
+        id: taskId,
+        statusDescription: `0/${messagesToSend.length}`,
+        description: `sending messages to ${'queueName' in endpoint ? endpoint.queueName : endpoint.topicName}`,
+        hasProgress: true,
+        initialProgress: 0
+      });
+    })
+  ), { dispatch: false });
+
+  messagesSendSucceeded$ = createEffect(() => this.actions.pipe(
+    ofType(internalActions.messagesSendSucceeded),
+    map(({ taskId }) => TasksActions.completeTask({ id: taskId }))
+  ), { dispatch: false });
 }

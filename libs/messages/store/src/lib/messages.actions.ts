@@ -48,3 +48,11 @@ export const sendMessage = createAction(
     message: ServiceBusMessage
   }>()
 )
+
+export const sendMessages = createAction(
+  '[Messages] send messages',
+  props<{
+    endpoint: SendEndpoint,
+    messages: ServiceBusMessage[]
+  }>()
+)

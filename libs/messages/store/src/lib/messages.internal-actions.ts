@@ -47,3 +47,30 @@ export const messageSendFailed = createAction(
     message: ServiceBusMessage
   }>()
 )
+
+export const messagesSendSucceeded = createAction(
+  '[Messages] message send succeeded',
+  props<{
+    taskId: UUID,
+  }>()
+)
+
+export const messagesSending = createAction(
+  '[Messages] message sending',
+  props<{
+    taskId: UUID,
+    endpoint: SendEndpoint,
+    messagesToSend: ServiceBusMessage[],
+    sendAmount: number
+  }>()
+)
+
+export const messagesSendFailed = createAction(
+  '[Messages] message send failed',
+  props<{
+    taskId: UUID,
+    endpoint: SendEndpoint,
+    messagesToSend: ServiceBusMessage[],
+    sendAmount: number
+  }>()
+)

@@ -123,3 +123,20 @@
     </div>
   }
 </p-dialog>
+
+<p-dialog
+  header="Send messages"
+  appendTo="body"
+  [(visible)]="displaySendMessages"
+  [modal]="true"
+  [style]="{ width: '50%' }"
+>
+  <p-scroll-panel>
+    <sbb-tpl-endpoint-selector-tree-input
+      [(ngModel)]="sendEndpoint"
+      />
+  </p-scroll-panel>
+  <div class="actions">
+    <button pButton type="button" [disabled]="!sendEndpoint()" (click)="sendMessages()">Send</button>
+  </div>
+</p-dialog>
