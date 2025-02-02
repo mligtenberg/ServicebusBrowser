@@ -51,10 +51,16 @@ export class TopologyTreeComponent {
   topicContextMenu = input<SbbMenuItem<TopicWithMetaData>[]>();
   subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
   subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
+  multiSelectEnabled = input<boolean>(true);
+  contextMenuEnabled = input<boolean>(true);
 
   ctrlSelected = signal<boolean>(false);
   shiftSelected = signal<boolean>(false);
   selectionMode = computed<'single' | 'multiple'>(() => {
+    if (!this.multiSelectEnabled()) {
+      return 'single';
+    }
+
     return this.ctrlSelected() || this.shiftSelected() ? 'multiple' : 'single';
   });
 
@@ -209,7 +215,6 @@ export class TopologyTreeComponent {
 
     return this.patchContextMenuItems(menuItems);
   });
-  hasContextMenu = computed(() => !!this.contextMenu()?.length);
 
   namespaceSelected = output<{
     namespace: Namespace;
