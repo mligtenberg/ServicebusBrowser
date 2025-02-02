@@ -41,9 +41,6 @@ export class MessagesPageComponent {
 
   currentPage = signal<MessagePage | null>(null);
   selection = model<ServiceBusReceivedMessage | ServiceBusReceivedMessage[] | undefined>(undefined);
-  contextMenuSection = model<ServiceBusReceivedMessage | ServiceBusReceivedMessage[] | undefined>(
-    undefined
-  );
   selectedMessage = computed(() => {
     const selection = this.selection();
     if (Array.isArray(selection) && selection.length === 1) {
@@ -153,7 +150,7 @@ export class MessagesPageComponent {
   ];
 
   messageContextMenu = computed<MenuItem[]>(() => {
-    const contextMenuSelection = this.contextMenuSection();
+    const contextMenuSelection = this.selection();
     if (!contextMenuSelection) {
       return [];
     }
@@ -195,7 +192,6 @@ export class MessagesPageComponent {
         switchMap((params) => {
           const pageId: string = params['pageId'];
           this.selection.set(undefined);
-          this.contextMenuSection.set(undefined);
           return this.store.select(MessagesSelectors.selectPage(pageId));
         }),
         takeUntilDestroyed()

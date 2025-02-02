@@ -23,7 +23,6 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Store } from '@ngrx/store';
 import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
-import { selectMessage } from '../../../../store/src/lib/messages.selectors';
 
 @Component({
   selector: 'lib-send-message',

@@ -38,8 +38,8 @@ import { ContextMenu } from 'primeng/contextmenu';
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
   host: {
-    '(document:keydown)': 'onKeyDown($event)',
-    '(document:keyup)': 'onKeyUp($event)',
+    // '(document:keydown)': 'onKeyDown($event)',
+    // '(document:keyup)': 'onKeyUp($event)',
   },
 })
 export class TopologyTreeComponent {
