@@ -75,7 +75,6 @@ export class MessagesTasksEffects {
   messagesSending$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.messagesSending),
     map(({ endpoint, messagesToSend, sendAmount, taskId }) => {
-      console.log('messagesSending', { endpoint, messagesToSend, sendAmount, taskId });
       if (sendAmount > 0) {
         return TasksActions.setProgress({
           id: taskId,
@@ -92,10 +91,10 @@ export class MessagesTasksEffects {
         initialProgress: 0
       });
     })
-  ), { dispatch: false });
+  ));
 
   messagesSendSucceeded$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.messagesSendSucceeded),
     map(({ taskId }) => TasksActions.completeTask({ id: taskId }))
-  ), { dispatch: false });
+  ));
 }
