@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { catchError, from, map, mergeMap, tap } from 'rxjs';
+import { catchError, from, map, mergeMap } from 'rxjs';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';

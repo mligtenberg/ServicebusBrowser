@@ -1,4 +1,4 @@
-<form class="send-message-container" [formGroup]="form">
+<form class="send-message-container" [formGroup]="form()">
   <div class="properties">
     <p-card header="Properties">
       <p-scroll-panel>
@@ -16,7 +16,7 @@
             <!--suppress XmlInvalidId -->
             <label for="contentType">Content type</label>
           </p-floatlabel>
-          @for (control of form.controls.properties.controls; track $index) {
+          @for (control of form().controls.properties.controls; track $index) {
             <p-input-group [formGroup]="control">
               <p-select
                 appendTo="body"
@@ -85,7 +85,7 @@
     <p-card header="Custom properties">
       <p-scroll-panel>
         <div class="custom-properties-container">
-          @for (control of form.controls.customProperties.controls; track $index) {
+          @for (control of form().controls.customProperties.controls; track $index) {
             <p-input-group [formGroup]="control">
               <input
                 pInputText
@@ -152,6 +152,6 @@
   <div class="message-actions">
     <sbb-tpl-endpoint-selector-input
       formControlName="endpoint"/>
-    <button pButton type="button" (click)="send()" [disabled]="form.invalid">Send</button>
+    <button pButton type="button" (click)="send()" [disabled]="form().invalid">Send</button>
   </div>
 </form>

@@ -5,8 +5,8 @@ import { ColorThemeService } from '@service-bus-browser/services';
 import { Card } from 'primeng/card';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup, SystemPropertyKeys } from './form';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map, startWith, switchMap } from 'rxjs';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
@@ -53,7 +53,7 @@ export class SendMessageComponent {
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
 
-  form = this.createForm();
+  form = signal(this.createForm());
 
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
 
@@ -72,16 +72,14 @@ export class SendMessageComponent {
     ];
 
     return contentTypes.filter((ct) =>
-      ct.toLowerCase().includes((this.contentType() ?? '').toLowerCase())
+      ct.toLowerCase().includes((this.contentTypeSearch() ?? '').toLowerCase())
     );
   });
 
   contentTypeSearch = signal<string | null>(null);
   contentType = toSignal(
-    this.form.valueChanges.pipe(
-      takeUntilDestroyed(),
-      startWith(this.form.value),
-      map((value) => value.contentType ?? '')
+    toObservable(this.form).pipe(
+      switchMap((form) => form.controls.contentType.valueChanges),
     )
   );
   bodyLanguage = computed(() => {
@@ -109,17 +107,19 @@ export class SendMessageComponent {
 
     return 'text';
   });
-  editorOptions = computed(() => ({
-    theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
-    automaticLayout: true,
-    language: this.bodyLanguage(),
-    minimap: {
-      enabled: false,
-    },
-  }));
+  editorOptions = computed(() => {
+    return ({
+      theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
+      automaticLayout: true,
+      language: this.bodyLanguage(),
+      minimap: {
+        enabled: false,
+      },
+    })
+  });
 
   addProperty() {
-    this.form.controls.properties.push(
+    this.form().controls.properties.push(
       new FormGroup<SystemPropertyGroup>({
         key: new FormControl<SystemPropertyKeys | null>(null, [
           Validators.required,
@@ -133,7 +133,7 @@ export class SendMessageComponent {
   }
 
   removeProperty(index: number) {
-    this.form.controls.properties.removeAt(index);
+    this.form().controls.properties.removeAt(index);
   }
 
   getAvailablePropertyKeys(index: number) {
@@ -151,7 +151,7 @@ export class SendMessageComponent {
     ];
     return keys.filter(
       (key) =>
-        !this.form.controls.properties.value.some(
+        !this.form().controls.properties.value.some(
           (p, i) => p.key === key && i !== index
         )
     );
@@ -169,21 +169,21 @@ export class SendMessageComponent {
       'replyTo',
     ];
     return stringKeys.includes(
-      this.form.controls.properties.value[index].key ?? ''
+      this.form().controls.properties.value[index].key ?? ''
     );
   }
 
   propertyIsDate(index: number) {
     const dateKeys = ['scheduledEnqueueTimeUtc'];
     return dateKeys.includes(
-      this.form.controls.properties.value[index].key ?? ''
+      this.form().controls.properties.value[index].key ?? ''
     );
   }
 
   propertyIsTimeSpan(index: number) {
     const timeSpanKeys = ['timeToLive'];
     return timeSpanKeys.includes(
-      this.form.controls.properties.value[index].key ?? ''
+      this.form().controls.properties.value[index].key ?? ''
     );
   }
 
@@ -196,7 +196,7 @@ export class SendMessageComponent {
   }
 
   addCustomProperty() {
-    this.form.controls.customProperties.push(
+    this.form().controls.customProperties.push(
       new FormGroup<CustomPropertyGroup>({
         key: new FormControl<string>('', {
           nonNullable: true,
@@ -211,16 +211,16 @@ export class SendMessageComponent {
   }
 
   removeCustomProperty(index: number) {
-    this.form.controls.customProperties.removeAt(index);
+    this.form().controls.customProperties.removeAt(index);
   }
 
   send() {
-    if (!this.form.valid) {
+    if (!this.form().valid) {
       return;
     }
 
     // send message
-    const formValue = this.form.getRawValue();
+    const formValue = this.form().getRawValue();
 
     this.store.dispatch(
       MessagesActions.sendMessage({
@@ -251,7 +251,6 @@ export class SendMessageComponent {
     this.activatedRoute.params.pipe(
       takeUntilDestroyed(),
       switchMap((params) => {
-        console.log(params);
         if (params['pageId'] && params['messageId']) {
           return this.store.select(MessagesSelectors.selectMessage(params['pageId'], params['messageId']));
         }
@@ -259,13 +258,13 @@ export class SendMessageComponent {
         return [undefined];
       })
     ).subscribe((message) => {
-      this.form = this.createForm();
+      this.form.set(this.createForm());
 
       if (!message) {
         return;
       }
 
-      this.form.patchValue({
+      this.form().patchValue({
         body: message.body,
         contentType: message.contentType,
         customProperties: message.applicationProperties ? Object
