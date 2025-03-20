@@ -18,6 +18,20 @@ export type SystemPropertyKeys = SystemStringPropertyKeys
   | SystemDatePropertyKeys
   | SystemTimeSpanPropertyKeys;
 
+export const SystemPropertyKeys: SystemPropertyKeys[] = [
+  'correlationId',
+  'partitionKey',
+  'sessionId',
+  'replyToSessionId',
+  'messageId',
+  'subject',
+  'to',
+  'replyTo',
+  'scheduledEnqueueTimeUtc',
+  'timeToLive'
+]
+
+
 export type SystemPropertyGroup = { key: FormControl<SystemPropertyKeys | null>; value: FormControl<string | Date>};
 
 export type CustomPropertyGroup = { key: FormControl<string>; value: FormControl<string | number | Date | boolean> };

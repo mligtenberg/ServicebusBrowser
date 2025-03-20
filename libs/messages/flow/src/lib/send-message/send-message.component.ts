@@ -6,7 +6,7 @@ import { Card } from 'primeng/card';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup, SystemPropertyKeys } from './form';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { startWith, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
@@ -79,7 +79,10 @@ export class SendMessageComponent {
   contentTypeSearch = signal<string | null>(null);
   contentType = toSignal(
     toObservable(this.form).pipe(
-      switchMap((form) => form.controls.contentType.valueChanges),
+      switchMap((form) => form.controls.contentType.valueChanges.pipe(
+        startWith(form.controls.contentType.value),
+      )),
+
     )
   );
   bodyLanguage = computed(() => {
@@ -119,17 +122,18 @@ export class SendMessageComponent {
   });
 
   addProperty() {
-    this.form().controls.properties.push(
-      new FormGroup<SystemPropertyGroup>({
-        key: new FormControl<SystemPropertyKeys | null>(null, [
-          Validators.required,
-        ]),
-        value: new FormControl<string | Date>('', {
-          nonNullable: true,
-          validators: [Validators.required],
-        }),
-      })
-    );
+    const group = new FormGroup<SystemPropertyGroup>({
+      key: new FormControl<SystemPropertyKeys | null>(null, [
+        Validators.required,
+      ]),
+      value: new FormControl<string | Date>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    });
+
+    this.form().controls.properties.push(group);
+    return group;
   }
 
   removeProperty(index: number) {
@@ -196,18 +200,22 @@ export class SendMessageComponent {
   }
 
   addCustomProperty() {
+    const group = new FormGroup<CustomPropertyGroup>({
+      key: new FormControl<string>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      value: new FormControl<string | number | Date | boolean>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    });
+
     this.form().controls.customProperties.push(
-      new FormGroup<CustomPropertyGroup>({
-        key: new FormControl<string>('', {
-          nonNullable: true,
-          validators: [Validators.required],
-        }),
-        value: new FormControl<string | number | Date | boolean>('', {
-          nonNullable: true,
-          validators: [Validators.required],
-        }),
-      })
+      group
     );
+
+    return group;
   }
 
   removeCustomProperty(index: number) {
@@ -264,7 +272,10 @@ export class SendMessageComponent {
         return;
       }
 
-      this.form().patchValue({
+      console.log(message.applicationProperties)
+      const form = this.form();
+
+      form.patchValue({
         body: message.body,
         contentType: message.contentType,
         customProperties: message.applicationProperties ? Object
@@ -273,14 +284,36 @@ export class SendMessageComponent {
             key,
             value: value ?? ''
           })) : [],
-        properties: Object
-          .entries(message)
-          .filter(([key]) => key !== 'body' && key !== 'contentType' && key !== 'applicationProperties')
-          .map(([key, value]) => ({
-            key: key as SystemPropertyKeys,
-            value: value ?? ''
-        }))
-    });
+      });
+
+      const systemProperties = Object.entries(message)
+        .filter(([key]) => key !== 'body' && key !== 'contentType' && key !== 'applicationProperties')
+        .map(([key, value]) => ({
+          key: key as SystemPropertyKeys,
+          value: value ?? ''
+        }));
+
+      for (const property of systemProperties) {
+        if (!property.value || !SystemPropertyKeys.includes(property.key)) {
+          continue;
+        }
+
+        const group = this.addProperty();
+        group.patchValue({
+          key: property.key,
+          value: property.value
+        })
+      }
+
+      if (message.applicationProperties) {
+        for (const property in message.applicationProperties) {
+          const group = this.addCustomProperty();
+          group.patchValue({
+            key: property,
+            value: message.applicationProperties[property] ?? ''
+          })
+        }
+      }
   });
   }
 
