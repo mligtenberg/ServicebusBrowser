@@ -178,7 +178,7 @@ export class MessagesPageComponent {
     ) {
       return [
         {
-          label: 'Resend messages',
+          label: 'Quick resend messages',
           icon: 'pi pi-envelope',
           command: () => {
             this.displaySendMessages.set(true);
@@ -192,6 +192,13 @@ export class MessagesPageComponent {
       : contextMenuSelection;
 
     return [
+      {
+        label: 'Quick resend message',
+        icon: 'pi pi-envelope',
+        command: () => {
+          this.displaySendMessages.set(true);
+        },
+      },
       {
         label: 'Resend message',
         icon: 'pi pi-envelope',
