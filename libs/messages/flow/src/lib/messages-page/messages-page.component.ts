@@ -225,7 +225,12 @@ export class MessagesPageComponent {
         takeUntilDestroyed()
       )
       .subscribe((page) => {
-        this.currentPage.set(page ?? null);
+        if (!page) {
+          this.router.navigateByUrl('/');
+          return;
+        }
+
+        this.currentPage.set(page);
       });
   }
 
