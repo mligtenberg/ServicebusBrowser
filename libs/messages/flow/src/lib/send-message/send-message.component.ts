@@ -272,7 +272,6 @@ export class SendMessageComponent {
         return;
       }
 
-      console.log(message.applicationProperties)
       const form = this.form();
 
       form.patchValue({

@@ -48,8 +48,9 @@ export class MessageReceiveClient {
     return client.createReceiver(
       this.endpoint.topicName,
       this.endpoint.subscriptionName, {
-        receiveMode: "receiveAndDelete",
-        subQueueType: this.endpoint.channel
+        receiveMode: receiveMode,
+        subQueueType: this.endpoint.channel,
+        skipParsingBodyAsJson: true
       });
   }
 
