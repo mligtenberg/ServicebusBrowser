@@ -71,7 +71,7 @@
         >
           <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
             <tr style="height:30px">
-              <td *ngFor="let col of columns">
+              <td *ngFor="let col of columns" class="user-selectable">
                 @if (isDate(rowData[col.field])) {
                   {{ rowData[col.field] | date: 'medium' }}
                 } @else {
