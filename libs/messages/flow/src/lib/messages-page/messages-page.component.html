@@ -75,7 +75,7 @@
           let-columns="columns"
         >
           <tr style="height:30px">
-            <td *ngFor="let col of columns">
+            <td *ngFor="let col of columns" class="user-selectable">
               {{ rowData[col.field] }}
             </td>
           </tr>
@@ -99,7 +99,7 @@
         let-columns="columns"
       >
         <tr style="height:30px">
-          <td *ngFor="let col of columns">
+          <td *ngFor="let col of columns" class="user-selectable">
             {{ rowData[col.field] }}
           </td>
         </tr>

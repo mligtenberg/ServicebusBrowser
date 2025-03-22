@@ -15,3 +15,7 @@ head, body {
   font-size: 1.3rem;
   margin: 0 0 0.5rem 0;
 }
+
+.user-selectable {
+  user-select: text;
+}
