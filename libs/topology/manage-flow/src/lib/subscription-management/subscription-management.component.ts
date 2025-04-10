@@ -230,7 +230,7 @@ export class SubscriptionManagementComponent {
         enableBatchedOperations: new FormControl<boolean>(false, {
           nonNullable: true,
         }),
-        deadLetteringOnMessageExpiration: new FormControl<boolean>(false, {
+        deadLetteringOnMessageExpiration: new FormControl<boolean>(true, {
           nonNullable: true,
         }),
         deadLetteringOnFilterEvaluationExceptions: new FormControl<boolean>(
