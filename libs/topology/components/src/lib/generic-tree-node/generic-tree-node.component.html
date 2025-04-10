@@ -1,7 +1,7 @@
 <div class="line-container">
   <span class="name" [pTooltip]="label()"><fa-icon [icon]="icon()"></fa-icon> {{ label() }}</span>
   @if (quickAmounts(); as amounts) {
-    <span>({{amounts.activeMessageCount}},{{amounts.deadLetterMessageCount}},{{amounts.transferDeadLetterMessageCount}})</span>
+    <span [pTooltip]="'Active messages: ' + amounts.activeMessageCount + '\nDead letters: ' + amounts.deadLetterMessageCount + '\nTransfered dead letters: ' + amounts.transferDeadLetterMessageCount" tooltipPosition="top">({{amounts.activeMessageCount}},{{amounts.deadLetterMessageCount}},{{amounts.transferDeadLetterMessageCount}})</span>
   }
 
   @if (showRefresh()) {
