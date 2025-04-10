@@ -137,4 +137,14 @@ export class MessagesEffects {
       )
     )
   ), { dispatch: true });
+
+  importMessages$ = createEffect(() => this.actions.pipe(
+    ofType(actions.importMessages),
+    mergeMap(() => 
+      from(this.messagesService.importMessages()).pipe(
+        map(({ pageName, messages }) => internalActions.messagesImported({ pageName, messages })),
+        catchError(() => [internalActions.messagesImportFailed()])
+      )
+    )
+  ), { dispatch: true });
 }

@@ -64,3 +64,7 @@ export const exportMessages = createAction(
     messages: ServiceBusReceivedMessage[]
   }>()
 )
+
+export const importMessages = createAction(
+  '[Messages] import messages'
+)

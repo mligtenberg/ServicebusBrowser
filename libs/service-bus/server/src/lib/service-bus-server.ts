@@ -6,6 +6,7 @@ import * as rulesActions from './subscription-rule-actions';
 import * as receiveMessagesActions from './receive-messages-actions';
 import * as sendMessagesActions from './send-messages-actions';
 import * as exportMessagesActions from './export-messages-actions';
+import * as importMessagesActions from './import-messages-actions';
 
 export const management = {
   ...connectionActions,
@@ -19,4 +20,5 @@ export const messages = {
   ...receiveMessagesActions,
   ...sendMessagesActions,
   ...exportMessagesActions,
+  ...importMessagesActions,
 }

@@ -58,6 +58,13 @@ export class AppComponent {
           label: 'Send',
           icon: 'pi pi-send',
           routerLink: '/messages/send',
+        },
+        {
+          label: 'Import',
+          icon: 'pi pi-upload',
+          command: () => {
+            this.importMessages();
+          }
         }
       ],
     }
@@ -84,6 +91,10 @@ export class AppComponent {
   constructor() {
     this.setDarkMode(this.darkMode());
     effect(() => this.setDarkMode(this.darkMode()));
+  }
+
+  importMessages(): void {
+    this.store.dispatch(MessagesActions.importMessages());
   }
 
   setDarkMode(darkMode: boolean) {

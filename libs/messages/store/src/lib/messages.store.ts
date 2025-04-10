@@ -71,6 +71,23 @@ export const logsReducer = createReducer(
       ...state,
       receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
     }
+  }),
+  on(internalActions.messagesImported, (state, { pageName, messages }): MessagesState => {
+    const pageId = crypto.randomUUID();
+    
+    return {
+      ...state,
+      receivedMessages: [
+        ...state.receivedMessages,
+        {
+          id: pageId,
+          name: `Imported: ${pageName}`,
+          retrievedAt: new Date(),
+          loaded: true,
+          messages
+        }
+      ]
+    }
   })
 );
 

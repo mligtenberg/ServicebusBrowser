@@ -56,4 +56,8 @@ export class ServiceBusMessagesElectronClient {
       messages
     });
   }
+
+  async importMessages(): Promise<{ pageName: string, messages: ServiceBusReceivedMessage[] }> {
+    return await serviceBusApi.messagesDoRequest('importMessages', {}) as { pageName: string, messages: ServiceBusReceivedMessage[] };
+  }
 }
