@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 
 export const peakMessages = createAction(
   '[Messages] peak messages',
@@ -54,5 +54,13 @@ export const sendMessages = createAction(
   props<{
     endpoint: SendEndpoint,
     messages: ServiceBusMessage[]
+  }>()
+)
+
+export const exportMessages = createAction(
+  '[Messages] export messages',
+  props<{
+    pageName: string,
+    messages: ServiceBusReceivedMessage[]
   }>()
 )

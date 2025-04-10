@@ -46,4 +46,14 @@ export class ServiceBusMessagesElectronClient {
       message
     });
   }
+
+  async exportMessages(
+    pageName: string,
+    messages: ServiceBusReceivedMessage[]
+  ): Promise<void> {
+    await serviceBusApi.messagesDoRequest('exportMessages', {
+      pageName,
+      messages
+    });
+  }
 }

@@ -127,4 +127,14 @@ export class MessagesEffects {
         );
     })
   ));
+
+  exportMessages$ = createEffect(() => this.actions.pipe(
+    ofType(actions.exportMessages),
+    mergeMap(({ pageName, messages }) => 
+      from(this.messagesService.exportMessages(pageName, messages)).pipe(
+        map(() => internalActions.messagesExported()),
+        catchError(() => [internalActions.messagesExportFailed()])
+      )
+    )
+  ), { dispatch: true });
 }

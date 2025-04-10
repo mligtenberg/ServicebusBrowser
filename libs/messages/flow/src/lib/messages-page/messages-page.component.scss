@@ -51,6 +51,12 @@ pre {
   grid-area: messages;
 }
 
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .body {
   grid-area: body;
   position: relative;

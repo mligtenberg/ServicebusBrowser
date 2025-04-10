@@ -74,3 +74,11 @@ export const messagesSendFailed = createAction(
     sendAmount: number
   }>()
 )
+
+export const messagesExported = createAction(
+  '[Messages] messages exported'
+)
+
+export const messagesExportFailed = createAction(
+  '[Messages] messages export failed'
+)

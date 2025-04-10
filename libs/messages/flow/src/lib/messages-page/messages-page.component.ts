@@ -184,6 +184,13 @@ export class MessagesPageComponent {
             this.displaySendMessages.set(true);
           },
         },
+        {
+          label: 'Export messages',
+          icon: 'pi pi-download',
+          command: () => {
+            this.exportMessages();
+          },
+        }
       ];
     }
 
@@ -211,6 +218,13 @@ export class MessagesPageComponent {
           ]);
         },
       },
+      {
+        label: 'Export message',
+        icon: 'pi pi-download',
+        command: () => {
+          this.exportMessages();
+        },
+      }
     ];
   });
 
@@ -247,6 +261,39 @@ export class MessagesPageComponent {
       MessagesActions.sendMessages({
         endpoint,
         messages,
+      })
+    );
+  }
+
+  exportMessages() {
+    const currentPage = this.currentPage();
+    if (!currentPage || !currentPage.messages || currentPage.messages.length === 0) {
+      return;
+    }
+    
+    // Determine which messages to export based on selection
+    let messagesToExport: ServiceBusReceivedMessage[] = [];
+    
+    // Get selected messages or fall back to all messages
+    const selection = this.selection();
+    if (selection) {
+      if (Array.isArray(selection)) {
+        messagesToExport = selection;
+      } else {
+        messagesToExport = [selection];
+      }
+    } else {
+      messagesToExport = currentPage.messages;
+    }
+    
+    if (messagesToExport.length === 0) {
+      return;
+    }
+
+    this.store.dispatch(
+      MessagesActions.exportMessages({
+        pageName: currentPage.name,
+        messages: messagesToExport
       })
     );
   }

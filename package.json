@@ -27,6 +27,7 @@
     "@ngrx/store-devtools": "^19.0.1",
     "@primeng/themes": "^19.0.5",
     "@types/luxon": "^3.4.2",
+    "jszip": "^3.10.1",
     "long": "^5.2.4",
     "luxon": "^3.5.0",
     "monaco-editor": "^0.52.2",
