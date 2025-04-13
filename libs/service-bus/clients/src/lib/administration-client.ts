@@ -11,6 +11,7 @@ import {
   SubscriptionRule,
   TopicWithMetaData, Topic, Subscription
 } from '@service-bus-browser/topology-contracts';
+import { DefaultAzureCredential } from '@azure/identity';
 
 export class AdministrationClient {
   constructor(private connection: Connection) {
@@ -352,6 +353,9 @@ export class AdministrationClient {
     switch (this.connection.type) {
       case 'connectionString':
         return new ServiceBusAdministrationClient(this.connection.connectionString);
+      case 'azureAD':
+        const credential = new DefaultAzureCredential();
+        return new ServiceBusAdministrationClient(this.connection.fullyQualifiedNamespace, credential);
     }
   }
 

@@ -18,6 +18,15 @@
         ></p-radiobutton>
         <label for="connectionStringConnection">Connection String</label>
       </div>
+      <div class="connection-type-option full-width">
+        <p-radiobutton
+          name="connectionType"
+          value="azureAD"
+          inputId="azureADConnection"
+          [(ngModel)]="connectionType"
+        ></p-radiobutton>
+        <label for="azureADConnection">Azure AD</label>
+      </div>
     </section>
     @if (connectionType() === 'connectionString') {
       <section class="connection-string">
@@ -25,6 +34,15 @@
           <input id="connectionString" class="full-width" pInputText [(ngModel)]="connectionString" />
           <label for="connectionString">Connection String</label>
         </p-floatlabel>
+      </section>
+    }
+    @if (connectionType() === 'azureAD') {
+      <section class="namespace">
+        <p-floatlabel variant="on">
+          <input id="namespace" class="full-width" pInputText [(ngModel)]="fullyQualifiedNamespace" />
+          <label for="namespace">Fully Qualified Namespace</label>
+        </p-floatlabel>
+        <small class="hint">Example: myservicebus.servicebus.windows.net</small>
       </section>
     }
 

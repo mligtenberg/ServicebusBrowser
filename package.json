@@ -15,6 +15,7 @@
     "@angular/platform-browser": "~19.0.7",
     "@angular/platform-browser-dynamic": "~19.0.7",
     "@angular/router": "~19.0.7",
+    "@azure/identity": "^4.8.0",
     "@azure/service-bus": "^7.9.5",
     "@fortawesome/angular-fontawesome": "^1.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

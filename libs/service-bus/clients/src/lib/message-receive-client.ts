@@ -3,6 +3,7 @@ import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from 
 import * as contracts from '@service-bus-browser/messages-contracts';
 import Long from 'long';
 import { Duration } from 'luxon';
+import { DefaultAzureCredential } from '@azure/identity';
 
 export class MessageReceiveClient {
   constructor(private connection: Connection, private endpoint: ReceiveEndpoint)
@@ -31,6 +32,10 @@ export class MessageReceiveClient {
     let client: ServiceBusClient | undefined = undefined;
     if (this.connection.type === "connectionString") {
       client = new ServiceBusClient(this.connection.connectionString);
+    } else if (this.connection.type === "azureAD") {
+      // Use DefaultAzureCredential to authenticate with the current identity
+      const credential = new DefaultAzureCredential();
+      client = new ServiceBusClient(this.connection.fullyQualifiedNamespace, credential);
     }
 
     if (client === undefined) {

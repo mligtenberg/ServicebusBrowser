@@ -11,4 +11,9 @@ export interface ConnectionStringConnection extends ConnectionBase {
   connectionString: string;
 }
 
-export type Connection = ConnectionStringConnection;
+export interface AzureADConnection extends ConnectionBase {
+  type: 'azureAD';
+  fullyQualifiedNamespace: string;
+}
+
+export type Connection = ConnectionStringConnection | AzureADConnection;

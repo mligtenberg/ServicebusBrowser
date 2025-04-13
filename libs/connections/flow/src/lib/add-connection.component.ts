@@ -26,8 +26,9 @@ export class AddConnectionComponent {
   store = inject(Store);
 
   connectionName = model<string>();
-  connectionType = model<'connectionString'>('connectionString');
+  connectionType = model<'connectionString' | 'azureAD'>('connectionString');
   connectionString = model<string>();
+  fullyQualifiedNamespace = model<string>();
 
   connection = computed<Connection | undefined>(() => {
     const connectionType = this.connectionType();
@@ -46,6 +47,17 @@ export class AddConnectionComponent {
         type: 'connectionString',
       };
     }
+    
+    if (connectionType === 'azureAD') {
+      const namespace = this.fullyQualifiedNamespace();
+      
+      return !namespace ? undefined : {
+        id: crypto.randomUUID(),
+        name: name,
+        fullyQualifiedNamespace: namespace,
+        type: 'azureAD',
+      };
+    }
 
     return undefined;
   });
@@ -59,14 +71,26 @@ export class AddConnectionComponent {
       const connectionType = this.connectionType();
       if (connectionType !== 'connectionString') {
         this.connectionString.set(undefined);
-        return;
       }
-
-      const connectionString = this.connectionString();
-      if (!this.connectionName() && !!connectionString) {
-        const capture = /.*Endpoint=sb:\/\/([a-z1-9-.]*)\/?;.*/i.exec(connectionString);
-        if (capture?.[1]) {
-          this.connectionName.set(capture[1]);
+      
+      if (connectionType !== 'azureAD') {
+        this.fullyQualifiedNamespace.set(undefined);
+      }
+      
+      if (connectionType === 'connectionString') {
+        const connectionString = this.connectionString();
+        if (!this.connectionName() && !!connectionString) {
+          const capture = /.*Endpoint=sb:\/\/([a-z1-9-.]*)\/?;.*/i.exec(connectionString);
+          if (capture?.[1]) {
+            this.connectionName.set(capture[1]);
+          }
+        }
+      }
+      
+      if (connectionType === 'azureAD') {
+        const namespace = this.fullyQualifiedNamespace();
+        if (!this.connectionName() && !!namespace) {
+          this.connectionName.set(namespace.split('.')[0]);
         }
       }
     });
