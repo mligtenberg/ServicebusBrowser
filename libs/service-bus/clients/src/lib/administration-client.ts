@@ -11,7 +11,8 @@ import {
   SubscriptionRule,
   TopicWithMetaData, Topic, Subscription
 } from '@service-bus-browser/topology-contracts';
-import { DefaultAzureCredential } from '@azure/identity';
+import { DefaultAzureCredential, ManagedIdentityCredential, InteractiveBrowserCredential } from '@azure/identity';
+import { getCredential } from './credential-helper';
 
 export class AdministrationClient {
   constructor(private connection: Connection) {
@@ -350,22 +351,31 @@ export class AdministrationClient {
   }
 
   private getAdministrationClient(): ServiceBusAdministrationClient {
-    switch (this.connection.type) {
-      case 'connectionString':
-        return new ServiceBusAdministrationClient(this.connection.connectionString);
-      case 'azureAD':
-        const credential = new DefaultAzureCredential();
-        return new ServiceBusAdministrationClient(this.connection.fullyQualifiedNamespace, credential);
+    if (this.connection.type === 'connectionString') {
+      return new ServiceBusAdministrationClient(this.connection.connectionString);
     }
+
+    if (this.connection.type === "azureAD") {
+      const { fullyQualifiedNamespace } = this.connection;
+      const credential = getCredential(this.connection);
+      return new ServiceBusAdministrationClient(fullyQualifiedNamespace, credential);
+    }
+    
+    throw new Error('Unsupported connection type');
   }
 
   private getEndpoint(): string {
     switch (this.connection.type) {
       case 'connectionString':
-        {
-          const endpoint = this.connection.connectionString.split(';').find((part) => part.startsWith('Endpoint='))?.split('=')[1] ?? '/';
-          return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
-        }
+      {
+        const endpoint = this.connection.connectionString.split(';').find((part) => part.startsWith('Endpoint='))?.split('=')[1] ?? '/';
+        return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
+      }
+      case 'azureAD':
+      {
+        const endpoint = this.connection.fullyQualifiedNamespace.split('.').slice(0, -1).join('.');
+        return `sb://${endpoint}/`;
+      }
     }
   }
 

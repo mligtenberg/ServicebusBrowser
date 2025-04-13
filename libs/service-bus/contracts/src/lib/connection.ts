@@ -14,6 +14,25 @@ export interface ConnectionStringConnection extends ConnectionBase {
 export interface AzureADConnection extends ConnectionBase {
   type: 'azureAD';
   fullyQualifiedNamespace: string;
+  authMethod: 'currentUser' | 'systemAssignedManagedIdentity' | 'userAssignedManagedIdentity';
 }
 
-export type Connection = ConnectionStringConnection | AzureADConnection;
+export interface AzureBrowserAuthConnection extends AzureADConnection {
+  authMethod: 'currentUser';
+  email: string;
+}
+
+export interface SystemAssignedManagedIdentityConnection extends AzureADConnection {
+  authMethod: 'systemAssignedManagedIdentity';
+}
+
+export interface UserAssignedManagedIdentityConnection extends AzureADConnection {
+  authMethod: 'userAssignedManagedIdentity';
+  clientId: string;
+}
+
+export type Connection = 
+ConnectionStringConnection |
+AzureBrowserAuthConnection |
+SystemAssignedManagedIdentityConnection |
+UserAssignedManagedIdentityConnection;

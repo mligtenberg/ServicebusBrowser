@@ -29,6 +29,27 @@ section {
   color: var(--text-color-secondary);
 }
 
+.hint-inline {
+  margin-left: 0.5em;
+  font-size: 0.7rem;
+  color: var(--text-color-secondary);
+}
+
+.auth-method-option {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0 0.5rem 1rem;
+}
+
+.auth-method-option > * {
+  margin: 0 0 0 0.5em;
+}
+
+.indent {
+  margin-left: 2rem;
+  margin-top: 1rem;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

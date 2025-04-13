@@ -29,6 +29,9 @@ export class AddConnectionComponent {
   connectionType = model<'connectionString' | 'azureAD'>('connectionString');
   connectionString = model<string>();
   fullyQualifiedNamespace = model<string>();
+  authMethod = model<'currentUser' | 'systemAssignedManagedIdentity' | 'userAssignedManagedIdentity'>('currentUser');
+  clientId = model<string>();
+  email = model<string>();
 
   connection = computed<Connection | undefined>(() => {
     const connectionType = this.connectionType();
@@ -50,12 +53,25 @@ export class AddConnectionComponent {
     
     if (connectionType === 'azureAD') {
       const namespace = this.fullyQualifiedNamespace();
+      const authMethod = this.authMethod();
       
-      return !namespace ? undefined : {
+      if (!namespace || !authMethod) {
+        return undefined;
+      }
+      
+      // For user-assigned managed identity, client ID is required
+      if (authMethod === 'userAssignedManagedIdentity' && !this.clientId()) {
+        return undefined;
+      }
+      
+      return {
         id: crypto.randomUUID(),
         name: name,
         fullyQualifiedNamespace: namespace,
         type: 'azureAD',
+        authMethod: authMethod,
+        clientId: authMethod === 'userAssignedManagedIdentity' ? this.clientId() : undefined,
+        email: authMethod === 'currentUser' ? this.email() || undefined : undefined,
       };
     }
 
@@ -75,6 +91,9 @@ export class AddConnectionComponent {
       
       if (connectionType !== 'azureAD') {
         this.fullyQualifiedNamespace.set(undefined);
+        this.authMethod.set('currentUser');
+        this.clientId.set(undefined);
+        this.email.set(undefined);
       }
       
       if (connectionType === 'connectionString') {
@@ -92,6 +111,16 @@ export class AddConnectionComponent {
         if (!this.connectionName() && !!namespace) {
           this.connectionName.set(namespace.split('.')[0]);
         }
+      }
+      
+      // Clear client ID if not using user-assigned managed identity
+      if (this.authMethod() !== 'userAssignedManagedIdentity') {
+        this.clientId.set(undefined);
+      }
+      
+      // Clear email if not using current user authentication
+      if (this.authMethod() !== 'currentUser') {
+        this.email.set(undefined);
       }
     });
   }

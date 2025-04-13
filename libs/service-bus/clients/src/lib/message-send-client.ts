@@ -1,8 +1,9 @@
 import * as contracts from '@service-bus-browser/messages-contracts';
-import { Connection, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { AzureADConnection, Connection, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusMessage, ServiceBusSender } from '@azure/service-bus';
 import { Duration } from 'luxon';
-import { DefaultAzureCredential } from '@azure/identity';
+import { DefaultAzureCredential, ManagedIdentityCredential, InteractiveBrowserCredential } from '@azure/identity';
+import { getCredential } from './credential-helper';
 
 export class MessageSendClient {
   constructor(private readonly connection: Connection, private readonly endpoint: SendEndpoint) {}
@@ -37,18 +38,20 @@ export class MessageSendClient {
 
   private getSender(): ServiceBusSender {
     let client: ServiceBusClient | undefined = undefined;
+    
     if (this.connection.type === "connectionString") {
       client = new ServiceBusClient(this.connection.connectionString);
-    } else if (this.connection.type === "azureAD") {
-      // Use DefaultAzureCredential which will try to get the current user's identity
-      const credential = new DefaultAzureCredential();
-      client = new ServiceBusClient(this.connection.fullyQualifiedNamespace, credential);
+    }
+  
+    if (this.connection.type === "azureAD") {
+      const { fullyQualifiedNamespace } = this.connection;
+      const credential = getCredential(this.connection);
+      client = new ServiceBusClient(fullyQualifiedNamespace, credential);
     }
 
     if (client === undefined) {
       throw new Error('Unsupported connection type');
     }
-
 
     if ('queueName' in this.endpoint) {
       return client.createSender(this.endpoint.queueName);

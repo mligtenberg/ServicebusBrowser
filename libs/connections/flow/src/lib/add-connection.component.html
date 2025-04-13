@@ -44,8 +44,59 @@
         </p-floatlabel>
         <small class="hint">Example: myservicebus.servicebus.windows.net</small>
       </section>
+      
+      <section class="auth-method">
+        <label for="authMethod" class="heading">Authentication Method</label>
+        <div class="auth-method-option">
+          <p-radiobutton
+            name="authMethod"
+            value="currentUser"
+            inputId="currentUserAuth"
+            [(ngModel)]="authMethod"
+          ></p-radiobutton>
+          <label for="currentUserAuth">Interactive Browser Authentication</label>
+          <small class="hint-inline">(browser sign-in popup)</small>
+        </div>
+        <div class="auth-method-option">
+          <p-radiobutton
+            name="authMethod"
+            value="systemAssignedManagedIdentity"
+            inputId="systemAssignedManagedIdentityAuth"
+            [(ngModel)]="authMethod"
+          ></p-radiobutton>
+          <label for="systemAssignedManagedIdentityAuth">System-assigned Managed Identity</label>
+        </div>
+        <div class="auth-method-option">
+          <p-radiobutton
+            name="authMethod"
+            value="userAssignedManagedIdentity"
+            inputId="userAssignedManagedIdentityAuth"
+            [(ngModel)]="authMethod"
+          ></p-radiobutton>
+          <label for="userAssignedManagedIdentityAuth">User-assigned Managed Identity</label>
+        </div>
+        
+        @if (authMethod() === 'currentUser') {
+          <div class="email indent">
+            <p-floatlabel variant="on">
+              <input id="email" class="full-width" pInputText [(ngModel)]="email" />
+              <label for="email">Email Address</label>
+            </p-floatlabel>
+            <small class="hint">Specify the email address to use for browser authentication (optional). This helps when you have multiple Azure accounts.</small>
+          </div>
+        }
+        
+        @if (authMethod() === 'userAssignedManagedIdentity') {
+          <div class="client-id indent">
+            <p-floatlabel variant="on">
+              <input id="clientId" class="full-width" pInputText [(ngModel)]="clientId" />
+              <label for="clientId">Client ID</label>
+            </p-floatlabel>
+            <small class="hint">The client ID of the user-assigned managed identity</small>
+          </div>
+        }
+      </section>
     }
-
 
     <section class="actions">
       <button pButton severity="secondary" type="button">Cancel</button>
