@@ -1,4 +1,3 @@
-import { Connection } from '@service-bus-browser/service-bus-contracts';
 import {
   CorrelationRuleFilter, CreateSubscriptionOptions, QueueProperties, QueueRuntimeProperties,
   RuleProperties,
@@ -11,12 +10,10 @@ import {
   SubscriptionRule,
   TopicWithMetaData, Topic, Subscription
 } from '@service-bus-browser/topology-contracts';
-import { DefaultAzureCredential, ManagedIdentityCredential, InteractiveBrowserCredential } from '@azure/identity';
-import { getCredential } from './credential-helper';
+import { ServiceBusCredential } from './credential-helper';
 
 export class AdministrationClient {
-  constructor(private connection: Connection) {
-  }
+  constructor(private serviceBusCredential: ServiceBusCredential) {}
 
   async checkConnection(): Promise<boolean> {
    try {
@@ -351,37 +348,20 @@ export class AdministrationClient {
   }
 
   private getAdministrationClient(): ServiceBusAdministrationClient {
-    if (this.connection.type === 'connectionString') {
-      return new ServiceBusAdministrationClient(this.connection.connectionString);
-    }
-
-    if (this.connection.type === "azureAD") {
-      const { fullyQualifiedNamespace } = this.connection;
-      const credential = getCredential(this.connection);
-      return new ServiceBusAdministrationClient(fullyQualifiedNamespace, credential);
-    }
-    
-    throw new Error('Unsupported connection type');
+    return new ServiceBusAdministrationClient(
+      this.serviceBusCredential.hostName,
+      this.serviceBusCredential.credential
+    );
   }
 
   private getEndpoint(): string {
-    switch (this.connection.type) {
-      case 'connectionString':
-      {
-        const endpoint = this.connection.connectionString.split(';').find((part) => part.startsWith('Endpoint='))?.split('=')[1] ?? '/';
-        return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
-      }
-      case 'azureAD':
-      {
-        const endpoint = this.connection.fullyQualifiedNamespace.split('.').slice(0, -1).join('.');
-        return `sb://${endpoint}/`;
-      }
-    }
+    const endpoint = this.serviceBusCredential.hostName.split('.').slice(0, -1).join('.');
+    return `sb://${endpoint}/`;
   }
 
   private mapQueue(queue: QueueProperties, queueMeta: QueueRuntimeProperties): QueueWithMetaData {
     return {
-      namespaceId: this.connection.id,
+      namespaceId: this.serviceBusCredential.namespaceId,
       id: queue.name,
       name: queue.name,
       metadata: {
@@ -412,7 +392,7 @@ export class AdministrationClient {
 
   private mapTopic(topic: TopicProperties, topicMeta: TopicRuntimeProperties): TopicWithMetaData {
     return {
-      namespaceId: this.connection.id,
+      namespaceId: this.serviceBusCredential.namespaceId,
       id: topic.name,
       name: topic.name,
       properties: {
@@ -443,7 +423,7 @@ export class AdministrationClient {
     rules: RuleProperties[]
   ): SubscriptionWithMetaData {
     return {
-      namespaceId: this.connection.id,
+      namespaceId: this.serviceBusCredential.namespaceId,
       topicId: topicId,
       id: subscription.subscriptionName,
       name: subscription.subscriptionName,
@@ -471,7 +451,7 @@ export class AdministrationClient {
           filterType: 'sql',
           subscriptionId: subscription.subscriptionName,
           topicId: topicId,
-          namespaceId: this.connection.id,
+          namespaceId: this.serviceBusCredential.namespaceId,
           name: rule.name,
           filter: rule.filter.sqlExpression,
           action: rule.action.sqlExpression
@@ -479,7 +459,7 @@ export class AdministrationClient {
           name: rule.name,
           subscriptionId: subscription.subscriptionName,
           topicId: topicId,
-          namespaceId: this.connection.id,
+          namespaceId: this.serviceBusCredential.namespaceId,
           filterType: 'correlation',
           systemProperties: Object.keys(rule.filter).map((key) => {
             const filter = rule.filter as { [key: string]: unknown };

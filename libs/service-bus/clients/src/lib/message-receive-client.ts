@@ -1,15 +1,14 @@
-import { Connection, ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
 import * as contracts from '@service-bus-browser/messages-contracts';
 import Long from 'long';
 import { Duration } from 'luxon';
-import { DefaultAzureCredential, ManagedIdentityCredential, InteractiveBrowserCredential } from '@azure/identity';
-import { getCredential } from './credential-helper';
+import { ServiceBusCredential } from './credential-helper';
 
 export class MessageReceiveClient {
-  constructor(private connection: Connection, private endpoint: ReceiveEndpoint)
+  constructor(private serviceBusCredential: ServiceBusCredential, private endpoint: ReceiveEndpoint) 
   {}
-
+  
   async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
     const receiver = this.getReceiver('peekLock');
     const messages = await receiver.peekMessages(maxMessageCount, {
@@ -30,17 +29,10 @@ export class MessageReceiveClient {
   }
 
   private getReceiver(receiveMode: "peekLock" | "receiveAndDelete"): ServiceBusReceiver {
-    let client: ServiceBusClient | undefined = undefined;
-    
-    if (this.connection.type === "connectionString") {
-      client = new ServiceBusClient(this.connection.connectionString);
-    }
-    
-    if (this.connection.type === "azureAD") {
-      const { fullyQualifiedNamespace } = this.connection;
-      const credential = getCredential(this.connection);
-      client = new ServiceBusClient(fullyQualifiedNamespace, credential);
-    }
+    let client = new ServiceBusClient(
+      this.serviceBusCredential.hostName,
+      this.serviceBusCredential.credential
+    );
 
     if (client === undefined) {
       throw new Error('Unsupported connection type');

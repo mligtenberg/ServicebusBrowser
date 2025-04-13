@@ -1,12 +1,11 @@
 import * as contracts from '@service-bus-browser/messages-contracts';
-import { AzureADConnection, Connection, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusClient, ServiceBusMessage, ServiceBusSender } from '@azure/service-bus';
 import { Duration } from 'luxon';
-import { DefaultAzureCredential, ManagedIdentityCredential, InteractiveBrowserCredential } from '@azure/identity';
-import { getCredential } from './credential-helper';
+import { ServiceBusCredential } from './credential-helper';
 
 export class MessageSendClient {
-  constructor(private readonly connection: Connection, private readonly endpoint: SendEndpoint) {}
+  constructor(private serviceBusCredential: ServiceBusCredential, private readonly endpoint: SendEndpoint) {}
 
   async send(message: contracts.ServiceBusMessage): Promise<void> {
     const mappedMessage = this.mapMessage(message);
@@ -37,17 +36,10 @@ export class MessageSendClient {
   }
 
   private getSender(): ServiceBusSender {
-    let client: ServiceBusClient | undefined = undefined;
-    
-    if (this.connection.type === "connectionString") {
-      client = new ServiceBusClient(this.connection.connectionString);
-    }
-  
-    if (this.connection.type === "azureAD") {
-      const { fullyQualifiedNamespace } = this.connection;
-      const credential = getCredential(this.connection);
-      client = new ServiceBusClient(fullyQualifiedNamespace, credential);
-    }
+    let client = new ServiceBusClient(
+      this.serviceBusCredential.hostName,
+      this.serviceBusCredential.credential
+    );
 
     if (client === undefined) {
       throw new Error('Unsupported connection type');

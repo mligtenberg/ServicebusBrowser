@@ -6,8 +6,6 @@ import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import ServiceBusEvents from './app/events/service-bus.events';
 import UpdateEvents from './app/events/update.events';
 
-
-
 export default class Main {
   static initialize() {
     if (SquirrelEvents.handleEvents()) {
@@ -47,3 +45,4 @@ if (App.isDevelopmentMode()) {
     App.mainWindow.webContents.openDevTools();
   });
 }
+
