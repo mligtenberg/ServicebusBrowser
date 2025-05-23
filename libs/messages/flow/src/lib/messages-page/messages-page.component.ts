@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
@@ -19,6 +19,7 @@ import { BASE_ROUTE } from '../const';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { Menu } from 'primeng/menu';
 
 @Component({
   selector: 'lib-messages-page',
@@ -34,6 +35,7 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
     ScrollPanel,
     EndpointSelectorTreeInputComponent,
     ButtonDirective,
+    Menu,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -48,9 +50,8 @@ export class MessagesPageComponent {
   displaySendMessages = model<boolean>(false);
   sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
-  selection = model<
-    ServiceBusReceivedMessage | ServiceBusReceivedMessage[] | undefined
-  >(undefined);
+  selection = model<ServiceBusReceivedMessage[] | undefined>(undefined);
+  menuMessagesSelection = model<ServiceBusReceivedMessage[]>([]);
   selectedMessage = computed(() => {
     const selection = this.selection();
     if (Array.isArray(selection) && selection.length === 1) {
@@ -61,7 +62,6 @@ export class MessagesPageComponent {
     }
     return selection;
   });
-
   body = computed(() => {
     const message = this.selectedMessage();
     if (!message) {
@@ -161,71 +161,12 @@ export class MessagesPageComponent {
 
   messageContextMenu = computed<MenuItem[]>(() => {
     const contextMenuSelection = this.selection();
-    if (!contextMenuSelection) {
-      return [];
-    }
+    return this.getMenuItems(contextMenuSelection, false);
+  });
 
-    if (
-      Array.isArray(contextMenuSelection) &&
-      contextMenuSelection.length === 0
-    ) {
-      return [];
-    }
-
-    if (
-      Array.isArray(contextMenuSelection) &&
-      contextMenuSelection.length > 1
-    ) {
-      return [
-        {
-          label: 'Quick resend messages',
-          icon: 'pi pi-envelope',
-          command: () => {
-            this.displaySendMessages.set(true);
-          },
-        },
-        {
-          label: 'Export messages',
-          icon: 'pi pi-download',
-          command: () => {
-            this.exportMessages();
-          },
-        }
-      ];
-    }
-
-    const selectedMessage = Array.isArray(contextMenuSelection)
-      ? contextMenuSelection[0]
-      : contextMenuSelection;
-
-    return [
-      {
-        label: 'Quick resend message',
-        icon: 'pi pi-envelope',
-        command: () => {
-          this.displaySendMessages.set(true);
-        },
-      },
-      {
-        label: 'Resend message',
-        icon: 'pi pi-envelope',
-        command: () => {
-          this.router.navigate([
-            this.baseRoute,
-            'resend',
-            this.currentPage()!.id,
-            selectedMessage!.messageId,
-          ]);
-        },
-      },
-      {
-        label: 'Export message',
-        icon: 'pi pi-download',
-        command: () => {
-          this.exportMessages();
-        },
-      }
-    ];
+  allMessagesMenu = computed<MenuItem[]>(() => {
+    const menuSelection = this.currentPage()?.messages;
+    return this.getMenuItems(menuSelection, true);
   });
 
   constructor() {
@@ -248,10 +189,93 @@ export class MessagesPageComponent {
       });
   }
 
+  getMenuItems(
+    menuSelection:
+      | ServiceBusReceivedMessage
+      | ServiceBusReceivedMessage[]
+      | undefined,
+    allMessages: boolean
+  ) {
+    if (!menuSelection) {
+      return [];
+    }
+
+    if (
+      Array.isArray(menuSelection) &&
+      menuSelection.length === 0
+    ) {
+      return [];
+    }
+
+    if (
+      Array.isArray(menuSelection) &&
+      menuSelection.length > 1
+    ) {
+      return [
+        {
+          label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+          icon: 'pi pi-envelope',
+          command: () => {
+            this.menuMessagesSelection.set(menuSelection);
+            this.displaySendMessages.set(true);
+          },
+        },
+        {
+          label: allMessages ? 'Export all messages' : 'Export selected messages',
+          icon: 'pi pi-download',
+          command: () => {
+            this.menuMessagesSelection.set(menuSelection);
+            this.exportMessages();
+          },
+        },
+      ];
+    }
+
+    const selectedMessage = Array.isArray(menuSelection)
+      ? menuSelection[0]
+      : menuSelection;
+
+    return [
+      {
+        label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+        icon: 'pi pi-envelope',
+        command: () => {
+          this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
+          this.displaySendMessages.set(true);
+        },
+      },
+      {
+        label: allMessages ? 'Resend message' : 'Resend selected message',
+        icon: 'pi pi-envelope',
+        command: () => {
+          this.router.navigate([
+            this.baseRoute,
+            'resend',
+            this.currentPage()!.id,
+            selectedMessage!.messageId,
+          ]);
+        },
+      },
+      {
+        label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+        icon: 'pi pi-download',
+        command: () => {
+          this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
+          this.exportMessages();
+        },
+      },
+    ];
+  }
+
   sendMessages() {
+    const messages = this.menuMessagesSelection();
     const endpoint = this.sendEndpoint();
-    const messages = this.selection();
-    if (!endpoint || !messages || !Array.isArray(messages) || messages.length === 0) {
+    if (
+      !endpoint ||
+      !messages ||
+      !Array.isArray(messages) ||
+      messages.length === 0
+    ) {
       console.error('Invalid endpoint or messages');
       return;
     }
@@ -266,34 +290,16 @@ export class MessagesPageComponent {
   }
 
   exportMessages() {
+    const messagesToExport = this.menuMessagesSelection();
     const currentPage = this.currentPage();
-    if (!currentPage || !currentPage.messages || currentPage.messages.length === 0) {
-      return;
-    }
-    
-    // Determine which messages to export based on selection
-    let messagesToExport: ServiceBusReceivedMessage[] = [];
-    
-    // Get selected messages or fall back to all messages
-    const selection = this.selection();
-    if (selection) {
-      if (Array.isArray(selection)) {
-        messagesToExport = selection;
-      } else {
-        messagesToExport = [selection];
-      }
-    } else {
-      messagesToExport = currentPage.messages;
-    }
-    
-    if (messagesToExport.length === 0) {
+    if (!currentPage || messagesToExport.length === 0) {
       return;
     }
 
     this.store.dispatch(
       MessagesActions.exportMessages({
         pageName: currentPage.name,
-        messages: messagesToExport
+        messages: messagesToExport,
       })
     );
   }

@@ -14,6 +14,12 @@
   }
 }
 
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .container {
   display: grid;
   grid-template-columns: 3fr 2fr;

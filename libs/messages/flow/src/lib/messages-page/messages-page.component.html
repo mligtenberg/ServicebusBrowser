@@ -2,7 +2,15 @@
   <p-contextmenu #cm
                  appendTo="body"
                  [model]="messageContextMenu()"></p-contextmenu>
-  <p-card header="Messages" class="messages">
+  <p-menu #menu [model]="allMessagesMenu()"
+          [popup]="true"
+          appendTo="body"
+  />
+  <p-card class="messages">
+    <div class="messages-header">
+      <div class="p-card-title">Messages</div>
+      <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true"/>
+    </div>
     <p-table
       [columns]="cols"
       [value]="currentPage()?.messages ?? []"
