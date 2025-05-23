@@ -1,0 +1,305 @@
+<p-dialog
+  header="Filter Messages"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  (onHide)="onCancel()"
+  [style]="{'width': '90vw', 'height': '90vh'}"
+  class="dialog"
+>
+  @let filters = currentFilters();
+  <p-accordion [multiple]="true" [value]="['0']">
+    <!-- System Properties -->
+    <p-accordion-panel value="0">
+      <p-accordion-header>System Properties</p-accordion-header>
+      <p-accordion-content>
+        <div>
+          @for (filter of filters.systemProperties; track $index) {
+            <div class="filter-line system-property-filter-line">
+              <p-checkbox
+                [ngModel]="filter.isActive"
+                [binary]="true"
+                class="isActive"
+                (ngModelChange)="onSystemPropertyChange($index, 'isActive', $event)"
+              ></p-checkbox>
+
+              <p-select
+                [options]="getSystemPropertyOptions()"
+                [ngModel]="filter.fieldName"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Property"
+                appendTo="body"
+                class="fieldName"
+                (ngModelChange)="onSystemPropertyChange($index, 'fieldName', $event)"
+              ></p-select>
+
+              <p-select
+                *ngIf="filter.fieldType === 'string'"
+                [options]="stringFilterTypes"
+                [ngModel]="filter.filterType"
+                appendTo="body"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                class="filterType"
+                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+              ></p-select>
+
+              <p-select
+                *ngIf="filter.fieldType === 'date'"
+                [options]="dateFilterTypes"
+                [ngModel]="filter.filterType"
+                appendTo="body"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                class="filterType"
+                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+              ></p-select>
+
+              <p-select
+                *ngIf="filter.fieldType === 'number'"
+                [options]="numberFilterTypes"
+                [ngModel]="filter.filterType"
+                appendTo="body"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                class="filterType"
+                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+              ></p-select>
+
+              <input
+                *ngIf="filter.fieldType === 'string'"
+                pInputText
+                [ngModel]="filter.value"
+                placeholder="Value"
+                class="value"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+              />
+
+              <p-calendar
+                *ngIf="filter.fieldType === 'date'"
+                [ngModel]="filter.value"
+                appendTo="body"
+                [showTime]="true"
+                class="value"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+              ></p-calendar>
+
+              <p-inputNumber
+                *ngIf="filter.fieldType === 'number'"
+                [ngModel]="filter.value"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+                class="value"
+              ></p-inputNumber>
+
+              <p-checkbox
+                *ngIf="filter.fieldType === 'boolean'"
+                [ngModel]="filter.value"
+                [binary]="true"
+                class="value"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+              ></p-checkbox>
+
+              <p-button
+                icon="pi pi-trash"
+                class="p-button-danger p-button-outlined"
+                (click)="removeSystemPropertyFilter($index)"
+              ></p-button>
+            </div>
+          }
+
+          <p-button
+            icon="pi pi-plus"
+            label="Add System Property Filter"
+            class="p-button-outlined align-self-start"
+            (click)="addSystemPropertyFilter()"
+          ></p-button>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Application Properties -->
+    <p-accordion-panel value="1">
+      <p-accordion-header>Application Properties</p-accordion-header>
+      <p-accordion-content>
+        @for (filter of filters.applicationProperties; track $index) {
+          <div class="filter-line application-property-filter-line">
+            <p-checkbox
+              [ngModel]="filter.isActive"
+              [binary]="true"
+              class="isActive"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'isActive', $event)"
+            ></p-checkbox>
+
+            <input
+              pInputText
+              [ngModel]="filter.fieldName"
+              placeholder="Property Name"
+              class="fieldName"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldName', $event)"
+            />
+
+            <p-select
+              [options]="propertyTypes"
+              [ngModel]="filter.fieldType"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Property Type"
+              appendTo="body"
+              class="fieldType"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldType', $event)"
+            ></p-select>
+
+            <p-select
+              *ngIf="filter.fieldType === 'string'"
+              [options]="stringFilterTypes"
+              [ngModel]="filter.filterType"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter Type"
+              appendTo="body"
+              class="filterType"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+            ></p-select>
+
+            <p-dropdown
+              *ngIf="filter.fieldType === 'date'"
+              [options]="dateFilterTypes"
+              [ngModel]="filter.filterType"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter Type"
+              appendTo="body"
+              class="filterType"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+            ></p-dropdown>
+
+            <p-dropdown
+              *ngIf="filter.fieldType === 'number'"
+              [options]="numberFilterTypes"
+              [ngModel]="filter.filterType"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter Type"
+              appendTo="body"
+              class="filterType"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+            ></p-dropdown>
+
+            <input
+              *ngIf="filter.fieldType === 'string'"
+              pInputText
+              [ngModel]="filter.value"
+              placeholder="Value"
+              class="value"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+            />
+
+            <p-calendar
+              *ngIf="filter.fieldType === 'date'"
+              [ngModel]="filter.value"
+              [showTime]="true"
+              appendTo="body"
+              class="value"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+            ></p-calendar>
+
+            <p-inputNumber
+              *ngIf="filter.fieldType === 'number'"
+              [ngModel]="filter.value"
+              class="value"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+            ></p-inputNumber>
+
+            <p-checkbox
+              *ngIf="filter.fieldType === 'boolean'"
+              [ngModel]="filter.value"
+              [binary]="true"
+              class="value"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+            ></p-checkbox>
+
+            <p-button
+              icon="pi pi-trash"
+              class="p-button-danger p-button-outlined"
+              (click)="removeApplicationPropertyFilter($index)"
+            ></p-button>
+          </div>
+        }
+
+        <p-button
+          icon="pi pi-plus"
+          label="Add Application Property Filter"
+          class="p-button-outlined align-self-start"
+          (click)="addApplicationPropertyFilter()"
+        ></p-button>
+      </p-accordion-content>
+    </p-accordion-panel>
+
+    <!-- Body -->
+    <p-accordion-panel value="2">
+      <p-accordion-header>Message Body</p-accordion-header>
+      <p-accordion-content>
+        @for (filter of filters.body; track $index) {
+          <div class="filter-line body-filter-line">
+            <p-checkbox
+              [ngModel]="filter.isActive"
+              (ngModelChange)="onBodyFilterTypeChange($index, 'isActive', $event)"
+              [binary]="true"
+              class="isActive"
+            ></p-checkbox>
+
+            <p-dropdown
+              [options]="bodyFilterTypes"
+              [ngModel]="filter.filterType"
+              (ngModelChange)="onBodyFilterTypeChange($index, 'filterType', $event)"
+              appendTo="body"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter Type"
+              class="filterType"
+            ></p-dropdown>
+
+            <input
+              pInputText
+              [ngModel]="filter.value"
+              (ngModelChange)="onBodyFilterTypeChange($index, 'value', $event)"
+              placeholder="Value"
+              class="value"
+            />
+
+            <p-button
+              icon="pi pi-trash"
+              class="p-button-danger p-button-outlined"
+              (click)="removeBodyFilter($index)"
+            ></p-button>
+          </div>
+        }
+
+        <p-button
+          icon="pi pi-plus"
+          label="Add body Filter"
+          class="p-button-outlined align-self-start"
+          (click)="addBodyFilter()"
+        ></p-button>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+
+  <ng-template pTemplate="footer">
+    <button pButton class="p-button-outlined" (click)="onCancel()">
+      Cancel
+    </button>
+    <button pButton class="p-button-danger" (click)="onClearAll()">
+      Clear All
+    </button>
+    <button pButton (click)="onApply()" [disabled]="!isFilterValid()">
+      Apply
+    </button>
+  </ng-template>
+</p-dialog>

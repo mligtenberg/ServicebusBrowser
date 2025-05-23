@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { BASE_ROUTE } from './lib/const';
+
 export const routes = (options: { baseRoute: string }): Routes => [
   {
     path: '',

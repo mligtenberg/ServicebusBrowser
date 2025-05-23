@@ -1,0 +1,48 @@
+:host ::ng-deep .p-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+:host,
+::ng-deep,
+.p-accordion,
+.p-accordion-header,
+.p-accordion-header-link {
+  padding: 1rem;
+}
+
+:host ::ng-deep .p-accordion .p-accordion-content {
+  padding: 1.25rem;
+}
+
+:host ::ng-deep .p-dialog-footer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.filter-line {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  margin: 0.9rem 0;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  width: 100%;
+
+  .isActive {
+    width: 1.5rem;
+  }
+
+  .fieldName {
+    width: 10rem;
+  }
+
+  .fieldType {
+    width: 10rem;
+  }
+
+  .value {
+    flex: 1;
+  }
+}

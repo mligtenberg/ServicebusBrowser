@@ -55,7 +55,7 @@ export const importMessages = async () => {
 
       // Create message object
       const message: ServiceBusReceivedMessage = {
-        body: tryParseJsonBody(bodyContent),
+        body: bodyContent,
         messageId: properties.messageId,
         sequenceNumber: properties.sequenceNumber,
         subject: properties.subject,
@@ -81,12 +81,3 @@ export const importMessages = async () => {
     throw error;
   }
 };
-
-// Helper function to try parsing JSON body
-function tryParseJsonBody(bodyContent: string): any {
-  try {
-    return JSON.parse(bodyContent);
-  } catch {
-    return bodyContent;
-  }
-}

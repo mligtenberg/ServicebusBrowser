@@ -9,11 +9,14 @@
   <p-card class="messages">
     <div class="messages-header">
       <div class="p-card-title">Messages</div>
-      <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true"/>
+      <div class="header-buttons">
+        <p-button (click)="openFilterDialog()" [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'" text="true"/>
+        <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true"/>
+      </div>
     </div>
     <p-table
       [columns]="cols"
-      [value]="currentPage()?.messages ?? []"
+      [value]="filteredMessages()"
       [scrollable]="true"
       scrollHeight="300px"
       [virtualScroll]="true"
@@ -121,7 +124,6 @@
   header="Message body"
   appendTo="body"
   [(visible)]="displayBodyFullscreen"
-  [style]="{ width: '100%', height: '100%' }"
   [modal]="true"
   >
   @if (displayBodyFullscreen()) {
@@ -136,7 +138,6 @@
   appendTo="body"
   [(visible)]="displaySendMessages"
   [modal]="true"
-  [style]="{ width: '50%' }"
 >
   <p-scroll-panel>
     <sbb-tpl-endpoint-selector-tree-input
@@ -147,3 +148,9 @@
     <button pButton type="button" [disabled]="!sendEndpoint()" (click)="sendMessages()">Send</button>
   </div>
 </p-dialog>
+
+<lib-message-filter-dialog
+  [(visible)]="displayFilterDialog"
+  [filters]="messageFilter()"
+  (filtersUpdated)="onFiltersUpdated($event)"
+></lib-message-filter-dialog>

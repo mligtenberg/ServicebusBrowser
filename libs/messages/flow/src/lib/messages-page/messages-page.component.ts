@@ -5,7 +5,11 @@ import { MessagesActions, MessagesSelectors } from '@service-bus-browser/message
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MessagePage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import {
+  MessageFilter,
+  MessagePage,
+  ServiceBusReceivedMessage
+} from '@service-bus-browser/messages-contracts';
 import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +24,8 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Menu } from 'primeng/menu';
+import { MessageFilterDialogComponent } from '../message-filter-dialog/message-filter-dialog.component';
+import { MessageFilterService } from '../message-filter/message-filter.service';
 
 @Component({
   selector: 'lib-messages-page',
@@ -36,6 +42,10 @@ import { Menu } from 'primeng/menu';
     EndpointSelectorTreeInputComponent,
     ButtonDirective,
     Menu,
+    MessageFilterDialogComponent,
+  ],
+  providers: [
+    MessageFilterService
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -45,13 +55,32 @@ export class MessagesPageComponent {
   store = inject(Store);
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
+  messageFilterService = inject(MessageFilterService);
 
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
+  displayFilterDialog = model<boolean>(false);
   sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
+  filteredMessages = computed(() => {
+    const page = this.currentPage();
+    if (!page) return [];
+
+    const filter = this.messageFilter();
+    const messages = page.messages;
+
+    return this.messageFilterService.filterMessages(messages, filter);
+  });
   selection = model<ServiceBusReceivedMessage[] | undefined>(undefined);
-  menuMessagesSelection = model<ServiceBusReceivedMessage[]>([]);
+  menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
+  messageFilter = signal<MessageFilter>({
+    systemProperties: [],
+    applicationProperties: [],
+    body: []
+  });
+  hasActiveFilters = computed(() => {
+    return this.messageFilterService.hasActiveFilters(this.messageFilter());
+  });
   selectedMessage = computed(() => {
     const selection = this.selection();
     if (Array.isArray(selection) && selection.length === 1) {
@@ -302,5 +331,13 @@ export class MessagesPageComponent {
         messages: messagesToExport,
       })
     );
+  }
+
+  openFilterDialog() {
+    this.displayFilterDialog.set(true);
+  }
+
+  onFiltersUpdated(filter: MessageFilter) {
+    this.messageFilter.set(filter);
   }
 }

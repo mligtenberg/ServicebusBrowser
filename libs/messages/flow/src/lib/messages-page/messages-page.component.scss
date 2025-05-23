@@ -12,6 +12,10 @@
       height: 100%;
     }
   }
+
+  ::ng-deep .messages .p-virtualscroller {
+    height: 300px;
+  }
 }
 
 .messages-header {
@@ -23,7 +27,7 @@
 .container {
   display: grid;
   grid-template-columns: 3fr 2fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: minmax(400px, auto) 1fr;
   grid-template-areas:
     'messages properties'
     'body custom-properties';
@@ -40,7 +44,11 @@
     'properties'
     'custom-properties';
     grid-template-columns: 1fr;
-    grid-template-rows: auto repeat(3, minmax(20rem, 1fr));
+    grid-template-rows: minmax(400px, auto)  repeat(3, minmax(20rem, 1fr));
+  }
+
+  p-table {
+    height: 100%;
   }
 }
 
@@ -61,6 +69,11 @@ pre {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  .header-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
 }
 
 .body {
