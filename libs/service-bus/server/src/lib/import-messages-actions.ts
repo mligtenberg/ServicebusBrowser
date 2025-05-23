@@ -2,7 +2,7 @@ import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contrac
 import { dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as JSZip from 'jszip';
+import JSZip from 'jszip';
 
 export const importMessages = async () => {
   // Show open dialog to let user choose a zip file to import
@@ -13,46 +13,46 @@ export const importMessages = async () => {
     ],
     properties: ['openFile']
   });
-  
+
   if (canceled || !filePaths || filePaths.length === 0) {
     return { pageName: '', messages: [] };
   }
-  
+
   const filePath = filePaths[0];
-  
+
   // Extract filename to use as page name
   const fileName = path.basename(filePath, '.zip');
-  
+
   try {
     // Read the zip file
     const zipContent = fs.readFileSync(filePath);
-    
+
     // Load the zip file
     const zip = await JSZip.loadAsync(zipContent);
-    
+
     // Array to store imported messages
     const messages: ServiceBusReceivedMessage[] = [];
-    
+
     // Process each folder in the zip file (each message is in a separate folder)
-    const messageFolders = Object.keys(zip.files).filter(key => 
+    const messageFolders = Object.keys(zip.files).filter(key =>
       key.endsWith('/') && key.split('/').length === 2
     );
-    
+
     // Process each message folder
     for (const folderPath of messageFolders) {
       // Process body.txt
       const bodyFile = zip.file(`${folderPath}body.txt`);
       const propertiesFile = zip.file(`${folderPath}properties.json`);
-      
+
       if (!bodyFile || !propertiesFile) continue;
-      
+
       // Read body content
       const bodyContent = await bodyFile.async('string');
-      
+
       // Read properties
       const propertiesContent = await propertiesFile.async('string');
       const properties = JSON.parse(propertiesContent);
-      
+
       // Create message object
       const message: ServiceBusReceivedMessage = {
         body: tryParseJsonBody(bodyContent),
@@ -65,12 +65,13 @@ export const importMessages = async () => {
         timeToLive: properties.timeToLive,
         to: properties.to,
         enqueuedSequenceNumber: properties.enqueuedSequenceNumber,
-        applicationProperties: properties.applicationProperties || {}
+        applicationProperties: properties.applicationProperties || {},
+        state: 'active'
       };
-      
+
       messages.push(message);
     }
-    
+
     return {
       pageName: fileName,
       messages
