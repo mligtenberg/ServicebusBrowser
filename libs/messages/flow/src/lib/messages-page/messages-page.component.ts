@@ -194,7 +194,7 @@ export class MessagesPageComponent {
   });
 
   allMessagesMenu = computed<MenuItem[]>(() => {
-    const menuSelection = this.currentPage()?.messages;
+    const menuSelection = this.filteredMessages();
     return this.getMenuItems(menuSelection, true);
   });
 
@@ -242,7 +242,7 @@ export class MessagesPageComponent {
     ) {
       return [
         {
-          label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+          label: allMessages ? 'Quick resend all messages' : 'Quick selected resend messages',
           icon: 'pi pi-envelope',
           command: () => {
             this.menuMessagesSelection.set(menuSelection);
@@ -266,7 +266,7 @@ export class MessagesPageComponent {
 
     return [
       {
-        label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+        label: allMessages ? 'Quick resend all messages' : 'Quick selected resend messages',
         icon: 'pi pi-envelope',
         command: () => {
           this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
