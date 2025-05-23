@@ -18,3 +18,11 @@ export const sendMessage = (body: {
 
   return sendClient.send(body.message);
 }
+
+export const sendMessages = (body: {
+  endpoint: SendEndpoint,
+  messages: ServiceBusMessage[],
+}, connectionManager: ConnectionManager)=> {
+  const sendClient = getSendClient(body.endpoint, connectionManager);
+  return sendClient.send(body.messages);
+}

@@ -47,6 +47,16 @@ export class ServiceBusMessagesElectronClient {
     });
   }
 
+  async sendMessages(
+    endpoint: SendEndpoint,
+    messages: ServiceBusMessage[]
+  ) {
+    await serviceBusApi.messagesDoRequest('sendMessages', {
+      endpoint,
+      messages
+    });
+  }
+
   async exportMessages(
     pageName: string,
     messages: ServiceBusReceivedMessage[]

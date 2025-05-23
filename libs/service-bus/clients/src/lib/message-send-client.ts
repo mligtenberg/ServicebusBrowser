@@ -6,10 +6,17 @@ import { Duration } from 'luxon';
 export class MessageSendClient {
   constructor(private readonly connection: Connection, private readonly endpoint: SendEndpoint) {}
 
-  async send(message: contracts.ServiceBusMessage): Promise<void> {
-    const mappedMessage = this.mapMessage(message);
+  async send(input: contracts.ServiceBusMessage | contracts.ServiceBusMessage[]): Promise<void> {
     const sender = this.getSender();
-    await sender.sendMessages(mappedMessage);
+
+    if (typeof input === 'object' && !Array.isArray(input)) {
+      const mappedMessage = this.mapMessage(input);
+      await sender.sendMessages(mappedMessage);
+    }
+    if (Array.isArray(input)) {
+      const mappedMessages = input.map(this.mapMessage);
+      await sender.sendMessages(mappedMessages);
+    }
   }
 
   mapMessage(message: contracts.ServiceBusMessage): ServiceBusMessage {

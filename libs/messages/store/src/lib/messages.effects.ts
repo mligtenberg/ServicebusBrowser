@@ -109,10 +109,10 @@ export class MessagesEffects {
   continueSendingMessages$ = createEffect(() => this.actions.pipe(
     ofType(internalActions.messagesSending),
     mergeMap(({ taskId, endpoint, messagesToSend, sendAmount }) => {
-      const message = messagesToSend[0];
-      const rest = messagesToSend.slice(1);
+      const messages = messagesToSend.slice(0, 50);
+      const rest = messagesToSend.slice(messages.length);
 
-      return from(this.messagesService.sendMessage(endpoint, message))
+      return from(this.messagesService.sendMessages(endpoint, messages))
         .pipe(
           map(() => rest.length === 0
             ? internalActions.messagesSendSucceeded({ taskId })
@@ -120,17 +120,22 @@ export class MessagesEffects {
               taskId,
               endpoint,
               messagesToSend: rest,
-              sendAmount: sendAmount + 1
+              sendAmount: sendAmount + messages.length,
             })
           ),
-          catchError(() => [internalActions.messageSendFailed({ endpoint, message })])
+          catchError(() => [internalActions.messagesSendFailed({
+            endpoint,
+            messagesToSend: rest,
+            sendAmount: sendAmount + 1,
+            taskId
+          })])
         );
     })
   ));
 
   exportMessages$ = createEffect(() => this.actions.pipe(
     ofType(actions.exportMessages),
-    mergeMap(({ pageName, messages }) => 
+    mergeMap(({ pageName, messages }) =>
       from(this.messagesService.exportMessages(pageName, messages)).pipe(
         map(() => internalActions.messagesExported()),
         catchError(() => [internalActions.messagesExportFailed()])
@@ -140,7 +145,7 @@ export class MessagesEffects {
 
   importMessages$ = createEffect(() => this.actions.pipe(
     ofType(actions.importMessages),
-    mergeMap(() => 
+    mergeMap(() =>
       from(this.messagesService.importMessages()).pipe(
         map(({ pageName, messages }) => internalActions.messagesImported({ pageName, messages })),
         catchError(() => [internalActions.messagesImportFailed()])

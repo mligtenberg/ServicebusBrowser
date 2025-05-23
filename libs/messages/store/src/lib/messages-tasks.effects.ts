@@ -76,10 +76,11 @@ export class MessagesTasksEffects {
     ofType(internalActions.messagesSending),
     map(({ endpoint, messagesToSend, sendAmount, taskId }) => {
       if (sendAmount > 0) {
+        const totalMessages = messagesToSend.length + sendAmount;
         return TasksActions.setProgress({
           id: taskId,
-          statusDescription: `${sendAmount}/${messagesToSend.length}`,
-          progress: sendAmount / (sendAmount + messagesToSend.length) * 100
+          statusDescription: `${sendAmount}/${totalMessages}`,
+          progress: sendAmount / (totalMessages) * 100
         });
       }
 
