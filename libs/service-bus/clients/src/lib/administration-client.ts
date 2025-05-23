@@ -370,7 +370,7 @@ export class AdministrationClient {
       namespaceId: this.connection.id,
       id: queue.name,
       name: queue.name,
-      metadata: {
+      metaData: {
         ...queueMeta,
         endpoint: this.getEndpoint() + queue.name,
     },

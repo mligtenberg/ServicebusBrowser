@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { featureKey, MessagesState } from './messages.store';
+import { featureSelector } from './messages.feature-selector';
 
-const featureSelector = createFeatureSelector<MessagesState>(featureKey);
 
 export const selectPages = createSelector(
   featureSelector,

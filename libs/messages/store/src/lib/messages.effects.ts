@@ -2,20 +2,26 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
 import { catchError, from, map, mergeMap } from 'rxjs';
+import { Store } from '@ngrx/store';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 import Long from 'long';
+import { featureSelector } from './messages.feature-selector';
+import { clearedEndpoint } from './messages.actions';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessagesEffects {
   MAX_PAGE_SIZE = 500;
-  actions = inject(Actions);
+  store = inject(Store);
+  actions$ = inject(Actions);
   messagesService = inject(ServiceBusMessagesElectronClient);
 
-  loadPeakQueueMessages$ = createEffect(() => this.actions.pipe(
+  currentState = this.store.selectSignal(featureSelector);
+
+  loadPeakQueueMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.peakMessages),
     map(({ endpoint, maxAmount, fromSequenceNumber }) => internalActions.peakMessagesLoad({
       pageId: crypto.randomUUID(),
@@ -26,7 +32,7 @@ export class MessagesEffects {
     }))
   ));
 
-  loadPeakQueueMessagesPart$ = createEffect(() => this.actions.pipe(
+  loadPeakQueueMessagesPart$ = createEffect(() => this.actions$.pipe(
     ofType(internalActions.peakMessagesLoad),
     mergeMap(({ pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
@@ -47,7 +53,7 @@ export class MessagesEffects {
     })
   ));
 
-  loadMoreMessages$ = createEffect(() => this.actions.pipe(
+  loadMoreMessages$ = createEffect(() => this.actions$.pipe(
     ofType(internalActions.peakMessagesPartLoaded),
     map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
       if (maxAmount <= 0 || messages.length === 0) {
@@ -73,17 +79,46 @@ export class MessagesEffects {
     })
   ));
 
-  clearEndpoint$ = createEffect(() => this.actions.pipe(
-    ofType(actions.clearEndpoint, internalActions.continueClearingEndpoint),
-    mergeMap(({ endpoint }) => from(this.messagesService.receiveMessages(
-      endpoint,
-      this.MAX_PAGE_SIZE
-    )).pipe(map((messages) => messages.length === 0
-        ? actions.clearedEndpoint({ endpoint })
-        : internalActions.continueClearingEndpoint({ endpoint }))),
-    )));
+  initClearEndpoint$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.clearEndpoint),
+    map(({ endpoint, messagesToClearCount }) => {
+      if (messagesToClearCount === 0) {
+        return actions.clearedEndpoint({ endpoint });
+      }
 
-  sendMessage$ = createEffect(() => this.actions.pipe(
+      return internalActions.continueClearingEndpoint({
+        endpoint,
+        messagesToClearCount: messagesToClearCount
+      })
+    })
+  ));
+
+  clearEndpoint$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.continueClearingEndpoint),
+    mergeMap(({ endpoint, messagesToClearCount, lastClearRoundReceivedMessagesCount }) => {
+      const receiveCount = this.MAX_PAGE_SIZE > messagesToClearCount ? this.MAX_PAGE_SIZE : messagesToClearCount;
+
+      return from(this.messagesService.receiveMessages(
+        endpoint,
+        receiveCount
+      )).pipe(map((messages) => {
+          if (messages.length === 0 && lastClearRoundReceivedMessagesCount === 0) {
+            return clearedEndpoint({ endpoint });
+          }
+          if ((messagesToClearCount - messages.length) <= 0) {
+            return clearedEndpoint({ endpoint });
+          }
+
+          return internalActions.continueClearingEndpoint({
+            endpoint,
+            messagesToClearCount: messagesToClearCount - messages.length,
+            lastClearRoundReceivedMessagesCount: messages.length
+          });
+        })
+      )
+    })));
+
+  sendMessage$ = createEffect(() => this.actions$.pipe(
     ofType(actions.sendMessage),
     mergeMap(({ endpoint, message }) => from(this.messagesService.sendMessage(
       endpoint,
@@ -94,7 +129,7 @@ export class MessagesEffects {
     ))
   ));
 
-  sendMessages$ = createEffect(() => this.actions.pipe(
+  sendMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.sendMessages),
     map(({ endpoint, messages }) => {
       return internalActions.messagesSending({
@@ -106,7 +141,7 @@ export class MessagesEffects {
     })
   ));
 
-  continueSendingMessages$ = createEffect(() => this.actions.pipe(
+  continueSendingMessages$ = createEffect(() => this.actions$.pipe(
     ofType(internalActions.messagesSending),
     mergeMap(({ taskId, endpoint, messagesToSend, sendAmount }) => {
       const messages = messagesToSend.slice(0, 50);
@@ -133,7 +168,7 @@ export class MessagesEffects {
     })
   ));
 
-  exportMessages$ = createEffect(() => this.actions.pipe(
+  exportMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.exportMessages),
     mergeMap(({ pageName, messages }) =>
       from(this.messagesService.exportMessages(pageName, messages)).pipe(
@@ -143,7 +178,7 @@ export class MessagesEffects {
     )
   ), { dispatch: true });
 
-  importMessages$ = createEffect(() => this.actions.pipe(
+  importMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.importMessages),
     mergeMap(() =>
       from(this.messagesService.importMessages()).pipe(

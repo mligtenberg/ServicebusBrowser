@@ -46,7 +46,7 @@ export class EndpointSelectorTreeInputComponent implements ControlValueAccessor 
 
   onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
     this.value.set({
-      endpoint: $event.queue.metadata.endpoint,
+      endpoint: $event.queue.metaData.endpoint,
       queueName: $event.queue.name,
       connectionId: $event.queue.namespaceId,
     });

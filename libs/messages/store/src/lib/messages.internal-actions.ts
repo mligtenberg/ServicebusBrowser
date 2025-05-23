@@ -28,7 +28,9 @@ export const peakMessagesPartLoaded = createAction(
 export const continueClearingEndpoint = createAction(
   '[Messages] continue clearing endpoint',
   props<{
-    endpoint: ReceiveEndpoint
+    endpoint: ReceiveEndpoint,
+    messagesToClearCount: number,
+    lastClearRoundReceivedMessagesCount?: number,
   }>()
 )
 

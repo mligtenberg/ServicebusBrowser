@@ -57,7 +57,7 @@ export class QueueManagementComponent {
       return [];
     }
 
-    return Object.entries(queue.metadata).map(([key, value]) => ({
+    return Object.entries(queue.metaData).map(([key, value]) => ({
       key,
       value,
     }));

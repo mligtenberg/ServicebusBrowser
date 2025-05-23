@@ -207,7 +207,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: undefined,
                 connectionId: queue.namespaceId,
-              }
+              },
+              messagesToClearCount: queue.metaData.activeMessageCount
             })
           );
         }
@@ -227,7 +228,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: 'deadLetter',
                 connectionId: queue.namespaceId,
-              }
+              },
+              messagesToClearCount: queue.metaData.deadLetterMessageCount
             })
           );
         }
@@ -247,7 +249,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: 'transferDeadLetter',
                 connectionId: queue.namespaceId,
-              }
+              },
+              messagesToClearCount: queue.metaData.transferDeadLetterMessageCount
             })
           );
         }
@@ -422,7 +425,8 @@ export class SidebarComponent {
                 connectionId: subscription.namespaceId,
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
-              }
+              },
+              messagesToClearCount: subscription.metaData.activeMessageCount
             })
           );
         }
@@ -442,7 +446,8 @@ export class SidebarComponent {
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
                 channel: 'deadLetter',
-              }
+              },
+              messagesToClearCount: subscription.metaData.deadLetterMessageCount
             })
           );
         }
@@ -462,7 +467,8 @@ export class SidebarComponent {
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
                 channel: 'transferDeadLetter',
-              }
+              },
+              messagesToClearCount: subscription.metaData.transferDeadLetterMessageCount
             })
           );
         }

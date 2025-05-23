@@ -7,6 +7,7 @@ import {
   TopicWithChildren, TopicWithChildrenAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 const featureSelector = createFeatureSelector<TopologyState>(featureKey);
 
@@ -52,3 +53,17 @@ export const selectSubscriptionRuleById = (namespaceId: UUID, topicId: string, s
   selectSubscriptionById(namespaceId, topicId, subscriptionId),
   (subscription) => subscription?.rules.find((r) => r.name === ruleName)
 );
+
+export const selectByReceiveEndpoint = (receiveEndpoint: ReceiveEndpoint) => createSelector(
+  selectNamespaceById(receiveEndpoint.connectionId),
+  (namespace) => {
+    if ('queueName' in receiveEndpoint) {
+      return namespace?.queues.find(q => q.name === receiveEndpoint.queueName);
+    }
+    if ('topicName' in receiveEndpoint && 'subscriptionName' in receiveEndpoint) {
+      return namespace?.topics.find(t => t.name === receiveEndpoint.topicName)?.subscriptions.find(s => s.name === receiveEndpoint.subscriptionName);
+    }
+
+    return null;
+  }
+)

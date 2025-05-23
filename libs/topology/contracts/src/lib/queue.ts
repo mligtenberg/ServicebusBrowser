@@ -26,7 +26,7 @@ export type Queue = {
 }
 
 export type QueueWithMetaData = Queue & {
-  metadata: {
+  metaData: {
     /**
      * Created at timestamp
      */
