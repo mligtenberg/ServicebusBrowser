@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { catchError, from, map, mergeMap } from 'rxjs';
+import { catchError, EMPTY, from, map, mergeMap, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as actions from './messages.actions';
@@ -182,6 +182,12 @@ export class MessagesEffects {
     ofType(actions.importMessages),
     mergeMap(() =>
       from(this.messagesService.importMessages()).pipe(
+        switchMap((action) => {
+          if (action.messages.length === 0) {
+            return EMPTY;
+          }
+          return [action]
+        }),
         map(({ pageName, messages }) => internalActions.messagesImported({ pageName, messages })),
         catchError(() => [internalActions.messagesImportFailed()])
       )
