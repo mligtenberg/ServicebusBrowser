@@ -226,6 +226,7 @@ export class MessageFilterDialogComponent {
   }
 
   onCancel() {
+    this.currentFilters.set(this.filters());
     this.visible.set(false);
   }
 
