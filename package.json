@@ -1,7 +1,7 @@
 {
   "name": "@service-bus-browser/source",
   "productName": "Servicebus Browser",
-  "version": "0.0.0",
+  "version": "0.9.1",
   "license": "MIT",
   "private": true,
   "author": "Martin Ligtenberg",
