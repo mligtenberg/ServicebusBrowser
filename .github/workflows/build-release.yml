@@ -33,6 +33,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
+      - run: pnpm version ${{ github.event.inputs.tagVersion }}  --no-git-tag-version
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -59,6 +60,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
+      - run: pnpm version ${{ github.event.inputs.tagVersion }} --no-git-tag-version
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -84,6 +86,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
+      - run: pnpm version ${{ github.event.inputs.tagVersion }} --no-git-tag-version
       - run: pnpm exec nx run-many -t build --configuration=production
       - name: Build executable
         env:
