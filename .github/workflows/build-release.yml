@@ -34,7 +34,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
       - run: pnpm exec nx run-many -t build --configuration=production
-      - run: pnpm exec nx run servicebus-browser-app:make -c.extraMetadata.version=${{ github.event.inputs.tagVersion }}
+      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
         with:
@@ -60,7 +60,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
       - run: pnpm exec nx run-many -t build --configuration=production
-      - run: pnpm exec nx run servicebus-browser-app:make -c.extraMetadata.version=${{ github.event.inputs.tagVersion }}
+      - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
         with:
@@ -92,7 +92,7 @@ jobs:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: pnpm exec nx run servicebus-browser-app:make -c.extraMetadata.version=${{ github.event.inputs.tagVersion }} --configuration=macos-notarize
+        run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }} --configuration=macos-notarize
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
         with:
