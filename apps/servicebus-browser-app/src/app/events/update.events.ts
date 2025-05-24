@@ -10,6 +10,8 @@ export default class UpdateEvents {
       platform() === 'win32' ? platform() : platform() + "-" + arch();
     const version = app.getVersion();
 
+    console.log(`${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`);
+
     const feed: Electron.FeedURLOptions = {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`,
     };
