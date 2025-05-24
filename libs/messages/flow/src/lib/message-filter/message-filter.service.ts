@@ -202,6 +202,23 @@ export class MessageFilterService {
         if (filterPart.filterType === 'equals') {
           return message.body === filterPart.value;
         }
+
+        if (filterPart.filterType === 'notcontains') {
+          return !message.body.includes(filterPart.value);
+        }
+
+        if (filterPart.filterType === 'notequals') {
+          return message.body !== filterPart.value;
+        }
+
+        if (filterPart.filterType === 'notregex') {
+          try {
+            const regex = new RegExp(filterPart.value);
+            return !regex.test(message.body);
+          } catch (e) {
+            return false;
+          }
+        }
       })
     }
 
@@ -291,6 +308,17 @@ export class MessageFilterService {
         } catch (e) {
           return false;
         }
+      case 'notcontains':
+        return !value.includes(filter.value);
+      case 'notequals':
+        return value !== filter.value;
+      case 'notregex':
+        try {
+          const regex = new RegExp(filter.value);
+          return !regex.test(value);
+        } catch (e) {
+          return false;
+        }
       default:
         return false;
     }
@@ -317,6 +345,8 @@ export class MessageFilterService {
         return dateValue > filterDate;
       case 'equals':
         return dateValue.getTime() === filterDate.getTime();
+      case 'notequals':
+        return dateValue.getTime() !== filterDate.getTime();
       default:
         return false;
     }
@@ -340,6 +370,8 @@ export class MessageFilterService {
         return value < filter.value;
       case 'equals':
         return value === filter.value;
+      case 'notequals':
+        return value !== filter.value;
       default:
         return false;
     }

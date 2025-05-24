@@ -6,19 +6,19 @@ export interface MessageFilterBase {
 
 export interface StringFilter extends MessageFilterBase {
   fieldType: 'string';
-  filterType: 'contains' | 'equals' | 'regex';
+  filterType: 'contains' | 'equals' | 'regex' | 'notequals' | 'notcontains' | 'notregex';
   value: string;
 }
 
 export interface DateFilter extends MessageFilterBase {
   fieldType: 'date';
-  filterType: 'before' | 'after' | 'equals';
+  filterType: 'before' | 'after' | 'equals' | 'notequals';
   value: Date;
 }
 
 export interface NumberFilter extends MessageFilterBase {
   fieldType: 'number';
-  filterType: 'greater' | 'less' | 'equals';
+  filterType: 'greater' | 'less' | 'equals'  | 'notequals';
   value: number;
 }
 
@@ -32,7 +32,7 @@ export type PropertyFilter = StringFilter | DateFilter | NumberFilter | BooleanF
 
 export type BodyFilter = {
   isActive: boolean;
-  filterType: 'contains' | 'regex';
+  filterType: 'contains' | 'regex' | 'equals' | 'notcontains' | 'notregex' | 'notequals';
   value: string;
 }
 

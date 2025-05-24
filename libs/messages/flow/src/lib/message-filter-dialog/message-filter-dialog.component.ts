@@ -64,23 +64,30 @@ export class MessageFilterDialogComponent {
     { label: 'Contains', value: 'contains' },
     { label: 'Equals', value: 'equals' },
     { label: 'Regex', value: 'regex' },
+    { label: 'Not contains', value: 'notcontains' },
+    { label: 'Not equals', value: 'notequals' },
+    { label: 'Not regex', value: 'notregex' },
   ];
 
   dateFilterTypes = [
     { label: 'Before', value: 'before' },
     { label: 'After', value: 'after' },
     { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
   ];
 
   numberFilterTypes = [
     { label: 'Greater Than', value: 'greater' },
     { label: 'Less Than', value: 'less' },
     { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
   ];
 
   bodyFilterTypes = [
     { label: 'Contains', value: 'contains' },
     { label: 'Regex', value: 'regex' },
+    { label: 'Not contains', value: 'notcontains' },
+    { label: 'Not regex', value: 'notregex' },
   ];
 
   getSystemPropertyOptions() {
@@ -112,7 +119,7 @@ export class MessageFilterDialogComponent {
     }));
   }
 
-  onSystemPropertyChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow: boolean = false) {
+  onSystemPropertyChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow = false) {
     const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
 
     signalToUpdate.update((current) => ({
@@ -154,7 +161,7 @@ export class MessageFilterDialogComponent {
     }));
   }
 
-  onApplicationPropertyTypeChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow: boolean = false) {
+  onApplicationPropertyTypeChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow = false) {
     const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
 
     signalToUpdate.update((current) => ({
@@ -191,7 +198,7 @@ export class MessageFilterDialogComponent {
     }));
   }
 
-  onBodyFilterTypeChange(index: number, field: keyof BodyFilter, value: unknown, useShadow: boolean = false) {
+  onBodyFilterTypeChange(index: number, field: keyof BodyFilter, value: unknown, useShadow = false) {
     const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
 
     signalToUpdate.update((current) => ({
