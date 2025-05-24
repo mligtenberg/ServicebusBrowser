@@ -78,7 +78,8 @@
                 [ngModel]="filter.value"
                 placeholder="Value"
                 class="value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
+                (blur)="syncShadowFilters()"
               />
 
               <p-calendar
@@ -93,7 +94,8 @@
               <p-inputNumber
                 *ngIf="filter.fieldType === 'number'"
                 [ngModel]="filter.value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+                (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
+                (blur)="syncShadowFilters()"
                 class="value"
               ></p-inputNumber>
 
@@ -141,7 +143,8 @@
               [ngModel]="filter.fieldName"
               placeholder="Property Name"
               class="fieldName"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldName', $event)"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldName', $event, true)"
+              (blur)="syncShadowFilters()"
             />
 
             <p-select
@@ -197,7 +200,8 @@
               [ngModel]="filter.value"
               placeholder="Value"
               class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
+              (blur)="syncShadowFilters()"
             />
 
             <p-calendar
@@ -213,7 +217,8 @@
               *ngIf="filter.fieldType === 'number'"
               [ngModel]="filter.value"
               class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
+              (blur)="syncShadowFilters()"
             ></p-inputNumber>
 
             <p-checkbox
@@ -268,9 +273,10 @@
             <input
               pInputText
               [ngModel]="filter.value"
-              (ngModelChange)="onBodyFilterTypeChange($index, 'value', $event)"
+              (ngModelChange)="onBodyFilterTypeChange($index, 'value', $event, true)"
               placeholder="Value"
               class="value"
+              (blur)="syncShadowFilters()"
             />
 
             <p-button

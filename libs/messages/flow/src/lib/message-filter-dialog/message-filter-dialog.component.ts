@@ -46,9 +46,9 @@ export class MessageFilterDialogComponent {
   visible = model<boolean>(false);
   filters = input.required<MessageFilter>();
   currentFilters = linkedSignal(this.filters);
-  currentOutwardsFilter = linkedSignal(this.filters);
+  shadowCurrentFilters = linkedSignal(this.currentFilters);
   isFilterValid = computed(() => {
-    return this.filterService.filterIsValid(this.currentOutwardsFilter());
+    return this.filterService.filterIsValid(this.shadowCurrentFilters());
   })
   filtersUpdated = output<MessageFilter>();
 
@@ -91,7 +91,6 @@ export class MessageFilterDialogComponent {
   }
 
   addSystemPropertyFilter() {
-    this.currentFilters.set(this.currentOutwardsFilter());
     const newFilter: StringFilter = {
       fieldName: '',
       fieldType: 'string',
@@ -104,23 +103,21 @@ export class MessageFilterDialogComponent {
       ...current,
       systemProperties: [...current.systemProperties, newFilter],
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
   removeSystemPropertyFilter(index: number) {
-    this.currentFilters.set(this.currentOutwardsFilter());
     this.currentFilters.update((current) => ({
       ...current,
       systemProperties: current.systemProperties.filter((_, i) => i !== index),
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
-  onSystemPropertyChange(index: number, field: keyof PropertyFilter, value: unknown) {
-    const currentFilters = this.currentOutwardsFilter();
-    const updatedFilter: MessageFilter = {
-      ...currentFilters,
-      systemProperties: currentFilters.systemProperties.map((filter, i) => {
+  onSystemPropertyChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow: boolean = false) {
+    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+
+    signalToUpdate.update((current) => ({
+      ...current,
+      systemProperties: current.systemProperties.map((filter, i) => {
         if (i !== index) {
           return filter;
         }
@@ -130,14 +127,10 @@ export class MessageFilterDialogComponent {
           [field]: value,
         }
       })
-    }
-
-    this.currentOutwardsFilter.set(updatedFilter);
+    }));
   }
 
   addApplicationPropertyFilter() {
-    this.currentFilters.set(this.currentOutwardsFilter());
-    this.currentOutwardsFilter.set(this.currentFilters());
     const newFilter: StringFilter = {
       fieldName: '',
       fieldType: 'string',
@@ -150,25 +143,23 @@ export class MessageFilterDialogComponent {
       ...current,
       applicationProperties: [...current.applicationProperties, newFilter],
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
   removeApplicationPropertyFilter(index: number) {
-    this.currentFilters.set(this.currentOutwardsFilter());
     this.currentFilters.update((current) => ({
       ...current,
       applicationProperties: current.applicationProperties.filter(
         (_, i) => i !== index
       ),
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
-  onApplicationPropertyTypeChange(index: number, field: keyof PropertyFilter, value: unknown) {
-    const currentFilters = this.currentOutwardsFilter();
-    const updatedFilter: MessageFilter = {
-      ...currentFilters,
-      applicationProperties: currentFilters.applicationProperties.map((filter, i) => {
+  onApplicationPropertyTypeChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow: boolean = false) {
+    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+
+    signalToUpdate.update((current) => ({
+      ...current,
+      applicationProperties: current.applicationProperties.map((filter, i) => {
         if (i !== index) {
           return filter;
         }
@@ -178,13 +169,10 @@ export class MessageFilterDialogComponent {
           [field]: value,
         }
       })
-    }
-
-    this.currentOutwardsFilter.set(updatedFilter);
+    }))
   }
 
   addBodyFilter() {
-    this.currentFilters.set(this.currentOutwardsFilter());
     const newFilter: BodyFilter = {
       filterType: 'contains',
       value: '',
@@ -194,20 +182,19 @@ export class MessageFilterDialogComponent {
       ...current,
       body: [...current.body, newFilter],
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
   removeBodyFilter(index: number) {
-    this.currentFilters.set(this.currentOutwardsFilter());
     this.currentFilters.update((current) => ({
       ...current,
       body: current.body.filter((_, i) => i !== index),
     }));
-    this.currentOutwardsFilter.set(this.currentFilters());
   }
 
-  onBodyFilterTypeChange(index: number, field: keyof BodyFilter, value: unknown) {
-    this.currentOutwardsFilter.update((current) => ({
+  onBodyFilterTypeChange(index: number, field: keyof BodyFilter, value: unknown, useShadow: boolean = false) {
+    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+
+    signalToUpdate.update((current) => ({
       ...current,
       body: current.body.map((filter, i) => {
         if (i !== index) {
@@ -222,8 +209,12 @@ export class MessageFilterDialogComponent {
     }))
   }
 
+  syncShadowFilters() {
+    this.currentFilters.set(this.shadowCurrentFilters());
+  }
+
   onApply() {
-    this.filtersUpdated.emit(this.currentOutwardsFilter());
+    this.filtersUpdated.emit(this.currentFilters());
     this.visible.set(false);
   }
 
