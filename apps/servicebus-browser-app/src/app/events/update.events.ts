@@ -8,9 +8,7 @@ export default class UpdateEvents {
   static initAutoUpdateService() {
     const platform_arch =
       platform() === 'win32' ? platform() : platform() + "-" + arch();
-    const version = app.getVersion();
-
-    console.log(`${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`);
+    const version = '0.9.1';
 
     const feed: Electron.FeedURLOptions = {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`,
