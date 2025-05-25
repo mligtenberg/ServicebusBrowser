@@ -1,0 +1,21 @@
+p-input-group p-date-picker {
+  .p-component.p-inputwrapper {
+    width: 100%;
+
+    input {
+      border-radius: 0;
+    }
+  }
+
+  &:last-child .p-component.p-inputwrapper input {
+    border-radius: 0 var(--p-inputtext-border-radius) var(--p-inputtext-border-radius) 0;
+  }
+
+  &:first-child .p-component.p-inputwrapper input {
+    border-radius: var(--p-inputtext-border-radius) 0 0 var(--p-inputtext-border-radius);
+  }
+
+  &:first-child:last-child .p-component.p-inputwrapper input {
+    border-radius: var(--p-inputtext-border-radius);
+  }
+}

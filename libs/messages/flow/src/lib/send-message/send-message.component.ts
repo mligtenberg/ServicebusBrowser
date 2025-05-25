@@ -23,6 +23,8 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Store } from '@ngrx/store';
 import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
+import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
+import { SystemPropertyHelpers } from '../systemproperty-helpers';
 
 @Component({
   selector: 'lib-send-message',
@@ -52,6 +54,7 @@ export class SendMessageComponent {
   colorThemeService = inject(ColorThemeService);
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
+  systemPropertyHelpers = inject(SystemPropertyHelpers);
 
   form = signal(this.createForm());
 
@@ -141,19 +144,7 @@ export class SendMessageComponent {
   }
 
   getAvailablePropertyKeys(index: number) {
-    const keys = [
-      'correlationId',
-      'partitionKey',
-      'sessionId',
-      'replyToSessionId',
-      'messageId',
-      'subject',
-      'to',
-      'replyTo',
-      'scheduledEnqueueTimeUtc',
-      'timeToLive',
-    ];
-    return keys.filter(
+    return SystemKeyProperties.filter(
       (key) =>
         !this.form().controls.properties.value.some(
           (p, i) => p.key === key && i !== index
@@ -162,33 +153,30 @@ export class SendMessageComponent {
   }
 
   propertyIsText(index: number) {
-    const stringKeys = [
-      'correlationId',
-      'partitionKey',
-      'sessionId',
-      'replyToSessionId',
-      'messageId',
-      'subject',
-      'to',
-      'replyTo',
-    ];
-    return stringKeys.includes(
-      this.form().controls.properties.value[index].key ?? ''
-    );
+    const key = this.form().controls.properties.value[index].key;
+    if (!key) {
+      return false;
+    }
+
+    return this.systemPropertyHelpers.propertyIsText(key)
   }
 
   propertyIsDate(index: number) {
-    const dateKeys = ['scheduledEnqueueTimeUtc'];
-    return dateKeys.includes(
-      this.form().controls.properties.value[index].key ?? ''
-    );
+    const key = this.form().controls.properties.value[index].key;
+    if (!key) {
+      return false;
+    }
+
+    return this.systemPropertyHelpers.propertyIsDate(key)
   }
 
   propertyIsTimeSpan(index: number) {
-    const timeSpanKeys = ['timeToLive'];
-    return timeSpanKeys.includes(
-      this.form().controls.properties.value[index].key ?? ''
-    );
+    const key = this.form().controls.properties.value[index].key;
+    if (!key) {
+      return false;
+    }
+
+    return this.systemPropertyHelpers.propertyIsTimeSpan(key)
   }
 
   propertyUnknownType(index: number) {

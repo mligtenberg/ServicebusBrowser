@@ -22,4 +22,9 @@ export const selectPage = (pageId: string) => createSelector(
 export const selectMessage = (pageId: string, messageId: string) => createSelector(
   selectPage(pageId),
   (page) => page?.messages.find((message) => message.messageId === messageId)
-)
+);
+
+export const selectBatchResendMessages = createSelector(
+  featureSelector,
+  (state) => state.messageForBatchResend
+);

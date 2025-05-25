@@ -69,3 +69,10 @@ export const exportMessages = createAction(
 export const importMessages = createAction(
   '[Messages] import messages'
 )
+
+export const setBatchResendMessages = createAction(
+  '[Messages] set batch resend messages',
+  props<{
+    messages: ServiceBusReceivedMessage[]
+  }>()
+)

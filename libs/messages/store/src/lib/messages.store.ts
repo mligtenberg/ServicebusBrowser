@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { MessagePage } from '@service-bus-browser/messages-contracts';
+import { MessagePage, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 
 export const featureKey = 'messages';
 
@@ -8,10 +8,12 @@ import * as internalActions from './messages.internal-actions';
 
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
+  messageForBatchResend: Array<ServiceBusMessage>;
 }
 
 export const initialState: MessagesState = {
-  receivedMessages: []
+  receivedMessages: [],
+  messageForBatchResend: []
 };
 
 export const logsReducer = createReducer(
@@ -74,7 +76,7 @@ export const logsReducer = createReducer(
   }),
   on(internalActions.messagesImported, (state, { pageName, messages }): MessagesState => {
     const pageId = crypto.randomUUID();
-    
+
     return {
       ...state,
       receivedMessages: [
@@ -87,6 +89,12 @@ export const logsReducer = createReducer(
           messages
         }
       ]
+    }
+  }),
+  on(actions.setBatchResendMessages, (state, { messages }): MessagesState => {
+    return {
+      ...state,
+      messageForBatchResend: messages
     }
   })
 );

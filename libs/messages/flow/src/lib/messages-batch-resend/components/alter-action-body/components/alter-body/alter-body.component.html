@@ -1,0 +1,58 @@
+<div class="alter-body-container">
+  <p-select
+    [options]="alterTypes"
+    [(ngModel)]="alterType"
+    placeholder="Alter Type"
+    appendTo="body"
+  />
+
+  @if (alterType() !== 'fullReplace') {
+    <input 
+      pInputText
+      required
+      [(ngModel)]="searchValue"
+      placeholder="Search text"
+    />
+  }
+  
+  <div class="value-container">
+    <textarea 
+      pInputTextarea
+      [(ngModel)]="value"
+      [rows]="5" 
+      [cols]="30" 
+      placeholder="New value"
+      required
+    ></textarea>
+    
+    @if (alterType() === 'fullReplace') {
+      <p-button 
+        icon="pi pi-external-link" 
+        (click)="monacoDialogVisible.set(true)" 
+        styleClass="editor-button"
+        pTooltip="Open full screen editor"
+        tooltipPosition="top">
+      </p-button>
+    }
+  </div>
+</div>
+
+<p-dialog 
+  header="Edit Body Content" 
+  [(visible)]="monacoDialogVisible"
+  [modal]="true"
+  [style]="{width: '90vw', height: '90vh'}"
+  [draggable]="false"
+  [resizable]="false"
+  appendTo="body">
+  <div class="monaco-editor-container">
+    <ngx-monaco-editor
+    [style]="{height: '100%'}"
+      [options]="editorOptions()"
+      [(ngModel)]="value"
+    ></ngx-monaco-editor>
+  </div>
+  <ng-template #footer>
+    <p-button label="Done" icon="pi pi-check" (click)="monacoDialogVisible.set(false)" styleClass="p-button-success"></p-button>
+  </ng-template>
+</p-dialog>

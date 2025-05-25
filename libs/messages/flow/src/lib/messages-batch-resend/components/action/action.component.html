@@ -1,0 +1,48 @@
+<p-input-group>
+  <p-select
+    placeholder="Action type"
+    [(ngModel)]="currentActionType"
+    [options]="actionTypes"
+  />
+  <p-select
+    placeholder="Target"
+    [(ngModel)]="target"
+    [options]="targets()"
+  />
+  <p-button
+    [icon]="isFilterActive() ? 'pi pi-filter-fill' : 'pi pi-filter'"
+    ariaLabel="filter messages"
+    (click)="filterMenuVisable.set(true)"
+  />
+</p-input-group>
+
+@let currentTarget = target();
+@if (currentActionType() === 'add' && (currentTarget === 'systemProperties' || currentTarget === 'applicationProperties')) {
+  <lib-add-action-body
+    [target]="currentTarget"
+    [messageFilter]="messageFilter()"
+    (addActionUpdated)="addAction.set($event)"
+  />
+}
+
+@if (currentActionType() === 'alter' && currentTarget) {
+  <lib-alter-action-body
+    [target]="currentTarget"
+    [messageFilter]="messageFilter()"
+    (alterActionUpdated)="alterAction.set($event)"
+  />
+}
+
+@if (currentActionType() === 'remove' && (currentTarget === 'systemProperties' || currentTarget === 'applicationProperties')) {
+  <lib-remove-action-body
+    [target]="currentTarget"
+    [messageFilter]="messageFilter()"
+    (removeActionUpdated)="removeAction.set($event)"
+  />
+}
+
+<lib-message-filter-dialog
+  [(visible)]="filterMenuVisable"
+  [filters]="messageFilter()"
+  (filtersUpdated)="messageFilter.set($event)"
+/>

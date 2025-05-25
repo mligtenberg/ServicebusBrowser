@@ -1,0 +1,163 @@
+.batch-resend-container {
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-bottom: 1em;
+  height: calc(100% - 1em);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.batch-resend-header {
+  margin-bottom: 1.5rem;
+
+  .title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #343a40;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: #6c757d;
+  }
+}
+
+.destination-selector {
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.actions-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex: 1;
+
+  .actions-list {
+    flex: 1;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state {
+      padding: 2rem;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      text-align: center;
+      color: #6c757d;
+    }
+
+    .action-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      justify-content: flex-end;
+    }
+
+    .action-item {
+      display: flex;
+      padding: 0.75rem;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+
+      .action-summary {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .action-type {
+          font-weight: bold;
+          color: #0d6efd;
+        }
+
+        .action-target {
+          font-size: 0.9rem;
+          color: #6c757d;
+        }
+
+        .action-details {
+          font-size: 0.9rem;
+        }
+      }
+
+      .action-buttons {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .action-editor {
+    flex: 1;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    .action-add-button {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+  }
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .message-preview {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+
+    h4 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background-color: #e9ecef;
+      padding: 0.75rem;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .properties-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .property-item {
+        display: flex;
+
+        .property-name {
+          font-weight: bold;
+          margin-right: 0.5rem;
+          min-width: 120px;
+        }
+
+        .property-value {
+          font-family: monospace;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+}

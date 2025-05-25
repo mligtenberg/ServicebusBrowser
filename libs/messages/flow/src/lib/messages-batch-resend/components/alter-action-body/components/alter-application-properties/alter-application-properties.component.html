@@ -1,0 +1,65 @@
+<div class="alter-application-properties-container">
+  <p-input-group>
+    <input
+      pInputText
+      required
+      [(ngModel)]="fieldName"
+      placeholder="Property Key"/>
+
+    <p-select
+      [options]="alterTypes"
+      [(ngModel)]="alterType"
+      placeholder="Alter Type"
+      appendTo="body"
+    />
+  </p-input-group>
+
+  @if (alterType() !== 'fullReplace') {
+    <input
+      pInputText
+      required
+      [(ngModel)]="searchValue"
+      placeholder="Search value"
+    />
+  }
+
+  <p-input-group>
+    <p-select
+      appendTo="body"
+      #customPropertyTypeSelect
+      [(ngModel)]="propertyType"
+      [options]="typeOptions"
+    />
+
+    @if (propertyType() === 'string') {
+      <input
+        pInputText
+        required
+        [(ngModel)]="value"
+        placeholder="Value"/>
+    }
+    @if (propertyType() === 'datetime') {
+      <p-date-picker
+        required
+        [showTime]="true"
+        hourFormat="24"
+        [(ngModel)]="value"
+        appendTo="body"
+        placeholder="Value"/>
+    }
+    @if (propertyType() === 'number') {
+      <input
+        pInputText
+        required
+        [(ngModel)]="value"
+        placeholder="Value"/>
+    }
+    @if (propertyType() === 'boolean') {
+      <p-select
+        appendTo="body"
+        required
+        [(ngModel)]="value"
+        [options]="[true, false]"/>
+    }
+  </p-input-group>
+</div>

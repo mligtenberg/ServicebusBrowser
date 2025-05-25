@@ -1,0 +1,13 @@
+@let currentTarget = target();
+
+@switch (currentTarget) {
+  @case ('body') {
+    <lib-alter-body (alterActionUpdated)="onAlterActionUpdated($event)" />
+  }
+  @case ('systemProperties') {
+    <lib-alter-system-properties (alterActionUpdated)="onAlterActionUpdated($event)" />
+  }
+  @case ('applicationProperties') {
+    <lib-alter-application-properties (alterActionUpdated)="onAlterActionUpdated($event)" />
+  }
+}

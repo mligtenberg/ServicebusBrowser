@@ -1,4 +1,4 @@
-import Long from 'long';
+export type PropertyValue = number | boolean | string | Date | null;
 
 /**
  * Describes the message to be sent to Service Bus.
@@ -111,7 +111,7 @@ export interface ServiceBusMessage {
    * used for custom message metadata.
    */
   applicationProperties?: {
-    [key: string]: number | boolean | string | Date | null;
+    [key: string]: PropertyValue;
   };
 }
 
@@ -201,3 +201,16 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   readonly state: "active" | "deferred" | "scheduled";
 }
 
+export type SystemKeyProperty = Exclude<keyof ServiceBusMessage, 'body' | 'applicationProperties'>;
+export const SystemKeyProperties: SystemKeyProperty[] = [
+  'correlationId',
+  'partitionKey',
+  'sessionId',
+  'replyToSessionId',
+  'messageId',
+  'subject',
+  'to',
+  'replyTo',
+  'scheduledEnqueueTimeUtc',
+  'timeToLive',
+];

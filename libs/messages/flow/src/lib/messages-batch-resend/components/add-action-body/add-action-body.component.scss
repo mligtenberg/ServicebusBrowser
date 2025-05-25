@@ -1,0 +1,19 @@
+.add-action-body {
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+}
+
+.filter-and-error-handling {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .error-handling {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+    align-items: center;
+  }
+}

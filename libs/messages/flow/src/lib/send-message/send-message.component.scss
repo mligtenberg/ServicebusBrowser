@@ -21,16 +21,6 @@
       width: 100%;
     }
   }
-
-  ::ng-deep p-input-group p-date-picker {
-    .p-component.p-inputwrapper {
-      width: 100%;
-
-      input {
-        border-radius: 0;
-      }
-    }
-  }
 }
 
 .send-message-container {

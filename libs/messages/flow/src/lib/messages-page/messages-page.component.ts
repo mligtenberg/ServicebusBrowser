@@ -250,7 +250,20 @@ export class MessagesPageComponent {
           },
         },
         {
-          label: allMessages ? 'Export all messages' : 'Export selected messages',
+          label: allMessages ? 'Batch resend all messages' : 'Batch resend selected messages',
+          icon: 'pi pi-envelope',
+          command: () => {
+            this.store.dispatch(MessagesActions.setBatchResendMessages({
+              messages: menuSelection
+            }));
+            this.router.navigate([
+              this.baseRoute,
+              'batch-resend'
+            ]);
+          },
+        },
+        {
+          label: allMessages ? 'Export all messages' : 'Export selection',
           icon: 'pi pi-download',
           command: () => {
             this.menuMessagesSelection.set(menuSelection);
@@ -266,7 +279,7 @@ export class MessagesPageComponent {
 
     return [
       {
-        label: allMessages ? 'Quick resend all messages' : 'Quick selected resend messages',
+        label: 'Quick resend message',
         icon: 'pi pi-envelope',
         command: () => {
           this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
@@ -286,7 +299,7 @@ export class MessagesPageComponent {
         },
       },
       {
-        label: allMessages ? 'Quick all resend messages' : 'Quick selected resend messages',
+        label: 'Export message',
         icon: 'pi pi-download',
         command: () => {
           this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);

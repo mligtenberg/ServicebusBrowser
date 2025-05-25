@@ -1,0 +1,73 @@
+<div class="alter-system-properties-container">
+  <p-input-group>
+    <p-select
+      appendTo="body"
+      required
+      [(ngModel)]="fieldName"
+      [options]="systemPropertyKeys"
+      placeholder="Select property"
+    />
+    
+    <p-select
+      [options]="alterTypes"
+      [(ngModel)]="alterType"
+      placeholder="Alter Type"
+      appendTo="body"
+    />
+  </p-input-group>
+
+  @if (alterType() !== 'fullReplace') {
+    <input 
+      pInputText
+      required
+      [(ngModel)]="searchValue"
+      placeholder="Search value"
+    />
+  }
+
+  @if (systemPropertyIsText(fieldName())) {
+    <input
+      pInputText
+      required
+      [(ngModel)]="value"
+      placeholder="Value"/>
+  }
+  @if (systemPropertyIsDate(fieldName())) {
+    <p-date-picker
+      [(ngModel)]="value"
+      required
+      appendTo="body"
+      [showTime]="true"
+      hourFormat="24"
+      placeholder="Value"/>
+  }
+  @if (systemPropertyIsTimeSpan(fieldName())) {
+    <input
+      #timeSpanInput
+      (click)="popover.toggle($event)"
+      pInputText
+      required
+      readonly
+      [ngModel]="value()"
+      class="time-span-trigger"
+      aria-disabled="false"
+      placeholder="Value" />
+    <p-popover
+      appendTo="body"
+      #popover
+    >
+      <sbb-duration-input
+        required
+        [(ngModel)]="value"
+      />
+    </p-popover>
+  }
+
+  @if (propertyUnknownType(fieldName())) {
+    <input
+      pInputText
+      required
+      [(ngModel)]="value"
+      placeholder="Value"/>
+  }
+</div>
