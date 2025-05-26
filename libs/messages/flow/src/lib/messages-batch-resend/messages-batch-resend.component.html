@@ -11,7 +11,13 @@
 
   <div class="actions-container">
     <div class="actions-list">
-      <h3>Actions</h3>
+      <div class="actions-header">
+        <h3>Actions</h3>
+        <div class="actions-header-buttons">
+          <p-button icon="pi pi-upload" severity="secondary" text="true" tooltip="Import Actions" (click)="importActions()"></p-button>
+          <p-button icon="pi pi-download" severity="secondary" text="true" tooltip="Export Actions" [disabled]="actions().length === 0" (click)="exportActions()"></p-button>
+        </div>
+      </div>
       <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}" *ngIf="actions().length > 0">
         <div class="action-item" *ngFor="let action of actions(); let i = index">
           <div class="action-summary">

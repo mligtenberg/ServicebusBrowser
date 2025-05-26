@@ -75,22 +75,20 @@ export const exportMessages = async (body: { pageName: string, messages: Service
   return true;
 };
 
-export const storeFile = async (body: { fileName: string, fileContent: string }) => {
-  const { fileName, fileContent } = body;
+export const storeFile = async (body: { fileName: string, fileContent: string, fileTypes: Electron.FileFilter[] }) => {
+  const { fileName, fileContent, fileTypes } = body;
 
   const { canceled, filePath } = await dialog.showSaveDialog({
     title: 'Export Messages',
     defaultPath: fileName,
-    filters: [
-      { name: 'Zip files', extensions: ['zip'] }
-    ]
+    filters: fileTypes
   });
 
   if (canceled) {
     return false;
   }
 
-  fs.writeFileSync(filePath, Buffer.from(fileContent, 'utf-8'));
+  fs.writeFileSync(filePath, fileContent);
 
   return true;
 }

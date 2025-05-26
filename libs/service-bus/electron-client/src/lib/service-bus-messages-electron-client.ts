@@ -72,8 +72,8 @@ export class ServiceBusMessagesElectronClient {
   }
 
 
-  async saveFile(fileName: string, content: string): Promise<boolean> {
-    return await serviceBusApi.messagesDoRequest('saveFile', { fileName, content }) as boolean;
+  async saveFile(fileName: string, fileContent: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<boolean> {
+    return await serviceBusApi.messagesDoRequest('storeFile', { fileName, fileContent, fileTypes }) as boolean;
   }
 
   async openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<{fileName: string, fileContent: string} | undefined> {

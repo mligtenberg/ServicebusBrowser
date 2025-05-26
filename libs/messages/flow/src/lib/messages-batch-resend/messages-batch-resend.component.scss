@@ -63,7 +63,17 @@
       margin-top: 1rem;
       justify-content: flex-end;
     }
+.actions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
 
+  .actions-header-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
     .action-item {
       display: flex;
       padding: 0.75rem;

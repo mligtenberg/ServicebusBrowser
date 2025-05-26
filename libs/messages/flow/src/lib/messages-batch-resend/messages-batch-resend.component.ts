@@ -19,10 +19,12 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DialogModule } from 'primeng/dialog';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
+import { FilesService } from '@service-bus-browser/services';
 
 @Component({
   selector: 'lib-messages-batch-resend',
@@ -36,6 +38,7 @@ import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-co
     DialogModule,
     DividerModule,
     ToastModule,
+    TooltipModule,
     EndpointSelectorInputComponent
   ],
   providers: [BatchActionsService, MessageService],
@@ -49,6 +52,7 @@ export class MessagesBatchResendComponent {
   private store = inject(Store);
   private messageService = inject(MessageService);
   private router = inject(Router);
+  private fileService = inject(FilesService);
 
   protected actions = signal<Action[]>([]);
   protected previewDialogVisible = false;
@@ -119,6 +123,30 @@ export class MessagesBatchResendComponent {
     }
 
     return false;
+  }
+
+  async importActions() {
+    const file = await this.fileService.openFile("", [{
+      extensions: ['actionlist'],
+      name: 'Action List',
+    }]);
+
+    if (!file) return;
+
+    const actionContainer = JSON.parse(file.fileContent) as {verion: number, actions: Action[]};
+    this.actions.set(actionContainer.actions);
+  }
+
+  async exportActions() {
+    const actionContainer = {
+      verion: 1,
+      actions: this.actions()
+    };
+
+    await this.fileService.saveFile('export', JSON.stringify(actionContainer), [{
+      extensions: ['actionlist'],
+      name: 'Action List',
+    }]);
   }
 
   previewChanges() {
