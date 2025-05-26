@@ -24,7 +24,7 @@ import { MessageService } from 'primeng/api';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
-import { FilesService } from '@service-bus-browser/services';
+import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 
 @Component({
   selector: 'lib-messages-batch-resend',
@@ -47,6 +47,8 @@ import { FilesService } from '@service-bus-browser/services';
 })
 export class MessagesBatchResendComponent {
   @ViewChild('actionEditor') actionEditor!: ActionComponent;
+
+  darkMode = inject(ColorThemeService).darkMode;
 
   private batchActionsService = inject(BatchActionsService);
   private store = inject(Store);
