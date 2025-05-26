@@ -74,3 +74,23 @@ export const exportMessages = async (body: { pageName: string, messages: Service
 
   return true;
 };
+
+export const storeFile = async (body: { fileName: string, fileContent: string }) => {
+  const { fileName, fileContent } = body;
+
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'Export Messages',
+    defaultPath: fileName,
+    filters: [
+      { name: 'Zip files', extensions: ['zip'] }
+    ]
+  });
+
+  if (canceled) {
+    return false;
+  }
+
+  fs.writeFileSync(filePath, Buffer.from(fileContent, 'utf-8'));
+
+  return true;
+}

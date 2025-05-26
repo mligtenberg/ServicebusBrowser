@@ -81,3 +81,18 @@ export const importMessages = async () => {
     throw error;
   }
 };
+
+export const openFile = async (body: {fileTypes: Electron.FileFilter[]}) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    title: 'Import Messages',
+    filters: body.fileTypes,
+    properties: ['openFile']
+  });
+
+  if (canceled || !filePaths || filePaths.length === 0) {
+    return;
+  }
+
+  const file = fs.readFileSync(filePaths[0]);
+  return { fileContent: file.toString('utf-8'), fileName: path.basename(filePaths[0]) };
+}

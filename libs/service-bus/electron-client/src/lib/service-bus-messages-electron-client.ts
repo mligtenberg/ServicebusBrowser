@@ -70,4 +70,13 @@ export class ServiceBusMessagesElectronClient {
   async importMessages(): Promise<{ pageName: string, messages: ServiceBusReceivedMessage[] }> {
     return await serviceBusApi.messagesDoRequest('importMessages', {}) as { pageName: string, messages: ServiceBusReceivedMessage[] };
   }
+
+
+  async saveFile(fileName: string, content: string): Promise<boolean> {
+    return await serviceBusApi.messagesDoRequest('saveFile', { fileName, content }) as boolean;
+  }
+
+  async openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<{fileName: string, fileContent: string} | undefined> {
+    return await serviceBusApi.messagesDoRequest('openFile', { fileName, fileTypes }) as {fileName: string, fileContent: string} | undefined;
+  }
 }
