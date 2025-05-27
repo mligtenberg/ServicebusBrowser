@@ -124,7 +124,7 @@ export class MessageFilterService {
   private filterByBody<T extends ServiceBusMessage>(messages: T[], filter: MessageFilter): T[] {
     let filteredMessages = messages;
     for (const filterPart of filter.body) {
-      filteredMessages = messages.filter((message) => this.messageInBodyFilter(message, filterPart));
+      filteredMessages = filteredMessages.filter((message) => this.messageInBodyFilter(message, filterPart));
     }
 
     return filteredMessages;
