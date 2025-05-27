@@ -1,8 +1,9 @@
-import { Component, computed, effect, inject, model, output } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  Action,
   AlterAction,
-  AlterSystemPropertyActions,
+  AlterSystemPropertyActions, AlterSystemPropertyPartialReplaceAction,
   AlterType,
   PropertyValue,
   SystemKeyProperty
@@ -37,6 +38,7 @@ export class AlterSystemPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
+  action = input<Action>();
   protected alterType = model<AlterType>('fullReplace');
   protected fieldName = model<SystemKeyProperty | ''>('');
   protected value = model<PropertyValue | undefined>();
@@ -90,6 +92,31 @@ export class AlterSystemPropertiesComponent {
   constructor() {
     effect(() => {
       this.alterActionUpdated.emit(this.alterAction());
+    });
+
+    effect(() => {
+      const action = this.action() as Partial<AlterSystemPropertyActions> | undefined;
+      if (!action) {
+        return;
+      }
+
+      const partialReplaceAction = action as Partial<AlterSystemPropertyPartialReplaceAction>;
+
+      if (action.fieldName) {
+        this.fieldName.set(action.fieldName);
+      }
+
+      if (action.value) {
+        this.value.set(action.value);
+      }
+
+      if (partialReplaceAction.searchValue) {
+        this.searchValue.set(partialReplaceAction.searchValue);
+      }
+
+      if (action.alterType) {
+        this.alterType.set(action.alterType);
+      }
     });
   }
 

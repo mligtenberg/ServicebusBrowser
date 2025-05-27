@@ -1,6 +1,7 @@
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+import { Component, computed, effect, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  Action,
   BatchActionTarget,
   MessageFilter,
   RemoveAction,
@@ -23,6 +24,7 @@ import { SystemPropertyKeys } from '../../../send-message/form';
   styleUrl: './remove-action-body.component.scss',
 })
 export class RemoveActionBodyComponent {
+  action = input<Action>();
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
   removeActionUpdated = output<RemoveAction | undefined>();
@@ -69,6 +71,18 @@ export class RemoveActionBodyComponent {
       this.target();
       this.applicationPropertyName.set('');
       this.systemPropertyName.set('');
+    });
+
+    effect(() => {
+      const action = this.action() as Partial<RemoveAction> | undefined;
+
+      if (action?.fieldName && this.target() === 'systemProperties') {
+        this.systemPropertyName.set(action.fieldName as SystemKeyProperty);
+      }
+
+      if (action?.fieldName && this.target() === 'applicationProperties') {
+        this.applicationPropertyName.set(action.fieldName);
+      }
     });
   }
 }

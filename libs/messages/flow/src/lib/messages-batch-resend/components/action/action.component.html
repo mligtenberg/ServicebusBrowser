@@ -19,17 +19,19 @@
 @let currentTarget = target();
 @if (currentActionType() === 'add' && (currentTarget === 'systemProperties' || currentTarget === 'applicationProperties')) {
   <lib-add-action-body
+    [action]="action()"
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
-    (addActionUpdated)="addAction.set($event)"
+    (addActionUpdated)="action.set($event)"
   />
 }
 
 @if (currentActionType() === 'alter' && currentTarget) {
   <lib-alter-action-body
+    [action]="action()"
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
-    (alterActionUpdated)="alterAction.set($event)"
+    (alterActionUpdated)="action.set($event)"
   />
 }
 
@@ -37,7 +39,7 @@
   <lib-remove-action-body
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
-    (removeActionUpdated)="removeAction.set($event)"
+    (removeActionUpdated)="action.set($event)"
   />
 }
 

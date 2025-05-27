@@ -1,5 +1,4 @@
 :root {
-  --batch-resend-bg: #fff;
   --batch-resend-text: #333;
   --batch-resend-border: #ddd;
   --batch-resend-action-item-bg: #f8f9fa;
@@ -10,25 +9,25 @@
   --batch-resend-property-name: #555;
   --batch-resend-title: #343a40;
   --batch-resend-subtitle: #6c757d;
+  --batch-action-title: #00336e;
 }
 
 .batch-resend-container.darkMode {
-  --batch-resend-bg: #1e1e1e;
   --batch-resend-text: #e0e0e0;
-  --batch-resend-border: #444;
-  --batch-resend-action-item-bg: #2a2a2a;
+  --batch-resend-border: #3a3a3d;
+  --batch-resend-action-item-bg: #232328;
   --batch-resend-action-item-hover: #3a3a3a;
-  --batch-resend-empty-state-bg: #2a2a2a;
+  --batch-resend-empty-state-bg: #28282e;
   --batch-resend-empty-state-text: #bbb;
   --batch-resend-preview-bg: #1e1e1e;
   --batch-resend-property-name: #bbb;
   --batch-resend-title: #e0e0e0;
   --batch-resend-subtitle: #bbb;
+  --batch-action-title: #4789d4;
 }
 
 .batch-resend-container {
   padding: 1rem;
-  background-color: var(--batch-resend-bg);
   color: var(--batch-resend-text);
   border-radius: 4px;
   margin-bottom: 1em;
@@ -193,7 +192,7 @@
 
         .action-type {
           font-weight: bold;
-          color: #0d6efd;
+          color: var(--batch-action-title);
         }
 .actions-container {
   display: flex;
@@ -208,7 +207,6 @@
     border: 1px solid var(--batch-resend-border);
     border-radius: 4px;
     padding: 1rem;
-    background-color: var(--batch-resend-bg);
     overflow: hidden;
   }
 
@@ -219,7 +217,6 @@
     border: 1px solid var(--batch-resend-border);
     border-radius: 4px;
     padding: 1rem;
-    background-color: var(--batch-resend-bg);
 
     .action-add-button {
       margin-top: auto;

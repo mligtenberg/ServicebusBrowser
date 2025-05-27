@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, inject, signal } from '@angular/core';
+import { Component, inject, signal, viewChild, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Action,
@@ -46,9 +46,9 @@ import { ColorThemeService, FilesService } from '@service-bus-browser/services';
   styleUrl: './messages-batch-resend.component.scss',
 })
 export class MessagesBatchResendComponent {
-  @ViewChild('actionEditor') actionEditor!: ActionComponent;
-
   darkMode = inject(ColorThemeService).darkMode;
+
+  actionEditor = viewChild<ActionComponent>('actionEditor');
 
   private batchActionsService = inject(BatchActionsService);
   private store = inject(Store);
@@ -60,10 +60,13 @@ export class MessagesBatchResendComponent {
   protected previewDialogVisible = false;
   protected previewMessages: ServiceBusMessage[] = [];
   protected selectedEndpoint: SendEndpoint | null = null;
+  protected editMode = signal(false);
+  protected editModeIndex = signal(-1);
+  protected currentAction = model<Action | undefined>();
 
   private originalMessages: ServiceBusMessage[] = [];
 
-  ngOnInit() {
+  constructor() {
     this.store.select(MessagesSelectors.selectBatchResendMessages)
       .pipe(take(1))
       .subscribe(messages => {
@@ -79,30 +82,45 @@ export class MessagesBatchResendComponent {
       });
   }
 
-  addAction() {
-    let action: Action | undefined;
-
-    if (this.actionEditor.currentActionType() === 'add' && this.actionEditor.addAction()) {
-      action = this.actionEditor.addAction();
-    } else if (this.actionEditor.currentActionType() === 'alter' && this.actionEditor.alterAction()) {
-      action = this.actionEditor.alterAction();
-    } else if (this.actionEditor.currentActionType() === 'remove' && this.actionEditor.removeAction()) {
-      action = this.actionEditor.removeAction();
-    }
+  storeAction(): void {
+    const action = this.currentAction();
 
     if (action) {
-      this.actions.update(currentActions => [...currentActions, action!]);
-
-      // Reset the action editor
-      this.actionEditor.currentActionType.set(undefined as any);
-      this.actionEditor.target.set(undefined as any);
+      if (this.editMode()) {
+        this.actions.update((currentActions) =>
+          currentActions.map((a, i) =>
+            i === this.editModeIndex() ? action : a
+          )
+        );
+      } else {
+        this.actions.update((currentActions) => [...currentActions, action]);
+      }
 
       this.messageService.add({
         severity: 'success',
         summary: 'Action Added',
-        detail: `${this.getActionTypeLabel(action.type)} action added successfully`
+        detail: `${this.getActionTypeLabel(
+          action.type
+        )} action added successfully`,
       });
+
+      this.currentAction.set(undefined);
+      this.editMode.set(false);
+      this.actionEditor()?.clear();
     }
+  }
+
+  editAction(index: number) {
+    const actions = this.actions();
+    const action = actions[index];
+
+    if (!action) {
+      return;
+    }
+
+    this.editMode.set(true);
+
+    this.currentAction.set(action);
   }
 
   removeAction(index: number) {
@@ -114,17 +132,7 @@ export class MessagesBatchResendComponent {
   }
 
   canAddAction(): boolean {
-    if (!this.actionEditor) return false;
-
-    if (this.actionEditor.currentActionType() === 'add') {
-      return !!this.actionEditor.addAction();
-    } else if (this.actionEditor.currentActionType() === 'alter') {
-      return !!this.actionEditor.alterAction();
-    } else if (this.actionEditor.currentActionType() === 'remove') {
-      return !!this.actionEditor.removeAction();
-    }
-
-    return false;
+    return !!this.currentAction();
   }
 
   async importActions() {

@@ -1,30 +1,26 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  AddAction, AddApplicationPropertiesAction,
-  BatchActionTarget, MessageFilter,
+  Action,
+  AddAction, BatchActionTarget, MessageFilter,
   PropertyValue,
   SystemKeyProperty
 } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyKeys } from '../../../send-message/form';
-import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { SystemPropertyHelpers } from '../../../systemproperty-helpers';
 import { Checkbox } from 'primeng/checkbox';
-import { MessageFilterService } from '../../../message-filter/message-filter.service';
 
 @Component({
   selector: 'lib-add-action-body',
   imports: [
     CommonModule,
-    Button,
     DatePicker,
     DurationInputComponent,
     FormsModule,
@@ -43,6 +39,8 @@ export class AddActionBodyComponent {
   messageFilter = input.required<MessageFilter>();
   addActionUpdated = output<AddAction | undefined>();
   systemPropertyHelpers = inject(SystemPropertyHelpers);
+
+  action = input<Action>();
 
   protected applicationPropertyName = model<string>('');
   protected systemPropertyName = model<SystemPropertyKeys | ''>('');
@@ -102,6 +100,27 @@ export class AddActionBodyComponent {
       this.systemPropertyName();
 
       this.value.set(undefined);
+    });
+
+    effect(() => {
+      const addAction = this.action() as Partial<AddAction> | undefined;
+      if (!addAction) {
+        return;
+      }
+
+      if (addAction.fieldName && this.target() === 'systemProperties') {
+        this.systemPropertyName.set(addAction.fieldName as SystemPropertyKeys);
+
+      }
+      if (addAction.fieldName && this.target() === 'applicationProperties') {
+        this.applicationPropertyName.set(addAction.fieldName);
+      }
+
+      if (addAction.value) {
+        this.value.set(addAction.value);
+      }
+
+      this.replaceOnDuplicate.set(addAction.actionOnDuplicate === 'replace');
     });
   }
 

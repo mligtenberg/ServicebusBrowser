@@ -1,8 +1,9 @@
-import { Component, computed, effect, inject, model, output } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  Action,
   AlterAction,
-  AlterBodyAction,
+  AlterBodyAction, AlterBodyPartialReplaceAction,
   AlterType,
   PropertyValue
 } from '@service-bus-browser/messages-contracts';
@@ -35,11 +36,12 @@ import { ColorThemeService } from '@service-bus-browser/services';
 export class AlterBodyComponent {
   alterActionUpdated = output<AlterAction | undefined>();
 
+  action = input<Action>();
   protected alterType = model<AlterType>('fullReplace');
   protected value = model<string>('');
   protected searchValue = model<string>('');
   protected monacoDialogVisible = model<boolean>(false);
-  
+
   private colorThemeService = inject(ColorThemeService);
 
   alterTypes = [
@@ -47,7 +49,7 @@ export class AlterBodyComponent {
     { label: 'Search and Replace', value: 'searchAndReplace' },
     { label: 'Regex Replace', value: 'regexReplace' }
   ];
-  
+
   editorOptions = computed(() => ({
     theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
     automaticLayout: true,
@@ -94,6 +96,26 @@ export class AlterBodyComponent {
   constructor() {
     effect(() => {
       this.alterActionUpdated.emit(this.alterAction());
+    });
+
+    effect(() => {
+      const action = this.action() as Partial<AlterBodyAction> | undefined;
+      if (!action) {
+        return;
+      }
+      const partialReplaceAction = action as Partial<AlterBodyPartialReplaceAction>;
+
+      if (action.value) {
+        this.value.set(action.value);
+      }
+
+      if (partialReplaceAction.searchValue) {
+        this.searchValue.set(partialReplaceAction.searchValue);
+      }
+
+      if (action.alterType) {
+        this.alterType.set(action.alterType);
+      }
     });
   }
 }

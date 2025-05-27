@@ -2,14 +2,10 @@ import { Component, computed, effect, inject, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Action,
-  AddAction,
-  AlterAction,
   BatchActionTarget,
-  BatchActionType, 
+  BatchActionType,
   MessageFilter,
-  RemoveAction
 } from '@service-bus-browser/messages-contracts';
-import { Card } from 'primeng/card';
 import { InputGroup } from 'primeng/inputgroup';
 import { Select } from 'primeng/select';
 import { Button } from 'primeng/button';
@@ -24,7 +20,6 @@ import { MessageFilterService } from '../../../message-filter/message-filter.ser
   selector: 'lib-action',
   imports: [
     CommonModule,
-    Card,
     InputGroup,
     Select,
     Button,
@@ -74,19 +69,27 @@ export class ActionComponent {
   });
 
   messageFilterService = inject(MessageFilterService);
-  
+
   currentActionType = model<BatchActionType>();
   target = model<BatchActionTarget>();
-  addAction = model<AddAction>();
-  alterAction = model<AlterAction>();
-  removeAction = model<RemoveAction>();
+  action = model<Action>();
   protected filterMenuVisable = model<boolean>(false);
   protected messageFilter = model<MessageFilter>({
     body: [],
     systemProperties: [],
     applicationProperties: []
   });
-  
+
+  clear() {
+    this.currentActionType.set(undefined);
+    this.target.set(undefined);
+    this.messageFilter.set({
+      body: [],
+      systemProperties: [],
+      applicationProperties: []
+    })
+  }
+
   isFilterActive = computed(() => this.messageFilterService.hasActiveFilters(this.messageFilter()));
 
   constructor() {
@@ -95,5 +98,18 @@ export class ActionComponent {
         this.target.set(undefined);
       }
     });
+
+    effect(() => {
+      const action = this.action() as Partial<Action>;
+      this.currentActionType.set(action.type);
+      this.target.set(action.target);
+      this.messageFilter.set(action.applyOnFilter ?? {
+        body: [],
+        applicationProperties: [],
+        systemProperties: []
+      });
+    });
   }
+
+  protected readonly queueMicrotask = queueMicrotask;
 }

@@ -29,7 +29,7 @@ export type AddAction = AddSystemPropertiesAction | AddApplicationPropertiesActi
 export type AlterBodyFullReplaceAction = BaseAction & {
   type: 'alter';
   target: 'body';
-  value: PropertyValue;
+  value: string;
   alterType: 'fullReplace';
 }
 

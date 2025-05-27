@@ -10,45 +10,59 @@
   </div>
 
   <div class="actions-container">
+    @let currentActions = actions();
     <div class="actions-list">
       <div class="actions-header">
         <h3>Actions</h3>
         <div class="actions-header-buttons">
-          <p-button icon="pi pi-upload" severity="secondary" text="true" tooltip="Import Actions" (click)="importActions()"></p-button>
-          <p-button icon="pi pi-download" severity="secondary" text="true" tooltip="Export Actions" [disabled]="actions().length === 0" (click)="exportActions()"></p-button>
+          <p-button icon="pi pi-upload" severity="secondary" text="true" pTooltip="Import Actions" (click)="importActions()"></p-button>
+          <p-button icon="pi pi-download" severity="secondary" text="true" pTooltip="Export Actions" [disabled]="currentActions.length === 0" (click)="exportActions()"></p-button>
         </div>
       </div>
-      <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}" *ngIf="actions().length > 0">
-        <div class="action-item" *ngFor="let action of actions(); let i = index">
+      <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}" *ngIf="currentActions.length > 0">
+        <div class="action-item" *ngFor="let action of currentActions; let i = index">
           <div class="action-summary">
             <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
             <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
             <div class="action-details">{{ getActionDescription(action) }}</div>
           </div>
           <div class="action-buttons">
+            <p-button icon="pi pi-pencil" severity="primary" text="true" (click)="editAction(i)"></p-button>
             <p-button icon="pi pi-trash" severity="danger" text="true" (click)="removeAction(i)"></p-button>
           </div>
         </div>
       </p-scroll-panel>
 
-      <div class="empty-state" [style]="{height: 'calc(100% - 7em)'}" *ngIf="actions().length === 0">
+      <div class="empty-state" [style]="{height: 'calc(100% - 7em)'}" *ngIf="currentActions.length === 0">
         <p>No actions added yet. Add actions below to modify your messages before resending.</p>
       </div>
 
       <div class="action-controls">
-        <p-button label="Preview Changes" icon="pi pi-eye" [disabled]="actions().length === 0"
+        <p-button label="Preview Changes" icon="pi pi-eye" [disabled]="currentActions.length === 0"
                   (click)="previewChanges()"></p-button>
         <p-button label="Resend" icon="pi pi-send" severity="success"
-                  [disabled]="actions().length === 0 || !selectedEndpoint" (click)="resendMessages()"></p-button>
+                  [disabled]="currentActions.length === 0 || !selectedEndpoint" (click)="resendMessages()"></p-button>
       </div>
     </div>
 
     <div class="action-editor">
-      <h3>Add Action</h3>
-      <lib-action #actionEditor></lib-action>
+      @if (editMode()) {
+        <h3>Edit Action</h3>
+      }
+      @else {
+        <h3>Add Action</h3>
+      }
+      <lib-action
+        #actionEditor
+        [(action)]="currentAction"></lib-action>
 
       <div class="action-add-button">
-        <p-button label="Add Action" icon="pi pi-plus" [disabled]="!canAddAction()" (click)="addAction()"></p-button>
+        <p-button
+          [label]="editMode() ? 'Save Action' : 'Add Action'"
+          icon="pi pi-plus"
+          [disabled]="!canAddAction()"
+          (click)="storeAction()"
+        ></p-button>
       </div>
     </div>
   </div>

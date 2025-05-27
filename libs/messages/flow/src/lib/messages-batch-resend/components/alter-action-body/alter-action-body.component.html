@@ -2,12 +2,18 @@
 
 @switch (currentTarget) {
   @case ('body') {
-    <lib-alter-body (alterActionUpdated)="onAlterActionUpdated($event)" />
+    <lib-alter-body
+      [action]="action()"
+      (alterActionUpdated)="onAlterActionUpdated($event)" />
   }
   @case ('systemProperties') {
-    <lib-alter-system-properties (alterActionUpdated)="onAlterActionUpdated($event)" />
+    <lib-alter-system-properties
+      [action]="action()"
+      (alterActionUpdated)="onAlterActionUpdated($event)" />
   }
   @case ('applicationProperties') {
-    <lib-alter-application-properties (alterActionUpdated)="onAlterActionUpdated($event)" />
+    <lib-alter-application-properties
+      [action]="action()"
+      (alterActionUpdated)="onAlterActionUpdated($event)" />
   }
 }
