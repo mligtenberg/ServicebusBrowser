@@ -1,4 +1,4 @@
-:root {
+:host {
   --batch-resend-text: #333;
   --batch-resend-border: #ddd;
   --batch-resend-action-item-bg: #f8f9fa;
@@ -91,177 +91,109 @@
       margin-top: 1rem;
       justify-content: flex-end;
     }
-.actions-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
 
-  .actions-header-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-}
-
-.action-item {
-  background-color: var(--batch-resend-action-item-bg);
-  border: 1px solid var(--batch-resend-border);
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--batch-resend-action-item-hover);
-  }
-
-  .action-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-
-    .action-type {
-      font-weight: bold;
-      min-width: 50px;
-    }
-
-    .action-target {
-      color: var(--batch-resend-property-name);
-      min-width: 150px;
-    }
-  }
-}
-
-.empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--batch-resend-empty-state-bg);
-  border-radius: 4px;
-
-  p {
-    color: var(--batch-resend-empty-state-text);
-    text-align: center;
-    padding: 2rem;
-  }
-}
-
-.preview-container {
-  .message-preview {
-    background-color: var(--batch-resend-preview-bg);
-    border: 1px solid var(--batch-resend-border);
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-
-    pre {
-      background-color: var(--batch-resend-action-item-bg);
-      padding: 0.5rem;
-      border-radius: 4px;
-      overflow: auto;
-    }
-
-    .properties-list {
-      .property-item {
-        margin-bottom: 0.25rem;
-
-        .property-name {
-          font-weight: bold;
-          color: var(--batch-resend-property-name);
-          margin-right: 0.5rem;
-        }
-      }
-    }
-  }
-}
-    .action-item {
+    .actions-header {
       display: flex;
-      padding: 0.75rem;
-      background-color: var(--batch-resend-action-item-bg);
-      border-radius: 4px;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 0.5rem;
 
-      .action-summary {
-        flex: 1;
+      .actions-header-buttons {
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-
-        .action-type {
-          font-weight: bold;
-          color: var(--batch-action-title);
-        }
-.actions-container {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
-  overflow: hidden;
-
-  .actions-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--batch-resend-border);
-    border-radius: 4px;
-    padding: 1rem;
-    overflow: hidden;
-  }
-
-  .action-editor {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--batch-resend-border);
-    border-radius: 4px;
-    padding: 1rem;
-
-    .action-add-button {
-      margin-top: auto;
-      display: flex;
-      justify-content: flex-end;
-      padding-top: 1rem;
+        gap: 0.5rem;
+      }
     }
-  }
-}
 
-.batch-resend-header {
-  margin-bottom: 1.5rem;
+    .action-item {
+      background-color: var(--batch-resend-action-item-bg);
+      border: 1px solid var(--batch-resend-border);
+      border-radius: 4px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      display: grid;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+      grid-template-areas:
+   'type position'
+   'target buttons'
+   'details buttons';
 
-  .title {
-    margin: 0 0 0.5rem 0;
-    color: var(--batch-resend-text);
-  }
+      &:hover {
+        background-color: var(--batch-resend-action-item-hover);
+      }
 
-  .subtitle {
-    margin: 0;
-    color: var(--batch-resend-property-name);
-  }
-}
+      .action-type {
+        grid-area: type;
+        font-weight: bold;
+        min-width: 50px;
+        color: var(--batch-action-title);
+      }
 
-.destination-selector {
-  margin-bottom: 1.5rem;
+      .action-target {
+        grid-area: target;
+        color: var(--batch-resend-property-name);
+        min-width: 150px;
+      }
 
-  h3 {
-    margin: 0 0 0.5rem 0;
-    color: var(--batch-resend-text);
-  }
-}
-        .action-target {
-          font-size: 0.9rem;
-          color: var(--batch-resend-subtitle)
-        }
+      .action-details {
+        grid-area: details;
+        color: var(--batch-resend-subtitle);
+        font-size: 0.9rem;
+      }
 
-        .action-details {
-          font-size: 0.9rem;
-        }
+      .action-position {
+        grid-area: position;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
       }
 
       .action-buttons {
-        display: flex;
-        align-items: center;
+        grid-area: buttons;
+      }
+    }
+
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--batch-resend-empty-state-bg);
+      border-radius: 4px;
+
+      p {
+        color: var(--batch-resend-empty-state-text);
+        text-align: center;
+        padding: 2rem;
+      }
+    }
+
+    .preview-container {
+      .message-preview {
+        background-color: var(--batch-resend-preview-bg);
+        border: 1px solid var(--batch-resend-border);
+        border-radius: 4px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+
+        pre {
+          background-color: var(--batch-resend-action-item-bg);
+          padding: 0.5rem;
+          border-radius: 4px;
+          overflow: auto;
+        }
+
+        .properties-list {
+          .property-item {
+            margin-bottom: 0.25rem;
+
+            .property-name {
+              font-weight: bold;
+              color: var(--batch-resend-property-name);
+              margin-right: 0.5rem;
+            }
+          }
+        }
       }
     }
   }

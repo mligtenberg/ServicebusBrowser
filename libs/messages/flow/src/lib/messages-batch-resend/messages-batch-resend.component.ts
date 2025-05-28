@@ -308,6 +308,45 @@ export class MessagesBatchResendComponent {
       .map(([key, value]) => ({key, value}));
   }
 
+  moveActionUp(index: number) {
+    const actions = this.actions();
+    const action = actions[index];
+
+    if (!action) {
+      return;
+    }
+
+    this.actions.update(currentActions => {
+      const newActions = [...currentActions];
+      const actionIndex = newActions.indexOf(action);
+      if (actionIndex > 0) {
+        newActions.splice(actionIndex, 1);
+        newActions.splice(actionIndex - 1, 0, action);
+      }
+      return newActions;
+    })
+  }
+
+  moveActionDown(index: number) {
+    const actions = this.actions();
+    const action = actions[index];
+
+    if (!action) {
+      return;
+    }
+
+    this.actions.update(currentActions => {
+      const newActions = [...currentActions];
+      const actionIndex = newActions.indexOf(action);
+      if (actionIndex >= 0 && actionIndex < newActions.length - 1) {
+        newActions.splice(actionIndex, 1);
+        newActions.splice(actionIndex + 1, 0, action);
+      }
+      return newActions;
+    })
+  }
+
+
   private formatValue(value: any): string {
     if (value === null || value === undefined) {
       return 'null';

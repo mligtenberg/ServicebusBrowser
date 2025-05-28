@@ -100,7 +100,12 @@ export class ActionComponent {
     });
 
     effect(() => {
-      const action = this.action() as Partial<Action>;
+      const action = this.action() as Partial<Action> | undefined;
+
+      if (!action) {
+        return;
+      }
+
       this.currentActionType.set(action.type);
       this.target.set(action.target);
       this.messageFilter.set(action.applyOnFilter ?? {

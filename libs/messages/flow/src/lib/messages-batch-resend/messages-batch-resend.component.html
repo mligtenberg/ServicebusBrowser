@@ -21,10 +21,24 @@
       </div>
       <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}" *ngIf="currentActions.length > 0">
         <div class="action-item" *ngFor="let action of currentActions; let i = index">
-          <div class="action-summary">
-            <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
-            <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
-            <div class="action-details">{{ getActionDescription(action) }}</div>
+          <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
+          <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
+          <div class="action-details">{{ getActionDescription(action) }}</div>
+          <div class="action-position">
+            <p-button
+              icon="pi pi-arrow-up"
+              severity="secondary"
+              text="true"
+              (click)="moveActionUp(i)"
+              [disabled]="i === 0"
+            ></p-button>
+            <p-button
+              icon="pi pi-arrow-down"
+              severity="secondary"
+              text="true"
+              (click)="moveActionDown(i)"
+              [disabled]="i === currentActions.length - 1"
+            ></p-button>
           </div>
           <div class="action-buttons">
             <p-button icon="pi pi-pencil" severity="primary" text="true" (click)="editAction(i)"></p-button>
