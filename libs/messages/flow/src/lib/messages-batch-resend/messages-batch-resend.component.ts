@@ -110,6 +110,12 @@ export class MessagesBatchResendComponent {
     }
   }
 
+  clearAction(): void {
+    this.currentAction.set(undefined);
+    this.editMode.set(false);
+    this.actionEditor()?.clear();
+  }
+
   editAction(index: number) {
     const actions = this.actions();
     const action = actions[index];

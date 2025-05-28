@@ -206,10 +206,11 @@
       margin-bottom: 1rem;
     }
 
-    .action-add-button {
+    .action-buttons {
       display: flex;
       justify-content: flex-end;
       margin-top: 1rem;
+      gap: 0.5rem;
     }
   }
 }

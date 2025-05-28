@@ -70,7 +70,8 @@
         #actionEditor
         [(action)]="currentAction"></lib-action>
 
-      <div class="action-add-button">
+      <div class="action-buttons">
+        <p-button [label]="editMode() ? 'Cancel' : 'Clear'" severity="danger" icon="pi pi-times" (click)="clearAction()"></p-button>
         <p-button
           [label]="editMode() ? 'Save Action' : 'Add Action'"
           icon="pi pi-plus"
