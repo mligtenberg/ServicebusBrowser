@@ -5,14 +5,20 @@
 }
 
 .value-container {
+  display: flex;
   position: relative;
   width: 100%;
-  
+
   .editor-button {
     position: absolute;
     top: 5px;
     right: 5px;
     z-index: 1;
+  }
+
+  textarea {
+    flex: 1;
+    resize: none;
   }
 }
 

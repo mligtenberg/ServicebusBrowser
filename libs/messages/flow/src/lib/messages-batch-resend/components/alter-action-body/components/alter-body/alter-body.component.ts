@@ -28,10 +28,11 @@ import { ColorThemeService } from '@service-bus-browser/services';
     Textarea,
     Button,
     Dialog,
-    EditorComponent
+    EditorComponent,
+    InputGroup,
   ],
   templateUrl: './alter-body.component.html',
-  styleUrls: ['./alter-body.component.scss']
+  styleUrls: ['./alter-body.component.scss'],
 })
 export class AlterBodyComponent {
   alterActionUpdated = output<AlterAction | undefined>();
@@ -47,7 +48,7 @@ export class AlterBodyComponent {
   alterTypes = [
     { label: 'Full Replace', value: 'fullReplace' },
     { label: 'Search and Replace', value: 'searchAndReplace' },
-    { label: 'Regex Replace', value: 'regexReplace' }
+    { label: 'Regex Replace', value: 'regexReplace' },
   ];
 
   editorOptions = computed(() => ({
@@ -73,7 +74,11 @@ export class AlterBodyComponent {
         target: 'body',
         value: currentValue,
         alterType: 'fullReplace',
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     } else {
       const currentSearchValue = this.searchValue();
@@ -88,7 +93,11 @@ export class AlterBodyComponent {
         searchValue: currentSearchValue,
         value: currentValue,
         alterType: currentAlterType,
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     }
   });
@@ -103,7 +112,8 @@ export class AlterBodyComponent {
       if (!action) {
         return;
       }
-      const partialReplaceAction = action as Partial<AlterBodyPartialReplaceAction>;
+      const partialReplaceAction =
+        action as Partial<AlterBodyPartialReplaceAction>;
 
       if (action.value) {
         this.value.set(action.value);

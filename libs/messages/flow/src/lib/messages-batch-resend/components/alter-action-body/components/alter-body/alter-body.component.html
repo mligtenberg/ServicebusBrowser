@@ -7,38 +7,40 @@
   />
 
   @if (alterType() !== 'fullReplace') {
-    <input 
+    <input
       pInputText
       required
       [(ngModel)]="searchValue"
       placeholder="Search text"
     />
   }
-  
+
   <div class="value-container">
-    <textarea 
+    <p-input-group>
+    <textarea
       pInputTextarea
       [(ngModel)]="value"
-      [rows]="5" 
-      [cols]="30" 
+      [rows]="5"
+      [cols]="30"
       placeholder="New value"
       required
     ></textarea>
-    
+
     @if (alterType() === 'fullReplace') {
-      <p-button 
-        icon="pi pi-external-link" 
-        (click)="monacoDialogVisible.set(true)" 
+      <p-button
+        icon="pi pi-external-link"
+        (click)="monacoDialogVisible.set(true)"
         styleClass="editor-button"
         pTooltip="Open full screen editor"
         tooltipPosition="top">
       </p-button>
     }
+    </p-input-group>
   </div>
 </div>
 
-<p-dialog 
-  header="Edit Body Content" 
+<p-dialog
+  header="Edit Body Content"
   [(visible)]="monacoDialogVisible"
   [modal]="true"
   [style]="{width: '90vw', height: '90vh'}"
