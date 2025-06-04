@@ -45,6 +45,23 @@ p-tree {
   color: red;
 }
 
+.tree-wrapper {
+  position: relative;
+}
+
+.search-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+}
+
+.search-input {
+  width: 10rem;
+}
+
 @keyframes spin {
   from {transform:rotate(0deg);}
   to {transform:rotate(360deg);}

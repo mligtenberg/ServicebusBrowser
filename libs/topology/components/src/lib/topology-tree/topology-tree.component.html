@@ -1,4 +1,19 @@
-<p-tree
+<div class="tree-wrapper">
+  <div class="search-container">
+    <p-button
+      icon="pi pi-search"
+      [text]="true"
+      (click)="searchVisible.update(v => !v)"
+    ></p-button>
+    <input
+      *ngIf="searchVisible()"
+      pInputText
+      [(ngModel)]="searchTerm"
+      placeholder="Search"
+      class="search-input"
+    />
+  </div>
+  <p-tree
   [value]="nodes()"
   selectionMode="multiple"
   [(selection)]="selection"
@@ -6,7 +21,7 @@
   (selectionChange)="onSelectionChange($event)"
   (onNodeExpand)="onNodeExpand($event)"
   (onNodeCollapse)="onNodeCollapse($event)"
->
+  >
   <ng-template let-node pTemplate="default">
     <b>{{ node.label }}</b>
   </ng-template>
@@ -62,5 +77,6 @@
     <sbb-tpl-subscription-rule-tree-node [rule]="node.data" />
   </ng-template>
 </p-tree>
+</div>
 
 <p-context-menu #cm [model]="contextMenu()" appendTo="body"></p-context-menu>

@@ -1,10 +1,15 @@
 import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   Namespace,
   QueueWithMetaData,
-  SubscriptionWithMetaData, TopicWithMetaData,
-  TopicWithChildren, SubscriptionRule, NamespaceWithChildrenAndLoadingState
+  SubscriptionWithMetaData,
+  TopicWithMetaData,
+  TopicWithChildren,
+  TopicWithChildrenAndLoadingState,
+  SubscriptionRule,
+  NamespaceWithChildrenAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { MenuItemCommandEvent, PrimeTemplate, TreeNode } from 'primeng/api';
@@ -13,6 +18,7 @@ import { TopicTreeNodeComponent } from '../topic-tree-node/topic-tree-node.compo
 import { SubscriptionTreeNodeComponent } from '../subscription-tree-node/subscription-tree-node.component';
 import { QueueTreeNodeComponent } from '../queue-tree-node/queue-tree-node.component';
 import { Button } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
 import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
@@ -25,6 +31,7 @@ import { ContextMenu } from 'primeng/contextmenu';
   selector: 'sbb-tpl-topology-tree',
   imports: [
     CommonModule,
+    FormsModule,
     Tree,
     NamespaceTreeNodeComponent,
     TopicTreeNodeComponent,
@@ -32,6 +39,7 @@ import { ContextMenu } from 'primeng/contextmenu';
     QueueTreeNodeComponent,
     PrimeTemplate,
     Button,
+    InputText,
     SubscriptionRuleTreeNodeComponent,
     ContextMenu,
   ],
@@ -74,13 +82,18 @@ export class TopologyTreeComponent {
   store = inject(Store);
 
   opened = signal<string[]>([]);
+  searchVisible = signal<boolean>(false);
+  searchTerm = model<string>('');
   selection = model<TreeNode[] | null>(null);
+  filteredNamespaces = computed(() => {
+    const connections = this.connectionsFilter();
+    const namespaces = this.namespaces().filter(
+      (ns) => !connections || connections.includes(ns.id)
+    );
+    return this.filterNamespaces(namespaces, this.searchTerm());
+  });
   nodes = computed<TreeNode[]>(() => {
-    return this.namespaces()
-      .filter((ns) => {
-        const filter = this.connectionsFilter();
-        return !filter || filter.includes(ns.id);
-      })
+    return this.filteredNamespaces()
       .map<TreeNode>((ns) => {
         const node: TreeNode = {
           key: ns.id,
@@ -433,5 +446,48 @@ export class TopologyTreeComponent {
         menuItems: item.menuItems ? this.patchContextMenuItems(item.menuItems) : undefined,
       };
     });
+  }
+
+  private filterNamespaces(
+    namespaces: NamespaceWithChildrenAndLoadingState[],
+    term: string
+  ): NamespaceWithChildrenAndLoadingState[] {
+    term = term.trim().toLowerCase();
+    if (!term) {
+      return namespaces;
+    }
+
+    return namespaces
+      .map((ns) => {
+        const nsMatch = ns.name.toLowerCase().includes(term);
+
+        const queues = nsMatch
+          ? ns.queues
+          : ns.queues.filter((q) => q.name.toLowerCase().includes(term));
+
+        const topics = ns.topics
+          .map((topic) => {
+            const topicMatch = nsMatch || topic.name.toLowerCase().includes(term);
+            const subs = topicMatch
+              ? topic.subscriptions
+              : topic.subscriptions.filter((s) =>
+                  s.name.toLowerCase().includes(term)
+                );
+
+            if (topicMatch || subs.length > 0) {
+              return { ...topic, subscriptions: subs };
+            }
+
+            return null;
+          })
+          .filter((t): t is TopicWithChildrenAndLoadingState => t !== null);
+
+        if (nsMatch || queues.length > 0 || topics.length > 0) {
+          return { ...ns, queues, topics };
+        }
+
+        return null;
+      })
+      .filter((n): n is NamespaceWithChildrenAndLoadingState => n !== null);
   }
 }
