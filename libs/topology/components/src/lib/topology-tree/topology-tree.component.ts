@@ -26,6 +26,7 @@ import {
   SubscriptionRuleTreeNodeComponent
 } from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
 import { ContextMenu } from 'primeng/contextmenu';
+import { InputGroup } from 'primeng/inputgroup';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -42,6 +43,7 @@ import { ContextMenu } from 'primeng/contextmenu';
     InputText,
     SubscriptionRuleTreeNodeComponent,
     ContextMenu,
+    InputGroup,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
@@ -82,7 +84,6 @@ export class TopologyTreeComponent {
   store = inject(Store);
 
   opened = signal<string[]>([]);
-  searchVisible = signal<boolean>(false);
   searchTerm = model<string>('');
   selection = model<TreeNode[] | null>(null);
   filteredNamespaces = computed(() => {
@@ -93,85 +94,84 @@ export class TopologyTreeComponent {
     return this.filterNamespaces(namespaces, this.searchTerm());
   });
   nodes = computed<TreeNode[]>(() => {
-    return this.filteredNamespaces()
-      .map<TreeNode>((ns) => {
-        const node: TreeNode = {
-          key: ns.id,
-          label: ns.name,
-          type: 'namespace',
+    return this.filteredNamespaces().map<TreeNode>((ns) => {
+      const node: TreeNode = {
+        key: ns.id,
+        label: ns.name,
+        type: 'namespace',
+        data: ns,
+        children: [],
+        expanded: this.opened().includes(ns.id),
+      };
+
+      if (this.displayQueues()) {
+        node.children?.push({
+          key: `${ns.id}-queues`,
+          label: 'Queues',
+          type: 'queues',
+          selectable: false,
           data: ns,
-          children: [],
-          expanded: this.opened().includes(ns.id),
-        };
+          expanded: this.opened().includes(`${ns.id}-queues`),
+          children: ns.queues.map<TreeNode>((queue) => ({
+            key: `${ns.id}-queue-${queue.id}`,
+            label: queue.name,
+            type: 'queue',
+            data: queue,
+            leaf: true,
+          })),
+        });
+      }
 
-        if (this.displayQueues()) {
-          node.children?.push({
-            key: `${ns.id}-queues`,
-            label: 'Queues',
-            type: 'queues',
-            selectable: false,
-            data: ns,
-            expanded: this.opened().includes(`${ns.id}-queues`),
-            children: ns.queues.map<TreeNode>((queue) => ({
-              key: `${ns.id}-queue-${queue.id}`,
-              label: queue.name,
-              type: 'queue',
-              data: queue,
-              leaf: true,
-            })),
-          });
-        }
+      if (this.displayTopics()) {
+        node.children?.push({
+          key: `${ns.id}-topics`,
+          label: 'Topics',
+          type: 'topics',
+          selectable: false,
+          data: ns,
+          expanded: this.opened().includes(`${ns.id}-topics`),
+          children: ns.topics.map<TreeNode>((topic) => {
+            const topNode: TreeNode = {
+              key: `${ns.id}-topic-${topic.id}`,
+              expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
+              label: topic.name,
+              type: 'topic',
+              data: topic,
+            };
 
-        if (this.displayTopics()) {
-          node.children?.push({
-            key: `${ns.id}-topics`,
-            label: 'Topics',
-            type: 'topics',
-            selectable: false,
-            data: ns,
-            expanded: this.opened().includes(`${ns.id}-topics`),
-            children: ns.topics.map<TreeNode>((topic) => {
-              const topNode: TreeNode = {
-                key: `${ns.id}-topic-${topic.id}`,
-                expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
-                label: topic.name,
-                type: 'topic',
-                data: topic,
-              };
+            if (this.displaySubscriptions()) {
+              topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
+                const subNode: TreeNode = {
+                  key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
+                  label: sub.name,
+                  type: 'subscription',
+                  expanded: this.opened().includes(
+                    `${ns.id}-topic-${topic.id}-subscription-${sub.id}`
+                  ),
+                  data: sub,
+                };
 
-              if (this.displaySubscriptions()) {
-                topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
-                  const subNode: TreeNode = {
-                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
-                    label: sub.name,
-                    type: 'subscription',
-                    expanded: this.opened().includes(
-                      `${ns.id}-topic-${topic.id}-subscription-${sub.id}`
-                    ),
-                    data: sub,
-                  };
+                if (this.displaySubscriptionRules()) {
+                  subNode.children = sub.rules.map<TreeNode>((rule) => ({
+                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
+                    label: rule.name,
+                    type: 'subscription-rule',
+                    data: rule,
+                    leaf: true,
+                  }));
+                }
 
-                  if (this.displaySubscriptionRules()) {
-                    subNode.children = sub.rules.map<TreeNode>((rule) => ({
-                      key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
-                      label: rule.name,
-                      type: 'subscription-rule',
-                      data: rule,
-                      leaf: true,
-                    }));
-                  }
+                return subNode;
+              });
+            }
 
-                  return subNode;
-                });
-              }
+            return topNode;
+          }),
+        });
+      }
 
-              return topNode;
-            }),
-          });
-        }
-
-        return node;
-      });
+      return node;
+    });
   });
   flatNodes = computed<TreeNode[]>(() => {
     const flatten = (nodes: TreeNode[]): TreeNode[] => {
@@ -270,13 +270,19 @@ export class TopologyTreeComponent {
         const oneBefore = event[event.length - 2];
         const nodeType = newestSelected.type;
 
-        const newestSelectedIndex = flatNodes.findIndex((node) => node.key === newestSelected.key);
-        const oneBeforeIndex = flatNodes.findIndex((node) => node.key === oneBefore.key);
+        const newestSelectedIndex = flatNodes.findIndex(
+          (node) => node.key === newestSelected.key
+        );
+        const oneBeforeIndex = flatNodes.findIndex(
+          (node) => node.key === oneBefore.key
+        );
 
-        const inbetweenNodes = flatNodes.slice(
-          Math.min(oneBeforeIndex, newestSelectedIndex),
-          Math.max(oneBeforeIndex, newestSelectedIndex) + 1
-        ).filter((node) => node.type === nodeType);
+        const inbetweenNodes = flatNodes
+          .slice(
+            Math.min(oneBeforeIndex, newestSelectedIndex),
+            Math.max(oneBeforeIndex, newestSelectedIndex) + 1
+          )
+          .filter((node) => node.type === nodeType);
 
         event = [
           ...event.filter((node) => !inbetweenNodes.includes(node)),
@@ -306,14 +312,10 @@ export class TopologyTreeComponent {
         this.onTopicSelected(event.data);
         break;
       case 'subscription':
-        this.onSubscriptionSelected(
-          event.data
-        );
+        this.onSubscriptionSelected(event.data);
         break;
       case 'subscription-rule':
-        this.onSubscriptionRuleSelected(
-          event.data
-        );
+        this.onSubscriptionRuleSelected(event.data);
         break;
     }
   }
@@ -362,7 +364,6 @@ export class TopologyTreeComponent {
   }
 
   private onSubscriptionSelected(subscription: SubscriptionWithMetaData) {
-
     this.subscriptionSelected.emit({
       namespaceId: subscription.namespaceId,
       topicId: subscription.topicId,
@@ -370,9 +371,7 @@ export class TopologyTreeComponent {
     });
   }
 
-  private onSubscriptionRuleSelected(
-    rule: SubscriptionRule
-  ) {
+  private onSubscriptionRuleSelected(rule: SubscriptionRule) {
     this.subscriptionRuleSelected.emit({
       namespaceId: rule.namespaceId,
       topicId: rule.topicId,
@@ -439,11 +438,16 @@ export class TopologyTreeComponent {
             return;
           }
 
-          const data = selection.length === 1 ? selection[0].data : selection.map((node) => node.data);
+          const data =
+            selection.length === 1
+              ? selection[0].data
+              : selection.map((node) => node.data);
 
-          item.onSelect?.(data, event)
+          item.onSelect?.(data, event);
         },
-        menuItems: item.menuItems ? this.patchContextMenuItems(item.menuItems) : undefined,
+        menuItems: item.menuItems
+          ? this.patchContextMenuItems(item.menuItems)
+          : undefined,
       };
     });
   }
@@ -467,7 +471,8 @@ export class TopologyTreeComponent {
 
         const topics = ns.topics
           .map((topic) => {
-            const topicMatch = nsMatch || topic.name.toLowerCase().includes(term);
+            const topicMatch =
+              nsMatch || topic.name.toLowerCase().includes(term);
             const subs = topicMatch
               ? topic.subscriptions
               : topic.subscriptions.filter((s) =>

@@ -20,6 +20,11 @@
   }
 }
 
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
+
 p-tree {
   --p-tree-padding: 0.6rem;
   --p-tree-node-padding: 0;
@@ -45,21 +50,15 @@ p-tree {
   color: red;
 }
 
-.tree-wrapper {
-  position: relative;
-}
-
 .search-container {
-  position: absolute;
-  top: 0;
-  right: 0;
   display: flex;
-  gap: 0.25rem;
-  padding: 0.2rem;
-}
-
-.search-input {
-  width: 10rem;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: stretch;
+  input {
+    flex: 1;
+    --p-inputtext-border-radius: 0;
+  }
 }
 
 @keyframes spin {
