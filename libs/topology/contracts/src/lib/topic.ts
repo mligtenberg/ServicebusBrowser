@@ -64,4 +64,7 @@ export type TopicWithChildren<TSubscription extends SubscriptionWithMetaData = S
   subscriptions: TSubscription[];
 }
 
-export type TopicWithChildrenAndLoadingState = TopicWithChildren<SubscriptionWithMetaDataAndLoadingState> & { isLoading: boolean };
+export type TopicWithChildrenAndLoadingState = TopicWithChildren<SubscriptionWithMetaDataAndLoadingState> & {
+  isLoading: boolean,
+  hasLoadingError: boolean
+};

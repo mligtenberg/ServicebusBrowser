@@ -17,7 +17,12 @@
     <div class="category-divider">
       <span class="name">{{ node.label }}</span>
       <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingQueues }">
-        <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshQueues($event, node.data)"/>
+        <p-button
+          [severity]="node.data.hasQueuesLoadingError ? 'danger' : 'primary'"
+          icon="pi pi-refresh"
+          [rounded]="true"
+          [text]="true"
+          (click)="refreshQueues($event, node.data)"/>
       </div>
     </div>
   </ng-template>
@@ -25,7 +30,12 @@
     <div class="category-divider">
       <span class="name">{{ node.label }}</span>
       <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingTopics }">
-        <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refreshTopics($event, node.data)"/>
+        <p-button
+          icon="pi pi-refresh"
+          [severity]="node.data.hasQueuesLoadingError ? 'danger' : 'primary'"
+          [rounded]="true"
+          [text]="true"
+          (click)="refreshTopics($event, node.data)"/>
       </div>
     </div>
   </ng-template>

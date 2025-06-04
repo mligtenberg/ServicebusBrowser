@@ -144,7 +144,7 @@ export const subscriptionLoaded = createAction(
 
 export const failedToLoadSubscription = createAction(
   '[Topology] Failed To Load Subscription',
-  props<{ namespace?: Namespace; topic?: TopicWithMetaData; error: Problem }>()
+  props<{ namespace?: Namespace; topic?: TopicWithMetaData; subscription?: SubscriptionWithMetaData; subscriptionId?: string; error: Problem }>()
 );
 
 export const subscriptionAdded = createAction(

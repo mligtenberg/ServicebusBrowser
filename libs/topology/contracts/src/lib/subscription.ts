@@ -76,4 +76,7 @@ export type SubscriptionWithMetaData = Subscription & {
   rules: SubscriptionRule[];
 }
 
-export type SubscriptionWithMetaDataAndLoadingState = SubscriptionWithMetaData & { isLoading: boolean };
+export type SubscriptionWithMetaDataAndLoadingState = SubscriptionWithMetaData & {
+  isLoading: boolean,
+  hasLoadingError: boolean
+};

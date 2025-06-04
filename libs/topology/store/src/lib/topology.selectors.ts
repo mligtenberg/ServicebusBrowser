@@ -17,13 +17,17 @@ export const selectNamespaces = createSelector(
     ...ns,
     isLoadingQueues: state.queueLoadActions.some((a) => a.namespaceId === ns.id),
     isLoadingTopics: state.topicLoadActions.some((a) => a.namespaceId === ns.id),
+    hasQueuesLoadingError: state.queueLoadErrors.some((a) => a.namespaceId === ns.id),
+    hasTopicsLoadingError: state.topicLoadErrors.some((a) => a.namespaceId === ns.id),
     queues: state.queuesPerNamespace[ns.id] ?? [],
     topics: (state.topicsPerNamespace[ns.id] ?? []).map((topic): TopicWithChildrenAndLoadingState => ({
       ...topic,
       isLoading: state.subscriptionLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id),
+      hasLoadingError: state.subscriptionLoadErrors.some((a) => a.namespaceId === ns.id && a.topicId === topic.id),
       subscriptions: state.subscriptionsPerNamespaceAndTopic[ns.id]?.[topic.id]?.map(s => ({
         ...s,
         isLoading: state.rulesLoadActions.some((a) => a.namespaceId === ns.id && a.topicId === topic.id && a.subscriptionId === s.id),
+        hasLoadingError: state.rulesLoadErrors.some((a) => a.namespaceId === ns.id && a.topicId === topic.id && a.subscriptionId === s.id),
       })) ?? [],
     })),
   }))

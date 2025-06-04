@@ -42,6 +42,10 @@ p-tree {
   animation: spin 1s linear infinite;
 }
 
+.error {
+  color: red;
+}
+
 @keyframes spin {
   from {transform:rotate(0deg);}
   to {transform:rotate(360deg);}

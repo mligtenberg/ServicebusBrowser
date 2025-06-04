@@ -4,5 +4,6 @@
   [label]="topic().name"
   [showRefresh]="showRefresh()"
   [isRefreshing]="topic().isLoading"
+  [hasLoadingError]="topic().hasLoadingError"
   (refreshData)="onRefresh()"
 />

@@ -16,4 +16,9 @@ export type NamespaceWithChildren<
 }
 
 
-export type NamespaceWithChildrenAndLoadingState = NamespaceWithChildren<QueueWithMetaData, TopicWithChildrenAndLoadingState> & { isLoadingQueues: boolean, isLoadingTopics: boolean };
+export type NamespaceWithChildrenAndLoadingState = NamespaceWithChildren<QueueWithMetaData, TopicWithChildrenAndLoadingState> & {
+  isLoadingQueues: boolean,
+  isLoadingTopics: boolean,
+  hasQueuesLoadingError: boolean,
+  hasTopicsLoadingError: boolean
+};

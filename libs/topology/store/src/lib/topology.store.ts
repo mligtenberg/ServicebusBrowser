@@ -24,6 +24,10 @@ export type TopologyState = {
   topicLoadActions: Array<{ namespaceId: UUID }>
   subscriptionLoadActions: Array<{ namespaceId: UUID, topicId: string }>,
   rulesLoadActions: Array<{ namespaceId: UUID, topicId: string, subscriptionId: string }>
+  queueLoadErrors: Array<{ namespaceId: UUID }>
+  topicLoadErrors: Array<{ namespaceId: UUID }>
+  subscriptionLoadErrors: Array<{ namespaceId: UUID, topicId: string }>,
+  rulesLoadErrors: Array<{ namespaceId: UUID, topicId: string, subscriptionId: string }>
 };
 
 export const initialState: TopologyState = {
@@ -34,7 +38,11 @@ export const initialState: TopologyState = {
   queueLoadActions: [],
   topicLoadActions: [],
   subscriptionLoadActions: [],
-  rulesLoadActions: []
+  rulesLoadActions: [],
+  queueLoadErrors: [],
+  topicLoadErrors: [],
+  subscriptionLoadErrors: [],
+  rulesLoadErrors: []
 };
 
 export const logsReducer = createReducer(
@@ -53,7 +61,8 @@ export const logsReducer = createReducer(
       ...state.queuesPerNamespace,
       [namespace.id]: [...queues].sort((a, b) => a.name.localeCompare(b.name)),
     },
-    queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
+    queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id),
+    queueLoadErrors: state.queueLoadErrors.filter(a => a.namespaceId !== namespace.id)
   })),
   on(internalActions.queueLoaded, (state, { namespace, queue }): TopologyState  => ({
     ...state,
@@ -63,6 +72,11 @@ export const logsReducer = createReducer(
         .sort((a, b) => a.name.localeCompare(b.name)),
     },
     queueLoadActions: state.queueLoadActions.filter(a => a.namespaceId !== namespace.id)
+  })),
+  on(internalActions.failedToLoadQueues, internalActions.failedToLoadQueue, (state, { namespace }): TopologyState => ({
+    ...state,
+    queueLoadActions: namespace ? state.queueLoadActions.filter(a => a.namespaceId !== namespace.id) : state.queueLoadActions,
+    queueLoadErrors: namespace ? [...state.queueLoadErrors, { namespaceId: namespace.id }] : state.queueLoadErrors,
   })),
   on(actions.loadTopics, actions.loadTopic, (state, { namespaceId }): TopologyState => ({
     ...state,
@@ -74,7 +88,8 @@ export const logsReducer = createReducer(
       ...state.topicsPerNamespace,
       [namespace.id]: [...topics].sort((a, b) => a.name.localeCompare(b.name)),
     },
-    topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
+    topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
+    topicLoadErrors: state.topicLoadErrors.filter(a => a.namespaceId !== namespace.id)
   })),
   on(internalActions.topicLoaded, (state, { namespace, topic }): TopologyState  => ({
     ...state,
@@ -83,6 +98,11 @@ export const logsReducer = createReducer(
       [namespace.id]: [...state.topicsPerNamespace[namespace.id], topic].sort((a, b) => a.name.localeCompare(b.name)),
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id)
+  })),
+  on(internalActions.failedToLoadTopics, internalActions.failedToLoadTopic, (state, { namespace }): TopologyState => ({
+    ...state,
+    topicLoadActions: namespace ? state.topicLoadActions.filter(a => a.namespaceId !== namespace.id) : state.topicLoadActions,
+    topicLoadErrors: namespace ? [...state.topicLoadErrors, { namespaceId: namespace.id }] : state.topicLoadErrors,
   })),
   on(actions.loadSubscriptions, (state, { namespaceId, topicId }): TopologyState => ({
     ...state,
@@ -107,9 +127,16 @@ export const logsReducer = createReducer(
         },
       },
       topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
-      subscriptionLoadActions: state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id)
+      subscriptionLoadActions: state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id),
+      subscriptionLoadErrors: state.subscriptionLoadErrors.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id)
     })
   ),
+  on(internalActions.failedToLoadSubscriptions, (state, { namespace, topic }): TopologyState => ({
+    ...state,
+    topicLoadActions: namespace ? state.topicLoadActions.filter(a => a.namespaceId !== namespace.id) : state.topicLoadActions,
+    subscriptionLoadActions: namespace && topic ? state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id) : state.subscriptionLoadActions,
+    subscriptionLoadErrors: namespace && topic ? [...state.subscriptionLoadErrors, { namespaceId: namespace.id, topicId: topic.id }] : state.subscriptionLoadErrors,
+  })),
   on(internalActions.subscriptionLoaded, (state, { namespace, topic, subscription }): TopologyState  => ({
     ...state,
     subscriptionsPerNamespaceAndTopic: {
@@ -121,7 +148,15 @@ export const logsReducer = createReducer(
     },
     topicLoadActions: state.topicLoadActions.filter(a => a.namespaceId !== namespace.id),
     subscriptionLoadActions: state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id),
-    rulesLoadActions: state.rulesLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id && a.subscriptionId !== subscription.id)
+    rulesLoadActions: state.rulesLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id && a.subscriptionId !== subscription.id),
+    rulesLoadErrors: state.rulesLoadErrors.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id && a.subscriptionId !== subscription.id)
+  })),
+  on(internalActions.failedToLoadSubscription, (state, { namespace, topic, subscriptionId }): TopologyState => ({
+    ...state,
+    topicLoadActions: namespace ? state.topicLoadActions.filter(a => a.namespaceId !== namespace.id) : state.topicLoadActions,
+    subscriptionLoadActions: namespace && topic ? state.subscriptionLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id) : state.subscriptionLoadActions,
+    rulesLoadActions: namespace && topic && subscriptionId ? state.rulesLoadActions.filter(a => a.namespaceId !== namespace.id && a.topicId !== topic.id && a.subscriptionId !== subscriptionId) : state.rulesLoadActions,
+    rulesLoadErrors: namespace && topic && subscriptionId ? [...state.rulesLoadErrors, { namespaceId: namespace.id, topicId: topic.id, subscriptionId: subscriptionId }] : state.rulesLoadErrors,
   })),
   on(internalActions.queueRemoved, (state, {namespace, queueId}): TopologyState  => ({
     ...state,

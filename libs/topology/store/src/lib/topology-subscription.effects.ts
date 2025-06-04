@@ -41,17 +41,17 @@ export class TopologySubscriptionEffects {
     mergeMap(({ namespaceId, topicId, subscriptionId }) => from(this.serviceBusClient.getSubscription(namespaceId, topicId, subscriptionId)).pipe(
       catchError((error) => [{ problem: { title: 'failed to load subscription', detail: error.toString()} }]),
       mergeMap((subscription) => this.store.select(selectNamespaceById(namespaceId)).pipe(
-        map((namespace) => ({ namespace, subscription })),
+        map((namespace) => ({ namespace, subscription, subscriptionId })),
         take(1)
       )),
-      mergeMap(({subscription, namespace}) => this.store.select(selectTopicById(namespaceId
+      mergeMap(({subscription, namespace, subscriptionId}) => this.store.select(selectTopicById(namespaceId
         , topicId)).pipe(
-        map((topic) => ({ namespace, subscription, topic })),
+        map((topic) => ({ namespace, subscription, topic, subscriptionId })),
         take(1)
       )),
-      map(({subscription, namespace, topic}) => {
+      map(({subscription, namespace, topic, subscriptionId}) => {
         if ('problem' in subscription) {
-          return internalActions.failedToLoadSubscription({ namespace: namespace!, topic: topic!, error: subscription.problem });
+          return internalActions.failedToLoadSubscription({ namespace: namespace!, topic: topic!, subscriptionId, error: subscription.problem });
         }
         return internalActions.subscriptionLoaded({ namespace: namespace!, topic: topic!, subscription: subscription });
       })

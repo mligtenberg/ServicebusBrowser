@@ -26,6 +26,7 @@ export class GenericTreeNodeComponent<T> {
   }>();
   showRefresh = input<boolean>(false);
   isRefreshing = input<boolean>(false);
+  hasLoadingError = input<boolean>(false);
   refreshData = output();
 
   refresh($event: MouseEvent) {
