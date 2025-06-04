@@ -6,6 +6,7 @@ import {
   nativeTheme
 } from 'electron'
 import App from './app';
+import UpdateEvents from './events/update.events';
 
 export function getMenu(isDev: boolean) {
   const isMac = process.platform === 'darwin';
@@ -18,6 +19,12 @@ export function getMenu(isDev: boolean) {
         {
           label: 'About ' + app.name,
           role: 'about'
+        },
+        {
+          label: 'Check for Updates...',
+          click: () => {
+            UpdateEvents.checkForUpdates();
+          }
         },
         { type: 'separator' },
         {
@@ -46,6 +53,12 @@ export function getMenu(isDev: boolean) {
         {
           label: 'About ' + app.name,
           role: 'about'
+        },
+        {
+          label: 'Check for Updates...',
+          click: () => {
+            UpdateEvents.checkForUpdates();
+          }
         },
         { role: 'quit' }
       ]
