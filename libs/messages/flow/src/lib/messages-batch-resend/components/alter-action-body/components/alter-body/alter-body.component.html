@@ -12,6 +12,8 @@
       required
       [(ngModel)]="searchValue"
       placeholder="Search text"
+      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+      tooltipPosition="top"
     />
   }
 
@@ -24,6 +26,8 @@
       [cols]="30"
       placeholder="New value"
       required
+      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+      tooltipPosition="top"
     ></textarea>
 
     @if (alterType() === 'fullReplace') {
@@ -58,3 +62,12 @@
     <p-button label="Done" icon="pi pi-check" (click)="monacoDialogVisible.set(false)" styleClass="p-button-success"></p-button>
   </ng-template>
 </p-dialog>
+
+<ng-template #regexEplain>
+  <div class="regex-explanation">
+    <p>Within the regex you can define named capture groups by using</p>
+    <pre>(?&lt;name&gt;pattern)</pre>
+    <p>the values can be referenced in the replacement with</p>
+    <pre>$&lt;name&gt;</pre>
+  </div>
+</ng-template>

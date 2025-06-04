@@ -7,7 +7,7 @@
       placeholder="Property Key"/>
 
     <p-select
-      [options]="alterTypes"
+      [options]="alterTypes()"
       [(ngModel)]="alterType"
       placeholder="Alter Type"
       appendTo="body"
@@ -20,6 +20,8 @@
       required
       [(ngModel)]="searchValue"
       placeholder="Search value"
+      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+      tooltipPosition="top"
     />
   }
 
@@ -36,6 +38,8 @@
         pInputText
         required
         [(ngModel)]="value"
+        [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+        tooltipPosition="top"
         placeholder="Value"/>
     }
     @if (propertyType() === 'datetime') {
@@ -63,3 +67,12 @@
     }
   </p-input-group>
 </div>
+
+<ng-template #regexEplain>
+  <div class="regex-explanation">
+    <p>Within the regex you can define named capture groups by using</p>
+    <pre>(?&lt;name&gt;pattern)</pre>
+    <p>the values can be referenced in the replacement with</p>
+    <pre>$&lt;name&gt;</pre>
+  </div>
+</ng-template>

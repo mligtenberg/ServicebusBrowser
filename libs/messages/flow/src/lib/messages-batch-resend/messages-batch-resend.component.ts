@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild, model } from '@angular/core';
+import { Component, inject, signal, viewChild, model, computed, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Action,
@@ -13,7 +13,6 @@ import { BatchActionsService } from '../batch-actions/batch-actions.service';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
 import { MessagesSelectors, MessagesActions } from '@service-bus-browser/messages-store';
-import { take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DialogModule } from 'primeng/dialog';
@@ -25,6 +24,7 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
+import { Listbox } from 'primeng/listbox';
 
 @Component({
   selector: 'lib-messages-batch-resend',
@@ -39,7 +39,8 @@ import { ColorThemeService, FilesService } from '@service-bus-browser/services';
     DividerModule,
     ToastModule,
     TooltipModule,
-    EndpointSelectorInputComponent
+    EndpointSelectorInputComponent,
+    Listbox,
   ],
   providers: [BatchActionsService, MessageService],
   templateUrl: './messages-batch-resend.component.html',
@@ -57,41 +58,37 @@ export class MessagesBatchResendComponent {
   private fileService = inject(FilesService);
 
   protected actions = signal<Action[]>([]);
-  protected previewDialogVisible = false;
-  protected previewMessages: ServiceBusMessage[] = [];
+  protected previewDialogVisible = signal(false);
   protected selectedEndpoint: SendEndpoint | null = null;
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
   protected currentAction = model<Action | undefined>();
+  protected selectedMessage = model<ServiceBusMessage | undefined>(undefined);
+  protected previewBatch = computed(() => this.originalMessages().slice(0, 100))
+  protected previewMessage = computed(() => {
+    const selectedMessage = this.selectedMessage();
+    if (!selectedMessage) {
+      return null;
+    }
 
-  private originalMessages: ServiceBusMessage[] = [];
+    return this.batchActionsService.applyBatchActionsToMessage(
+      selectedMessage,
+      this.actions()
+    );
+  });
 
-  constructor() {
-    this.store.select(MessagesSelectors.selectBatchResendMessages)
-      .pipe(take(1))
-      .subscribe(messages => {
-        if (messages && messages.length > 0) {
-          this.originalMessages = [...messages];
-        } else {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'No Messages',
-            detail: 'No messages selected for batch resend'
-          });
-        }
-      });
-  }
+  originalMessages = this.store.selectSignal(MessagesSelectors.selectBatchResendMessages);
 
   storeAction(): void {
     const action = this.currentAction();
 
     if (action) {
       if (this.editMode()) {
-        this.actions.update((currentActions) =>
-          currentActions.map((a, i) =>
+        this.actions.update((currentActions) => {
+          return currentActions.map((a, i) =>
             i === this.editModeIndex() ? action : a
-          )
-        );
+          );
+        });
       } else {
         this.actions.update((currentActions) => [...currentActions, action]);
       }
@@ -125,12 +122,13 @@ export class MessagesBatchResendComponent {
     }
 
     this.editMode.set(true);
+    this.editModeIndex.set(index);
 
     this.currentAction.set(action);
   }
 
   removeAction(index: number) {
-    this.actions.update(currentActions => {
+    this.actions.update((currentActions) => {
       const newActions = [...currentActions];
       newActions.splice(index, 1);
       return newActions;
@@ -142,57 +140,56 @@ export class MessagesBatchResendComponent {
   }
 
   async importActions() {
-    const file = await this.fileService.openFile("", [{
-      extensions: ['actionlist'],
-      name: 'Action List',
-    }]);
+    const file = await this.fileService.openFile('', [
+      {
+        extensions: ['actionlist'],
+        name: 'Action List',
+      },
+    ]);
 
     if (!file) return;
 
-    const actionContainer = JSON.parse(file.fileContent) as {verion: number, actions: Action[]};
+    const actionContainer = JSON.parse(file.fileContent) as {
+      verion: number;
+      actions: Action[];
+    };
     this.actions.set(actionContainer.actions);
   }
 
   async exportActions() {
     const actionContainer = {
       verion: 1,
-      actions: this.actions()
+      actions: this.actions(),
     };
 
-    await this.fileService.saveFile('export', JSON.stringify(actionContainer), [{
-      extensions: ['actionlist'],
-      name: 'Action List',
-    }]);
+    await this.fileService.saveFile('export', JSON.stringify(actionContainer), [
+      {
+        extensions: ['actionlist'],
+        name: 'Action List',
+      },
+    ]);
+  }
+
+  getMessageListLine(message: ServiceBusMessage) {
+    if (message.subject && message.subject.length > 0) {
+      return message.subject;
+    }
+
+    return message.messageId;
   }
 
   previewChanges() {
-    if (this.originalMessages.length === 0) {
+    if (this.originalMessages().length === 0) {
       this.messageService.add({
         severity: 'error',
         summary: 'No Messages',
-        detail: 'No messages to preview changes'
+        detail: 'No messages to preview changes',
       });
       return;
     }
 
-    try {
-      // Apply actions to original messages
-      const modifiedMessages = this.batchActionsService.applyBatchActions(
-        this.originalMessages,
-        this.actions()
-      );
-
-      this.previewMessages = modifiedMessages ?
-        modifiedMessages.slice(0, Math.min(5, modifiedMessages.length)) : [];
-      this.previewDialogVisible = true;
-    } catch (error) {
-      console.error('Error applying batch actions:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to preview changes. Check the console for details.'
-      });
-    }
+    this.selectedMessage.set(undefined);
+    this.previewDialogVisible.set(true);
   }
 
   resendMessages() {
@@ -200,7 +197,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'No Messages',
-        detail: 'No messages to resend'
+        detail: 'No messages to resend',
       });
       return;
     }
@@ -209,48 +206,65 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing Endpoint',
-        detail: 'Please select a destination endpoint for resending messages'
+        detail: 'Please select a destination endpoint for resending messages',
       });
       return;
     }
 
     try {
-      // Apply actions to original messages
-      const modifiedMessages = this.batchActionsService.applyBatchActions(
-        this.originalMessages,
-        this.actions()
-      );
+      let messagesToSend: ServiceBusMessage[] = [];
 
-      if (modifiedMessages && modifiedMessages.length > 0) {
-        this.store.dispatch(MessagesActions.sendMessages({
-          endpoint: this.selectedEndpoint,
-          messages: modifiedMessages
-        }));
+      const selectedMessage = this.selectedMessage();
+      // If we're in the preview dialog and have a selected message, send only that message
+      if (this.previewDialogVisible() && selectedMessage) {
+        messagesToSend = [selectedMessage];
+      } else {
+        // Otherwise, apply actions to all original messages
+        messagesToSend = this.batchActionsService.applyBatchActions(
+          this.originalMessages(),
+          this.actions()
+        );
+      }
+
+      if (messagesToSend && messagesToSend.length > 0) {
+        this.store.dispatch(
+          MessagesActions.sendMessages({
+            endpoint: this.selectedEndpoint,
+            messages: messagesToSend,
+          })
+        );
 
         this.messageService.add({
           severity: 'success',
           summary: 'Messages Sent',
-          detail: `${modifiedMessages.length} messages have been queued for sending`
+          detail: `${messagesToSend.length} messages have been queued for sending`,
         });
+
+        // Close the preview dialog if it's open
+        this.previewDialogVisible.set(false);
 
         // Navigate back to messages page
         this.router.navigate(['/messages']);
       }
     } catch (error) {
-      console.error('Error applying batch actions and sending messages:', error);
+      console.error(
+        'Error applying batch actions and sending messages:',
+        error
+      );
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to send modified messages. Check the console for details.'
+        detail:
+          'Failed to send modified messages. Check the console for details.',
       });
     }
   }
 
   getActionTypeLabel(type: string): string {
     const typeMap: Record<string, string> = {
-      'add': 'Add',
-      'alter': 'Alter',
-      'remove': 'Remove'
+      add: 'Add',
+      alter: 'Alter',
+      remove: 'Remove',
     };
 
     return typeMap[type] || type;
@@ -258,9 +272,9 @@ export class MessagesBatchResendComponent {
 
   getActionTargetLabel(target: BatchActionTarget): string {
     const targetMap: Record<string, string> = {
-      'body': 'Body',
-      'systemProperties': 'System Properties',
-      'applicationProperties': 'Application Properties'
+      body: 'Body',
+      systemProperties: 'System Properties',
+      applicationProperties: 'Application Properties',
     };
 
     return targetMap[target] || target;
@@ -268,50 +282,56 @@ export class MessagesBatchResendComponent {
 
   getActionDescription(action: Action): string {
     switch (action.type) {
-      case 'add':
-        {
-          const addAction = action as AddAction;
-          return `Add ${addAction.fieldName} = ${this.formatValue(addAction.value)}`;
-        }
+      case 'add': {
+        const addAction = action as AddAction;
+        return `Add ${addAction.fieldName} = ${this.formatValue(
+          addAction.value
+        )}`;
+      }
 
-      case 'alter':
-        {
-          const alterAction = action as AlterAction;
-          if (alterAction.target === 'body') {
-            return `Modify message body`;
-          } else {
-            return `Modify ${alterAction.fieldName}`;
-          }
+      case 'alter': {
+        const alterAction = action as AlterAction;
+        if (alterAction.target === 'body') {
+          return `Modify message body`;
+        } else {
+          return `Modify ${alterAction.fieldName}`;
         }
+      }
 
-      case 'remove':
-        {
-          const removeAction = action as RemoveAction;
-          return `Remove ${removeAction.fieldName}`;
-        }
+      case 'remove': {
+        const removeAction = action as RemoveAction;
+        return `Remove ${removeAction.fieldName}`;
+      }
 
       default:
         return '';
     }
   }
 
-  getSystemProperties(message: ServiceBusMessage): {key: string, value: any}[] {
+  getSystemProperties(
+    message: ServiceBusMessage
+  ): { key: string; value: any }[] {
     return Object.entries(message)
       .filter(([key]) => {
-        return key !== 'body' &&
-               key !== 'applicationProperties' &&
-               key !== 'deadLetterSource' &&
-               key !== 'deadLetterReason' &&
-               key !== 'deadLetterErrorDescription';
+        return (
+          key !== 'body' &&
+          key !== 'applicationProperties' &&
+          key !== 'deadLetterSource' &&
+          key !== 'deadLetterReason' &&
+          key !== 'deadLetterErrorDescription'
+        );
       })
-      .map(([key, value]) => ({key, value}));
+      .map(([key, value]) => ({ key, value }));
   }
 
-  getApplicationProperties(message: ServiceBusMessage): {key: string, value: any}[] {
+  getApplicationProperties(
+    message: ServiceBusMessage
+  ): { key: string; value: any }[] {
     if (!message.applicationProperties) return [];
 
-    return Object.entries(message.applicationProperties)
-      .map(([key, value]) => ({key, value}));
+    return Object.entries(message.applicationProperties).map(
+      ([key, value]) => ({ key, value })
+    );
   }
 
   moveActionUp(index: number) {
@@ -322,7 +342,7 @@ export class MessagesBatchResendComponent {
       return;
     }
 
-    this.actions.update(currentActions => {
+    this.actions.update((currentActions) => {
       const newActions = [...currentActions];
       const actionIndex = newActions.indexOf(action);
       if (actionIndex > 0) {
@@ -330,7 +350,7 @@ export class MessagesBatchResendComponent {
         newActions.splice(actionIndex - 1, 0, action);
       }
       return newActions;
-    })
+    });
   }
 
   moveActionDown(index: number) {
@@ -341,7 +361,7 @@ export class MessagesBatchResendComponent {
       return;
     }
 
-    this.actions.update(currentActions => {
+    this.actions.update((currentActions) => {
       const newActions = [...currentActions];
       const actionIndex = newActions.indexOf(action);
       if (actionIndex >= 0 && actionIndex < newActions.length - 1) {
@@ -349,9 +369,8 @@ export class MessagesBatchResendComponent {
         newActions.splice(actionIndex + 1, 0, action);
       }
       return newActions;
-    })
+    });
   }
-
 
   private formatValue(value: any): string {
     if (value === null || value === undefined) {

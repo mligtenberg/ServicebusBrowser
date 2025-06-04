@@ -14,6 +14,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'lib-alter-application-properties',
@@ -24,10 +25,11 @@ import { DatePicker } from 'primeng/datepicker';
     InputGroup,
     InputText,
     Select,
-    DatePicker
+    DatePicker,
+    Tooltip,
   ],
   templateUrl: './alter-application-properties.component.html',
-  styleUrls: ['./alter-application-properties.component.scss']
+  styleUrls: ['./alter-application-properties.component.scss'],
 })
 export class AlterApplicationPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
@@ -41,11 +43,20 @@ export class AlterApplicationPropertiesComponent {
 
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
 
-  alterTypes = [
-    { label: 'Full Replace', value: 'fullReplace' },
-    { label: 'Search and Replace', value: 'searchAndReplace' },
-    { label: 'Regex Replace', value: 'regexReplace' }
-  ];
+  alterTypes = computed(() => {
+    const propertyType = this.propertyType();
+    if (propertyType !== 'string') {
+      return [
+        { label: 'Full Replace', value: 'fullReplace' },
+      ];
+    }
+
+    return [
+      { label: 'Full Replace', value: 'fullReplace' },
+      { label: 'Search and Replace', value: 'searchAndReplace' },
+      { label: 'Regex Replace', value: 'regexReplace' },
+    ]
+  });
 
   alterAction = computed<AlterApplicationPropertyActions | undefined>(() => {
     const currentAlterType = this.alterType();
@@ -63,7 +74,11 @@ export class AlterApplicationPropertiesComponent {
         fieldName: currentFieldName,
         value: currentValue,
         alterType: 'fullReplace',
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     } else {
       const currentSearchValue = this.searchValue();
@@ -79,7 +94,11 @@ export class AlterApplicationPropertiesComponent {
         searchValue: currentSearchValue,
         value: currentValue as string,
         alterType: currentAlterType,
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     }
   });
@@ -90,11 +109,14 @@ export class AlterApplicationPropertiesComponent {
     });
 
     effect(() => {
-      const action = this.action() as Partial<AlterApplicationPropertyActions> | undefined;
+      const action = this.action() as
+        | Partial<AlterApplicationPropertyActions>
+        | undefined;
       if (!action) {
         return;
       }
-      const partialReplaceAction = action as Partial<AlterApplicationPropertyPartialReplaceAction>;
+      const partialReplaceAction =
+        action as Partial<AlterApplicationPropertyPartialReplaceAction>;
 
       if (action.fieldName) {
         this.fieldName.set(action.fieldName);

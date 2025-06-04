@@ -17,6 +17,7 @@ import { Popover } from 'primeng/popover';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { SystemPropertyHelpers } from '../../../../../systemproperty-helpers';
 import { SystemPropertyKeys } from '../../../../../send-message/form';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'lib-alter-system-properties',
@@ -29,10 +30,11 @@ import { SystemPropertyKeys } from '../../../../../send-message/form';
     Select,
     DatePicker,
     Popover,
-    DurationInputComponent
+    DurationInputComponent,
+    Tooltip,
   ],
   templateUrl: './alter-system-properties.component.html',
-  styleUrls: ['./alter-system-properties.component.scss']
+  styleUrls: ['./alter-system-properties.component.scss'],
 })
 export class AlterSystemPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
@@ -46,18 +48,27 @@ export class AlterSystemPropertiesComponent {
 
   systemPropertyKeys = SystemPropertyKeys;
 
-  alterTypes = [
-    { label: 'Full Replace', value: 'fullReplace' },
-    { label: 'Search and Replace', value: 'searchAndReplace' },
-    { label: 'Regex Replace', value: 'regexReplace' }
-  ];
+  alterTypes = computed(() => {
+    const currentFieldIsString = this.systemPropertyIsText(this.fieldName());
+    if (!currentFieldIsString) {
+      return [
+        { label: 'Full Replace', value: 'fullReplace' },
+      ];
+    }
+
+    return [
+      { label: 'Full Replace', value: 'fullReplace' },
+      { label: 'Search and Replace', value: 'searchAndReplace' },
+      { label: 'Regex Replace', value: 'regexReplace' },
+    ]
+  });
 
   alterAction = computed<AlterSystemPropertyActions | undefined>(() => {
     const currentAlterType = this.alterType();
     const currentFieldName = this.fieldName();
     const currentValue = this.value();
 
-    if (!currentFieldName|| !currentValue) {
+    if (!currentFieldName || !currentValue) {
       return undefined;
     }
 
@@ -68,7 +79,11 @@ export class AlterSystemPropertiesComponent {
         fieldName: currentFieldName as SystemKeyProperty,
         value: currentValue,
         alterType: 'fullReplace',
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     } else {
       const currentSearchValue = this.searchValue();
@@ -84,7 +99,11 @@ export class AlterSystemPropertiesComponent {
         searchValue: currentSearchValue,
         value: currentValue as string,
         alterType: currentAlterType,
-        applyOnFilter: { body: [], systemProperties: [], applicationProperties: [] }
+        applyOnFilter: {
+          body: [],
+          systemProperties: [],
+          applicationProperties: [],
+        },
       };
     }
   });
@@ -95,12 +114,15 @@ export class AlterSystemPropertiesComponent {
     });
 
     effect(() => {
-      const action = this.action() as Partial<AlterSystemPropertyActions> | undefined;
+      const action = this.action() as
+        | Partial<AlterSystemPropertyActions>
+        | undefined;
       if (!action) {
         return;
       }
 
-      const partialReplaceAction = action as Partial<AlterSystemPropertyPartialReplaceAction>;
+      const partialReplaceAction =
+        action as Partial<AlterSystemPropertyPartialReplaceAction>;
 
       if (action.fieldName) {
         this.fieldName.set(action.fieldName);

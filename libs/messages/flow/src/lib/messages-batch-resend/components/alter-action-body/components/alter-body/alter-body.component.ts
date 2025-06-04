@@ -16,6 +16,7 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'lib-alter-body',
@@ -30,6 +31,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
     Dialog,
     EditorComponent,
     InputGroup,
+    Tooltip,
   ],
   templateUrl: './alter-body.component.html',
   styleUrls: ['./alter-body.component.scss'],

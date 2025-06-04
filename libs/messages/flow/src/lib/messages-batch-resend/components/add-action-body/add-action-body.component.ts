@@ -110,7 +110,6 @@ export class AddActionBodyComponent {
 
       if (addAction.fieldName && this.target() === 'systemProperties') {
         this.systemPropertyName.set(addAction.fieldName as SystemPropertyKeys);
-
       }
       if (addAction.fieldName && this.target() === 'applicationProperties') {
         this.applicationPropertyName.set(addAction.fieldName);

@@ -215,47 +215,103 @@
   }
 }
 
-.preview-container {
+.preview-layout {
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  width: 100%;
+  height: 100%;
+  gap: 1rem;
 
-  .message-preview {
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 4px;
+  .message-sidebar {
+    width: 250px;
+    border-right: 1px solid var(--batch-resend-border);
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    .message-list {
+      flex: 1;
+      display: block;
+    }
 
-    h4 {
+    h3 {
       margin-top: 0;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
+  }
 
-    pre {
-      background-color: #e9ecef;
-      padding: 0.75rem;
-      border-radius: 4px;
-      white-space: pre-wrap;
-      max-height: 300px;
-      overflow: auto;
-    }
+  .message-details {
+    flex: 1;
 
-    .properties-list {
+    .no-message-selected {
       display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background-color: var(--batch-resend-empty-state-bg);
+      border-radius: 4px;
 
-      .property-item {
+      p {
+        color: var(--batch-resend-empty-state-text);
+        text-align: center;
+        padding: 2rem;
+      }
+    }
+
+    .message-preview {
+      padding: 1rem;
+      background-color: var(--batch-resend-preview-bg);
+      border-radius: 4px;
+      border: 1px solid var(--batch-resend-border);
+      user-select: text;
+
+      h4 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+      }
+
+      pre {
+        background-color: var(--batch-resend-action-item-bg);
+        padding: 0.75rem;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow: auto;
+      }
+
+      .properties-list {
         display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
 
-        .property-name {
-          font-weight: bold;
-          margin-right: 0.5rem;
-          min-width: 120px;
+        .property-item {
+          display: flex;
+
+          .property-name {
+            font-weight: bold;
+            margin-right: 0.5rem;
+            min-width: 120px;
+            color: var(--batch-resend-property-name);
+          }
+
+          .property-value {
+            font-family: monospace;
+            word-break: break-all;
+          }
         }
+      }
+    }
+  }
+}
 
-        .property-value {
-          font-family: monospace;
-          word-break: break-all;
+// Dark mode support for the message sidebar
+.batch-resend-container.darkMode {
+  .preview-layout {
+    .message-sidebar {
+      .message-list {
+        .message-list-item {
+          &.selected {
+            background-color: #1a365d;
+            border-color: #4789d4;
+          }
         }
       }
     }

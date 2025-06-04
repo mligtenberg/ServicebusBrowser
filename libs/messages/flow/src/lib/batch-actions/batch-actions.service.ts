@@ -23,13 +23,21 @@ export class BatchActionsService {
 
   applyBatchActions<T extends ServiceBusMessage>(messages: T[], actions: Action[]): T[] {
     let modifiedMessages = messages;
-    for (const action of actions) {
-      modifiedMessages = modifiedMessages.map(message => this.applyBatchAction(message, action));
-    }
+    modifiedMessages = modifiedMessages.map(message => this.applyBatchActionsToMessage(message, actions));
+
     return modifiedMessages;
   }
 
-  private applyBatchAction<T extends ServiceBusMessage>(message: T, action: Action) {
+  applyBatchActionsToMessage<T extends ServiceBusMessage>(message: T, actions: Action[]): T {
+    let modifiedMessage = message;
+    for (const action of actions) {
+      modifiedMessage = this.applyBatchAction(modifiedMessage, action);
+    }
+    return modifiedMessage;
+  }
+
+
+  public applyBatchAction<T extends ServiceBusMessage>(message: T, action: Action) {
     if (action.applyOnFilter && !this.filterService.messageInFilter(message, action.applyOnFilter)) {
       return message;
     }
@@ -249,7 +257,7 @@ export class BatchActionsService {
   }
 
   private replaceByRegex(value: string, regex: string, replacement: string) {
-    return value.replace(new RegExp(regex, 'g'), replacement);
+    return (value as any).replaceAll(new RegExp(regex, 'g'), replacement);
   }
 
   private searchAndReplace(value: string, search: string, replacement: string) {

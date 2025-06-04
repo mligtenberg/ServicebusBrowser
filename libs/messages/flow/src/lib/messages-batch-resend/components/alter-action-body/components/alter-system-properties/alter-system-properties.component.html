@@ -7,9 +7,9 @@
       [options]="systemPropertyKeys"
       placeholder="Select property"
     />
-    
+
     <p-select
-      [options]="alterTypes"
+      [options]="alterTypes()"
       [(ngModel)]="alterType"
       placeholder="Alter Type"
       appendTo="body"
@@ -17,11 +17,13 @@
   </p-input-group>
 
   @if (alterType() !== 'fullReplace') {
-    <input 
+    <input
       pInputText
       required
       [(ngModel)]="searchValue"
       placeholder="Search value"
+      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+      tooltipPosition="top"
     />
   }
 
@@ -30,7 +32,9 @@
       pInputText
       required
       [(ngModel)]="value"
-      placeholder="Value"/>
+      placeholder="Value"
+      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
+      tooltipPosition="top"/>
   }
   @if (systemPropertyIsDate(fieldName())) {
     <p-date-picker
@@ -71,3 +75,12 @@
       placeholder="Value"/>
   }
 </div>
+
+<ng-template #regexEplain>
+  <div class="regex-explanation">
+    <p>Within the regex you can define named capture groups by using</p>
+    <pre>(?&lt;name&gt;pattern)</pre>
+    <p>the values can be referenced in the replacement with</p>
+    <pre>$&lt;name&gt;</pre>
+  </div>
+</ng-template>
