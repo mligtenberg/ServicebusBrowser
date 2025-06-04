@@ -3,8 +3,14 @@
   width: 100%;
 }
 
-.connection-type-option > * {
+.connection-type-option > *,
+.auth-method-option > * {
   margin: 0 0 0 0.5em;
+}
+
+.connection-type-option,
+.auth-method-option {
+  margin-bottom: 0.5rem;
 }
 
 .heading {
@@ -20,6 +26,36 @@ section {
 
 .full-width {
   width: 100%;
+}
+
+.input-field {
+  margin-bottom: 1rem;
+}
+
+.auth-method-section {
+  margin-bottom: 1rem;
+}
+
+.test-status {
+  margin: 1rem 0;
+
+  .status-message {
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-weight: 500;
+
+    &.success {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    &.error {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+  }
 }
 
 .actions {

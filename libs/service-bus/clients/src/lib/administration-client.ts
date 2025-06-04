@@ -11,6 +11,7 @@ import {
   SubscriptionRule,
   TopicWithMetaData, Topic, Subscription
 } from '@service-bus-browser/topology-contracts';
+import { getCredential } from './credential-helper';
 
 export class AdministrationClient {
   constructor(private connection: Connection) {
@@ -349,20 +350,14 @@ export class AdministrationClient {
   }
 
   private getAdministrationClient(): ServiceBusAdministrationClient {
-    switch (this.connection.type) {
-      case 'connectionString':
-        return new ServiceBusAdministrationClient(this.connection.connectionString);
-    }
+    const auth = getCredential(this.connection);
+    return new ServiceBusAdministrationClient(auth.hostName, auth.credential);
   }
 
   private getEndpoint(): string {
-    switch (this.connection.type) {
-      case 'connectionString':
-        {
-          const endpoint = this.connection.connectionString.split(';').find((part) => part.startsWith('Endpoint='))?.split('=')[1] ?? '/';
-          return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
-        }
-    }
+    const auth = getCredential(this.connection);
+    const endpoint = auth.namespaceId;
+    return endpoint[endpoint.length - 1] === '/' ? endpoint : `${endpoint}/`;
   }
 
   private mapQueue(queue: QueueProperties, queueMeta: QueueRuntimeProperties): QueueWithMetaData {

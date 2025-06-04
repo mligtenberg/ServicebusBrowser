@@ -19,3 +19,18 @@ export const selectInactiveConnections = createSelector(
   selectActiveConnections,
   (allConnections, activeConnections) => allConnections.filter(connection => !activeConnections.includes(connection))
 )
+
+export const selectConnectionTestStatus = createSelector(
+  featureSelector,
+  (state) => state.connectionTestStatus
+)
+
+export const selectConnectionUnderTest = createSelector(
+  featureSelector,
+  (state) => state.connectionUnderTest
+)
+
+export const selectConnectionTested = createSelector(
+  selectConnectionTestStatus,
+  (status) => status === 'success'
+)

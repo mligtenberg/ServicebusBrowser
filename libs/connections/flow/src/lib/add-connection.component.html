@@ -18,21 +18,127 @@
         ></p-radiobutton>
         <label for="connectionStringConnection">Connection String</label>
       </div>
+      <div class="connection-type-option full-width">
+        <p-radiobutton
+          name="connectionType"
+          value="azureAD"
+          inputId="azureADConnection"
+          [(ngModel)]="connectionType"
+        ></p-radiobutton>
+        <label for="azureADConnection">Azure AD</label>
+      </div>
     </section>
+
     @if (connectionType() === 'connectionString') {
       <section class="connection-string">
-        <p-floatlabel variant="on">
-          <input id="connectionString" class="full-width" pInputText [(ngModel)]="connectionString" />
-          <label for="connectionString">Connection String</label>
-        </p-floatlabel>
+        <div class="input-field">
+          <p-floatlabel variant="on">
+            <input id="connectionString" class="full-width" pInputText [(ngModel)]="connectionString" />
+            <label for="connectionString">Connection String</label>
+          </p-floatlabel>
+        </div>
+      </section>
+    }
+
+    @if (connectionType() === 'azureAD') {
+      <section class="azure-ad">
+        <div class="input-field">
+          <p-floatlabel variant="on">
+            <input id="fullyQualifiedNamespace" class="full-width" pInputText [(ngModel)]="fullyQualifiedNamespace" />
+            <label for="fullyQualifiedNamespace">Fully Qualified Namespace</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="auth-method-section">
+          <label class="heading">Authentication Method</label>
+          <div class="auth-method-option full-width">
+            <p-radiobutton
+              name="authMethod"
+              value="azureCli"
+              inputId="azureCliAuth"
+              [(ngModel)]="authMethod"
+            ></p-radiobutton>
+            <label for="azureCliAuth">Azure CLI</label>
+          </div>
+          <div class="auth-method-option full-width">
+            <p-radiobutton
+              name="authMethod"
+              value="ServicePrincipalClientSecret"
+              inputId="servicePrincipalAuth"
+              [(ngModel)]="authMethod"
+            ></p-radiobutton>
+            <label for="servicePrincipalAuth">Service Principal</label>
+          </div>
+          <div class="auth-method-option full-width">
+            <p-radiobutton
+              name="authMethod"
+              value="systemAssignedManagedIdentity"
+              inputId="systemAssignedManagedIdentityAuth"
+              [(ngModel)]="authMethod"
+            ></p-radiobutton>
+            <label for="systemAssignedManagedIdentityAuth">System Assigned Managed Identity</label>
+          </div>
+          <div class="auth-method-option full-width">
+            <p-radiobutton
+              name="authMethod"
+              value="userAssignedManagedIdentity"
+              inputId="userAssignedManagedIdentityAuth"
+              [(ngModel)]="authMethod"
+            ></p-radiobutton>
+            <label for="userAssignedManagedIdentityAuth">User Assigned Managed Identity</label>
+          </div>
+        </div>
+
+        @if (authMethod() === 'ServicePrincipalClientSecret') {
+          <div class="input-field">
+            <p-floatlabel variant="on">
+              <input id="clientId" class="full-width" pInputText [(ngModel)]="clientId" />
+              <label for="clientId">Client ID</label>
+            </p-floatlabel>
+          </div>
+          <div class="input-field">
+            <p-floatlabel variant="on">
+              <input id="clientSecret" class="full-width" pInputText [(ngModel)]="clientSecret" />
+              <label for="clientSecret">Client Secret</label>
+            </p-floatlabel>
+          </div>
+          <div class="input-field">
+            <p-floatlabel variant="on">
+              <input id="tenantId" class="full-width" pInputText [(ngModel)]="tenantId" />
+              <label for="tenantId">Tenant ID</label>
+            </p-floatlabel>
+          </div>
+          <div class="input-field">
+            <p-floatlabel variant="on">
+              <input id="authority" class="full-width" pInputText [(ngModel)]="authority" />
+              <label for="authority">Authority</label>
+            </p-floatlabel>
+          </div>
+        }
+
+        @if (authMethod() === 'userAssignedManagedIdentity') {
+          <div class="input-field">
+            <p-floatlabel variant="on">
+              <input id="clientId" class="full-width" pInputText [(ngModel)]="clientId" />
+              <label for="clientId">Client ID</label>
+            </p-floatlabel>
+          </div>
+        }
       </section>
     }
 
 
+    <section class="test-status" *ngIf="(connectionTestStatus$ | async) !== 'none'">
+      <div class="status-message" [ngClass]="{'success': (connectionTestStatus$ | async) === 'success', 'error': (connectionTestStatus$ | async) === 'error'}">
+        <span *ngIf="(connectionTestStatus$ | async) === 'success'">Connection test successful! You can now save the connection.</span>
+        <span *ngIf="(connectionTestStatus$ | async) === 'error'">Connection test failed. Please check your connection details and try again.</span>
+      </div>
+    </section>
+
     <section class="actions">
       <button pButton severity="secondary" type="button">Cancel</button>
-      <button pButton severity="primary" type="button" [disabled]="!canSave()" (click)="testConnection()">test</button>
-      <button pButton severity="primary" type="button" [disabled]="!canSave()" (click)="save()">Save</button>
+      <button pButton severity="primary" type="button" [disabled]="!canTest()" (click)="testConnection()">Test</button>
+      <button pButton severity="primary" type="button" [disabled]="(connectionTestStatus$ | async) !== 'success'" (click)="save()">Save</button>
     </section>
   </div>
 </main>

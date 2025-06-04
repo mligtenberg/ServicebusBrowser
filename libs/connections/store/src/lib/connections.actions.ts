@@ -21,3 +21,7 @@ export const activateConnection = createAction(
   '[Connections] Activate Connection',
   props<{ connection: Connection }>()
 );
+
+export const resetConnectionTest = createAction(
+  '[Connections] Reset Connection Test'
+);

@@ -7,6 +7,7 @@ import { ConnectionsLogsEffects } from './lib/connections-logs.effects';
 
 export * as ConnectionsActions from './lib/connections.actions';
 export * as ConnectionsSelectors from './lib/connections.selectors';
+export * as ConnectionsEffectActions from './lib/connections.internal-actions';
 
 export function provideConnectionsState(): (
   | Provider

@@ -1,8 +1,14 @@
 import { Connection, ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { ServiceBusClient, ServiceBusReceivedMessage, ServiceBusReceiver } from '@azure/service-bus';
+import {
+  ServiceBusAdministrationClient,
+  ServiceBusClient,
+  ServiceBusReceivedMessage,
+  ServiceBusReceiver
+} from '@azure/service-bus';
 import * as contracts from '@service-bus-browser/messages-contracts';
 import Long from 'long';
 import { Duration } from 'luxon';
+import { getCredential } from './credential-helper';
 
 export class MessageReceiveClient {
   constructor(private connection: Connection, private endpoint: ReceiveEndpoint)
@@ -28,14 +34,8 @@ export class MessageReceiveClient {
   }
 
   private getReceiver(receiveMode: "peekLock" | "receiveAndDelete"): ServiceBusReceiver {
-    let client: ServiceBusClient | undefined = undefined;
-    if (this.connection.type === "connectionString") {
-      client = new ServiceBusClient(this.connection.connectionString);
-    }
-
-    if (client === undefined) {
-      throw new Error('Unsupported connection type');
-    }
+    const auth = getCredential(this.connection);
+    const client = new ServiceBusClient(auth.hostName, auth.credential);
 
     if ('queueName' in this.endpoint) {
       return client.createReceiver(this.endpoint.queueName, {
