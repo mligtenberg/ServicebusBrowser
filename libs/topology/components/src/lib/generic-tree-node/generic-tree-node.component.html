@@ -6,7 +6,12 @@
 
   @if (showRefresh()) {
     <div class="refresh-button" [ngClass]="{ 'spin': isRefreshing() }">
-      <p-button [severity]="hasLoadingError() ? 'danger' : 'primary'" icon="pi pi-refresh" [rounded]="true" [text]="true" (click)="refresh($event)"/>
+      <p-button
+        [severity]="hasLoadingError() ? 'danger' : 'primary'"
+        icon="pi pi-refresh"
+        [rounded]="true"
+        [text]="true"
+        (click)="refresh($event)"/>
     </div>
   }
 </div>

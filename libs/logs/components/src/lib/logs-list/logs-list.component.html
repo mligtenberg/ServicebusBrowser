@@ -1,6 +1,7 @@
 <p-virtual-scroller
   [items]="logs()"
   [itemSize]="24"
+  [appendOnly]="true"
   scrollHeight="20rem"
 >
   <ng-template #item let-item let-options="options">
