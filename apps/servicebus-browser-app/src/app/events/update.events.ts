@@ -1,6 +1,6 @@
-import { app, autoUpdater, dialog, MessageBoxOptions } from 'electron';
+import { autoUpdater, dialog, MessageBoxOptions } from 'electron';
 import { platform, arch } from 'os';
-import { updateServerUrl } from '../constants';
+import { currentVersion, updateServerUrl } from '../constants';
 import App from '../app';
 
 export default class UpdateEvents {
@@ -8,10 +8,9 @@ export default class UpdateEvents {
   static initAutoUpdateService() {
     const platform_arch =
       platform() === 'win32' ? platform() : platform() + "-" + arch();
-    const version = '0.10.3';
 
     const feed: Electron.FeedURLOptions = {
-      url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${version}`,
+      url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
 
 
