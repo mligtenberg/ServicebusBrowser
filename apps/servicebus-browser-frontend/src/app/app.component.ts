@@ -47,6 +47,7 @@ export class AppComponent {
     'userAgentData' in navigator &&
     ((navigator.userAgentData as any)?.platform.toLowerCase().includes('mac') ??
       false);
+
   menuItems: MenuItem[] = [
     {
       label: 'Connections',

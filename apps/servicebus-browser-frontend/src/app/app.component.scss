@@ -5,14 +5,22 @@
 
   .main-menu {
     .p-menubar {
-      padding: 0;
+      padding: 3px 0;
       border-radius: 0;
       z-index: 2;
       position: relative;
+      -webkit-app-region: drag;
+
+      .p-menubar-item-content {
+        -webkit-app-region: none;
+      }
     }
 
     &.mac {
       .p-menubar {
+        @media all and (display-mode: fullscreen) {
+          padding-left: 0px;
+        }
         padding-left: 70px;
       }
     }

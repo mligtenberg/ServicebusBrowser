@@ -70,7 +70,7 @@ export default class App {
       width: width,
       height: height,
       show: false,
-      titleBarStyle: 'hidden',
+      titleBarStyle: 'hiddenInset',
       frame: false,
       webPreferences: {
         contextIsolation: true,
