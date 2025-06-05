@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
@@ -18,6 +19,7 @@ import { selectRoute } from './ngrx/route.selectors';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
+import { NgClass } from '@angular/common';
 
 @Component({
   imports: [
@@ -33,6 +35,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
     SidebarComponent,
     Toast,
     Button,
+    NgClass,
   ],
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -40,6 +43,11 @@ import { ColorThemeService } from '@service-bus-browser/services';
 })
 export class AppComponent {
   title = 'servicebus-browser-frontend';
+  isMac =
+    'userAgentData' in navigator &&
+    ((navigator.userAgentData as any)?.platform.toLowerCase().includes('mac') ??
+      false);
+
   menuItems: MenuItem[] = [
     {
       label: 'Connections',
@@ -64,8 +72,8 @@ export class AppComponent {
           icon: 'pi pi-upload',
           command: () => {
             this.importMessages();
-          }
-        }
+          },
+        },
       ],
     },
     {
@@ -98,7 +106,7 @@ export class AppComponent {
           routerLink: '/about'
         }
       ],
-    }
+    },
   ];
 
   store = inject(Store);
