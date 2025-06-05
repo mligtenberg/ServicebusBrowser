@@ -1,5 +1,8 @@
-import { SubscriptionWithMetaData, SubscriptionWithMetaDataAndLoadingState } from './subscription';
-import { UUID } from '@service-bus-browser/shared-contracts';
+import {
+  SubscriptionWithMetaData,
+  SubscriptionWithMetaDataAndLoadingState,
+} from './subscription';
+import { UUID, Problem } from '@service-bus-browser/shared-contracts';
 
 export type Topic = {
   namespaceId: UUID;
@@ -19,8 +22,8 @@ export type Topic = {
     supportOrdering: boolean;
     enablePartitioning: boolean;
     enableExpress: boolean;
-  },
-}
+  };
+};
 
 export type TopicWithMetaData = Topic & {
   metadata: {
@@ -57,14 +60,18 @@ export type TopicWithMetaData = Topic & {
      * The endpoint URL for the entity.
      */
     endpoint: string;
-  }
-}
-
-export type TopicWithChildren<TSubscription extends SubscriptionWithMetaData = SubscriptionWithMetaData> = TopicWithMetaData & {
-  subscriptions: TSubscription[];
-}
-
-export type TopicWithChildrenAndLoadingState = TopicWithChildren<SubscriptionWithMetaDataAndLoadingState> & {
-  isLoading: boolean,
-  hasLoadingError: boolean
+  };
 };
+
+export type TopicWithChildren<
+  TSubscription extends SubscriptionWithMetaData = SubscriptionWithMetaData
+> = TopicWithMetaData & {
+  subscriptions: TSubscription[];
+};
+
+export type TopicWithChildrenAndLoadingState =
+  TopicWithChildren<SubscriptionWithMetaDataAndLoadingState> & {
+    isLoading: boolean;
+    hasLoadingError: boolean;
+    loadingError?: Problem | null;
+  };

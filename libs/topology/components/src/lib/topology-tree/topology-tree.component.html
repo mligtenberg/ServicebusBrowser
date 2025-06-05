@@ -16,27 +16,39 @@
   <ng-template let-node pTemplate="queues">
     <div class="category-divider">
       <span class="name">{{ node.label }}</span>
-      <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingQueues }">
+      <div
+        class="refresh-button"
+        [ngClass]="{ spin: node.data.isLoadingQueues }"
+      >
         <p-button
           [severity]="node.data.hasQueuesLoadingError ? 'danger' : 'primary'"
           icon="pi pi-refresh"
           [rounded]="true"
           [text]="true"
-          (click)="refreshQueues($event, node.data)"/>
+          [pTooltip]="node.data.queueLoadingError?.detail"
+          [tooltipDisabled]="!node.data.queueLoadingError"
+          (click)="refreshQueues($event, node.data)"
+        />
       </div>
     </div>
   </ng-template>
   <ng-template let-node pTemplate="topics">
     <div class="category-divider">
       <span class="name">{{ node.label }}</span>
-      <div class="refresh-button" [ngClass]="{ 'spin': node.data.isLoadingTopics }">
+      <div
+        class="refresh-button"
+        [ngClass]="{ spin: node.data.isLoadingTopics }"
+      >
         <p-button
           icon="pi pi-refresh"
-          [severity]="node.data.hasQueuesLoadingError ? 'danger' : 'primary'"
+          [severity]="node.data.hasTopicsLoadingError ? 'danger' : 'primary'"
           [rounded]="true"
           [text]="true"
+          [pTooltip]="node.data.topicLoadingError?.detail"
+          [tooltipDisabled]="!node.data.topicLoadingError"
           [style]=""
-          (click)="refreshTopics($event, node.data)"/>
+          (click)="refreshTopics($event, node.data)"
+        />
       </div>
     </div>
   </ng-template>
@@ -55,7 +67,9 @@
     <sbb-tpl-subscription-tree-node
       [subscription]="node.data"
       [showRefresh]="displaySubscriptionRules()"
-      (refreshSubscription)="refreshSubscription($event.namespaceId, $event.topicId, $event.id)"
+      (refreshSubscription)="
+        refreshSubscription($event.namespaceId, $event.topicId, $event.id)
+      "
     />
   </ng-template>
   <ng-template let-node pTemplate="subscription-rule">

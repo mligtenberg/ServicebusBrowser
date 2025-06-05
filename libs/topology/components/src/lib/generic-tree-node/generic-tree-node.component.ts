@@ -1,17 +1,15 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Button } from 'primeng/button';
-import { FaIconComponent, IconDefinition } from '@fortawesome/angular-fontawesome';
+import {
+  FaIconComponent,
+  IconDefinition,
+} from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'sbb-tpl-generic-tree-node',
-  imports: [
-    CommonModule,
-    Button,
-    FaIconComponent,
-    Tooltip,
-  ],
+  imports: [CommonModule, Button, FaIconComponent, Tooltip],
   templateUrl: './generic-tree-node.component.html',
   styleUrl: './generic-tree-node.component.scss',
 })
@@ -27,6 +25,9 @@ export class GenericTreeNodeComponent<T> {
   showRefresh = input<boolean>(false);
   isRefreshing = input<boolean>(false);
   hasLoadingError = input<boolean>(false);
+  error = input<
+    import('@service-bus-browser/shared-contracts').Problem | undefined
+  >();
   refreshData = output();
 
   refresh($event: MouseEvent) {
