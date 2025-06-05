@@ -10,6 +10,12 @@
       z-index: 2;
       position: relative;
     }
+
+    &.mac {
+      .p-menubar {
+        padding-left: 70px;
+      }
+    }
   }
 
   .main-splitter {
