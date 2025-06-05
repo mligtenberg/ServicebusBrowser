@@ -14,12 +14,18 @@ const packages = Object.keys(deps).sort().map(name => {
   }
 });
 
-const outputDir = path.join(__dirname, '..', 'apps', 'servicebus-browser-frontend', 'src', 'assets');
+const outputDir = path.join(__dirname, '..', 'apps', 'servicebus-browser-frontend', 'public');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 fs.writeFileSync(path.join(outputDir, 'packages.json'), JSON.stringify(packages, null, 2));
 fs.writeFileSync(
   path.join(outputDir, 'app-info.json'),
-  JSON.stringify({ version: rootPackage.version, author: rootPackage.author }, null, 2)
+  JSON.stringify({ version: process.env.TAG_VERSION ?? '0.0.0', author: rootPackage.author }, null, 2)
 );
+
+const constantsPath = 'apps/servicebus-browser-app/src/app/constants.ts';
+const version = process.env.TAG_VERSION ?? '0.0.0';
+const content = fs.readFileSync(constantsPath, 'utf8');
+const updated = content.replace(/export const currentVersion = '.*';/, `export const currentVersion = '${version}';`);
+fs.writeFileSync(constantsPath, updated);

@@ -90,7 +90,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "generate-packages": "node scripts/generate-packages.js"
+    "patch-files": "node scripts/patch-files.js"
   },
   "engines": {
     "node": ">=22",
