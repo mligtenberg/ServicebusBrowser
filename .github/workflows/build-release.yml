@@ -38,15 +38,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-        run: |
-          node - <<'EOF'
-          const fs = require('fs');
-          const path = 'apps/servicebus-browser-app/src/app/constants.ts';
-          const version = process.env.TAG_VERSION;
-          const content = fs.readFileSync(path, 'utf8');
-          const updated = content.replace(/export const currentVersion = '.*';/, `export const currentVersion = '${version}';`);
-          fs.writeFileSync(path, updated);
-          EOF
+      - run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -78,15 +70,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-        run: |
-          node - <<'EOF'
-          const fs = require('fs');
-          const path = 'apps/servicebus-browser-app/src/app/constants.ts';
-          const version = process.env.TAG_VERSION;
-          const content = fs.readFileSync(path, 'utf8');
-          const updated = content.replace(/export const currentVersion = '.*';/, `export const currentVersion = '${version}';`);
-          fs.writeFileSync(path, updated);
-          EOF
+      - run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -117,15 +101,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-        run: |
-          node - <<'EOF'
-          const fs = require('fs');
-          const path = 'apps/servicebus-browser-app/src/app/constants.ts';
-          const version = process.env.TAG_VERSION;
-          const content = fs.readFileSync(path, 'utf8');
-          const updated = content.replace(/export const currentVersion = '.*';/, `export const currentVersion = '${version}';`);
-          fs.writeFileSync(path, updated);
-          EOF
+      - run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - name: Build executable
         env:

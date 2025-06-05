@@ -98,9 +98,6 @@ export default class App {
 
     // handle all external redirects in a new browser window
     App.mainWindow.webContents.on('will-navigate', App.onRedirect);
-    App.mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options) => {
-        App.onRedirect(event, url);
-    });
 
     // Emitted when the window is closed.
     App.mainWindow.on('closed', () => {

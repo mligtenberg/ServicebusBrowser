@@ -56,10 +56,7 @@
           "sourceMap": true
         }
       },
-      "defaultConfiguration": "production",
-      "dependsOn": [
-        "generate-packages"
-      ]
+      "defaultConfiguration": "production"
     },
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
@@ -101,12 +98,6 @@
         "buildTarget": "servicebus-browser-frontend:build",
         "staticFilePath": "dist/apps/servicebus-browser-frontend/browser",
         "spa": true
-      }
-    },
-    "generate-packages": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm run generate-packages"
       }
     }
   }
