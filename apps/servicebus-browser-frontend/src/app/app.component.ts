@@ -67,6 +67,26 @@ export class AppComponent {
           }
         }
       ],
+    },
+    {
+      label: 'Settings',
+      items: [
+        {
+          label: 'Sync with OS',
+          icon: 'pi pi-desktop',
+          command: () => this.themeService.setPreference('sync'),
+        },
+        {
+          label: 'Light theme',
+          icon: 'pi pi-sun',
+          command: () => this.themeService.setPreference('light'),
+        },
+        {
+          label: 'Dark theme',
+          icon: 'pi pi-moon',
+          command: () => this.themeService.setPreference('dark'),
+        },
+      ],
     }
   ];
 
