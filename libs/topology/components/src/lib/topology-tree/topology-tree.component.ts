@@ -26,7 +26,6 @@ import {
   SubscriptionRuleTreeNodeComponent
 } from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
 import { ContextMenu } from 'primeng/contextmenu';
-import { InputGroup } from 'primeng/inputgroup';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -42,8 +41,7 @@ import { InputGroup } from 'primeng/inputgroup';
     Button,
     InputText,
     SubscriptionRuleTreeNodeComponent,
-    ContextMenu,
-    InputGroup,
+    ContextMenu
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',

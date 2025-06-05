@@ -6,7 +6,7 @@
 
   <div class="destination-selector">
     <h3>Select Destination</h3>
-    <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" placeholder="Select destination endpoint" />
+    <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
   </div>
 
   <div class="actions-container">
@@ -55,7 +55,7 @@
         <p-button label="Preview Changes" icon="pi pi-eye"
                   (click)="previewChanges()"></p-button>
         <p-button label="Resend" icon="pi pi-send" severity="success"
-                  [disabled]="currentActions.length === 0 || !selectedEndpoint" (click)="resendMessages()"></p-button>
+                  [disabled]="currentActions.length === 0 || !selectedEndpoint()" (click)="resendMessages()"></p-button>
       </div>
     </div>
 
@@ -95,6 +95,7 @@
     <!-- Message sidebar -->
     <div class="message-sidebar">
       <h3>Messages</h3>
+      <p>Below are the top 100 messages, select one to see a preview of your changes pipeline</p>
         <div class="message-list">
           <p-list-box
             scrollHeight="400px"
@@ -145,9 +146,13 @@
     </div>
   </div>
   <ng-template pTemplate="footer">
-    <p-button label="Close" icon="pi pi-times" (click)="previewDialogVisible.set(false)"
-              styleClass="p-button-text"></p-button>
-    <p-button label="Resend selected message" icon="pi pi-send" (click)="resendMessages()" severity="success"></p-button>
+    <div class="footer">
+      <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
+      <p-button label="Resend selected message" icon="pi pi-send"
+                (click)="resendSelectedMessage()"
+                [disabled]="!selectedMessage() || !selectedEndpoint()"
+                severity="success"></p-button>
+    </div>
   </ng-template>
 </p-dialog>
 

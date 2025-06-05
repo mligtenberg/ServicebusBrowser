@@ -317,3 +317,15 @@
     }
   }
 }
+
+.footer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  gap: .5rem;
+
+  sbb-tpl-endpoint-selector-input {
+    flex: 1;
+  }
+}

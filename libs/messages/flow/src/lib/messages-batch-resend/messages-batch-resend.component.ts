@@ -59,7 +59,7 @@ export class MessagesBatchResendComponent {
 
   protected actions = signal<Action[]>([]);
   protected previewDialogVisible = signal(false);
-  protected selectedEndpoint: SendEndpoint | null = null;
+  protected selectedEndpoint = model<SendEndpoint | null >(null);
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
   protected currentAction = model<Action | undefined>();
@@ -192,7 +192,52 @@ export class MessagesBatchResendComponent {
     this.previewDialogVisible.set(true);
   }
 
+  resendSelectedMessage() {
+    const selectedMessage = this.previewMessage();
+    const selectedEndpoint = this.selectedEndpoint();
+
+    if (!selectedMessage) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No Messages',
+        detail: 'No messages to resend',
+      });
+      return;
+    }
+    if (!selectedEndpoint) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Missing Endpoint',
+        detail: 'Please select a destination endpoint for resending messages',
+      });
+      return;
+    }
+
+    try {
+      this.store.dispatch(
+        MessagesActions.sendMessages({
+          endpoint: selectedEndpoint,
+          messages: [selectedMessage]
+        })
+      );
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Message Sent',
+        detail: `Selected message has been sent`,
+      });
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail:
+          'Failed to send modified message. Check the logs for details.',
+      });
+    }
+  }
+
   resendMessages() {
+    const selectedEndpoint = this.selectedEndpoint();
     if (this.originalMessages.length === 0) {
       this.messageService.add({
         severity: 'error',
@@ -202,7 +247,7 @@ export class MessagesBatchResendComponent {
       return;
     }
 
-    if (!this.selectedEndpoint) {
+    if (!selectedEndpoint) {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing Endpoint',
@@ -214,22 +259,16 @@ export class MessagesBatchResendComponent {
     try {
       let messagesToSend: ServiceBusMessage[] = [];
 
-      const selectedMessage = this.selectedMessage();
-      // If we're in the preview dialog and have a selected message, send only that message
-      if (this.previewDialogVisible() && selectedMessage) {
-        messagesToSend = [selectedMessage];
-      } else {
-        // Otherwise, apply actions to all original messages
-        messagesToSend = this.batchActionsService.applyBatchActions(
-          this.originalMessages(),
-          this.actions()
-        );
-      }
+      // Otherwise, apply actions to all original messages
+      messagesToSend = this.batchActionsService.applyBatchActions(
+        this.originalMessages(),
+        this.actions()
+      );
 
       if (messagesToSend && messagesToSend.length > 0) {
         this.store.dispatch(
           MessagesActions.sendMessages({
-            endpoint: this.selectedEndpoint,
+            endpoint: selectedEndpoint,
             messages: messagesToSend,
           })
         );
@@ -237,25 +276,21 @@ export class MessagesBatchResendComponent {
         this.messageService.add({
           severity: 'success',
           summary: 'Messages Sent',
-          detail: `${messagesToSend.length} messages have been queued for sending`,
+          detail: `${messagesToSend.length} messages have been sent`,
         });
 
         // Close the preview dialog if it's open
         this.previewDialogVisible.set(false);
 
         // Navigate back to messages page
-        this.router.navigate(['/messages']);
+        this.router.navigate(['/']);
       }
     } catch (error) {
-      console.error(
-        'Error applying batch actions and sending messages:',
-        error
-      );
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
         detail:
-          'Failed to send modified messages. Check the console for details.',
+          'Failed to send modified messages. Check the logs for details.',
       });
     }
   }
