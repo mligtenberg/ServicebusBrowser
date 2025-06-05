@@ -73,6 +73,7 @@ export class AppComponent {
       items: [
         {
           label: 'Application Theme',
+          icon: 'pi pi-desktop',
           items: [
             {
               label: 'Sync with OS',
