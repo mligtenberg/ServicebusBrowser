@@ -55,6 +55,10 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
       this.onChange?.(value);
       this.onTouched?.();
     });
+
+    effect(() => {
+      console.log(this.value());
+    });
   }
 
   writeValue(obj: SendEndpoint | null): void {

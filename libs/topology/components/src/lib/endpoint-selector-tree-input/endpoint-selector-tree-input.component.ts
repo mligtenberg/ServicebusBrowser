@@ -49,6 +49,7 @@ export class EndpointSelectorTreeInputComponent implements ControlValueAccessor 
       endpoint: $event.queue.metaData.endpoint,
       queueName: $event.queue.name,
       connectionId: $event.queue.namespaceId,
+      endpointDisplay: $event.queue.metaData.endpointDisplay
     });
   }
 
@@ -57,6 +58,7 @@ export class EndpointSelectorTreeInputComponent implements ControlValueAccessor 
       endpoint: $event.topic.metadata.endpoint,
       topicName: $event.topic.name,
       connectionId: $event.topic.namespaceId,
+      endpointDisplay: $event.topic.metadata.endpointDisplay
     });
   }
 

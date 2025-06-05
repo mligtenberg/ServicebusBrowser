@@ -57,6 +57,10 @@ export type TopicWithMetaData = Topic & {
      * The endpoint URL for the entity.
      */
     endpoint: string;
+    /**
+     * User readable version of the endpoint
+     */
+    endpointDisplay: string;
   }
 }
 

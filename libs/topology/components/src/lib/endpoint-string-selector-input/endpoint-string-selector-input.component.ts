@@ -32,6 +32,7 @@ export class EndpointStringSelectorInputComponent
       endpoint: obj,
       queueName: '',
       connectionId: '0-0-0-0-0',
+      endpointDisplay: obj
     });
   }
   registerOnChange(fn: (_: string | null) => void): void {

@@ -368,6 +368,7 @@ export class AdministrationClient {
       metaData: {
         ...queueMeta,
         endpoint: this.getEndpoint() + queue.name,
+        endpointDisplay: this.connection.name + "/" + queue.name
     },
       settings: {
         deadLetteringOnMessageExpiration: queue.deadLetteringOnMessageExpiration,
@@ -413,6 +414,7 @@ export class AdministrationClient {
       metadata: {
         ...topicMeta,
         endpoint: this.getEndpoint() + topic.name,
+        endpointDisplay: this.connection.name + "/" + topic.name
       }
     };
   }
