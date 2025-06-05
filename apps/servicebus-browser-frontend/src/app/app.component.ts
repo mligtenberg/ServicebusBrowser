@@ -21,6 +21,13 @@ import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { NgClass } from '@angular/common';
 
+interface ElectronWindow {
+  electron?: {
+    platform?: string;
+    onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
+  };
+}
+
 @Component({
   imports: [
     RouterModule,
@@ -43,10 +50,8 @@ import { NgClass } from '@angular/common';
 })
 export class AppComponent {
   title = 'servicebus-browser-frontend';
-  isMac =
-    'userAgentData' in navigator &&
-    ((navigator.userAgentData as any)?.platform.toLowerCase().includes('mac') ??
-      false);
+  private electron = (window as unknown as ElectronWindow).electron;
+  isMac = this.electron?.platform === 'darwin';
 
   menuItems: MenuItem[] = [
     {
@@ -130,6 +135,9 @@ export class AppComponent {
   constructor() {
     this.setDarkMode(this.darkMode());
     effect(() => this.setDarkMode(this.darkMode()));
+    this.electron?.onFullScreenChanged?.((full) => {
+      document.body.classList.toggle('fullscreen', full);
+    });
   }
 
   importMessages(): void {
