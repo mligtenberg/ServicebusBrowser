@@ -38,7 +38,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-      - run: pnpm run patch-files
+        run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -70,7 +70,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-      - run: pnpm run patch-files
+        run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -101,7 +101,7 @@ jobs:
         shell: bash
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
-      - run: pnpm run patch-files
+        run: pnpm run patch-files
       - run: pnpm exec nx run-many -t build --configuration=production
       - name: Build executable
         env:
