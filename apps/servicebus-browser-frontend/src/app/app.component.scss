@@ -6,6 +6,7 @@
   .main-menu {
     .p-menubar {
       padding: 3px 0;
+      min-height: 32px;
       border-radius: 0;
       z-index: 2;
       position: relative;
@@ -18,11 +19,14 @@
 
     &.mac {
       .p-menubar {
-        @media all and (display-mode: fullscreen) {
-          padding-left: 0px;
-        }
         padding-left: 70px;
       }
+    }
+  }
+
+  body.fullscreen & .main-menu.mac {
+    .p-menubar {
+      padding-left: 0;
     }
   }
 

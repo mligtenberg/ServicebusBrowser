@@ -78,13 +78,21 @@ export default class App {
         preload: join(__dirname, 'main.preload.js'),
       },
     });
-    App.setTheme("system");
+    App.setTheme('system');
     App.mainWindow.setMenu(null);
     App.mainWindow.center();
 
+    App.mainWindow.on('enter-full-screen', () => {
+      App.mainWindow.webContents.send('fullscreen-changed', true);
+    });
+
+    App.mainWindow.on('leave-full-screen', () => {
+      App.mainWindow.webContents.send('fullscreen-changed', false);
+    });
+
     // if main window is ready to show, close the splash window and show the main window
     App.mainWindow.once('ready-to-show', () => {
-      Menu.setApplicationMenu(getMenu((App.isDevelopmentMode())));
+      Menu.setApplicationMenu(getMenu(App.isDevelopmentMode()));
       App.mainWindow.show();
     });
 
