@@ -8,7 +8,8 @@ const packages = Object.keys(deps).sort().map(name => {
     const pkgPath = require.resolve(path.join(name, 'package.json'), { paths: [path.join(__dirname, '..', 'node_modules')] });
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     const author = typeof pkg.author === 'string' ? pkg.author : pkg.author?.name || '';
-    return { name, version: pkg.version || deps[name], author, license: pkg.license || '' };
+    const homepage = pkg.homepage || pkg.repository?.url || '';
+    return { name, version: pkg.version || deps[name], author, license: pkg.license || '', homepage };
   } catch (err) {
     return { name, version: deps[name], author: '', license: '' };
   }

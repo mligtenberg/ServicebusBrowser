@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { TableModule } from 'primeng/table';
 
 interface PackageInfo {
   name: string;
@@ -12,7 +13,7 @@ interface PackageInfo {
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TableModule],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss'
 })

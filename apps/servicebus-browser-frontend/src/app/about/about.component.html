@@ -1,19 +1,31 @@
-<h2>Surface Browser</h2>
-<p>Version: {{ info().version }}</p>
-<p>Author: {{ info().author }}</p>
+<div class="about-container">
+  <div class="about-header">
+    <h2 class="app-title">Surface Browser</h2>
+    <div class="app-info">
+      <p><span class="info-label">Version:</span> {{ info().version }}</p>
+      <p><span class="info-label">Author:</span> {{ info().author }}</p>
+    </div>
+  </div>
 
-<h3>Packages</h3>
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Version</th>
-    <th>Author</th>
-    <th>License</th>
-  </tr>
-  <tr *ngFor="let pkg of packages()">
-    <td>{{ pkg.name }}</td>
-    <td>{{ pkg.version }}</td>
-    <td>{{ pkg.author }}</td>
-    <td>{{ pkg.license }}</td>
-  </tr>
-</table>
+  <div class="packages-section">
+    <h3 class="section-title">Packages</h3>
+    <p-table [value]="packages()" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Version</th>
+          <th>Author</th>
+          <th>License</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-pkg>
+        <tr>
+          <td><a [href]="pkg.homepage">{{ pkg.name }}</a></td>
+          <td>{{ pkg.version }}</td>
+          <td>{{ pkg.author }}</td>
+          <td>{{ pkg.license }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
