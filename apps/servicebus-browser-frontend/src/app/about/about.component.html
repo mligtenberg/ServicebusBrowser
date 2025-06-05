@@ -1,0 +1,19 @@
+<h2>Surface Browser</h2>
+<p>Version: {{ info().version }}</p>
+<p>Author: {{ info().author }}</p>
+
+<h3>Packages</h3>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Version</th>
+    <th>Author</th>
+    <th>License</th>
+  </tr>
+  <tr *ngFor="let pkg of packages()">
+    <td>{{ pkg.name }}</td>
+    <td>{{ pkg.version }}</td>
+    <td>{{ pkg.author }}</td>
+    <td>{{ pkg.license }}</td>
+  </tr>
+</table>

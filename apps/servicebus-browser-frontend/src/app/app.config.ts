@@ -22,6 +22,7 @@ import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
 import { RouterEffects } from './ngrx/router.effects';
 import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+import { provideHttpClient } from '@angular/common/http';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: 'assets',
@@ -47,6 +48,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideExperimentalZonelessChangeDetection(),
+    provideHttpClient(),
     provideRouter(appRoutes, withHashLocation()),
     provideLogsState(),
     provideTasksState(),

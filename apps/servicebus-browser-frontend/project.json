@@ -8,7 +8,9 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/servicebus-browser-frontend",
         "index": "apps/servicebus-browser-frontend/src/index.html",
@@ -27,7 +29,9 @@
             "output": "/assets/monaco/"
           }
         ],
-        "styles": ["apps/servicebus-browser-frontend/src/styles.scss"],
+        "styles": [
+          "apps/servicebus-browser-frontend/src/styles.scss"
+        ],
         "scripts": []
       },
       "configurations": {
@@ -52,7 +56,10 @@
           "sourceMap": true
         }
       },
-      "defaultConfiguration": "production"
+      "defaultConfiguration": "production",
+      "dependsOn": [
+        "generate-packages"
+      ]
     },
     "serve": {
       "executor": "@angular-devkit/build-angular:dev-server",
@@ -81,7 +88,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/servicebus-browser-frontend/jest.config.ts"
       }
@@ -92,6 +101,12 @@
         "buildTarget": "servicebus-browser-frontend:build",
         "staticFilePath": "dist/apps/servicebus-browser-frontend/browser",
         "spa": true
+      }
+    },
+    "generate-packages": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm run generate-packages"
       }
     }
   }

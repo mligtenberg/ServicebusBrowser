@@ -89,7 +89,8 @@
     ]
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "generate-packages": "node scripts/generate-packages.js"
   },
   "engines": {
     "node": ">=22",

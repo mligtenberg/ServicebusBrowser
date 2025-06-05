@@ -84,12 +84,17 @@ export class AppComponent {
               icon: 'pi pi-sun',
               command: () => this.themeService.setPreference('light'),
             },
-            {
-              label: 'Dark theme',
-              icon: 'pi pi-moon',
-              command: () => this.themeService.setPreference('dark'),
-            },
-          ],
+        {
+          label: 'Dark theme',
+          icon: 'pi pi-moon',
+          command: () => this.themeService.setPreference('dark'),
+        },
+      ],
+        },
+        {
+          label: 'About',
+          icon: 'pi pi-info-circle',
+          routerLink: '/about'
         }
       ],
     }
