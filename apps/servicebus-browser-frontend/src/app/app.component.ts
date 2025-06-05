@@ -81,6 +81,7 @@ export class AppComponent {
       items: [
         {
           label: 'Application Theme',
+          icon: 'pi pi-desktop',
           items: [
             {
               label: 'Sync with OS',
@@ -92,13 +93,18 @@ export class AppComponent {
               icon: 'pi pi-sun',
               command: () => this.themeService.setPreference('light'),
             },
-            {
-              label: 'Dark theme',
-              icon: 'pi pi-moon',
-              command: () => this.themeService.setPreference('dark'),
-            },
-          ],
+        {
+          label: 'Dark theme',
+          icon: 'pi pi-moon',
+          command: () => this.themeService.setPreference('dark'),
         },
+      ],
+        },
+        {
+          label: 'About',
+          icon: 'pi pi-info-circle',
+          routerLink: '/about'
+        }
       ],
     },
   ];

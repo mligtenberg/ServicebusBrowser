@@ -1,0 +1,510 @@
+[
+  {
+    "name": "@angular-devkit/build-angular",
+    "version": "19.2.9",
+    "author": "Angular Authors",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular-cli"
+  },
+  {
+    "name": "@angular-devkit/core",
+    "version": "19.2.9",
+    "author": "Angular Authors",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular-cli"
+  },
+  {
+    "name": "@angular-devkit/schematics",
+    "version": "19.2.9",
+    "author": "Angular Authors",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular-cli"
+  },
+  {
+    "name": "@angular/animations",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/cli",
+    "version": "19.2.14",
+    "author": "Angular Authors",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular-cli"
+  },
+  {
+    "name": "@angular/common",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/compiler",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/compiler-cli",
+    "version": "19.2.12",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular/tree/main/packages/compiler-cli"
+  },
+  {
+    "name": "@angular/core",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/forms",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/language-service",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/platform-browser",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/platform-browser-dynamic",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular.git"
+  },
+  {
+    "name": "@angular/router",
+    "version": "19.2.12",
+    "author": "angular",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular/tree/main/packages/router"
+  },
+  {
+    "name": "@azure/core-amqp",
+    "version": "4.3.6",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "homepage": "https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/core/core-amqp/README.md"
+  },
+  {
+    "name": "@azure/core-auth",
+    "version": "1.9.0",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "homepage": "https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/core/core-auth/README.md"
+  },
+  {
+    "name": "@azure/identity",
+    "version": "4.10.0",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "homepage": "https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity/README.md"
+  },
+  {
+    "name": "@azure/service-bus",
+    "version": "7.9.5",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "homepage": "https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/servicebus/service-bus/"
+  },
+  {
+    "name": "@electron/notarize",
+    "version": "2.5.0",
+    "author": "Samuel Attard",
+    "license": "MIT",
+    "homepage": "https://github.com/electron/notarize#readme"
+  },
+  {
+    "name": "@eslint/js",
+    "version": "9.28.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://eslint.org"
+  },
+  {
+    "name": "@fortawesome/angular-fontawesome",
+    "version": "1.0.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/FortAwesome/angular-fontawesome"
+  },
+  {
+    "name": "@fortawesome/fontawesome-svg-core",
+    "version": "6.7.2",
+    "author": "The Font Awesome Team (https://github.com/orgs/FortAwesome/people)",
+    "license": "MIT",
+    "homepage": "https://fontawesome.com"
+  },
+  {
+    "name": "@fortawesome/free-brands-svg-icons",
+    "version": "6.7.2",
+    "author": "The Font Awesome Team (https://github.com/orgs/FortAwesome/people)",
+    "license": "(CC-BY-4.0 AND MIT)",
+    "homepage": "https://fontawesome.com"
+  },
+  {
+    "name": "@fortawesome/free-regular-svg-icons",
+    "version": "6.7.2",
+    "author": "The Font Awesome Team (https://github.com/orgs/FortAwesome/people)",
+    "license": "(CC-BY-4.0 AND MIT)",
+    "homepage": "https://fontawesome.com"
+  },
+  {
+    "name": "@fortawesome/free-solid-svg-icons",
+    "version": "6.7.2",
+    "author": "The Font Awesome Team (https://github.com/orgs/FortAwesome/people)",
+    "license": "(CC-BY-4.0 AND MIT)",
+    "homepage": "https://fontawesome.com"
+  },
+  {
+    "name": "@ngrx/effects",
+    "version": "19.2.0",
+    "author": "NgRx",
+    "license": "MIT",
+    "homepage": "https://github.com/ngrx/platform#readme"
+  },
+  {
+    "name": "@ngrx/router-store",
+    "version": "19.2.0",
+    "author": "NgRx",
+    "license": "MIT",
+    "homepage": "https://github.com/ngrx/platform#readme"
+  },
+  {
+    "name": "@ngrx/schematics",
+    "version": "19.2.0",
+    "author": "Brandon Roberts <robertsbt@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/ngrx/platform#readme"
+  },
+  {
+    "name": "@ngrx/store",
+    "version": "19.2.0",
+    "author": "NgRx",
+    "license": "MIT",
+    "homepage": "https://github.com/ngrx/platform#readme"
+  },
+  {
+    "name": "@ngrx/store-devtools",
+    "version": "19.2.0",
+    "author": "NgRx",
+    "license": "MIT",
+    "homepage": "https://github.com/ngrx/platform#readme"
+  },
+  {
+    "name": "@nx/angular",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/eslint",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/eslint-plugin",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/jest",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/js",
+    "version": "21.1.1",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/web",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@nx/workspace",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "@primeng/themes",
+    "version": "^19.1.3",
+    "author": "",
+    "license": ""
+  },
+  {
+    "name": "@schematics/angular",
+    "version": "19.2.9",
+    "author": "Angular Authors",
+    "license": "MIT",
+    "homepage": "https://github.com/angular/angular-cli"
+  },
+  {
+    "name": "@swc-node/register",
+    "version": "~1.9.2",
+    "author": "",
+    "license": ""
+  },
+  {
+    "name": "@swc/core",
+    "version": "1.5.29",
+    "author": "강동윤 <kdy1997.dev@gmail.com>",
+    "license": "Apache-2.0",
+    "homepage": "https://swc.rs"
+  },
+  {
+    "name": "@swc/helpers",
+    "version": "0.5.17",
+    "author": "강동윤 <kdy1997.dev@gmail.com>",
+    "license": "Apache-2.0",
+    "homepage": "https://swc.rs"
+  },
+  {
+    "name": "@types/jest",
+    "version": "29.5.14",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/jest"
+  },
+  {
+    "name": "@types/luxon",
+    "version": "3.6.2",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/luxon"
+  },
+  {
+    "name": "@types/node",
+    "version": "18.16.9",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node"
+  },
+  {
+    "name": "@typescript-eslint/utils",
+    "version": "8.33.1",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://typescript-eslint.io/packages/utils"
+  },
+  {
+    "name": "angular-eslint",
+    "version": "19.4.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/angular-eslint/angular-eslint.git"
+  },
+  {
+    "name": "electron",
+    "version": "33.4.11",
+    "author": "Electron Community",
+    "license": "MIT",
+    "homepage": ""
+  },
+  {
+    "name": "electron-builder",
+    "version": "25.1.8",
+    "author": "Vladimir Krivosheev",
+    "license": "MIT",
+    "homepage": "https://github.com/electron-userland/electron-builder"
+  },
+  {
+    "name": "electron-devtools-installer",
+    "version": "4.0.0",
+    "author": "Samuel Attard",
+    "license": "MIT",
+    "homepage": "https://github.com/MarshallOfSound/electron-devtools-installer.git"
+  },
+  {
+    "name": "eslint",
+    "version": "9.28.0",
+    "author": "Nicholas C. Zakas <nicholas+npm@nczconsulting.com>",
+    "license": "MIT",
+    "homepage": "https://eslint.org"
+  },
+  {
+    "name": "eslint-config-prettier",
+    "version": "10.1.5",
+    "author": "Simon Lydell",
+    "license": "MIT",
+    "homepage": "https://github.com/prettier/eslint-config-prettier#readme"
+  },
+  {
+    "name": "jasmine-marbles",
+    "version": "0.9.2",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/synapse-wireless-labs/jasmine-marbles#readme"
+  },
+  {
+    "name": "jest",
+    "version": "29.7.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://jestjs.io/"
+  },
+  {
+    "name": "jest-environment-jsdom",
+    "version": "29.7.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/jestjs/jest.git"
+  },
+  {
+    "name": "jest-environment-node",
+    "version": "29.7.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/jestjs/jest.git"
+  },
+  {
+    "name": "jest-preset-angular",
+    "version": "14.4.2",
+    "author": "Michał Pierzchała <thymikee@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://thymikee.github.io/jest-preset-angular"
+  },
+  {
+    "name": "jszip",
+    "version": "3.10.1",
+    "author": "Stuart Knightley <stuart@stuartk.com>",
+    "license": "(MIT OR GPL-3.0-or-later)",
+    "homepage": "https://github.com/Stuk/jszip.git"
+  },
+  {
+    "name": "long",
+    "version": "^5.3.2",
+    "author": "",
+    "license": ""
+  },
+  {
+    "name": "luxon",
+    "version": "3.6.1",
+    "author": "Isaac Cambron",
+    "license": "MIT",
+    "homepage": ""
+  },
+  {
+    "name": "monaco-editor",
+    "version": "0.52.2",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "homepage": "https://github.com/microsoft/monaco-editor"
+  },
+  {
+    "name": "ngx-monaco-editor-v2",
+    "version": "19.0.2",
+    "author": "Miroslav Maksimovic",
+    "license": "MIT",
+    "homepage": "https://github.com/miki995/ngx-monaco-editor-v2.git"
+  },
+  {
+    "name": "nx",
+    "version": "21.1.1",
+    "author": "Victor Savkin",
+    "license": "MIT",
+    "homepage": "https://nx.dev"
+  },
+  {
+    "name": "nx-electron",
+    "version": "20.0.2",
+    "author": "Benny Megidish",
+    "license": "Apache-2.0",
+    "homepage": "git+https://github.com/bennymeg/nx-electron.git"
+  },
+  {
+    "name": "prettier",
+    "version": "2.8.8",
+    "author": "James Long",
+    "license": "MIT",
+    "homepage": "https://prettier.io"
+  },
+  {
+    "name": "primeicons",
+    "version": "7.0.0",
+    "author": "PrimeTek",
+    "license": "MIT",
+    "homepage": "https://github.com/primefaces/primeicons#readme"
+  },
+  {
+    "name": "primeng",
+    "version": "19.1.3",
+    "author": "PrimeTek Informatics",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "homepage": "https://primeng.org/"
+  },
+  {
+    "name": "rxjs",
+    "version": "7.8.2",
+    "author": "Ben Lesh <ben@benlesh.com>",
+    "license": "Apache-2.0",
+    "homepage": "https://rxjs.dev"
+  },
+  {
+    "name": "ts-jest",
+    "version": "29.3.4",
+    "author": "Kulshekhar Kabra <kulshekhar@users.noreply.github.com> (https://github.com/kulshekhar)",
+    "license": "MIT",
+    "homepage": "https://kulshekhar.github.io/ts-jest"
+  },
+  {
+    "name": "ts-node",
+    "version": "10.9.1",
+    "author": "Blake Embrey",
+    "license": "MIT",
+    "homepage": "https://typestrong.org/ts-node"
+  },
+  {
+    "name": "tslib",
+    "version": "2.8.1",
+    "author": "Microsoft Corp.",
+    "license": "0BSD",
+    "homepage": "https://www.typescriptlang.org/"
+  },
+  {
+    "name": "typescript",
+    "version": "5.7.3",
+    "author": "Microsoft Corp.",
+    "license": "Apache-2.0",
+    "homepage": "https://www.typescriptlang.org/"
+  },
+  {
+    "name": "typescript-eslint",
+    "version": "8.33.1",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://typescript-eslint.io/packages/typescript-eslint"
+  }
+]

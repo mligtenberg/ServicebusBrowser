@@ -89,7 +89,8 @@
     ]
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm"
+    "preinstall": "npx only-allow pnpm",
+    "patch-files": "node scripts/patch-files.js"
   },
   "engines": {
     "node": ">=22",

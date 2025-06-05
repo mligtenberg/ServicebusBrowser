@@ -16,6 +16,10 @@ export const appRoutes: Route[] = [
     }))
   },
   {
+    path: 'about',
+    loadComponent: () => import('./about/about.component').then(m => m.AboutComponent)
+  },
+  {
     path: '',
     redirectTo: 'connections',
     pathMatch: 'full'

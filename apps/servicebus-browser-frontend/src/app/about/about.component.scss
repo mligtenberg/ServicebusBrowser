@@ -1,0 +1,52 @@
+.about-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-header {
+  margin-bottom: 2rem;
+
+  .app-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .app-info {
+    margin-left: 0.5rem;
+
+    p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .info-label {
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.packages-section {
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  :host ::ng-deep {
+    .p-datatable {
+      .p-datatable-header {
+        background: var(--surface-card, #ffffff);
+      }
+
+      th {
+        background: var(--surface-section, #f8f9fa);
+        font-weight: 600;
+      }
+
+      tr:nth-child(even) {
+        background: var(--surface-hover, #f8f9fa);
+      }
+    }
+  }
+}
