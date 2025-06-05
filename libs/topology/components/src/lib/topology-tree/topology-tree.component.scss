@@ -20,6 +20,11 @@
   }
 }
 
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
+
 p-tree {
   --p-tree-padding: 0.6rem;
   --p-tree-node-padding: 0;
@@ -43,6 +48,17 @@ p-tree {
 
 .error {
   color: red;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: stretch;
+  input {
+    flex: 1;
+    --p-inputtext-border-radius: 0;
+  }
 }
 
 @keyframes spin {

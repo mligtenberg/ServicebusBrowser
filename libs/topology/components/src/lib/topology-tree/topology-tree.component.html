@@ -1,4 +1,14 @@
-<p-tree
+<div class="main-container">
+  <div class="search-container">
+     <input
+       pInputText
+       [(ngModel)]="searchTerm"
+       placeholder="Search"
+       class="search-input"
+     />
+  </div>
+  <div class="tree-wrapper">
+  <p-tree
   [value]="nodes()"
   selectionMode="multiple"
   [(selection)]="selection"
@@ -6,7 +16,7 @@
   (selectionChange)="onSelectionChange($event)"
   (onNodeExpand)="onNodeExpand($event)"
   (onNodeCollapse)="onNodeCollapse($event)"
->
+  >
   <ng-template let-node pTemplate="default">
     <b>{{ node.label }}</b>
   </ng-template>
@@ -62,5 +72,7 @@
     <sbb-tpl-subscription-rule-tree-node [rule]="node.data" />
   </ng-template>
 </p-tree>
+</div>
+</div>
 
 <p-context-menu #cm [model]="contextMenu()" appendTo="body"></p-context-menu>
