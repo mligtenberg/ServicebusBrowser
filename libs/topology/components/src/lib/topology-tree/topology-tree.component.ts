@@ -463,20 +463,33 @@ export class TopologyTreeComponent {
 
     return namespaces
       .map((ns) => {
-        const nsMatch = ns.name.toLowerCase().includes(term);
+        const nsMatch = ns.name.toLowerCase().includes(term)
+        || term.startsWith("namespace:")
+          && term.length > "namespace:".length
+          && ns.name.toLowerCase().includes(term.substring("namespace:".length));
 
         const queues = nsMatch
           ? ns.queues
-          : ns.queues.filter((q) => q.name.toLowerCase().includes(term));
+          : ns.queues.filter((q) =>
+            q.name.toLowerCase().includes(term)
+            || term.startsWith("queue:")
+              && term.length > "queue:".length
+              && ns.name.toLowerCase().includes(term.substring("queue:".length))
+          );
 
         const topics = ns.topics
           .map((topic) => {
             const topicMatch =
-              nsMatch || topic.name.toLowerCase().includes(term);
+              nsMatch || topic.name.toLowerCase().includes(term) || term.startsWith("topic:")
+                && term.length > "topic:".length
+                && ns.name.toLowerCase().includes(term.substring("topic:".length));
             const subs = topicMatch
               ? topic.subscriptions
               : topic.subscriptions.filter((s) =>
                   s.name.toLowerCase().includes(term)
+                  || term.startsWith("subscription:")
+                    && term.length > "subscription:".length
+                    && ns.name.toLowerCase().includes(term.substring("subscription:".length))
                 );
 
             if (topicMatch || subs.length > 0) {
