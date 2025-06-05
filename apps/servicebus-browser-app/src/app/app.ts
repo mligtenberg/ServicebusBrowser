@@ -76,6 +76,7 @@ export default class App {
         preload: join(__dirname, 'main.preload.js'),
       },
     });
+    App.setTheme("system");
     App.mainWindow.setMenu(null);
     App.mainWindow.center();
 

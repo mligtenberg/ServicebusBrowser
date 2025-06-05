@@ -55,42 +55,7 @@ export function getMenu(isDev: boolean) {
     }
   ];
 
-  const sharedTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
-    {
-      label: 'Settings',
-      submenu: [
-        {
-          label: 'Preferred color scheme',
-          submenu: [
-            {
-              label: 'System',
-              type: 'radio',
-              checked: App.getTheme() === 'system',
-              click: () => {
-                App.setTheme('system');
-              }
-            },
-            {
-              label: 'Dark',
-              type: 'radio',
-              checked: App.getTheme() === 'dark',
-              click: () => {
-                App.setTheme('dark');
-              }
-            },
-            {
-              label: 'Light',
-              type: 'radio',
-              checked: App.getTheme() === 'light',
-              click: () => {
-                App.setTheme('light');
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  const sharedTemplate: Array<MenuItemConstructorOptions | MenuItem> = []
 
   if (isDev) {
     sharedTemplate.push({
