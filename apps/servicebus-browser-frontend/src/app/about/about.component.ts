@@ -23,7 +23,7 @@ export class AboutComponent implements OnInit {
   info = signal<{version:string; author:string}>({version:'', author:''});
 
   ngOnInit() {
-    this.http.get<PackageInfo[]>('/packages.json').subscribe(p => this.packages.set(p));
+    this.http.get<PackageInfo[]>('./packages.json').subscribe(p => this.packages.set(p));
     this.http.get<{version:string; author:string}>('/app-info.json').subscribe(i => this.info.set(i));
   }
 }

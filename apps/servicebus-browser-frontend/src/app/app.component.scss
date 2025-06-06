@@ -5,7 +5,7 @@
 
   .main-menu {
     .p-menubar {
-      padding: 3px 0;
+      padding: 0;
       min-height: 32px;
       border-radius: 0;
       z-index: 2;
@@ -19,14 +19,14 @@
 
     &.mac {
       .p-menubar {
-        padding-left: 70px;
+        padding: 3px 3px 3px 70px;
       }
     }
   }
 
   body.fullscreen & .main-menu.mac {
     .p-menubar {
-      padding-left: 0;
+      padding-left: 3px;
     }
   }
 

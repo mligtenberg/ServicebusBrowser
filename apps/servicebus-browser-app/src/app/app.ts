@@ -71,7 +71,8 @@ export default class App {
       height: height,
       show: false,
       titleBarStyle: 'hiddenInset',
-      frame: false,
+      frame: true,
+      autoHideMenuBar: true,
       webPreferences: {
         contextIsolation: true,
         backgroundThrottling: false,
