@@ -26,6 +26,7 @@ import {
   SubscriptionRuleTreeNodeComponent
 } from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
 import { ContextMenu } from 'primeng/contextmenu';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -41,7 +42,8 @@ import { ContextMenu } from 'primeng/contextmenu';
     Button,
     InputText,
     SubscriptionRuleTreeNodeComponent,
-    ContextMenu
+    ContextMenu,
+    Tooltip,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
@@ -461,33 +463,46 @@ export class TopologyTreeComponent {
 
     return namespaces
       .map((ns) => {
-        const nsMatch = ns.name.toLowerCase().includes(term)
-        || term.startsWith("namespace:")
-          && term.length > "namespace:".length
-          && ns.name.toLowerCase().includes(term.substring("namespace:".length));
+        const nsMatch =
+          ns.name.toLowerCase().includes(term) ||
+          (term.startsWith('namespace:') &&
+            term.length > 'namespace:'.length &&
+            ns.name
+              .toLowerCase()
+              .includes(term.substring('namespace:'.length)));
 
         const queues = nsMatch
           ? ns.queues
-          : ns.queues.filter((q) =>
-            q.name.toLowerCase().includes(term)
-            || term.startsWith("queue:")
-              && term.length > "queue:".length
-              && ns.name.toLowerCase().includes(term.substring("queue:".length))
-          );
+          : ns.queues.filter(
+              (q) =>
+                q.name.toLowerCase().includes(term) ||
+                (term.startsWith('queue:') &&
+                  term.length > 'queue:'.length &&
+                  ns.name
+                    .toLowerCase()
+                    .includes(term.substring('queue:'.length)))
+            );
 
         const topics = ns.topics
           .map((topic) => {
             const topicMatch =
-              nsMatch || topic.name.toLowerCase().includes(term) || term.startsWith("topic:")
-                && term.length > "topic:".length
-                && ns.name.toLowerCase().includes(term.substring("topic:".length));
+              nsMatch ||
+              topic.name.toLowerCase().includes(term) ||
+              (term.startsWith('topic:') &&
+                term.length > 'topic:'.length &&
+                ns.name
+                  .toLowerCase()
+                  .includes(term.substring('topic:'.length)));
             const subs = topicMatch
               ? topic.subscriptions
-              : topic.subscriptions.filter((s) =>
-                  s.name.toLowerCase().includes(term)
-                  || term.startsWith("subscription:")
-                    && term.length > "subscription:".length
-                    && ns.name.toLowerCase().includes(term.substring("subscription:".length))
+              : topic.subscriptions.filter(
+                  (s) =>
+                    s.name.toLowerCase().includes(term) ||
+                    (term.startsWith('subscription:') &&
+                      term.length > 'subscription:'.length &&
+                      ns.name
+                        .toLowerCase()
+                        .includes(term.substring('subscription:'.length)))
                 );
 
             if (topicMatch || subs.length > 0) {

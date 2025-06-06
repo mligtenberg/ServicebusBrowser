@@ -5,6 +5,12 @@
        [(ngModel)]="searchTerm"
        placeholder="Search"
        class="search-input"
+       [pTooltip]="searchTooltip"
+       [tooltipOptions]="{
+       tooltipEvent: 'focus',
+       appendTo: 'body',
+       disabled: searchTerm() !== ''
+       }"
      />
   </div>
   <div class="tree-wrapper">
@@ -76,3 +82,14 @@
 </div>
 
 <p-context-menu #cm [model]="contextMenu()" appendTo="body"></p-context-menu>
+
+<ng-template #searchTooltip>
+  <div>
+    <p>Search for a namespace, queue, topic or subscription by name</p>
+    <p>You can specify the type be prependinging your search term with the type name</p>
+    <p>e.g. <b>namespace:my-namespace</b></p>
+    <p>e.g. <b>queue:my-queue</b></p>
+    <p>e.g. <b>topic:my-topic</b></p>
+    <p>e.g. <b>subscription:my-subscription</b></p>
+  </div>
+</ng-template>
