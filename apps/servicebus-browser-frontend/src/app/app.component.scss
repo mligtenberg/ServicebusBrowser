@@ -4,6 +4,7 @@
   height: 100vh;
 
   .main-menu {
+    z-index: 2;
     .p-menubar {
       padding: 0;
       min-height: 32px;
@@ -31,6 +32,7 @@
   }
 
   .main-splitter {
+    z-index: 1;
     flex: 1;
     height: calc(100% - 32px);
 

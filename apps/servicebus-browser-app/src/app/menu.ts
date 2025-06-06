@@ -16,11 +16,6 @@ export function getMenu(isDev: boolean) {
       label: app.name,
       submenu: [
         {
-          label: 'About ' + app.name,
-          role: 'about'
-        },
-        { type: 'separator' },
-        {
           label: 'Quit ' + app.name,
           role: 'quit'
         }
