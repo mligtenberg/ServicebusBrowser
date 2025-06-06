@@ -6,6 +6,7 @@
   "private": true,
   "author": "Martin Ligtenberg",
   "description": "A cross platform tool to view and manage your Azure Service Bus instances",
+  "homepage": "https://github.com/mligtenberg/ServicebusBrowser",
   "dependencies": {
     "@angular/animations": "19.2.12",
     "@angular/common": "19.2.12",

@@ -8,6 +8,7 @@ interface PackageInfo {
   version: string;
   author: string;
   license: string;
+  homepage: string;
 }
 
 @Component({
@@ -20,10 +21,10 @@ interface PackageInfo {
 export class AboutComponent implements OnInit {
   http = inject(HttpClient);
   packages = signal<PackageInfo[]>([]);
-  info = signal<{version:string; author:string}>({version:'', author:''});
+  info = signal<{version:string; author:string; homepage:string}>({version:'', author:'', homepage:''});
 
   ngOnInit() {
     this.http.get<PackageInfo[]>('./packages.json').subscribe(p => this.packages.set(p));
-    this.http.get<{version:string; author:string}>('/app-info.json').subscribe(i => this.info.set(i));
+    this.http.get<{version:string; author:string; homepage:string}>('./app-info.json').subscribe(i => this.info.set(i));
   }
 }

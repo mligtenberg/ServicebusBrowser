@@ -1,9 +1,15 @@
 <div class="about-container">
   <div class="about-header">
-    <h2 class="app-title">Surface Browser</h2>
-    <div class="app-info">
-      <p><span class="info-label">Version:</span> {{ info().version }}</p>
-      <p><span class="info-label">Author:</span> {{ info().author }}</p>
+    <div class="logo-section">
+      <img src="assets/logo.png" alt="ServiceBus Browser Logo" class="app-logo">
+    </div>
+    <div class="info-section">
+      <h2 class="app-title">ServiceBus Browser</h2>
+      <div class="app-info">
+        <p><span class="info-label">Version:</span> {{ info().version }}</p>
+        <p><span class="info-label">Author:</span> {{ info().author }}</p>
+        <p><span class="info-label">GitHub:</span> <a [href]="info().homepage">View on GitHub</a></p>
+      </div>
     </div>
   </div>
 
@@ -16,6 +22,7 @@
           <th>Version</th>
           <th>Author</th>
           <th>License</th>
+          <th>Homepage</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-pkg>

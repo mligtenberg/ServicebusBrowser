@@ -1,51 +1,77 @@
 .about-container {
-  padding: 1.5rem;
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-}
 
-.about-header {
-  margin-bottom: 2rem;
+  .about-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
 
-  .app-title {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-
-  .app-info {
-    margin-left: 0.5rem;
-
-    p {
-      margin: 0.5rem 0;
-      font-size: 1rem;
+    .logo-section {
+      flex-shrink: 0;
+      
+      .app-logo {
+        width: 120px;
+        height: auto;
+      }
     }
 
-    .info-label {
-      font-weight: bold;
-      margin-right: 0.5rem;
+    .info-section {
+      flex-grow: 1;
+
+      .app-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+      }
+
+      .app-info {
+        p {
+          margin: 0.5rem 0;
+          
+          .info-label {
+            font-weight: bold;
+            margin-right: 0.5rem;
+          }
+
+          a {
+            color: var(--primary-color);
+            text-decoration: none;
+            
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
     }
   }
-}
 
-.packages-section {
-  .section-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+  .packages-section {
+    .section-title {
+      margin-bottom: 1rem;
+      color: var(--text-color);
+    }
 
-  :host ::ng-deep {
-    .p-datatable {
-      .p-datatable-header {
-        background: var(--surface-card, #ffffff);
-      }
+    :host ::ng-deep {
+      .p-datatable {
+        .p-datatable-thead > tr > th {
+          background-color: var(--surface-ground);
+          color: var(--text-color);
+        }
 
-      th {
-        background: var(--surface-section, #f8f9fa);
-        font-weight: 600;
-      }
-
-      tr:nth-child(even) {
-        background: var(--surface-hover, #f8f9fa);
+        .p-datatable-tbody > tr > td {
+          a {
+            color: var(--primary-color);
+            text-decoration: none;
+            
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
       }
     }
   }

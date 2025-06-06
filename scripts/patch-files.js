@@ -22,7 +22,11 @@ if (!fs.existsSync(outputDir)) {
 fs.writeFileSync(path.join(outputDir, 'packages.json'), JSON.stringify(packages, null, 2));
 fs.writeFileSync(
   path.join(outputDir, 'app-info.json'),
-  JSON.stringify({ version: process.env.TAG_VERSION ?? '0.0.0', author: rootPackage.author }, null, 2)
+  JSON.stringify({ 
+    version: process.env.TAG_VERSION ?? '0.0.0', 
+    author: rootPackage.author,
+    homepage: rootPackage.homepage || rootPackage.repository?.url || ''
+  }, null, 2)
 );
 
 const constantsPath = 'apps/servicebus-browser-app/src/app/constants.ts';
