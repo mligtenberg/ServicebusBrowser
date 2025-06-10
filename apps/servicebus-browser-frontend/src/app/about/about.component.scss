@@ -11,7 +11,7 @@
 
     .logo-section {
       flex-shrink: 0;
-      
+
       .app-logo {
         width: 120px;
         height: auto;
@@ -30,16 +30,15 @@
       .app-info {
         p {
           margin: 0.5rem 0;
-          
+
           .info-label {
             font-weight: bold;
             margin-right: 0.5rem;
           }
 
           a {
-            color: var(--primary-color);
             text-decoration: none;
-            
+
             &:hover {
               text-decoration: underline;
             }
@@ -66,7 +65,7 @@
           a {
             color: var(--primary-color);
             text-decoration: none;
-            
+
             &:hover {
               text-decoration: underline;
             }
