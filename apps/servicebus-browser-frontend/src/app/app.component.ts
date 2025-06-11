@@ -25,6 +25,7 @@ interface ElectronWindow {
   electron?: {
     platform?: string;
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
+    checkForUpdates?: () => Promise<void>;
   };
 }
 
@@ -98,18 +99,23 @@ export class AppComponent {
               icon: 'pi pi-sun',
               command: () => this.themeService.setPreference('light'),
             },
-        {
-          label: 'Dark theme',
-          icon: 'pi pi-moon',
-          command: () => this.themeService.setPreference('dark'),
+            {
+              label: 'Dark theme',
+              icon: 'pi pi-moon',
+              command: () => this.themeService.setPreference('dark'),
+            },
+          ],
         },
-      ],
+        {
+          label: 'Search for Updates',
+          icon: 'pi pi-refresh',
+          command: () => this.electron?.checkForUpdates?.(),
         },
         {
           label: 'About',
           icon: 'pi pi-info-circle',
-          routerLink: '/about'
-        }
+          routerLink: '/about',
+        },
       ],
     },
   ];

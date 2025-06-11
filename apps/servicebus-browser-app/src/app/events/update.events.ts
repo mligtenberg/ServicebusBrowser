@@ -4,15 +4,16 @@ import { currentVersion, updateServerUrl } from '../constants';
 import App from '../app';
 
 export default class UpdateEvents {
+  private static manualCheck = false;
+
   // initialize auto update service - most be invoked only in production
   static initAutoUpdateService() {
     const platform_arch =
-      platform() === 'win32' ? platform() : platform() + "-" + arch();
+      platform() === 'win32' ? platform() : platform() + '-' + arch();
 
     const feed: Electron.FeedURLOptions = {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
-
 
     if (!App.isDevelopmentMode()) {
       console.log('Initializing auto update service...\n');
@@ -23,8 +24,9 @@ export default class UpdateEvents {
   }
 
   // check for updates - most be invoked after initAutoUpdateService() and only in production
-  static checkForUpdates() {
+  static checkForUpdates(manual = false) {
     if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
+      UpdateEvents.manualCheck = manual;
       autoUpdater.checkForUpdates();
     }
   }
@@ -45,6 +47,7 @@ autoUpdater.on(
     dialog.showMessageBox(dialogOpts).then((returnValue) => {
       if (returnValue.response === 0) autoUpdater.quitAndInstall();
     });
+    UpdateEvents.manualCheck = false;
   }
 );
 
@@ -54,10 +57,20 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', () => {
   console.log('New update available!\n');
+  UpdateEvents.manualCheck = false;
 });
 
 autoUpdater.on('update-not-available', () => {
   console.log('Up to date!\n');
+  if (UpdateEvents.manualCheck) {
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['OK'],
+      title: 'Application Update',
+      message: 'No updates were found.',
+    });
+    UpdateEvents.manualCheck = false;
+  }
 });
 
 autoUpdater.on('before-quit-for-update', () => {
