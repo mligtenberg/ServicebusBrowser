@@ -6,6 +6,14 @@ import App from '../app';
 export default class UpdateEvents {
   private static manualCheck = false;
 
+  static setManualCheck(flag: boolean) {
+    this.manualCheck = flag;
+  }
+
+  static wasManualCheck(): boolean {
+    return this.manualCheck;
+  }
+
   // initialize auto update service - most be invoked only in production
   static initAutoUpdateService() {
     const platform_arch =
@@ -26,7 +34,7 @@ export default class UpdateEvents {
   // check for updates - most be invoked after initAutoUpdateService() and only in production
   static checkForUpdates(manual = false) {
     if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
-      UpdateEvents.manualCheck = manual;
+      UpdateEvents.setManualCheck(manual);
       autoUpdater.checkForUpdates();
     }
   }
@@ -47,7 +55,7 @@ autoUpdater.on(
     dialog.showMessageBox(dialogOpts).then((returnValue) => {
       if (returnValue.response === 0) autoUpdater.quitAndInstall();
     });
-    UpdateEvents.manualCheck = false;
+    UpdateEvents.setManualCheck(false);
   }
 );
 
@@ -57,19 +65,19 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', () => {
   console.log('New update available!\n');
-  UpdateEvents.manualCheck = false;
+  UpdateEvents.setManualCheck(false);
 });
 
 autoUpdater.on('update-not-available', () => {
   console.log('Up to date!\n');
-  if (UpdateEvents.manualCheck) {
+  if (UpdateEvents.wasManualCheck()) {
     dialog.showMessageBox({
       type: 'info',
       buttons: ['OK'],
       title: 'Application Update',
       message: 'No updates were found.',
     });
-    UpdateEvents.manualCheck = false;
+    UpdateEvents.setManualCheck(false);
   }
 });
 
