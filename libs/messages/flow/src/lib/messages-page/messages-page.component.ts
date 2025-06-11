@@ -78,6 +78,8 @@ export class MessagesPageComponent {
     applicationProperties: [],
     body: []
   });
+  totalMessageCount = computed(() => this.currentPage()?.messages.length ?? 0);
+  filteredMessageCount = computed(() => this.filteredMessages().length);
   hasActiveFilters = computed(() => {
     return this.messageFilterService.hasActiveFilters(this.messageFilter());
   });
