@@ -62,9 +62,9 @@ autoUpdater.on('checking-for-update', () => {
   console.log('Checking for updates...\n');
 });
 
-autoUpdater.on('update-available', () => {
+autoUpdater.on('update-available', (_event, _releaseNotes, releaseName) => {
   console.log('New update available!\n');
-  App.mainWindow?.webContents.send('update-available');
+  App.mainWindow?.webContents.send('update-available', releaseName ?? '');
   const dialogOpts: MessageBoxOptions = {
     type: 'info',
     buttons: ['Download', 'Later'],

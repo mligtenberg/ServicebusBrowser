@@ -5,8 +5,8 @@ contextBridge.exposeInMainWorld('electron', {
   platform: process.platform,
   onFullScreenChanged: (callback: (fullscreen: boolean) => void) =>
     ipcRenderer.on('fullscreen-changed', (_, full) => callback(full)),
-  onUpdateAvailable: (callback: () => void) =>
-    ipcRenderer.on('update-available', () => callback()),
+  onUpdateAvailable: (callback: (version: string) => void) =>
+    ipcRenderer.on('update-available', (_, version) => callback(version)),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 });
 

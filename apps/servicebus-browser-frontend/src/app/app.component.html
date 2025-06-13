@@ -1,5 +1,20 @@
-<p-menubar class="main-menu" [model]="menuItems" breakpoint="100px" [ngClass]="{mac: isMac }" />
-<p-splitter [panelSizes]="[25,75]" class="main-splitter">
+<p-menubar
+  class="main-menu"
+  [model]="menuItems"
+  breakpoint="100px"
+  [ngClass]="{ mac: isMac }"
+>
+  <ng-template pTemplate="end">
+    <p-button
+      *ngIf="updateVersion()"
+      size="small"
+      class="update-notice"
+      (click)="triggerUpdate()"
+      [label]="'Update ' + updateVersion()"
+    ></p-button>
+  </ng-template>
+</p-menubar>
+<p-splitter [panelSizes]="[25, 75]" class="main-splitter">
   <ng-template pTemplate>
     <div class="sidebar">
       <app-sidebar></app-sidebar>
@@ -10,10 +25,20 @@
       <p-tabs [value]="currentRoute()" class="open-data-tabs" scrollable="">
         <p-tablist>
           @for (page of messagePages(); track page.id) {
-            <p-tab [value]="'/messages/page/' + page.id" [routerLink]="'/messages/page/' + page.id">
-              <span>{{ page.name }}</span>
-              <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closePage(page.id, $event)" class="close-button"></p-button>
-            </p-tab>
+          <p-tab
+            [value]="'/messages/page/' + page.id"
+            [routerLink]="'/messages/page/' + page.id"
+          >
+            <span>{{ page.name }}</span>
+            <p-button
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              icon="pi pi-times"
+              (click)="closePage(page.id, $event)"
+              class="close-button"
+            ></p-button>
+          </p-tab>
           }
         </p-tablist>
       </p-tabs>
@@ -26,16 +51,16 @@
         <button class="logs-header" (click)="toggleLogs()">
           <span class="text">Logs</span>
           @if (logsOpened()) {
-            <span class="icon pi pi-chevron-down"></span>
+          <span class="icon pi pi-chevron-down"></span>
           } @else {
-            <span class="icon pi pi-chevron-left"></span>
+          <span class="icon pi pi-chevron-left"></span>
           }
         </button>
 
         @if (logsOpened()) {
-          <div class="logs-content">
-            <sbb-logs-list [logs]="logs()"></sbb-logs-list>
-          </div>
+        <div class="logs-content">
+          <sbb-logs-list [logs]="logs()"></sbb-logs-list>
+        </div>
         }
       </div>
     </div>
