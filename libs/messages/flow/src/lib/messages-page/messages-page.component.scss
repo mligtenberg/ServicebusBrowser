@@ -24,10 +24,6 @@
   align-items: center;
 }
 
-.page-header {
-  background-color: #f5f5f5;
-  padding: 20px;
-}
 
 .status-widget {
   background-color: #fff;
@@ -118,9 +114,15 @@ pre {
   justify-content: space-between;
   align-items: center;
 
-  .header-buttons {
+  .header-actions {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 1rem;
+
+    .header-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
   }
 }
 

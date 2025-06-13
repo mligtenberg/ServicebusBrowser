@@ -205,11 +205,6 @@ export class MessagesPageComponent {
     return this.getMenuItems(menuSelection, true);
   });
 
-  viewMenuItems: MenuItem[] = [
-    { label: 'Active', command: () => this.switchView('active') },
-    { label: 'Dead-letter', command: () => this.switchView('dead-letter') },
-    { label: 'Scheduled', command: () => this.switchView('scheduled') },
-  ];
 
   constructor() {
     this.activatedRoute.params
@@ -374,9 +369,5 @@ export class MessagesPageComponent {
       applicationProperties: [],
       body: [],
     });
-  }
-
-  switchView(view: string) {
-    console.log('switch view to', view);
   }
 }
