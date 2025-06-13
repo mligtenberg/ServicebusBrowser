@@ -12,6 +12,8 @@
 
 A modern, cross-platform desktop tool for managing Azure Service Bus resources. Built with Angular, Electron, and Nx, Servicebus Browser provides a powerful UI for developers and administrators to efficiently manage queues, topics, subscriptions, and messages.
 
+<img width="1512" alt="image" src="https://github.com/user-attachments/assets/95383425-7698-4c69-a949-8ab09e3548dd" />
+
 ## Features
 
 - **Comprehensive Azure Service Bus Management**
