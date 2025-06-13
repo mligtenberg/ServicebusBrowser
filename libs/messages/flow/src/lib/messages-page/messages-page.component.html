@@ -15,7 +15,9 @@
             type="button"
             class="badge filtered"
             title="Filtered messages"
-            aria-label="Filtered messages"
+            aria-label="Filtered messages count"
+            pTooltip="Filtered messages count"
+            tooltipPosition="bottom"
           >
             <i class="pi pi-search"></i>
             <span class="count">{{ filteredMessageCount() }}</span>
@@ -26,8 +28,10 @@
           <button
             type="button"
             class="badge total"
-            title="Total messages"
-            aria-label="Total messages"
+            title="Total messages count"
+            aria-label="Total messages count"
+            pTooltip="Total messages count"
+            tooltipPosition="bottom"
           >
             <i class="pi pi-inbox"></i>
             <span class="count">{{ totalMessageCount() }}</span>

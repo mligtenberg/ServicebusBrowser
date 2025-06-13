@@ -29,6 +29,7 @@ import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Menu } from 'primeng/menu';
 import { MessageFilterDialogComponent } from '../message-filter-dialog/message-filter-dialog.component';
 import { MessageFilterService } from '../message-filter/message-filter.service';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'lib-messages-page',
@@ -46,6 +47,7 @@ import { MessageFilterService } from '../message-filter/message-filter.service';
     ButtonDirective,
     Menu,
     MessageFilterDialogComponent,
+    Tooltip,
   ],
   providers: [MessageFilterService],
   templateUrl: './messages-page.component.html',
@@ -204,7 +206,6 @@ export class MessagesPageComponent {
     const menuSelection = this.filteredMessages();
     return this.getMenuItems(menuSelection, true);
   });
-
 
   constructor() {
     this.activatedRoute.params
