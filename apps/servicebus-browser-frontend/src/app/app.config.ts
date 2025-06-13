@@ -4,7 +4,12 @@ import {
   isDevMode,
   provideExperimentalZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withHashLocation } from '@angular/router';
+import {
+  provideRouter,
+  withHashLocation,
+  withPreloading,
+  PreloadAllModules,
+} from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -21,12 +26,15 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
 import { RouterEffects } from './ngrx/router.effects';
-import { MonacoEditorModule, NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
+import {
+  MonacoEditorModule,
+  NgxMonacoEditorConfig,
+} from 'ngx-monaco-editor-v2';
 import { provideHttpClient } from '@angular/common/http';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: 'assets',
-  requireConfig: { preferScriptTags: true }
+  requireConfig: { preferScriptTags: true },
 };
 
 export const appConfig: ApplicationConfig = {
@@ -37,19 +45,23 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: theme,
         options: {
-          darkModeSelector: '.darkMode'
-        }
-      }
+          darkModeSelector: '.darkMode',
+        },
+      },
     }),
     {
       provide: MessageService,
-      useClass: MessageService
+      useClass: MessageService,
     },
 
     // config
     provideExperimentalZonelessChangeDetection(),
     provideHttpClient(),
-    provideRouter(appRoutes, withHashLocation()),
+    provideRouter(
+      appRoutes,
+      withHashLocation(),
+      withPreloading(PreloadAllModules)
+    ),
     provideLogsState(),
     provideTasksState(),
     provideMessagesState(),
@@ -59,9 +71,7 @@ export const appConfig: ApplicationConfig = {
     provideEffects([RouterEffects]),
 
     // monaco
-    importProvidersFrom([
-      MonacoEditorModule.forRoot(monacoConfig)
-    ]),
+    importProvidersFrom([MonacoEditorModule.forRoot(monacoConfig)]),
 
     // ngrx
     provideStore(),
