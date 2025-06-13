@@ -4,29 +4,38 @@ import { currentVersion, updateServerUrl } from '../constants';
 import App from '../app';
 
 export default class UpdateEvents {
+  private static manualCheck = false;
+
+  static setManualCheck(flag: boolean) {
+    this.manualCheck = flag;
+  }
+
+  static wasManualCheck(): boolean {
+    return this.manualCheck;
+  }
+
   // initialize auto update service - most be invoked only in production
   static initAutoUpdateService() {
     const platform_arch =
-      platform() === 'win32' ? platform() : platform() + "-" + arch();
+      platform() === 'win32' ? platform() : platform() + '-' + arch();
 
     const feed: Electron.FeedURLOptions = {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
 
 
-    if (!App.isDevelopmentMode()) {
-      console.log('Initializing auto update service...\n');
+    console.log('Initializing auto update service...');
+    autoUpdater.setFeedURL(feed);
 
-      autoUpdater.setFeedURL(feed);
+    if (!App.isDevelopmentMode()) {
       UpdateEvents.checkForUpdates();
     }
   }
 
   // check for updates - most be invoked after initAutoUpdateService() and only in production
-  static checkForUpdates() {
-    if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
+  static checkForUpdates(manual = false) {
+      UpdateEvents.setManualCheck(manual);
       autoUpdater.checkForUpdates();
-    }
   }
 }
 
@@ -45,6 +54,7 @@ autoUpdater.on(
     dialog.showMessageBox(dialogOpts).then((returnValue) => {
       if (returnValue.response === 0) autoUpdater.quitAndInstall();
     });
+    UpdateEvents.setManualCheck(false);
   }
 );
 
@@ -54,10 +64,20 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', () => {
   console.log('New update available!\n');
+  UpdateEvents.setManualCheck(false);
 });
 
 autoUpdater.on('update-not-available', () => {
   console.log('Up to date!\n');
+  if (UpdateEvents.wasManualCheck()) {
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['OK'],
+      title: 'Application Update',
+      message: 'No updates were found.',
+    });
+    UpdateEvents.setManualCheck(false);
+  }
 });
 
 autoUpdater.on('before-quit-for-update', () => {

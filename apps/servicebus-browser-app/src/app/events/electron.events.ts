@@ -4,6 +4,7 @@
  */
 
 import { app, ipcMain } from 'electron';
+import UpdateEvents from './update.events';
 import { environment } from '../../environments/environment';
 
 export default class ElectronEvents {
@@ -17,6 +18,11 @@ ipcMain.handle('get-app-version', (event) => {
   console.log(`Fetching application version... [v${environment.version}]`);
 
   return environment.version;
+});
+
+// Manual update check
+ipcMain.handle('check-for-updates', () => {
+  UpdateEvents.checkForUpdates(true);
 });
 
 // Handle App termination
