@@ -49,9 +49,20 @@
   font-weight: bold;
 }
 
+.status-widget.dark-mode .badge.filtered {
+  background: #0366d6;;
+  color: #e0f2ff;
+}
+
+
 .status-widget .badge.total {
   background: #eaeaea;
   color: #333;
+}
+
+.status-widget.dark-mode .badge.total {
+  background: #333;
+  color: #ffffff;
 }
 
 .status-widget .badge i {

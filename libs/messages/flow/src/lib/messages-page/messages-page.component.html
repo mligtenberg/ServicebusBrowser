@@ -10,7 +10,7 @@
     <div class="messages-header">
       <div class="p-card-title">Messages</div>
       <div class="header-actions">
-        <div class="status-widget">
+        <div class="status-widget" [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }">
           <button
             type="button"
             class="badge filtered"
