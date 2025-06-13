@@ -478,7 +478,7 @@ export class TopologyTreeComponent {
                 q.name.toLowerCase().includes(term) ||
                 (term.startsWith('queue:') &&
                   term.length > 'queue:'.length &&
-                  ns.name
+                  q.name
                     .toLowerCase()
                     .includes(term.substring('queue:'.length)))
             );
@@ -490,7 +490,7 @@ export class TopologyTreeComponent {
               topic.name.toLowerCase().includes(term) ||
               (term.startsWith('topic:') &&
                 term.length > 'topic:'.length &&
-                ns.name
+                topic.name
                   .toLowerCase()
                   .includes(term.substring('topic:'.length)));
             const subs = topicMatch
@@ -500,7 +500,7 @@ export class TopologyTreeComponent {
                     s.name.toLowerCase().includes(term) ||
                     (term.startsWith('subscription:') &&
                       term.length > 'subscription:'.length &&
-                      ns.name
+                      s.name
                         .toLowerCase()
                         .includes(term.substring('subscription:'.length)))
                 );
