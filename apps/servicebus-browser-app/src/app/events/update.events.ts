@@ -26,7 +26,7 @@ export default class UpdateEvents {
 
     console.log('Initializing auto update service...');
     autoUpdater.setFeedURL(feed);
-    
+
     if (!App.isDevelopmentMode()) {
       UpdateEvents.checkForUpdates();
     }
@@ -34,11 +34,8 @@ export default class UpdateEvents {
 
   // check for updates - most be invoked after initAutoUpdateService() and only in production
   static checkForUpdates(manual = false) {
-    //if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
-    console.log('Checking for updates...');
       UpdateEvents.setManualCheck(manual);
       autoUpdater.checkForUpdates();
-    //}
   }
 }
 
