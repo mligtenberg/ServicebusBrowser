@@ -23,9 +23,9 @@ export default class UpdateEvents {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
 
-
     console.log('Initializing auto update service...');
     autoUpdater.setFeedURL(feed);
+    autoUpdater.autoDownload = false;
 
     if (!App.isDevelopmentMode()) {
       UpdateEvents.checkForUpdates();
@@ -34,8 +34,8 @@ export default class UpdateEvents {
 
   // check for updates - most be invoked after initAutoUpdateService() and only in production
   static checkForUpdates(manual = false) {
-      UpdateEvents.setManualCheck(manual);
-      autoUpdater.checkForUpdates();
+    UpdateEvents.setManualCheck(manual);
+    autoUpdater.checkForUpdates();
   }
 }
 
@@ -64,6 +64,19 @@ autoUpdater.on('checking-for-update', () => {
 
 autoUpdater.on('update-available', () => {
   console.log('New update available!\n');
+  App.mainWindow?.webContents.send('update-available');
+  const dialogOpts: MessageBoxOptions = {
+    type: 'info',
+    buttons: ['Download', 'Later'],
+    title: 'Application Update',
+    message: 'A new update is available.',
+    detail: 'Do you want to download and install this update?',
+  };
+  dialog.showMessageBox(dialogOpts).then((returnValue) => {
+    if (returnValue.response === 0) {
+      autoUpdater.downloadUpdate();
+    }
+  });
   UpdateEvents.setManualCheck(false);
 });
 

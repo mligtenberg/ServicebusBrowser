@@ -11,6 +11,7 @@ import { Store } from '@ngrx/store';
 import { LogsSelectors } from '@service-bus-browser/logs-store';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import {
   MessagesActions,
   MessagesSelectors,
@@ -25,6 +26,7 @@ interface ElectronWindow {
   electron?: {
     platform?: string;
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
+    onUpdateAvailable?: (callback: () => void) => void;
     checkForUpdates?: () => Promise<void>;
   };
 }
@@ -128,6 +130,7 @@ export class AppComponent {
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
   messagePages = this.store.selectSignal(MessagesSelectors.selectPages);
   darkMode = this.themeService.darkMode;
+  private messageService = inject(MessageService);
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
@@ -143,6 +146,13 @@ export class AppComponent {
     effect(() => this.setDarkMode(this.darkMode()));
     this.electron?.onFullScreenChanged?.((full) => {
       document.body.classList.toggle('fullscreen', full);
+    });
+    this.electron?.onUpdateAvailable?.(() => {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Update available',
+        detail: 'A new version is available.',
+      });
     });
   }
 
