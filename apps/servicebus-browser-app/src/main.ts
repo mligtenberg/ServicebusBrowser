@@ -25,9 +25,7 @@ export default class Main {
     ServiceBusEvents.bootstrapServiceBusEvents();
 
     // initialize auto updater service
-    if (!App.isDevelopmentMode()) {
-      UpdateEvents.initAutoUpdateService();
-    }
+    UpdateEvents.initAutoUpdateService();
   }
 }
 

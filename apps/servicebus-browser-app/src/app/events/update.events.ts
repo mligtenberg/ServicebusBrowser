@@ -23,20 +23,22 @@ export default class UpdateEvents {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
 
-    if (!App.isDevelopmentMode()) {
-      console.log('Initializing auto update service...\n');
 
-      autoUpdater.setFeedURL(feed);
+    console.log('Initializing auto update service...');
+    autoUpdater.setFeedURL(feed);
+    
+    if (!App.isDevelopmentMode()) {
       UpdateEvents.checkForUpdates();
     }
   }
 
   // check for updates - most be invoked after initAutoUpdateService() and only in production
   static checkForUpdates(manual = false) {
-    if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
+    //if (!App.isDevelopmentMode() && autoUpdater.getFeedURL() !== '') {
+    console.log('Checking for updates...');
       UpdateEvents.setManualCheck(manual);
       autoUpdater.checkForUpdates();
-    }
+    //}
   }
 }
 
