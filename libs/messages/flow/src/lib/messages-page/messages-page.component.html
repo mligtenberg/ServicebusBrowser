@@ -1,17 +1,53 @@
+<div class="page-header">
+  <div class="status-widget">
+    <button
+      type="button"
+      class="badge filtered"
+      title="Messages matching your filter"
+      aria-label="Filtered messages"
+      (click)="clearFilters()"
+    >
+      <i class="pi pi-search"></i>
+      <span class="count">{{ filteredMessageCount() }}</span>
+      <span class="subtext"
+        >({{ filteredPercentage() | number : '1.1-1' }}%)</span
+      >
+    </button>
+    <button
+      type="button"
+      class="badge total"
+      title="Total messages in queue"
+      aria-label="Total messages"
+      (click)="viewMenu.show($event)"
+    >
+      <i class="pi pi-inbox"></i>
+      <span class="count">{{ totalMessageCount() }}</span>
+    </button>
+  </div>
+  <p-menu #viewMenu [model]="viewMenuItems" [popup]="true" appendTo="body" />
+</div>
+
 <div class="container">
-  <p-contextmenu #cm
-                 appendTo="body"
-                 [model]="messageContextMenu()"></p-contextmenu>
-  <p-menu #menu [model]="allMessagesMenu()"
-          [popup]="true"
-          appendTo="body"
-  />
+  <p-contextmenu
+    #cm
+    appendTo="body"
+    [model]="messageContextMenu()"
+  ></p-contextmenu>
+  <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
   <p-card class="messages">
     <div class="messages-header">
-      <div class="p-card-title">Messages ({{ filteredMessageCount() }}/{{ totalMessageCount() }})</div>
+      <div class="p-card-title">Messages</div>
       <div class="header-buttons">
-        <p-button (click)="openFilterDialog()" [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'" text="true"/>
-        <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true"/>
+        <p-button
+          (click)="openFilterDialog()"
+          [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
+          text="true"
+        />
+        <p-button
+          (click)="menu.show($event)"
+          icon="pi pi-ellipsis-v"
+          text="true"
+        />
       </div>
     </div>
     <p-table
@@ -29,7 +65,7 @@
     >
       <ng-template pTemplate="header" let-columns>
         <tr>
-          <th *ngFor="let col of columns" style="width: 20%;">
+          <th *ngFor="let col of columns" style="width: 20%">
             {{ col.header }}
           </th>
         </tr>
@@ -40,11 +76,13 @@
         let-rowIndex="rowIndex"
         let-columns="columns"
       >
-        <tr style="height:30px"
-            [pContextMenuRow]="rowData"
-            [pSelectableRow]="rowData"
-            [pContextMenuRowIndex]="rowIndex"
-            [pSelectableRowIndex]="rowIndex">
+        <tr
+          style="height: 30px"
+          [pContextMenuRow]="rowData"
+          [pSelectableRow]="rowData"
+          [pContextMenuRowIndex]="rowIndex"
+          [pSelectableRowIndex]="rowIndex"
+        >
           <td *ngFor="let col of columns">
             {{ rowData[col.field] }}
           </td>
@@ -54,20 +92,20 @@
   </p-card>
   <p-card header="Body" class="body">
     @if (selectedMessage()) {
-      <div class="fullscreen-button">
-        <p-button
-          icon="pi pi-window-maximize"
-          (click)="displayBodyFullscreen.set(true)"
-          [rounded]="true"
-          [text]="true"
-        ></p-button>
-      </div>
-      <div class="editor">
-        <ngx-monaco-editor
-          [options]="editorOptions()"
-          [ngModel]="body()"
-        ></ngx-monaco-editor>
-      </div>
+    <div class="fullscreen-button">
+      <p-button
+        icon="pi pi-window-maximize"
+        (click)="displayBodyFullscreen.set(true)"
+        [rounded]="true"
+        [text]="true"
+      ></p-button>
+    </div>
+    <div class="editor">
+      <ngx-monaco-editor
+        [options]="editorOptions()"
+        [ngModel]="body()"
+      ></ngx-monaco-editor>
+    </div>
     }
   </p-card>
   <p-card header="Properties" class="properties">
@@ -85,7 +123,7 @@
           let-rowIndex="rowIndex"
           let-columns="columns"
         >
-          <tr style="height:30px">
+          <tr style="height: 30px">
             <td *ngFor="let col of columns" class="user-selectable">
               {{ rowData[col.field] }}
             </td>
@@ -97,25 +135,25 @@
   <p-card header="Custom properties" class="custom-properties">
     <div class="table-container">
       <p-table
-      [columns]="propertiesCols"
-      [value]="customProperties()"
-      [scrollable]="true"
-      scrollHeight="100cqh"
-      [virtualScroll]="false"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
+        [columns]="propertiesCols"
+        [value]="customProperties()"
+        [scrollable]="true"
+        scrollHeight="100cqh"
+        [virtualScroll]="false"
       >
-        <tr style="height:30px">
-          <td *ngFor="let col of columns" class="user-selectable">
-            {{ rowData[col.field] }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+        <ng-template
+          pTemplate="body"
+          let-rowData
+          let-rowIndex="rowIndex"
+          let-columns="columns"
+        >
+          <tr style="height: 30px">
+            <td *ngFor="let col of columns" class="user-selectable">
+              {{ rowData[col.field] }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </p-card>
 </div>
@@ -125,12 +163,15 @@
   appendTo="body"
   [(visible)]="displayBodyFullscreen"
   [modal]="true"
-  [style]="{width: '100%', height: '100%'}"
-  >
+  [style]="{ width: '100%', height: '100%' }"
+>
   @if (displayBodyFullscreen()) {
-    <div class="editor">
-      <ngx-monaco-editor [options]="editorOptions()" [ngModel]="body()"></ngx-monaco-editor>
-    </div>
+  <div class="editor">
+    <ngx-monaco-editor
+      [options]="editorOptions()"
+      [ngModel]="body()"
+    ></ngx-monaco-editor>
+  </div>
   }
 </p-dialog>
 
@@ -141,12 +182,17 @@
   [modal]="true"
 >
   <p-scroll-panel>
-    <sbb-tpl-endpoint-selector-tree-input
-      [(ngModel)]="sendEndpoint"
-      />
+    <sbb-tpl-endpoint-selector-tree-input [(ngModel)]="sendEndpoint" />
   </p-scroll-panel>
   <div class="actions">
-    <button pButton type="button" [disabled]="!sendEndpoint()" (click)="sendMessages()">Send</button>
+    <button
+      pButton
+      type="button"
+      [disabled]="!sendEndpoint()"
+      (click)="sendMessages()"
+    >
+      Send
+    </button>
   </div>
 </p-dialog>
 
