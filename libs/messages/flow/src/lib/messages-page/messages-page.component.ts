@@ -1,14 +1,17 @@
 import { Component, computed, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
-import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
+import {
+  MessagesActions,
+  MessagesSelectors,
+} from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MessageFilter,
   MessagePage,
-  ServiceBusReceivedMessage
+  ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
 import { Card } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -44,9 +47,7 @@ import { MessageFilterService } from '../message-filter/message-filter.service';
     Menu,
     MessageFilterDialogComponent,
   ],
-  providers: [
-    MessageFilterService
-  ],
+  providers: [MessageFilterService],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
 })
@@ -76,7 +77,13 @@ export class MessagesPageComponent {
   messageFilter = signal<MessageFilter>({
     systemProperties: [],
     applicationProperties: [],
-    body: []
+    body: [],
+  });
+  totalMessageCount = computed(() => this.currentPage()?.messages.length ?? 0);
+  filteredMessageCount = computed(() => this.filteredMessages().length);
+  filteredPercentage = computed(() => {
+    const total = this.totalMessageCount();
+    return total ? (this.filteredMessageCount() / total) * 100 : 0;
   });
   hasActiveFilters = computed(() => {
     return this.messageFilterService.hasActiveFilters(this.messageFilter());
@@ -198,6 +205,7 @@ export class MessagesPageComponent {
     return this.getMenuItems(menuSelection, true);
   });
 
+
   constructor() {
     this.activatedRoute.params
       .pipe(
@@ -229,20 +237,16 @@ export class MessagesPageComponent {
       return [];
     }
 
-    if (
-      Array.isArray(menuSelection) &&
-      menuSelection.length === 0
-    ) {
+    if (Array.isArray(menuSelection) && menuSelection.length === 0) {
       return [];
     }
 
-    if (
-      Array.isArray(menuSelection) &&
-      menuSelection.length > 1
-    ) {
+    if (Array.isArray(menuSelection) && menuSelection.length > 1) {
       return [
         {
-          label: allMessages ? 'Quick resend all messages' : 'Quick selected resend messages',
+          label: allMessages
+            ? 'Quick resend all messages'
+            : 'Quick selected resend messages',
           icon: 'pi pi-envelope',
           command: () => {
             this.menuMessagesSelection.set(menuSelection);
@@ -250,16 +254,17 @@ export class MessagesPageComponent {
           },
         },
         {
-          label: allMessages ? 'Batch resend all messages' : 'Batch resend selected messages',
+          label: allMessages
+            ? 'Batch resend all messages'
+            : 'Batch resend selected messages',
           icon: 'pi pi-envelope',
           command: () => {
-            this.store.dispatch(MessagesActions.setBatchResendMessages({
-              messages: menuSelection
-            }));
-            this.router.navigate([
-              this.baseRoute,
-              'batch-resend'
-            ]);
+            this.store.dispatch(
+              MessagesActions.setBatchResendMessages({
+                messages: menuSelection,
+              })
+            );
+            this.router.navigate([this.baseRoute, 'batch-resend']);
           },
         },
         {
@@ -282,7 +287,9 @@ export class MessagesPageComponent {
         label: 'Quick resend message',
         icon: 'pi pi-envelope',
         command: () => {
-          this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
+          this.menuMessagesSelection.set(
+            Array.isArray(menuSelection) ? menuSelection : [selectedMessage]
+          );
           this.displaySendMessages.set(true);
         },
       },
@@ -302,7 +309,9 @@ export class MessagesPageComponent {
         label: 'Export message',
         icon: 'pi pi-download',
         command: () => {
-          this.menuMessagesSelection.set(Array.isArray(menuSelection) ? menuSelection : [selectedMessage]);
+          this.menuMessagesSelection.set(
+            Array.isArray(menuSelection) ? menuSelection : [selectedMessage]
+          );
           this.exportMessages();
         },
       },
@@ -352,5 +361,13 @@ export class MessagesPageComponent {
 
   onFiltersUpdated(filter: MessageFilter) {
     this.messageFilter.set(filter);
+  }
+
+  clearFilters() {
+    this.messageFilter.set({
+      systemProperties: [],
+      applicationProperties: [],
+      body: [],
+    });
   }
 }
