@@ -1,7 +1,7 @@
-# service-bus-electron-client
+# @service-bus-browser/service-bus-electron-client
 
-This library was generated with [Nx](https://nx.dev).
+Electron side client performing Service Bus operations.
 
 ## Running unit tests
 
-Run `nx test service-bus-electron-client` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/service-bus-electron-client` to execute the unit tests.

@@ -1,6 +1,6 @@
 # @service-bus-browser/connections-store
 
-This library was generated with [Nx](https://nx.dev).
+NgRx store slice for persisting connection details.
 
 ## Running unit tests
 

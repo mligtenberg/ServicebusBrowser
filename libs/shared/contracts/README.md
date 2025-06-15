@@ -1,7 +1,7 @@
-# shared-contracts
+# @service-bus-browser/shared-contracts
 
-This library was generated with [Nx](https://nx.dev).
+Miscellaneous TypeScript interfaces used across libs.
 
 ## Running unit tests
 
-Run `nx test shared-contracts` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/shared-contracts` to execute the unit tests.

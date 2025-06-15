@@ -1,6 +1,6 @@
 # @service-bus-browser/logs-components
 
-This library was generated with [Nx](https://nx.dev).
+UI components that display application logs.
 
 ## Running unit tests
 

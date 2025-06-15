@@ -1,7 +1,7 @@
-# messages-contracts
+# @service-bus-browser/messages-contracts
 
-This library was generated with [Nx](https://nx.dev).
+Shared interfaces for application messages.
 
 ## Running unit tests
 
-Run `nx test messages-contracts` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/messages-contracts` to execute the unit tests.

@@ -1,6 +1,6 @@
 # @service-bus-browser/messages-flow
 
-This library was generated with [Nx](https://nx.dev).
+Angular components guiding message receive/send flows.
 
 ## Running unit tests
 

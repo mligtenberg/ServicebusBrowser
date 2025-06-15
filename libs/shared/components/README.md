@@ -1,6 +1,6 @@
 # @service-bus-browser/shared-components
 
-This library was generated with [Nx](https://nx.dev).
+Reusable UI components used throughout the app.
 
 ## Running unit tests
 

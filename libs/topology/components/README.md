@@ -1,6 +1,6 @@
 # @service-bus-browser/topology-components
 
-This library was generated with [Nx](https://nx.dev).
+Components for browsing Service Bus entities.
 
 ## Running unit tests
 
