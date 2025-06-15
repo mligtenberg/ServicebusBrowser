@@ -15,12 +15,12 @@ const typelessWindow = window as unknown;
 const { serviceBusApi } = typelessWindow as ElectronWindow;
 
 export class ServiceBusMessagesElectronClient {
-  async peakMessages(
+  async peekMessages(
     endpoint: ReceiveEndpoint,
     maxMessageCount: number,
     fromSequenceNumber?: Long
   ) {
-    return (await serviceBusApi.messagesDoRequest('peakMessages', {
+    return (await serviceBusApi.messagesDoRequest('peekMessages', {
       endpoint,
       maxMessageCount,
       fromSequenceNumber: fromSequenceNumber?.toString(),

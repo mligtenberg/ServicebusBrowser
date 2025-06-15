@@ -146,7 +146,7 @@ export class SidebarComponent {
 
   queueContextMenuItems: SbbMenuItem<QueueWithMetaData>[] = [
     {
-      label: 'Peak messages',
+      label: 'Peek messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -161,7 +161,7 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peak deadletter messages',
+      label: 'Peek deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -176,7 +176,7 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peak transfer deadletter messages',
+      label: 'Peek transfer deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -360,7 +360,7 @@ export class SidebarComponent {
 
   subscriptionContextMenuItems: SbbMenuItem<SubscriptionWithMetaData>[] = [
     {
-      label: 'Peak messages',
+      label: 'Peek messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -376,7 +376,7 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peak deadletter messages',
+      label: 'Peek deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -392,7 +392,7 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peak transfer deadletter messages',
+      label: 'Peek transfer deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
@@ -672,7 +672,7 @@ export class SidebarComponent {
     }
 
     this.store.dispatch(
-      MessagesActions.peakMessages({
+      MessagesActions.peekMessages({
         endpoint: currentEndpoint,
         maxAmount: this.maxAmount(),
         fromSequenceNumber: this.fromSequenceNumber().toString(),

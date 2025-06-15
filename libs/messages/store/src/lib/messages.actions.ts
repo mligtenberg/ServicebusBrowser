@@ -3,8 +3,8 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 
-export const peakMessages = createAction(
-  '[Messages] peak messages',
+export const peekMessages = createAction(
+  '[Messages] peek messages',
   props<{
     endpoint: ReceiveEndpoint,
     maxAmount: number,
@@ -19,8 +19,8 @@ export const closePage = createAction(
   }>()
 )
 
-export const peakMessagesLoadingDone = createAction(
-  '[Messages] peak messages finished loading',
+export const peekMessagesLoadingDone = createAction(
+  '[Messages] peek messages finished loading',
   props<{
     pageId: UUID,
     endpoint: ReceiveEndpoint,

@@ -10,7 +10,7 @@ const getReceiveClient = (receiveEndpoint: ReceiveEndpoint, connectionManager: C
     .getMessageReceiveClient(receiveEndpoint);
 }
 
-export const peakMessages = (body: {
+export const peekMessages = (body: {
   endpoint: ReceiveEndpoint,
   maxMessageCount: number,
   fromSequenceNumber?: string,
@@ -18,7 +18,7 @@ export const peakMessages = (body: {
   const receiveClient = getReceiveClient(body.endpoint, connectionManager);
 
   const fromSequenceNumber = body.fromSequenceNumber ? Long.fromString(body.fromSequenceNumber) : undefined;
-  return receiveClient.peakMessages(body.maxMessageCount, fromSequenceNumber);
+  return receiveClient.peekMessages(body.maxMessageCount, fromSequenceNumber);
 }
 
 export const receiveMessages = (body: {

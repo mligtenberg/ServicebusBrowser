@@ -12,7 +12,7 @@ export class RouterEffects {
   router = inject(Router);
 
   navigateTo$ = createEffect(() => this.actions.pipe(
-    ofType(MessagesActions.peakMessagesLoadingDone),
+    ofType(MessagesActions.peekMessagesLoadingDone),
     switchMap(({ pageId }) => from(this.router.navigate([
       'messages',
       'page',

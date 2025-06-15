@@ -18,7 +18,7 @@ export const initialState: MessagesState = {
 
 export const logsReducer = createReducer(
   initialState,
-  on(internalActions.peakMessagesLoad, (state, { pageId, endpoint }): MessagesState => {
+  on(internalActions.peekMessagesLoad, (state, { pageId, endpoint }): MessagesState => {
     const page = state.receivedMessages.find(page => page.id === pageId);
     if (page) {
       return state;
@@ -43,7 +43,7 @@ export const logsReducer = createReducer(
       ]
     }
   }),
-  on(internalActions.peakMessagesPartLoaded, (state, { pageId, messages }): MessagesState => {
+  on(internalActions.peekMessagesPartLoaded, (state, { pageId, messages }): MessagesState => {
     const page = state.receivedMessages.find(page => page.id === pageId);
     if (!page) {
       return state;
@@ -57,7 +57,7 @@ export const logsReducer = createReducer(
         ] } : page)
     };
   }),
-  on(actions.peakMessagesLoadingDone, (state, { pageId }): MessagesState => {
+  on(actions.peekMessagesLoadingDone, (state, { pageId }): MessagesState => {
 
     return {
       ...state,
