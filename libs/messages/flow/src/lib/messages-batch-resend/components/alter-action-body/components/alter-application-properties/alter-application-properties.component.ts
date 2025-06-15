@@ -4,7 +4,6 @@ import {
   Action,
   AlterAction,
   AlterApplicationPropertyActions,
-  AlterApplicationPropertyFullReplaceAction,
   AlterApplicationPropertyPartialReplaceAction,
   AlterType,
   PropertyValue

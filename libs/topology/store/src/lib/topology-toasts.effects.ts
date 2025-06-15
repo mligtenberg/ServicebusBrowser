@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { MessageService } from 'primeng/api';
-import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { tap } from 'rxjs';
 

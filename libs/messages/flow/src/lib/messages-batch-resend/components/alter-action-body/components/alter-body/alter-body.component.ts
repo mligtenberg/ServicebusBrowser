@@ -4,8 +4,7 @@ import {
   Action,
   AlterAction,
   AlterBodyAction, AlterBodyPartialReplaceAction,
-  AlterType,
-  PropertyValue
+  AlterType
 } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
