@@ -14,7 +14,7 @@ export class MessageReceiveClient {
   constructor(private connection: Connection, private endpoint: ReceiveEndpoint)
   {}
 
-  async peakMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
+  async peekMessages(maxMessageCount: number, fromSequenceNumber?: Long) {
     const receiver = this.getReceiver('peekLock');
     const messages = await receiver.peekMessages(maxMessageCount, {
       fromSequenceNumber: fromSequenceNumber ?? Long.fromNumber(0)

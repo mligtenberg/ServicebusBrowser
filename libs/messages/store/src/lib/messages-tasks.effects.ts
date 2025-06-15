@@ -13,7 +13,7 @@ export class MessagesTasksEffects {
   actions = inject(Actions);
 
   createTask$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakMessagesLoad),
+    ofType(internalActions.peekMessagesLoad),
     map(({ pageId, maxAmount, endpoint }) => {
       const endpointName = 'queueName' in endpoint
         ? endpoint.queueName
@@ -30,7 +30,7 @@ export class MessagesTasksEffects {
   ));
 
   updateTaskProgress$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.peakMessagesPartLoaded),
+    ofType(internalActions.peekMessagesPartLoaded),
     map(({ pageId, maxAmount, amountLoaded }) => TasksActions.setProgress({
       id: pageId,
       statusDescription: `${amountLoaded}/${maxAmount + amountLoaded}`,
@@ -39,7 +39,7 @@ export class MessagesTasksEffects {
   ));
 
   completeTask$ = createEffect(() => this.actions.pipe(
-    ofType(actions.peakMessagesLoadingDone),
+    ofType(actions.peekMessagesLoadingDone),
     map(({ pageId }) => TasksActions.completeTask({ id: pageId })),
   ));
 

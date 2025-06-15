@@ -21,9 +21,9 @@ export class MessagesEffects {
 
   currentState = this.store.selectSignal(featureSelector);
 
-  loadPeakQueueMessages$ = createEffect(() => this.actions$.pipe(
-    ofType(actions.peakMessages),
-    map(({ endpoint, maxAmount, fromSequenceNumber }) => internalActions.peakMessagesLoad({
+  loadPeekQueueMessages$ = createEffect(() => this.actions$.pipe(
+    ofType(actions.peekMessages),
+    map(({ endpoint, maxAmount, fromSequenceNumber }) => internalActions.peekMessagesLoad({
       pageId: crypto.randomUUID(),
       endpoint,
       maxAmount,
@@ -32,17 +32,17 @@ export class MessagesEffects {
     }))
   ));
 
-  loadPeakQueueMessagesPart$ = createEffect(() => this.actions$.pipe(
-    ofType(internalActions.peakMessagesLoad),
+  loadPeekQueueMessagesPart$ = createEffect(() => this.actions$.pipe(
+    ofType(internalActions.peekMessagesLoad),
     mergeMap(({ pageId, endpoint, maxAmount, fromSequenceNumber, alreadyLoadedAmount }) => {
       const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
-      const messages$ =  from(this.messagesService.peakMessages(
+      const messages$ =  from(this.messagesService.peekMessages(
         endpoint, maxAmountToLoad, Long.fromString(fromSequenceNumber)));
 
       return messages$
         .pipe(
-          map(messages => internalActions.peakMessagesPartLoaded({
+          map(messages => internalActions.peekMessagesPartLoaded({
               pageId,
               endpoint,
               maxAmount: maxAmount - messages.length,
@@ -54,10 +54,10 @@ export class MessagesEffects {
   ));
 
   loadMoreMessages$ = createEffect(() => this.actions$.pipe(
-    ofType(internalActions.peakMessagesPartLoaded),
+    ofType(internalActions.peekMessagesPartLoaded),
     map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
       if (maxAmount <= 0 || messages.length === 0) {
-        return actions.peakMessagesLoadingDone({ pageId, endpoint });
+        return actions.peekMessagesLoadingDone({ pageId, endpoint });
       }
 
       const sequenceNumbers = messages.map(m => Long.fromString(m.sequenceNumber ?? '0'));
@@ -69,7 +69,7 @@ export class MessagesEffects {
 
       const fromSequenceNumber = highestSequenceNumber.add(1).toString();
 
-      return internalActions.peakMessagesLoad({
+      return internalActions.peekMessagesLoad({
         pageId,
         endpoint,
         maxAmount,
