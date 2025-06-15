@@ -22,7 +22,7 @@ export class AdministrationClient {
      const administrationClient = this.getAdministrationClient();
      const queuesPages = administrationClient.listQueues();
      const queues = await queuesPages.next();
-     return !!queues.done;
+     return true;
    }
     catch {
       return false;
