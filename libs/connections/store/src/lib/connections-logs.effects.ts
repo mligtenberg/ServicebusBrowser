@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Logger } from '@service-bus-browser/logs-services';
-import * as actions from './connections.actions';
 import * as internalActions from './connections.internal-actions';
 import { tap } from 'rxjs';
 

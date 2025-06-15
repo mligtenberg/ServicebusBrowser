@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as actions from './connections.actions';
 import * as internalActions from './connections.internal-actions';
 import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
-import { catchError, from, map, switchMap, tap } from 'rxjs';
+import { catchError, from, map, switchMap } from 'rxjs';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 
 @Injectable({

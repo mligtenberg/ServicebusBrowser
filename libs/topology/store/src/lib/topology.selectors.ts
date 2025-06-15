@@ -1,10 +1,8 @@
 import { featureKey, TopologyState } from './topology.store';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import {
-  NamespaceWithChildren, NamespaceWithChildrenAndLoadingState,
-  QueueWithMetaData,
-  SubscriptionWithMetaData,
-  TopicWithChildren, TopicWithChildrenAndLoadingState
+  NamespaceWithChildrenAndLoadingState,
+  TopicWithChildrenAndLoadingState
 } from '@service-bus-browser/topology-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';

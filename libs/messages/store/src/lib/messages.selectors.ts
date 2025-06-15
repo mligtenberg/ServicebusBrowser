@@ -1,5 +1,4 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { featureKey, MessagesState } from './messages.store';
+import { createSelector } from '@ngrx/store';
 import { featureSelector } from './messages.feature-selector';
 
 

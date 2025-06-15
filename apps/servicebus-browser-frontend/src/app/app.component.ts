@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, effect, inject, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';

@@ -1,4 +1,3 @@
-import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';

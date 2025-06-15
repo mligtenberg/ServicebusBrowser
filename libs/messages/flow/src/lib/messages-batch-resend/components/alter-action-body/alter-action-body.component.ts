@@ -1,4 +1,4 @@
-import { Component, effect, input, model, output, viewChild } from '@angular/core';
+import { Component, effect, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Action,
@@ -10,7 +10,6 @@ import { FormsModule } from '@angular/forms';
 import { AlterBodyComponent } from './components/alter-body/alter-body.component';
 import { AlterSystemPropertiesComponent } from './components/alter-system-properties/alter-system-properties.component';
 import { AlterApplicationPropertiesComponent } from './components/alter-application-properties/alter-application-properties.component';
-import { ActionComponent } from '../action/action.component';
 
 @Component({
   selector: 'lib-alter-action-body',
