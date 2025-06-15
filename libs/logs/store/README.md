@@ -1,6 +1,6 @@
 # @service-bus-browser/logs-store
 
-This library was generated with [Nx](https://nx.dev).
+NgRx store slice that holds log entries.
 
 ## Running unit tests
 

@@ -1,6 +1,6 @@
 # @service-bus-browser/tasks-components
 
-This library was generated with [Nx](https://nx.dev).
+Components that visualise running tasks.
 
 ## Running unit tests
 

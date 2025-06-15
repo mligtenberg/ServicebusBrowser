@@ -1,11 +1,7 @@
-# contracts
+# @service-bus-browser/topology-contracts
 
-This library was generated with [Nx](https://nx.dev).
-
-## Building
-
-Run `nx build contracts` to build the library.
+Interfaces describing namespace, queue and topic resources.
 
 ## Running unit tests
 
-Run `nx test contracts` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/topology-contracts` to execute the unit tests.

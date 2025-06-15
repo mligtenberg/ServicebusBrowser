@@ -1,6 +1,6 @@
 # @service-bus-browser/topology-store
 
-This library was generated with [Nx](https://nx.dev).
+NgRx store slice holding topology data.
 
 ## Running unit tests
 

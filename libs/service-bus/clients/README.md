@@ -1,21 +1,16 @@
-# clients
+# @service-bus-browser/service-bus-clients
 
-This library was generated with [Nx](https://nx.dev).
+Wrapper classes around the Azure Service Bus SDK.
 
 ## Running unit tests
 
-Run `nx test clients` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/service-bus-clients` to execute the unit tests.
 
-
-## library structure
-```mermaid
-graph TD;
-  cm[Connection Manager]
-  cc[Connection Client]
-  ac[Administration Client]
-  mc[Message Client]
-  
-  cm --getConnection--> cc
-  cc --getMessageClient--> mc
-  cc --getAdministrationClient --> ac
+## Usage
+Create a `ConnectionManager` and send a message:
+```ts
+const manager = new ConnectionManager(connectionStore);
+const client = manager.getConnectionClient({ id: 'dev' });
+const sender = client.getMessageSendClient({ queueName: 'my-queue' });
+await sender.send({ body: 'hello world' });
 ```

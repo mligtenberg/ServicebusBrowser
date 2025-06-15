@@ -1,7 +1,7 @@
-# contract
+# @service-bus-browser/logs-contracts
 
-This library was generated with [Nx](https://nx.dev).
+TypeScript interfaces describing log entries.
 
 ## Running unit tests
 
-Run `nx test contract` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test @service-bus-browser/logs-contracts` to execute the unit tests.

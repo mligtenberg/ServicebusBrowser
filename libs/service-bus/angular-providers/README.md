@@ -1,6 +1,6 @@
 # @service-bus-browser/service-bus-angular-providers
 
-This library was generated with [Nx](https://nx.dev).
+Angular injection tokens for obtaining Service Bus clients.
 
 ## Running unit tests
 

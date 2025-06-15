@@ -1,6 +1,6 @@
 # @service-bus-browser/messages-store
 
-This library was generated with [Nx](https://nx.dev).
+NgRx store slice that caches messages.
 
 ## Running unit tests
 

@@ -1,6 +1,6 @@
 # @service-bus-browser/connections-flow
 
-This library was generated with [Nx](https://nx.dev).
+Angular components for adding and testing Service Bus connections.
 
 ## Running unit tests
 

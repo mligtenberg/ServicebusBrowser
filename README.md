@@ -80,6 +80,12 @@ A modern, cross-platform desktop tool for managing Azure Service Bus resources. 
 - **Logs & Tasks:** Monitor ongoing operations and view logs in the dedicated panels
 - **Theme:** Change between dark, light, or system themes from the settings menu
 
+## Library Overview
+
+The source code is split into reusable libraries located in the [`libs`](libs/README.md) folder. Each
+library focuses on a single concern such as logging, tasks or the Service Bus clients.
+Refer to [`libs/README.md`](libs/README.md) for a description of all libraries.
+
 ## Contributing
 
 This project uses Nx for monorepo management. Contributions are welcome! Please open issues or pull requests for bug fixes, features, or documentation improvements.
