@@ -1,6 +1,8 @@
 # @service-bus-browser/manage-topology-flow
 
-Components guiding creation and deletion of Service Bus resources.
+Routes and components for creating and deleting Service Bus resources. This
+flow library exposes its own set of routes and encapsulates all topology
+management logic.
 
 ## Running unit tests
 
