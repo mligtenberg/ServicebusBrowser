@@ -1,6 +1,8 @@
 # @service-bus-browser/connections-flow
 
-Angular components for adding and testing Service Bus connections.
+Routes and components for adding and testing Service Bus connections. This flow
+library exposes its own set of routes and encapsulates all connection-management
+logic.
 
 ## Running unit tests
 

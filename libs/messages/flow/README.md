@@ -1,6 +1,8 @@
 # @service-bus-browser/messages-flow
 
-Angular components guiding message receive/send flows.
+Routes and components guiding the send and receive message flows. This flow
+library exposes its own set of routes and encapsulates all message-processing
+logic.
 
 ## Running unit tests
 
