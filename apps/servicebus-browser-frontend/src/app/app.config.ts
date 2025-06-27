@@ -2,7 +2,7 @@ import {
   ApplicationConfig,
   importProvidersFrom,
   isDevMode,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import {
   provideRouter,
@@ -55,7 +55,7 @@ export const appConfig: ApplicationConfig = {
     },
 
     // config
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     provideHttpClient(),
     provideRouter(
       appRoutes,
