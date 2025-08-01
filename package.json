@@ -29,6 +29,7 @@
     "@ngrx/router-store": "20.0.0",
     "@ngrx/store": "20.0.0",
     "@ngrx/store-devtools": "20.0.0",
+    "@nx/express": "^21.3.11",
     "@primeng/themes": "^20.0.1",
     "@types/luxon": "^3.6.2",
     "jszip": "^3.10.1",
