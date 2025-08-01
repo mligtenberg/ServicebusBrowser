@@ -4,7 +4,13 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { Card } from 'primeng/card';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CustomPropertyGroup, SendMessagesForm, SystemPropertyGroup, SystemPropertyKeys } from './form';
+import {
+  CustomPropertyGroup,
+  CustomPropertyType,
+  SendMessagesForm,
+  SystemPropertyGroup,
+  SystemPropertyKeys
+} from './form';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { startWith, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -58,7 +64,7 @@ export class SendMessageComponent {
 
   form = signal(this.createForm());
 
-  typeOptions = ['string', 'datetime', 'number', 'boolean'];
+  typeOptions: CustomPropertyType[] = ['string', 'datetime', 'number', 'boolean'];
 
   contentTypeSuggestions = computed(() => {
     if (this.contentTypeSearch() === null) {
@@ -193,7 +199,7 @@ export class SendMessageComponent {
         nonNullable: true,
         validators: [Validators.required],
       }),
-      type: new FormControl<'string' | 'number' | 'datetime' | 'boolean' | null>(null, {
+      type: new FormControl<CustomPropertyType | null>(null, {
         nonNullable: true,
         validators: [Validators.required],
       }),
@@ -266,7 +272,7 @@ export class SendMessageComponent {
 
       const form = this.form();
 
-      form.patchValue({
+      const newValue = {
         body: message.body,
         contentType: message.contentType,
         customProperties: message.applicationProperties ? Object
@@ -277,11 +283,13 @@ export class SendMessageComponent {
               type: typeof value === 'string' ? 'string' :
                 typeof value === 'number' ? 'number' :
                   typeof value === 'boolean' ? 'boolean' :
-                    'datetime' as 'string' | 'number' | 'datetime' | 'boolean',
+                    'datetime' as CustomPropertyType,
               value: value ?? ''
             };
           }) : [],
-      });
+      };
+
+      form.patchValue(newValue);
 
       const systemProperties = Object.entries(message)
         .filter(([key]) => key !== 'body' && key !== 'contentType' && key !== 'applicationProperties')
@@ -305,9 +313,14 @@ export class SendMessageComponent {
       if (message.applicationProperties) {
         for (const property in message.applicationProperties) {
           const group = this.addCustomProperty();
+          const value = message.applicationProperties[property];
           group.patchValue({
             key: property,
-            value: message.applicationProperties[property] ?? ''
+            type: typeof value === 'string' ? 'string' :
+              typeof value === 'number' ? 'number' :
+                typeof value === 'boolean' ? 'boolean' :
+                  'datetime' as CustomPropertyType,
+            value: value ?? ''
           })
         }
       }
