@@ -62,7 +62,7 @@
     "@swc-node/register": "~1.10.10",
     "@swc/core": "~1.11.31",
     "@swc/helpers": "~0.5.17",
-    "@types/jest": "30.0.0",
+    "@types/jest": "~29.5.14",
     "@types/node": "18.16.9",
     "@typescript-eslint/utils": "^8.34.1",
     "angular-eslint": "20.1.1",
@@ -73,7 +73,7 @@
     "eslint-config-prettier": "10.1.5",
     "jasmine-marbles": "~0.9.2",
     "jest": "30.0.5",
-    "jest-environment-jsdom": "30.0.5",
+    "jest-environment-jsdom": "~29.7.0",
     "jest-environment-node": "^29.7.0",
     "jest-preset-angular": "15.0.0",
     "jest-util": "30.0.5",
@@ -97,15 +97,7 @@
   },
   "engines": {
     "node": ">=22",
-    "pnpm": ">=9"
-  },
-  "overrides": {
-    "ngx-monaco-editor-v2": {
-      "@angular/core": "$@angular/core"
-    },
-    "nx-electron": {
-      "@nx/workspace": "$@nx/workspace"
-    }
+    "pnpm": ">=10"
   },
   "repository": {
     "type": "git",
