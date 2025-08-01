@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="serve web frontend" type="NxRunConfigurationType">
+    <option name="nx-projects" value="servicebus-browser-web-frontend" />
+    <option name="nx-targets" value="serve" />
+    <option name="nx-target-configuration" value="" />
+    <envs />
+    <option name="arguments" value="" />
+    <method v="2" />
+  </configuration>
+</component>

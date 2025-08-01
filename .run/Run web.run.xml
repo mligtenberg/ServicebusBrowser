@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run web" type="CompoundRunConfigurationType">
+    <toRun name="serve web backend" type="NxRunConfigurationType" />
+    <toRun name="serve web frontend" type="NxRunConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

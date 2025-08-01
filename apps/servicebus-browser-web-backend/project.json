@@ -1,0 +1,27 @@
+{
+  "name": "servicebus-browser-web-backend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/servicebus-browser-web-backend/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "servicebus-browser-web-backend:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "servicebus-browser-web-backend:build:development"
+        },
+        "production": {
+          "buildTarget": "servicebus-browser-web-backend:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

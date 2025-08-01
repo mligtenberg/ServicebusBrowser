@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run desktop" type="CompoundRunConfigurationType">
+    <toRun name="serve desktop app" type="NxRunConfigurationType" />
+    <toRun name="serve desktop frontend" type="NxRunConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>
