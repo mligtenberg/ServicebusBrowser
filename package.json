@@ -35,7 +35,7 @@
     "long": "^5.3.2",
     "luxon": "^3.6.1",
     "monaco-editor": "^0.52.2",
-    "ngx-monaco-editor-v2": "^19.0.2",
+    "ngx-monaco-editor-v2": "^20.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.0.1",
     "rhea-promise": "^3.0.3",

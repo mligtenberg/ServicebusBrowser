@@ -90,8 +90,8 @@ importers:
         specifier: ^0.52.2
         version: 0.52.2
       ngx-monaco-editor-v2:
-        specifier: ^19.0.2
-        version: 19.0.2(@angular/common@20.1.4(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(monaco-editor@0.52.2)
+        specifier: ^20.0.0
+        version: 20.0.0(@angular/common@20.1.4(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(monaco-editor@0.52.2)
       primeicons:
         specifier: ^7.0.0
         version: 7.0.0
@@ -6136,11 +6136,11 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  ngx-monaco-editor-v2@19.0.2:
-    resolution: {integrity: sha512-hkPiCnLU0vdIF2DW7Ko/EHoGCtLxuN85eygKuk3fXL2GRbEIl5VcbUXmRX9ItfLOI1F5QcH80HhavY5r0gNfEw==}
+  ngx-monaco-editor-v2@20.0.0:
+    resolution: {integrity: sha512-h0gWxuXKWqEReklnOrLzfa6KQ2aYkOB5f3TJurOxgJPztZKKE8kNKtsa2Zpjs+vQw8IgE9UIl79lueUuhys5aw==}
     peerDependencies:
-      '@angular/common': ^19.0.4
-      '@angular/core': ^19.0.4
+      '@angular/common': 20.1.2
+      '@angular/core': 20.1.2
       monaco-editor: ^0.52.2
 
   node-abi@3.75.0:
@@ -16052,7 +16052,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  ngx-monaco-editor-v2@19.0.2(@angular/common@20.1.4(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(monaco-editor@0.52.2):
+  ngx-monaco-editor-v2@20.0.0(@angular/common@20.1.4(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(monaco-editor@0.52.2):
     dependencies:
       '@angular/common': 20.1.4(@angular/core@20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)
       '@angular/core': 20.1.4(@angular/compiler@20.1.4)(rxjs@7.8.2)(zone.js@0.15.0)
