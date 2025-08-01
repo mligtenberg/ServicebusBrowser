@@ -50,75 +50,10 @@ interface ElectronWindow {
 })
 export class MainUiComponent {
   title = 'servicebus-browser-frontend';
-  private electron = (window as unknown as ElectronWindow).electron;
   electronWindowControlSpacing = input<boolean>(false);
   useLowProfileMenu = input<boolean>(false);
 
-  menuItems: MenuItem[] = [
-    {
-      label: 'Connections',
-      items: [
-        {
-          label: 'Add Connection',
-          icon: 'pi pi-plus',
-          routerLink: '/connections/add',
-        },
-      ],
-    },
-    {
-      label: 'Messages',
-      items: [
-        {
-          label: 'Send',
-          icon: 'pi pi-send',
-          routerLink: '/messages/send',
-        },
-        {
-          label: 'Import',
-          icon: 'pi pi-upload',
-          command: () => {
-            this.importMessages();
-          },
-        },
-      ],
-    },
-    {
-      label: 'Settings',
-      items: [
-        {
-          label: 'Application Theme',
-          icon: 'pi pi-desktop',
-          items: [
-            {
-              label: 'Sync with OS',
-              icon: 'pi pi-desktop',
-              command: () => this.themeService.setPreference('sync'),
-            },
-            {
-              label: 'Light theme',
-              icon: 'pi pi-sun',
-              command: () => this.themeService.setPreference('light'),
-            },
-            {
-              label: 'Dark theme',
-              icon: 'pi pi-moon',
-              command: () => this.themeService.setPreference('dark'),
-            },
-          ],
-        },
-        {
-          label: 'Search for Updates',
-          icon: 'pi pi-refresh',
-          command: () => this.electron?.checkForUpdates?.(),
-        },
-        {
-          label: 'About',
-          icon: 'pi pi-info-circle',
-          routerLink: '/about',
-        },
-      ],
-    },
-  ];
+  menuItems = input.required<MenuItem[]>();
 
   store = inject(Store);
   themeService = inject(ColorThemeService);
@@ -136,29 +71,5 @@ export class MainUiComponent {
   closePage(pageId: UUID, event: Event) {
     this.store.dispatch(MessagesActions.closePage({ pageId: pageId }));
     event.stopPropagation();
-  }
-
-  constructor() {
-    this.setDarkMode(this.darkMode());
-    effect(() => this.setDarkMode(this.darkMode()));
-    this.electron?.onFullScreenChanged?.((full) => {
-      document.body.classList.toggle('fullscreen', full);
-    });
-  }
-
-  importMessages(): void {
-    this.store.dispatch(MessagesActions.importMessages());
-  }
-
-  setDarkMode(darkMode: boolean) {
-    const element = document.querySelector('html');
-    const darkModeSet = element?.classList.contains('darkMode');
-    if (darkMode && !darkModeSet) {
-      element?.classList.add('darkMode');
-    }
-
-    if (!darkMode && darkModeSet) {
-      element?.classList.remove('darkMode');
-    }
   }
 }
