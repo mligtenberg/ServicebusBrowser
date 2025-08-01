@@ -193,6 +193,10 @@ export class SendMessageComponent {
         nonNullable: true,
         validators: [Validators.required],
       }),
+      type: new FormControl<'string' | 'number' | 'datetime' | 'boolean' | null>(null, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       value: new FormControl<string | number | Date | boolean>('', {
         nonNullable: true,
         validators: [Validators.required],
@@ -267,10 +271,16 @@ export class SendMessageComponent {
         contentType: message.contentType,
         customProperties: message.applicationProperties ? Object
           .entries(message.applicationProperties)
-          .map(([key, value]) => ({
-            key,
-            value: value ?? ''
-          })) : [],
+          .map(([key, value]) => {
+            return {
+              key,
+              type: typeof value === 'string' ? 'string' :
+                typeof value === 'number' ? 'number' :
+                  typeof value === 'boolean' ? 'boolean' :
+                    'datetime' as 'string' | 'number' | 'datetime' | 'boolean',
+              value: value ?? ''
+            };
+          }) : [],
       });
 
       const systemProperties = Object.entries(message)

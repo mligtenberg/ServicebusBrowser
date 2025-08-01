@@ -36,76 +36,83 @@
                 (ngModelChange)="onSystemPropertyChange($index, 'fieldName', $event)"
               ></p-select>
 
-              <p-select
-                *ngIf="filter.fieldType === 'string'"
-                [options]="stringFilterTypes"
-                [ngModel]="filter.filterType"
-                appendTo="body"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                class="filterType"
-                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-              ></p-select>
+              @if (filter.fieldType === 'string') {
+                <p-select
+                  [options]="stringFilterTypes"
+                  [ngModel]="filter.filterType"
+                  appendTo="body"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Filter Type"
+                  class="filterType"
+                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+                ></p-select>
+              }
 
-              <p-select
-                *ngIf="filter.fieldType === 'date'"
-                [options]="dateFilterTypes"
-                [ngModel]="filter.filterType"
-                appendTo="body"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                class="filterType"
-                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-              ></p-select>
+              @if (filter.fieldType === 'date') {
+                <p-select
+                  [options]="dateFilterTypes"
+                  [ngModel]="filter.filterType"
+                  appendTo="body"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Filter Type"
+                  class="filterType"
+                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+                ></p-select>
+              }
 
-              <p-select
-                *ngIf="filter.fieldType === 'number'"
-                [options]="numberFilterTypes"
-                [ngModel]="filter.filterType"
-                appendTo="body"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                class="filterType"
-                (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-              ></p-select>
+              @if (filter.fieldType === 'number') {
+                <p-select
+                  [options]="numberFilterTypes"
+                  [ngModel]="filter.filterType"
+                  appendTo="body"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Filter Type"
+                  class="filterType"
+                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
+                ></p-select>
+              }
 
-              <input
-                *ngIf="filter.fieldType === 'string'"
-                pInputText
-                [ngModel]="filter.value"
-                placeholder="Value"
-                class="value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
-                (blur)="syncShadowFilters()"
-              />
+              @if (filter.fieldType === 'string') {
+                <input
+                  pInputText
+                  [ngModel]="filter.value"
+                  placeholder="Value"
+                  class="value"
+                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
+                  (blur)="syncShadowFilters()"
+                />
+              }
 
-              <p-calendar
-                *ngIf="filter.fieldType === 'date'"
-                [ngModel]="filter.value"
-                appendTo="body"
-                [showTime]="true"
-                class="value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
-              ></p-calendar>
+              @if (filter.fieldType === 'date') {
+                <p-date-picker
+                  [ngModel]="filter.value"
+                  appendTo="body"
+                  [showTime]="true"
+                  class="value"
+                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+                ></p-date-picker>
+              }
 
-              <p-inputNumber
-                *ngIf="filter.fieldType === 'number'"
-                [ngModel]="filter.value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
-                (blur)="syncShadowFilters()"
-                class="value"
-              ></p-inputNumber>
+              @if (filter.fieldType === 'number') {
+                <p-inputNumber
+                  [ngModel]="filter.value"
+                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
+                  (blur)="syncShadowFilters()"
+                  class="value"
+                ></p-inputNumber>
+              }
 
-              <p-checkbox
-                *ngIf="filter.fieldType === 'boolean'"
-                [ngModel]="filter.value"
-                [binary]="true"
-                class="value"
-                (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
-              ></p-checkbox>
+              @if (filter.fieldType === 'boolean') {
+                <p-checkbox
+                  [ngModel]="filter.value"
+                  [binary]="true"
+                  class="value"
+                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
+                ></p-checkbox>
+              }
 
               <p-button
                 icon="pi pi-trash"
@@ -158,76 +165,83 @@
               (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldType', $event)"
             ></p-select>
 
-            <p-select
-              *ngIf="filter.fieldType === 'string'"
-              [options]="stringFilterTypes"
-              [ngModel]="filter.filterType"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Filter Type"
-              appendTo="body"
-              class="filterType"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-            ></p-select>
+            @if (filter.fieldType === 'string') {
+              <p-select
+                [options]="stringFilterTypes"
+                [ngModel]="filter.filterType"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                appendTo="body"
+                class="filterType"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+              ></p-select>
+            }
 
-            <p-dropdown
-              *ngIf="filter.fieldType === 'date'"
-              [options]="dateFilterTypes"
-              [ngModel]="filter.filterType"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Filter Type"
-              appendTo="body"
-              class="filterType"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-            ></p-dropdown>
+            @if (filter.fieldType === 'date') {
+              <p-select
+                [options]="dateFilterTypes"
+                [ngModel]="filter.filterType"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                appendTo="body"
+                class="filterType"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+              ></p-select>
+            }
 
-            <p-dropdown
-              *ngIf="filter.fieldType === 'number'"
-              [options]="numberFilterTypes"
-              [ngModel]="filter.filterType"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Filter Type"
-              appendTo="body"
-              class="filterType"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-            ></p-dropdown>
+            @if (filter.fieldType === 'number') {
+              <p-select
+                [options]="numberFilterTypes"
+                [ngModel]="filter.filterType"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter Type"
+                appendTo="body"
+                class="filterType"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
+              ></p-select>
+            }
 
-            <input
-              *ngIf="filter.fieldType === 'string'"
-              pInputText
-              [ngModel]="filter.value"
-              placeholder="Value"
-              class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
-              (blur)="syncShadowFilters()"
-            />
+            @if (filter.fieldType === 'string') {
+              <input
+                pInputText
+                [ngModel]="filter.value"
+                placeholder="Value"
+                class="value"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
+                (blur)="syncShadowFilters()"
+              />
+            }
 
-            <p-calendar
-              *ngIf="filter.fieldType === 'date'"
-              [ngModel]="filter.value"
-              [showTime]="true"
-              appendTo="body"
-              class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
-            ></p-calendar>
+            @if (filter.fieldType === 'date') {
+              <p-date-picker
+                [ngModel]="filter.value"
+                [showTime]="true"
+                appendTo="body"
+                class="value"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+              ></p-date-picker>
+            }
 
-            <p-inputNumber
-              *ngIf="filter.fieldType === 'number'"
-              [ngModel]="filter.value"
-              class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
-              (blur)="syncShadowFilters()"
-            ></p-inputNumber>
+            @if (filter.fieldType === 'number') {
+              <p-inputNumber
+                [ngModel]="filter.value"
+                class="value"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
+                (blur)="syncShadowFilters()"
+              ></p-inputNumber>
+            }
 
-            <p-checkbox
-              *ngIf="filter.fieldType === 'boolean'"
-              [ngModel]="filter.value"
-              [binary]="true"
-              class="value"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
-            ></p-checkbox>
+            @if (filter.fieldType === 'boolean') {
+              <p-checkbox
+                [ngModel]="filter.value"
+                [binary]="true"
+                class="value"
+                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
+              ></p-checkbox>
+            }
 
             <p-button
               icon="pi pi-trash"
@@ -259,7 +273,7 @@
               class="isActive"
             ></p-checkbox>
 
-            <p-dropdown
+            <p-select
               [options]="bodyFilterTypes"
               [ngModel]="filter.filterType"
               (ngModelChange)="onBodyFilterTypeChange($index, 'filterType', $event)"
@@ -268,7 +282,7 @@
               optionValue="value"
               placeholder="Filter Type"
               class="filterType"
-            ></p-dropdown>
+            ></p-select>
 
             <input
               pInputText

@@ -1,5 +1,4 @@
-import { MenuItem } from 'primeng/api';
-import { MenuItemCommandEvent } from 'primeng/api/menuitem';
+import { MenuItem, MenuItemCommandEvent } from 'primeng/api';
 
 export type SbbMenuItem<T> = MenuItem & {
   onSelect?(data: T, event: MenuItemCommandEvent): void

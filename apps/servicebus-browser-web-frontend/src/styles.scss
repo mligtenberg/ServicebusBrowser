@@ -1,1 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
+@use "primeicons/primeicons.css" as *;
+
+head, body {
+  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}/* You can add global styles to this file, and also import other style files */
+
+.page-container {
+  padding: 1rem;
+}
+
+.page-title {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.user-selectable {
+  user-select: text;
+}

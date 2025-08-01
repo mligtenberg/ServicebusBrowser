@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputText } from 'primeng/inputtext';
-import { Calendar } from 'primeng/calendar';
+import { DatePicker } from 'primeng/datepicker';
 import { InputNumber } from 'primeng/inputnumber';
 import { Checkbox } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
@@ -17,7 +16,7 @@ import {
   StringFilter,
   BodyFilter
 } from '@service-bus-browser/messages-contracts';
-import { Select } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { MessageFilterService } from '../message-filter/message-filter.service';
 
 @Component({
@@ -29,11 +28,11 @@ import { MessageFilterService } from '../message-filter/message-filter.service';
     Dialog,
     Button,
     InputText,
-    Calendar,
+    DatePicker,
     InputNumber,
     Checkbox,
     AccordionModule,
-    DropdownModule,
+    SelectModule,
     ButtonDirective,
     Select,
   ],

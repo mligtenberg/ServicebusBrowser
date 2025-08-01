@@ -1,0 +1,48 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  container: sidebar / size;
+
+  ::ng-deep .p-tree {
+    .p-tree-root {
+      min-height: calc(100cqh - 100px);
+    }
+  }
+
+  ::ng-deep .p-scrollpanel-content-container {
+    height: calc(100cqh - 60px);
+  }
+
+  ::ng-deep .p-scrollpanel-content {
+    min-height: calc(100cqh - 100px);
+  }
+}
+
+p-scroll-panel {
+  flex: 1;
+  height: 100cqh;
+}
+
+sbb-task-tasks {
+  border-top: solid 2px var(--p-surface-200);
+
+  &.darkMode {
+    border-top: solid 2px var(--p-surface-700);
+  }
+}
+
+.load-form {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

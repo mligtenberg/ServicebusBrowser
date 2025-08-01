@@ -93,16 +93,16 @@
                 placeholder="Key"/>
               <p-select
                 appendTo="body"
-                #customPropertyTypeSelect
+                formControlName="type"
                 [options]="typeOptions"
               />
-              @if (customPropertyTypeSelect.value === 'string') {
+              @if (control.controls.type.value === 'string') {
                 <input
                   pInputText
                   formControlName="value"
                   placeholder="Value"/>
               }
-              @if (customPropertyTypeSelect.value === 'datetime') {
+              @if (control.controls.type.value === 'datetime') {
                 <p-date-picker
                   [showTime]="true"
                   hourFormat="24"
@@ -110,13 +110,13 @@
                   appendTo="body"
                   placeholder="Value"/>
               }
-              @if (customPropertyTypeSelect.value === 'number') {
+              @if (control.controls.type.value === 'number') {
                 <input
                   pInputText
                   formControlName="value"
                   placeholder="Value"/>
               }
-              @if (customPropertyTypeSelect.value === 'boolean') {
+              @if (control.controls.type.value === 'boolean') {
                 <p-select
                   appendTo="body"
                   formControlName="value"

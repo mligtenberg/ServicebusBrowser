@@ -1,0 +1,44 @@
+<p-scroll-panel>
+  <div class="topology-tree">
+    <sbb-tpl-topology-tree
+      [namespaces]="namespaces()"
+      [namespaceContextMenuItems]="namespaceContextMenuItems"
+      [queuesGroupNodeContextMenu]="queuesGroupNodeContextMenu"
+      [topicsGroupNodeContextMenu]="topicsGroupNodeContextMenu"
+      [queueContextMenu]="queueContextMenuItems"
+      [topicContextMenu]="topicContextMenuItems"
+      [subscriptionContextMenu]="subscriptionContextMenuItems"
+      [subscriptionRuleContextMenu]="subscriptionRuleContextMenuItems"
+      (queueSelected)="onQueueSelected($event)"
+      (topicSelected)="onTopicSelected($event)"
+      (subscriptionSelected)="onSubscriptionSelected($event)"
+      (subscriptionRuleSelected)="onSubscriptionRuleSelected($event)"
+    />
+  </div>
+</p-scroll-panel>
+<sbb-task-tasks [tasks]="openTasks()" [ngClass]="{darkMode: darkMode()}"></sbb-task-tasks>
+
+<p-dialog
+  [modal]="true"
+  [visible]="loadMessagesDialogVisible()"
+  [closable]="true"
+  (close)="cancelLoadMessages()"
+  header="Load messages"
+>
+  <div class="load-form">
+    <p-float-label variant="on">
+      <p-input-number [(ngModel)]="maxAmount" inputId="maxAmountOfMessages"></p-input-number>
+      <!--suppress XmlInvalidId -->
+      <label for="maxAmountOfMessages">Max amount of messages</label>
+    </p-float-label>
+    <p-float-label variant="on">
+      <p-input-number [(ngModel)]="fromSequenceNumber" inputId="fromSequenceNumber"></p-input-number>
+      <!--suppress XmlInvalidId -->
+      <label for="fromSequenceNumber">From sequence number</label>
+    </p-float-label>
+    <div class="actions">
+      <p-button label="Cancel" (click)="cancelLoadMessages()" class="cancel-button"></p-button>
+      <p-button label="Load" (click)="loadMessages()" class="load-button"></p-button>
+    </div>
+  </div>
+</p-dialog>

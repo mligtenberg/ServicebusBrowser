@@ -23,14 +23,13 @@ import { MessageService } from 'primeng/api';
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
-import { routeFeature } from './ngrx/route.store';
 import { provideEffects } from '@ngrx/effects';
-import { RouterEffects } from './ngrx/router.effects';
 import {
   MonacoEditorModule,
   NgxMonacoEditorConfig,
 } from 'ngx-monaco-editor-v2';
 import { provideHttpClient } from '@angular/common/http';
+import { provideMainUi } from '@service-bus-browser/main-ui';
 
 const monacoConfig: NgxMonacoEditorConfig = {
   baseUrl: 'assets',
@@ -67,8 +66,7 @@ export const appConfig: ApplicationConfig = {
     provideMessagesState(),
     provideTopologyState(),
     provideServiceBusClient(),
-    provideState(routeFeature),
-    provideEffects([RouterEffects]),
+    provideMainUi(),
 
     // monaco
     importProvidersFrom([MonacoEditorModule.forRoot(monacoConfig)]),

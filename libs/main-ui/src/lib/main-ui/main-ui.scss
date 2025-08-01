@@ -1,0 +1,107 @@
+:host ::ng-deep {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  .main-menu {
+    z-index: 2;
+    .p-menubar {
+      padding: 0;
+      min-height: 32px;
+      border-radius: 0;
+      z-index: 2;
+      position: relative;
+      -webkit-app-region: drag;
+
+      .p-menubar-item-content {
+        -webkit-app-region: none;
+      }
+    }
+
+    &.mac {
+      padding: 3px 3px 3px 70px;
+    }
+  }
+
+  body.fullscreen & .main-menu.mac {
+    .p-menubar {
+      padding-left: 3px;
+    }
+  }
+
+  .main-splitter {
+    z-index: 1;
+    flex: 1;
+    height: calc(100% - 32px);
+
+    .p-splitter {
+      border: none;
+      border-radius: 0;
+      height: 100%;
+    }
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 100%;
+  }
+
+  .p-scrollpanel {
+    height: 100%;
+
+    .p-scrollpanel-content {
+      position: absolute;
+    }
+  }
+
+  .main-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-items: stretch;
+
+    p-scroll-panel {
+      flex: 1;
+    }
+  }
+}
+
+.router-outlet {
+  height: 100%;
+  width: 100%;
+  container-name: mainContent;
+  container-type: size;
+}
+
+.open-data-tabs {
+  --p-tabs-tab-padding: 0.4rem 0.8rem;
+}
+
+.logs {
+  width: 100%;
+}
+
+.logs-header {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  background-color: var(--p-primary-600);
+  color: white;
+  font-size: 1rem;
+  text-align: left;
+  padding: 6px;
+  display: block flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    background-color: var(--p-primary-700);
+  }
+}
+
+.close-button {
+  --p-button-icon-only-width: 1rem;
+}

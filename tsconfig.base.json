@@ -30,6 +30,7 @@
       ],
       "@service-bus-browser/logs-services": ["libs/logs/services/src/index.ts"],
       "@service-bus-browser/logs-store": ["libs/logs/store/src/index.ts"],
+      "@service-bus-browser/main-ui": ["libs/main-ui/src/index.ts"],
       "@service-bus-browser/manage-topology-flow": [
         "libs/topology/manage-flow/src/index.ts"
       ],

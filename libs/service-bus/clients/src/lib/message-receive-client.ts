@@ -1,6 +1,5 @@
 import { Connection, ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 import {
-  ServiceBusAdministrationClient,
   ServiceBusClient,
   ServiceBusReceivedMessage,
   ServiceBusReceiver
@@ -55,17 +54,17 @@ export class MessageReceiveClient {
   }
 
   private mapMessage(message: ServiceBusReceivedMessage): contracts.ServiceBusReceivedMessage {
-    const mappedMessageId: string | number | undefined  = message.messageId instanceof Buffer
+    const mappedMessageId: string | number | undefined = message.messageId instanceof Buffer
       ? message.messageId.toString('utf-8')
-      : message.messageId;
+      : message.messageId as string | number | undefined;
 
     const mappedCorrelationId: string | number | undefined = message.correlationId instanceof Buffer
       ? message.correlationId.toString('utf-8')
-      : message.correlationId;
+      : message.correlationId as string | number | undefined;
 
     const body = message.body instanceof Uint8Array
       ? Buffer.from(message.body).toString('utf-8')
-      : message.body;
+      : message.body as string;
 
     return {
       messageId: mappedMessageId,

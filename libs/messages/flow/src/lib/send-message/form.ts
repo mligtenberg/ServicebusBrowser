@@ -34,7 +34,11 @@ export const SystemPropertyKeys: SystemPropertyKeys[] = [
 
 export type SystemPropertyGroup = { key: FormControl<SystemPropertyKeys | null>; value: FormControl<string | Date>};
 
-export type CustomPropertyGroup = { key: FormControl<string>; value: FormControl<string | number | Date | boolean> };
+export type CustomPropertyGroup = {
+  key: FormControl<string>;
+  type: FormControl<'string' | 'number' | 'datetime' | 'boolean' | null>;
+  value: FormControl<string | number | Date | boolean>
+};
 
 export interface SendMessagesForm {
   body: FormControl<string>;
