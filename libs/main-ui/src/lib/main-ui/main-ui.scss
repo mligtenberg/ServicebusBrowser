@@ -5,17 +5,14 @@
 
   .main-menu {
     z-index: 2;
-    .p-menubar {
-      padding: 0;
-      min-height: 32px;
-      border-radius: 0;
-      z-index: 2;
-      position: relative;
-      -webkit-app-region: drag;
+    padding: 0;
+    min-height: 32px;
+    border-radius: 0;
+    position: relative;
+    -webkit-app-region: drag;
 
-      .p-menubar-item-content {
-        -webkit-app-region: none;
-      }
+    .p-menubar-item-content {
+      -webkit-app-region: none;
     }
 
     &.useLowProfileMenu {
