@@ -1,4 +1,4 @@
-<p-menubar class="main-menu" [model]="menuItems" breakpoint="100px" [ngClass]="{mac: isMac() }" />
+<p-menubar class="main-menu" [model]="menuItems" breakpoint="100px" [ngClass]="{mac: isMac(), fullscreen: fullscreen() }" />
 <p-splitter [panelSizes]="[25,75]" class="main-splitter">
   <ng-template pTemplate>
     <div class="sidebar">

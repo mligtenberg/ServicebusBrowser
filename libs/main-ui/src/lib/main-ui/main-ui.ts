@@ -51,7 +51,8 @@ interface ElectronWindow {
 export class MainUiComponent {
   title = 'servicebus-browser-frontend';
   private electron = (window as unknown as ElectronWindow).electron;
-  isMac = input<boolean>();
+  isMac = input<boolean>(false);
+  fullscreen = input<boolean>(false);
 
   menuItems: MenuItem[] = [
     {

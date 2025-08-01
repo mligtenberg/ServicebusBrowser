@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 
@@ -22,6 +22,7 @@ export class AppComponent {
   title = 'servicebus-browser-frontend';
   private electron = (window as unknown as ElectronWindow).electron;
   isMac = this.electron?.platform === 'darwin';
+  fullscreen = signal<boolean>(false);
 
   themeService = inject(ColorThemeService);
   darkMode = this.themeService.darkMode;
@@ -30,7 +31,7 @@ export class AppComponent {
     this.setDarkMode(this.darkMode());
     effect(() => this.setDarkMode(this.darkMode()));
     this.electron?.onFullScreenChanged?.((full) => {
-      document.body.classList.toggle('fullscreen', full);
+      this.fullscreen.set(full);
     });
   }
 

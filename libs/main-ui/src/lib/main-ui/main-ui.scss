@@ -20,12 +20,10 @@
 
     &.mac {
       padding: 3px 3px 3px 70px;
-    }
-  }
 
-  body.fullscreen & .main-menu.mac {
-    .p-menubar {
-      padding-left: 3px;
+      &.fullscreen {
+        padding-left: 3px;
+      }
     }
   }
 
