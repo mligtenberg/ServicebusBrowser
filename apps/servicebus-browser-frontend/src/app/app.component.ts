@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 
@@ -23,6 +23,7 @@ export class AppComponent {
   private electron = (window as unknown as ElectronWindow).electron;
   isMac = this.electron?.platform === 'darwin';
   fullscreen = signal<boolean>(false);
+  windowControlSpacing = computed(() => this.isMac && !this.fullscreen());
 
   themeService = inject(ColorThemeService);
   darkMode = this.themeService.darkMode;

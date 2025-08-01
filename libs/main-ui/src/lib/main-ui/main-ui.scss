@@ -18,12 +18,12 @@
       }
     }
 
-    &.mac {
-      padding: 3px 3px 3px 70px;
+    &.useLowProfileMenu {
+      padding: 3px 3px 3px 3px;
+    }
 
-      &.fullscreen {
-        padding-left: 3px;
-      }
+    &.windowControlSpacing {
+      padding-left: 70px;
     }
   }
 
