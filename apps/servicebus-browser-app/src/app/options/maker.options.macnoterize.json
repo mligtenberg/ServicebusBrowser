@@ -6,7 +6,7 @@
   "productName": "Servicebus Browser",
   "icon": "assets/icon.png",
   "linux": {
-    "target": ["AppImage"]
+    "target": ["AppImage", "flatpak"]
   },
   "win": {
     "target": ["nsis"]
