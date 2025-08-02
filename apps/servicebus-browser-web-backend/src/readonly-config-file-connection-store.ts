@@ -7,7 +7,7 @@ export class ReadonlyConfigFileConnectionStorage implements ConnectionStore {
   connectionsPath: string;
 
   constructor() {
-    this.connectionsPath = './sbb-connections.json';
+    this.connectionsPath = `${process.cwd()}/sbb-connections.json`;
   }
 
   addConnection(connection: Connection): void {

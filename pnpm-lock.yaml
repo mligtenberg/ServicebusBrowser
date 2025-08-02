@@ -80,6 +80,9 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.10.0
+      body-parser:
+        specifier: ^2.2.0
+        version: 2.2.0
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -189,6 +192,9 @@ importers:
       '@swc/helpers':
         specifier: ~0.5.17
         version: 0.5.17
+      '@types/body-parser':
+        specifier: ^1.19.6
+        version: 1.19.6
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.23
@@ -237,6 +243,9 @@ importers:
       jest-util:
         specifier: 30.0.5
         version: 30.0.5
+      jsonc-eslint-parser:
+        specifier: ^2.1.0
+        version: 2.4.0
       nx:
         specifier: 21.3.11
         version: 21.3.11(@swc-node/register@1.10.10(@swc/core@1.11.31(@swc/helpers@0.5.17))(@swc/types@0.1.23)(typescript@5.8.3))(@swc/core@1.11.31(@swc/helpers@0.5.17))

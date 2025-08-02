@@ -15,15 +15,14 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
-import { provideState, provideStore } from '@ngrx/store';
+import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
-import { provideServiceBusClient } from '@service-bus-browser/service-bus-angular-providers';
+import { provideServiceBusElectronClient } from '@service-bus-browser/service-bus-angular-providers';
 import { MessageService } from 'primeng/api';
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
-import { provideEffects } from '@ngrx/effects';
 import {
   MonacoEditorModule,
   NgxMonacoEditorConfig,
@@ -65,7 +64,7 @@ export const appConfig: ApplicationConfig = {
     provideTasksState(),
     provideMessagesState(),
     provideTopologyState(),
-    provideServiceBusClient(),
+    provideServiceBusElectronClient(),
     provideMainUi(),
 
     // monaco

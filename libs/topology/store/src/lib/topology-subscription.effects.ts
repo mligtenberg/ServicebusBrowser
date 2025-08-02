@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, filter, from, map, mergeMap, take } from 'rxjs';
@@ -13,7 +13,7 @@ import { SubscriptionReceiveEndpoint } from '@service-bus-browser/service-bus-co
 export class TopologySubscriptionEffects {
   store = inject(Store);
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusManagementElectronClient);
+  serviceBusClient = inject(ServiceBusManagementFrontendClient);
 
   loadSubscriptions$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadSubscriptions),

@@ -1,21 +1,51 @@
 import { EnvironmentProviders, Provider } from '@angular/core';
 import {
-  ServiceBusManagementElectronClient,
-  ServiceBusMessagesElectronClient
+  ServiceBusManagementFrontendClient,
+  ServiceBusMessagesFrontendClient,
+  ServiceBusApiHandler
 } from '@service-bus-browser/service-bus-electron-client';
+import { WebServiceBusApiHandler } from './web-service-bus-api-handler';
 
-export function provideServiceBusClient(): (
+export function provideServiceBusElectronClient(): (
+  | Provider
+  | EnvironmentProviders
+  )[] {
+  interface ElectronWindow {
+    serviceBusApi: ServiceBusApiHandler
+  }
+
+  const typelessWindow = window as unknown;
+  const { serviceBusApi } = typelessWindow as ElectronWindow;
+
+
+  return [
+    {
+      provide: ServiceBusManagementFrontendClient,
+      useFactory: () => new ServiceBusManagementFrontendClient(serviceBusApi)
+    },
+    {
+      provide: ServiceBusMessagesFrontendClient,
+      useFactory: () => new ServiceBusMessagesFrontendClient(serviceBusApi)
+    }
+  ];
+}
+
+export function provideServiceBusWebClient(baseAddress: string): (
   | Provider
   | EnvironmentProviders
   )[] {
   return [
     {
-      provide: ServiceBusManagementElectronClient,
-      useClass: ServiceBusManagementElectronClient
+      provide: ServiceBusManagementFrontendClient,
+      useFactory: () => new ServiceBusManagementFrontendClient(
+        new WebServiceBusApiHandler(baseAddress),
+      )
     },
     {
-      provide: ServiceBusMessagesElectronClient,
-      useClass: ServiceBusMessagesElectronClient
+      provide: ServiceBusMessagesFrontendClient,
+      useFactory: () => new ServiceBusMessagesFrontendClient(
+        new WebServiceBusApiHandler(baseAddress),
+      )
     }
   ];
 }

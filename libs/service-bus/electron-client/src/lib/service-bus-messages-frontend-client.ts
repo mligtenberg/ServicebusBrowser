@@ -1,26 +1,17 @@
 import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import Long from 'long';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ServiceBusApiHandler } from './service-bus-api-handler';
 
-interface ElectronWindow {
-  serviceBusApi: {
-    messagesDoRequest: (
-      requestType: string,
-      request: unknown
-    ) => Promise<unknown>;
-  };
-}
+export class ServiceBusMessagesFrontendClient {
+  constructor(private serviceBusApi: ServiceBusApiHandler) {}
 
-const typelessWindow = window as unknown;
-const { serviceBusApi } = typelessWindow as ElectronWindow;
-
-export class ServiceBusMessagesElectronClient {
   async peekMessages(
     endpoint: ReceiveEndpoint,
     maxMessageCount: number,
     fromSequenceNumber?: Long
   ) {
-    return (await serviceBusApi.messagesDoRequest('peekMessages', {
+    return (await this.serviceBusApi.messagesDoRequest('peekMessages', {
       endpoint,
       maxMessageCount,
       fromSequenceNumber: fromSequenceNumber?.toString(),
@@ -31,7 +22,7 @@ export class ServiceBusMessagesElectronClient {
     endpoint: ReceiveEndpoint,
     maxMessageCount: number,
   ) {
-    return (await serviceBusApi.messagesDoRequest('receiveMessages', {
+    return (await this.serviceBusApi.messagesDoRequest('receiveMessages', {
       endpoint,
       maxMessageCount
     })) as ServiceBusReceivedMessage[];
@@ -41,7 +32,7 @@ export class ServiceBusMessagesElectronClient {
     endpoint: SendEndpoint,
     message: ServiceBusMessage
   ) {
-    await serviceBusApi.messagesDoRequest('sendMessage', {
+    await this.serviceBusApi.messagesDoRequest('sendMessage', {
       endpoint,
       message
     });
@@ -51,7 +42,7 @@ export class ServiceBusMessagesElectronClient {
     endpoint: SendEndpoint,
     messages: ServiceBusMessage[]
   ) {
-    await serviceBusApi.messagesDoRequest('sendMessages', {
+    await this.serviceBusApi.messagesDoRequest('sendMessages', {
       endpoint,
       messages
     });
@@ -61,22 +52,22 @@ export class ServiceBusMessagesElectronClient {
     pageName: string,
     messages: ServiceBusReceivedMessage[]
   ): Promise<void> {
-    await serviceBusApi.messagesDoRequest('exportMessages', {
+    await this.serviceBusApi.messagesDoRequest('exportMessages', {
       pageName,
       messages
     });
   }
 
   async importMessages(): Promise<{ pageName: string, messages: ServiceBusReceivedMessage[] }> {
-    return await serviceBusApi.messagesDoRequest('importMessages', {}) as { pageName: string, messages: ServiceBusReceivedMessage[] };
+    return await this.serviceBusApi.messagesDoRequest('importMessages', {}) as { pageName: string, messages: ServiceBusReceivedMessage[] };
   }
 
 
   async saveFile(fileName: string, fileContent: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<boolean> {
-    return await serviceBusApi.messagesDoRequest('storeFile', { fileName, fileContent, fileTypes }) as boolean;
+    return await this.serviceBusApi.messagesDoRequest('storeFile', { fileName, fileContent, fileTypes }) as boolean;
   }
 
   async openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<{fileName: string, fileContent: string} | undefined> {
-    return await serviceBusApi.messagesDoRequest('openFile', { fileName, fileTypes }) as {fileName: string, fileContent: string} | undefined;
+    return await this.serviceBusApi.messagesDoRequest('openFile', { fileName, fileTypes }) as {fileName: string, fileContent: string} | undefined;
   }
 }

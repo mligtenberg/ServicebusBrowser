@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-electron-client';
 import { catchError, EMPTY, from, map, mergeMap, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
@@ -17,7 +17,7 @@ export class MessagesEffects {
   MAX_PAGE_SIZE = 500;
   store = inject(Store);
   actions$ = inject(Actions);
-  messagesService = inject(ServiceBusMessagesElectronClient);
+  messagesService = inject(ServiceBusMessagesFrontendClient);
 
   currentState = this.store.selectSignal(featureSelector);
 

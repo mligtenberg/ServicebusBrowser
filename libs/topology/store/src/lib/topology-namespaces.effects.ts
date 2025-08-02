@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
-import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, from, map, mergeMap } from 'rxjs';
@@ -13,7 +13,7 @@ export class TopologyNamespacesEffects implements OnInitEffects {
     return actions.loadNamespaces();
   }
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusManagementElectronClient);
+  serviceBusClient = inject(ServiceBusManagementFrontendClient);
 
   loadNamespaces$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadNamespaces),

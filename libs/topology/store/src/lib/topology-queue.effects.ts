@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { ServiceBusManagementElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-electron-client';
 import * as actions from './topology.actions';
 import * as internalActions from './topology.internal-actions';
 import { catchError, filter, from, map, mergeMap, switchMap, take } from 'rxjs';
@@ -12,7 +12,7 @@ import { MessagesActions } from '@service-bus-browser/messages-store'
 export class TopologyQueueEffects {
   store = inject(Store);
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusManagementElectronClient);
+  serviceBusClient = inject(ServiceBusManagementFrontendClient);
 
   loadQueues$ = createEffect(() => this.actions$.pipe(
     ofType(actions.loadQueues),

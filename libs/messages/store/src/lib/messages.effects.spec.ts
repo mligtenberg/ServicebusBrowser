@@ -5,7 +5,7 @@ import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { MessagesEffects } from './messages.effects';
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
-import { ServiceBusMessagesElectronClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-electron-client';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 const endpoint: ReceiveEndpoint & SendEndpoint = {
@@ -33,7 +33,7 @@ describe('MessagesEffects', () => {
       providers: [
         MessagesEffects,
         provideMockStore({}),
-        { provide: ServiceBusMessagesElectronClient, useValue: service },
+        { provide: ServiceBusMessagesFrontendClient, useValue: service },
         provideMockActions(() => actions$)
       ]
     });
