@@ -16,7 +16,7 @@ const serviceBusBrowserServer = new Server(
 
 const app = express();
 
-app.use(bp.json())
+app.use(bp.json({ limit: '10mb' }))
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.post('/api/messages/command', async (req, res) => {
