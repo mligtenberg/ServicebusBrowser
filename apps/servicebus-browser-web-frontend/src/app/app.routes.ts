@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { AboutComponent } from '@service-bus-browser/main-ui';
 
 export const appRoutes: Route[] = [
   {
@@ -12,8 +13,7 @@ export const appRoutes: Route[] = [
     }))
   },
   {
-    path: '',
-    redirectTo: 'connections',
-    pathMatch: 'full'
+    path: 'about',
+    component: AboutComponent
   }
 ];

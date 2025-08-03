@@ -4,6 +4,7 @@ import { routeFeature } from './lib/ngrx/route.store';
 import { RouterEffects } from './lib/ngrx/router.effects';
 
 export * from './lib/main-ui/main-ui';
+export * from './lib/about/about.component';
 
 export function provideMainUi() {
   return [

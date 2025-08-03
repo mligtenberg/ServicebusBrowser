@@ -33,6 +33,11 @@ export class App {
         },
       ],
     },
+    {
+      label: 'About',
+      icon: 'pi pi-info-circle',
+      routerLink: '/about',
+    }
   ];
 
   importMessages(): void {

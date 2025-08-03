@@ -12,7 +12,7 @@ interface PackageInfo {
 }
 
 @Component({
-  selector: 'app-about',
+  selector: 'lib-about',
   standalone: true,
   imports: [CommonModule, TableModule],
   templateUrl: './about.component.html',
@@ -24,7 +24,7 @@ export class AboutComponent implements OnInit {
   info = signal<{version:string; author:string; homepage:string}>({version:'', author:'', homepage:''});
 
   ngOnInit() {
-    this.http.get<PackageInfo[]>('./packages.json').subscribe(p => this.packages.set(p));
-    this.http.get<{version:string; author:string; homepage:string}>('./app-info.json').subscribe(i => this.info.set(i));
+    this.http.get<PackageInfo[]>('./assets/packages.json').subscribe(p => this.packages.set(p));
+    this.http.get<{version:string; author:string; homepage:string}>('./assets/app-info.json').subscribe(i => this.info.set(i));
   }
 }

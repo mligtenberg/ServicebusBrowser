@@ -15,15 +15,15 @@ const packages = Object.keys(deps).sort().map(name => {
   }
 });
 
-const outputDir = path.join(__dirname, '..', 'apps', 'servicebus-browser-frontend', 'public');
+const outputDir = path.join(__dirname, '..', 'assets');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 fs.writeFileSync(path.join(outputDir, 'packages.json'), JSON.stringify(packages, null, 2));
 fs.writeFileSync(
   path.join(outputDir, 'app-info.json'),
-  JSON.stringify({ 
-    version: process.env.TAG_VERSION ?? '0.0.0', 
+  JSON.stringify({
+    version: process.env.TAG_VERSION ?? '0.0.0',
     author: rootPackage.author,
     homepage: rootPackage.homepage || rootPackage.repository?.url || ''
   }, null, 2)

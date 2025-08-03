@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { AboutComponent } from '@service-bus-browser/main-ui';
 
 export const appRoutes: Route[] = [
   {
@@ -17,7 +18,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'about',
-    loadComponent: () => import('./about/about.component').then(m => m.AboutComponent)
+    component: AboutComponent
   },
   {
     path: '',
