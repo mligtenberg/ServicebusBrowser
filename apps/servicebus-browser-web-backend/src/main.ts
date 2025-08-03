@@ -16,19 +16,36 @@ const serviceBusBrowserServer = new Server(
 
 const app = express();
 
-app.use(bp.json({ limit: '10mb' }))
+app.use(bp.json({ limit: '1GB' }))
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.post('/api/messages/command', async (req, res) => {
   const request: { requestType: string, body: unknown } = req.body;
 
-  res.send(await serviceBusBrowserServer.messagesExecute(request.requestType, request.body));
+  const result = await serviceBusBrowserServer.messagesExecute(request.requestType, request.body);
+  if (result instanceof Blob) {
+    res.setHeader('Content-Type', result.type);
+    res.send(result);
+  }
+  else {
+    res.send(result);
+  }
 });
 
 app.post('/api/management/command', async (req, res) => {
   const request: { requestType: string, body: unknown } = req.body;
 
-  res.send(await serviceBusBrowserServer.managementExecute(request.requestType, request.body));
+  const result = await serviceBusBrowserServer.managementExecute(request.requestType, request.body);
+  if (result instanceof Blob) {
+    result.arrayBuffer().then((buffer) => {
+      res.setHeader('Content-Type', result.type);
+      res.setHeader('Content-Length', buffer.byteLength);
+      res.send(Buffer.from(buffer));
+    });
+  }
+  else {
+    res.send(result);
+  }
 });
 
 const port = process.env.PORT || 3333;

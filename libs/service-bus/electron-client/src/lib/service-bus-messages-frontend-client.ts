@@ -48,22 +48,11 @@ export class ServiceBusMessagesFrontendClient {
     });
   }
 
-  async exportMessages(
-    pageName: string,
-    messages: ServiceBusReceivedMessage[]
-  ): Promise<void> {
-    await this.serviceBusApi.messagesDoRequest('exportMessages', {
-      pageName,
-      messages
-    });
-  }
-
   async importMessages(): Promise<{ pageName: string, messages: ServiceBusReceivedMessage[] }> {
     return await this.serviceBusApi.messagesDoRequest('importMessages', {}) as { pageName: string, messages: ServiceBusReceivedMessage[] };
   }
 
-
-  async saveFile(fileName: string, fileContent: string, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<boolean> {
+  async saveFile(fileName: string, fileContent: string | Uint8Array, fileTypes: Array<{extensions: string[]; name: string;}>): Promise<boolean> {
     return await this.serviceBusApi.messagesDoRequest('storeFile', { fileName, fileContent, fileTypes }) as boolean;
   }
 

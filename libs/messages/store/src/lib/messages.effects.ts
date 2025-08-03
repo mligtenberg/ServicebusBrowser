@@ -1,14 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-electron-client';
-import { catchError, EMPTY, from, map, mergeMap, switchMap } from 'rxjs';
+import { catchError, EMPTY, from, map, mergeMap, switchMap, tap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 import Long from 'long';
-import { featureSelector } from './messages.feature-selector';
 import { clearedEndpoint } from './messages.actions';
+import { FilesService } from '@service-bus-browser/services';
+import { makeZipFile } from './make-zip-file.func';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +19,7 @@ export class MessagesEffects {
   store = inject(Store);
   actions$ = inject(Actions);
   messagesService = inject(ServiceBusMessagesFrontendClient);
-
-  currentState = this.store.selectSignal(featureSelector);
+  fileService = inject(FilesService);
 
   loadPeekQueueMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.peekMessages),
@@ -171,7 +171,12 @@ export class MessagesEffects {
   exportMessages$ = createEffect(() => this.actions$.pipe(
     ofType(actions.exportMessages),
     mergeMap(({ pageName, messages }) =>
-      from(this.messagesService.exportMessages(pageName, messages)).pipe(
+      from(makeZipFile(messages)).pipe(
+        switchMap((blob) => from(this.fileService.saveFile(
+          `${pageName}.zip`,
+          blob,
+          [{ name: 'Zip files', extensions: ['zip'] }]
+        ))),
         map(() => internalActions.messagesExported()),
         catchError(() => [internalActions.messagesExportFailed()])
       )

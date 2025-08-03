@@ -9,7 +9,6 @@ import { MessagesLogsEffects } from './lib/messages-logs.effects';
 import * as actions from './lib/messages.actions';
 import * as selectors from './lib/messages.selectors';
 import { MessagesToastsEffects } from './lib/messages-toasts.effects';
-
 export const MessagesActions = actions;
 export const MessagesSelectors = selectors;
 
@@ -24,6 +23,6 @@ export function provideMessagesState(): (
       MessagesTasksEffects,
       MessagesLogsEffects,
       MessagesToastsEffects
-    ])
+    ]),
   ];
 }
