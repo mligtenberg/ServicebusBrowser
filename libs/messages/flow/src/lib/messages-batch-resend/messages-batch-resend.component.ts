@@ -145,11 +145,11 @@ export class MessagesBatchResendComponent {
         extensions: ['actionlist'],
         name: 'Action List',
       },
-    ]);
+    ], 'text');
 
     if (!file) return;
 
-    const actionContainer = JSON.parse(file.fileContent) as {
+    const actionContainer = JSON.parse(file) as {
       verion: number;
       actions: Action[];
     };
@@ -162,7 +162,7 @@ export class MessagesBatchResendComponent {
       actions: this.actions(),
     };
 
-    await this.fileService.saveFile('export', JSON.stringify(actionContainer), [
+    await this.fileService.saveFile('export.actionlist', JSON.stringify(actionContainer), [
       {
         extensions: ['actionlist'],
         name: 'Action List',
