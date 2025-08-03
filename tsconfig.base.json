@@ -50,8 +50,8 @@
       "@service-bus-browser/service-bus-contracts": [
         "libs/service-bus/contracts/src/index.ts"
       ],
-      "@service-bus-browser/service-bus-electron-client": [
-        "libs/service-bus/electron-client/src/index.ts"
+      "@service-bus-browser/service-bus-frontend-clients": [
+        "libs/service-bus/frontend-clients/src/index.ts"
       ],
       "@service-bus-browser/service-bus-server": [
         "libs/service-bus/server/src/index.ts"

@@ -5,15 +5,18 @@ import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { MessagesEffects } from './messages.effects';
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
-import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-electron-client';
-import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import {
+  ReceiveEndpoint,
+  SendEndpoint,
+} from '@service-bus-browser/service-bus-contracts';
 
 const endpoint: ReceiveEndpoint & SendEndpoint = {
-  connectionId: "00000000-0000-0000-0000-000000000001",
+  connectionId: '00000000-0000-0000-0000-000000000001',
   queueName: 'test-queue',
   channel: undefined as any,
-  endpoint: "",
-  endpointDisplay: ""
+  endpoint: '',
+  endpointDisplay: '',
 };
 
 const message = { body: 'a' } as any;
@@ -26,7 +29,7 @@ describe('MessagesEffects', () => {
   beforeEach(() => {
     Object.defineProperty(globalThis, 'crypto', {
       value: { randomUUID: () => '00000000-0000-0000-0000-000000000002' },
-      configurable: true
+      configurable: true,
     });
     service = { sendMessage: jest.fn() };
     TestBed.configureTestingModule({
@@ -34,8 +37,8 @@ describe('MessagesEffects', () => {
         MessagesEffects,
         provideMockStore({}),
         { provide: ServiceBusMessagesFrontendClient, useValue: service },
-        provideMockActions(() => actions$)
-      ]
+        provideMockActions(() => actions$),
+      ],
     });
     effects = TestBed.inject(MessagesEffects);
   });
@@ -44,13 +47,15 @@ describe('MessagesEffects', () => {
     actions$ = new ReplaySubject(1);
     actions$.next(actions.peekMessages({ endpoint, maxAmount: 5 }));
     const result = await firstValueFrom(effects.loadPeekQueueMessages$);
-    expect(result).toEqual(internalActions.peekMessagesLoad({
-      pageId: '00000000-0000-0000-0000-000000000002',
-      endpoint,
-      maxAmount: 5,
-      alreadyLoadedAmount: 0,
-      fromSequenceNumber: '0'
-    }));
+    expect(result).toEqual(
+      internalActions.peekMessagesLoad({
+        pageId: '00000000-0000-0000-0000-000000000002',
+        endpoint,
+        maxAmount: 5,
+        alreadyLoadedAmount: 0,
+        fromSequenceNumber: '0',
+      })
+    );
   });
 
   it('emits send success', async () => {
@@ -58,7 +63,9 @@ describe('MessagesEffects', () => {
     actions$ = new ReplaySubject(1);
     actions$.next(actions.sendMessage({ endpoint, message }));
     const result = await firstValueFrom(effects.sendMessage$);
-    expect(result).toEqual(internalActions.sendedMessage({ endpoint, message }));
+    expect(result).toEqual(
+      internalActions.sendedMessage({ endpoint, message })
+    );
   });
 
   it('emits send failed', async () => {
@@ -66,6 +73,8 @@ describe('MessagesEffects', () => {
     actions$ = new ReplaySubject(1);
     actions$.next(actions.sendMessage({ endpoint, message }));
     const result = await firstValueFrom(effects.sendMessage$);
-    expect(result).toEqual(internalActions.messageSendFailed({ endpoint, message }));
+    expect(result).toEqual(
+      internalActions.messageSendFailed({ endpoint, message })
+    );
   });
 });

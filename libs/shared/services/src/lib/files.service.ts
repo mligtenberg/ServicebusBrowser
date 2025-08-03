@@ -1,14 +1,18 @@
 import { inject, Injectable } from '@angular/core';
-import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-electron-client';
+import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { saveAs } from 'file-saver';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FilesService {
   electronClient = inject(ServiceBusMessagesFrontendClient);
 
-  async saveFile(fileName: string, content: string | Uint8Array, fileTypes: Array<{extensions: string[]; name: string;}>) {
+  async saveFile(
+    fileName: string,
+    content: string | Uint8Array,
+    fileTypes: Array<{ extensions: string[]; name: string }>
+  ) {
     if ('electron' in window) {
       // Electron is available, use the electron client
       await this.electronClient.saveFile(fileName, content, fileTypes);
@@ -20,14 +24,23 @@ export class FilesService {
     saveAs(blob, fileName);
   }
 
-  openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>, type: 'binary'): Promise<ArrayBuffer>
-  openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>, type: 'text'): Promise<string>
-  openFile(fileName: string, fileTypes: Array<{extensions: string[]; name: string;}>, type: 'text' | 'binary'): Promise<string | ArrayBuffer> {
-   // return await this.electronClient.openFile(fileName, fileTypes);
-    return new Promise<string | ArrayBuffer>((resolve, reject) => {
+  openFile(
+    fileTypes: Array<{ extensions: string[]; name: string }>,
+    type: 'binary'
+  ): Promise<{ fileName: string, contents: ArrayBuffer}>;
+  openFile(
+    fileTypes: Array<{ extensions: string[]; name: string }>,
+    type: 'text'
+  ): Promise<{ fileName: string, contents: string}>;
+  openFile(
+    fileTypes: Array<{ extensions: string[]; name: string }>,
+    type: 'text' | 'binary'
+  ): Promise<{ fileName: string, contents: string | ArrayBuffer}> {
+    return new Promise<{ fileName: string, contents: string | ArrayBuffer}>((resolve, reject) => {
       const input = document.createElement('input');
       input.type = 'file';
       input.style.display = 'none';
+      input.accept = fileTypes.map((ft) => `.${ft.extensions.join(', .')}`).join(', ');
 
       input.addEventListener('change', () => {
         if (input.files && input.files.length > 0) {
@@ -40,7 +53,7 @@ export class FilesService {
               return;
             }
 
-            resolve(e.target.result);
+            resolve({ fileName: file.name, contents: e.target.result as string | ArrayBuffer });
           };
 
           reader.onerror = (err) => {

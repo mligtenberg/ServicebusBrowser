@@ -1,5 +1,5 @@
 {
-  "name": "@service-bus-browser/service-bus-electron-client",
+  "name": "@service-bus-browser/service-bus-frontend-clients",
   "version": "0.0.1",
   "dependencies": {},
   "private": true

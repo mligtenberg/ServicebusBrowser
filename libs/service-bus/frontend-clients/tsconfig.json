@@ -8,9 +8,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noPropertyAccessFromIndexSignature": true,
-    "typeRoots": [
-      "./src/types"
-    ]
+    "typeRoots": ["./src/types"]
   },
   "files": [],
   "include": [],

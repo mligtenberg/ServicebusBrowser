@@ -140,7 +140,7 @@ export class MessagesBatchResendComponent {
   }
 
   async importActions() {
-    const file = await this.fileService.openFile('', [
+    const file = await this.fileService.openFile([
       {
         extensions: ['actionlist'],
         name: 'Action List',
@@ -149,7 +149,7 @@ export class MessagesBatchResendComponent {
 
     if (!file) return;
 
-    const actionContainer = JSON.parse(file) as {
+    const actionContainer = JSON.parse(file.contents) as {
       verion: number;
       actions: Action[];
     };

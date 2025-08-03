@@ -1,7 +1,7 @@
 {
-  "name": "@service-bus-browser/service-bus-electron-client",
+  "name": "@service-bus-browser/service-bus-frontend-clients",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/service-bus/electron-client/src",
+  "sourceRoot": "libs/service-bus/frontend-clients/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,7 +9,7 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/service-bus/electron-client/jest.config.ts"
+        "jestConfig": "libs/service-bus/frontend-clients/jest.config.ts"
       }
     }
   }
