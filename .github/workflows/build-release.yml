@@ -203,11 +203,6 @@ jobs:
         with:
           name: linux-release
           path: linux
-      - name: Download Web Build
-        uses: actions/download-artifact@v4
-        with:
-          name: web-release
-          path: web
       - name: Display structure of downloaded files
         run: ls -R
       - name: prepare resource folder
@@ -217,7 +212,6 @@ jobs:
             cp "linux/Servicebus browser.AppImage" "release/servicebus-browser-linux.AppImage"
             cp "mac/Servicebus browser.dmg" "release/servicebus-browser-mac-arm64.dmg"
             cp "mac/Servicebus browser.zip" "release/servicebus-browser-mac-arm64.zip"
-            cp "web/servicebusbrowser-container.tar" "release/servicebusbrowser-container.tar"
 
       - uses: ncipollo/release-action@v1
         with:
