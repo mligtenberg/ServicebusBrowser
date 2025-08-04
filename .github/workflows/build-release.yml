@@ -35,6 +35,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
       - run: pnpm exec nx run servicebus-browser-web-frontend:build:production
       - run: pnpm exec nx run servicebus-browser-web-backend:build:production
+      - run: mkdir -p dist/zip
       - run: zip -r dist/zip/servicebus-browser-web-frontend.zip dist/apps/servicebus-browser-web-frontend
       - run: zip -r dist/zip/servicebus-browser-web-backend.zip dist/apps/servicebus-browser-web-backend
       - name: Publish
