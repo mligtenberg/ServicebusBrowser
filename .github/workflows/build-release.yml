@@ -35,16 +35,13 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
       - run: pnpm exec nx run servicebus-browser-web-frontend:build:production
       - run: pnpm exec nx run servicebus-browser-web-backend:build:production
-      - run: mkdir -p dist/zip
-      - run: zip -r ../../../zip/servicebus-browser-web-frontend.zip .
-        working-directory: dist/apps/browser-web-frontend/browser
-      - run: zip -r ../../zip/servicebus-browser-web-backend.zip servicebus-browser-web-backend
-        working-directory: dist/apps/browser-web-backend
-      - name: Publish
+      - run: docker build -t ghostkeepr/servicebusbrowser:${{ github.event.inputs.tagVersion }} -f Dockerfile .
+      - run: docker save -o dist/servicebusbrowser-container.tar ghostkeepr/servicebusbrowser:${{ github.event.inputs.tagVersion }}
+      - name: Publish release as artifect
         uses: actions/upload-artifact@v4
         with:
           name: web-release
-          path: dist/zip
+          path: dist
 
   linuxBuild:
     runs-on: ubuntu-latest
@@ -186,8 +183,7 @@ jobs:
             cp "linux/Servicebus browser.AppImage" "release/servicebus-browser-linux.AppImage"
             cp "mac/Servicebus browser.dmg" "release/servicebus-browser-mac-arm64.dmg"
             cp "mac/Servicebus browser.zip" "release/servicebus-browser-mac-arm64.zip"
-            cp "web/servicebus-browser-web-frontend.zip" "release/servicebus-browser-web-frontend.zip"
-            cp "web/servicebus-browser-web-backend.zip" "release/servicebus-browser-web-backend.zip"
+            cp "web/servicebusbrowser-container.tar" "release/servicebusbrowser-container.tar"
 
       - uses: ncipollo/release-action@v1
         with:
