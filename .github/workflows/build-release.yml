@@ -16,6 +16,33 @@ permissions:
   contents: read
 
 jobs:
+  webBuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - uses: nrwl/nx-set-shas@v4
+      - run: pnpm exec nx run servicebus-browser-web-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-web-backend:build:production
+      - run: zip -r dist/zip/servicebus-browser-web-frontend.zip dist/apps/servicebus-browser-web-frontend
+      - run: zip -r dist/zip/servicebus-browser-web-backend.zip dist/apps/servicebus-browser-web-backend
+      - name: Publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: dist/zip
+
   linuxBuild:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +66,8 @@ jobs:
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
-      - run: pnpm exec nx run-many -t build --configuration=production
+      - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-app:build:production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
@@ -71,7 +99,8 @@ jobs:
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
-      - run: pnpm exec nx run-many -t build --configuration=production
+      - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-app:build:production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
         uses: actions/upload-artifact@v4
@@ -102,7 +131,8 @@ jobs:
         env:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
-      - run: pnpm exec nx run-many -t build --configuration=production
+      - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-app:build:production
       - name: Build executable
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -139,6 +169,11 @@ jobs:
         with:
           name: linux-release
           path: linux
+      - name: Download Web Build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-release
+          path: web
       - name: Display structure of downloaded files
         run: ls -R
       - name: prepare resource folder
@@ -148,6 +183,8 @@ jobs:
             cp "linux/Servicebus browser.AppImage" "release/servicebus-browser-linux.AppImage"
             cp "mac/Servicebus browser.dmg" "release/servicebus-browser-mac-arm64.dmg"
             cp "mac/Servicebus browser.zip" "release/servicebus-browser-mac-arm64.zip"
+            cp "web/servicebus-browser-web-frontend.zip" "release/servicebus-browser-web-frontend.zip"
+            cp "web/servicebus-browser-web-backend.zip" "release/servicebus-browser-web-backend.zip"
 
       - uses: ncipollo/release-action@v1
         with:
