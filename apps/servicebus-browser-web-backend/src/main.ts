@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import * as path from 'path';
 import { Server } from '@service-bus-browser/service-bus-server';
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 import { ReadonlyConfigFileConnectionStorage } from './readonly-config-file-connection-store';
@@ -16,7 +17,8 @@ const serviceBusBrowserServer = new Server(
 
 const app = express();
 
-app.use(bp.json())
+app.use(bp.json());
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.get('/api/client-config', (req, res) => {
   res.status(200).json({
