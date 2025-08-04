@@ -1,0 +1,9 @@
+.name-button {
+  --p-button-label-font-weight: normal;
+}
+
+::ng-deep {
+  .p-button-label {
+    font-size: 0.9em;
+  }
+}

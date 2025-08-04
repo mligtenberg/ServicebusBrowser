@@ -9,6 +9,7 @@ import { Server } from '@service-bus-browser/service-bus-server';
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 import { ReadonlyConfigFileConnectionStorage } from './readonly-config-file-connection-store';
 import bp from 'body-parser';
+import { EXPECTED_AUDIENCE, OIDC_ISSUER, validateJWT } from './validate-tokens';
 
 const serviceBusBrowserServer = new Server(
   new ConnectionManager(new ReadonlyConfigFileConnectionStorage())
@@ -16,10 +17,23 @@ const serviceBusBrowserServer = new Server(
 
 const app = express();
 
-app.use(bp.json({ limit: '1GB' }))
+app.use(bp.json())
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+app.get('/api/client-config', (req, res) => {
+  res.status(200).json({
+    clientId: EXPECTED_AUDIENCE,
+    authority: OIDC_ISSUER,
+  })
+});
+
 app.post('/api/messages/command', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token || !(await validateJWT(token))) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   const request: { requestType: string, body: unknown } = req.body;
 
   const result = await serviceBusBrowserServer.messagesExecute(request.requestType, request.body);
@@ -33,6 +47,12 @@ app.post('/api/messages/command', async (req, res) => {
 });
 
 app.post('/api/management/command', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token || !(await validateJWT(token))) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
   const request: { requestType: string, body: unknown } = req.body;
 
   const result = await serviceBusBrowserServer.managementExecute(request.requestType, request.body);

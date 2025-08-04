@@ -8,10 +8,7 @@ import { Namespace } from '@service-bus-browser/topology-contracts';
 import { Action } from '@ngrx/store';
 
 @Injectable()
-export class TopologyNamespacesEffects implements OnInitEffects {
-  ngrxOnInitEffects(): Action {
-    return actions.loadNamespaces();
-  }
+export class TopologyNamespacesEffects {
   actions$ = inject(Actions);
   serviceBusClient = inject(ServiceBusManagementFrontendClient);
 

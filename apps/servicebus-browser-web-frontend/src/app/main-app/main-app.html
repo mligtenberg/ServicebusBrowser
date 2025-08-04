@@ -1,0 +1,17 @@
+<lib-main-ui
+  [menuItems]="menuItems"
+>
+  <ng-template #menuEnd>
+    <div class="account">
+      <p-button
+        [text]="true"
+        class="name-button"
+        severity="secondary"
+        icon="pi pi-user"
+        [label]="userName()"
+        (click)="accountMenu.toggle($event)"/>
+
+      <p-menu #accountMenu [model]="accountMenuItems" [popup]="true" />
+    </div>
+  </ng-template>
+</lib-main-ui>

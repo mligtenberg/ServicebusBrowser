@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { Component, contentChild, effect, inject, input, signal, TemplateRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
@@ -18,7 +18,7 @@ import { selectRoute } from '../ngrx/route.selectors';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 
 interface ElectronWindow {
   electron?: {
@@ -43,6 +43,7 @@ interface ElectronWindow {
     Toast,
     Button,
     NgClass,
+    NgTemplateOutlet,
   ],
   selector: 'lib-main-ui',
   templateUrl: './main-ui.html',
@@ -52,6 +53,9 @@ export class MainUiComponent {
   title = 'servicebus-browser-frontend';
   electronWindowControlSpacing = input<boolean>(false);
   useLowProfileMenu = input<boolean>(false);
+
+  menuEnd = contentChild('menuEnd', { read: TemplateRef });
+  menuStart = contentChild('menuStart', { read: TemplateRef });
 
   menuItems = input.required<MenuItem[]>();
 

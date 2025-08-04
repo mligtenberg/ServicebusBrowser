@@ -1,4 +1,21 @@
-<p-menubar class="main-menu" [model]="menuItems()" breakpoint="100px" [ngClass]="{windowControlSpacing: electronWindowControlSpacing(), useLowProfileMenu: useLowProfileMenu() }" />
+<p-menubar
+  class="main-menu"
+  [model]="menuItems()"
+  breakpoint="10px"
+  [ngClass]="{windowControlSpacing: electronWindowControlSpacing(), useLowProfileMenu: useLowProfileMenu() }"
+>
+  <ng-template #start>
+    @if (menuStart(); as ref) {
+      <ng-container *ngTemplateOutlet="ref"></ng-container>
+    }
+  </ng-template>
+
+  <ng-template #end>
+    @if (menuEnd(); as ref) {
+      <ng-container *ngTemplateOutlet="ref"></ng-container>
+    }
+  </ng-template>
+</p-menubar>
 <p-splitter [panelSizes]="[25,75]" class="main-splitter">
   <ng-template pTemplate>
     <div class="sidebar">

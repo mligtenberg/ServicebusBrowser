@@ -1,0 +1,8 @@
+<p-card header="Sign In Failed">
+  <p>There was an error while trying to sign in.</p>
+  <p>Please try again later or contact your administrator if the problem persists.</p>
+  @if (error(); as msalError) {
+    <p class="error-message">{{ msalError.message }}</p>
+  }
+  <a routerLink="/" pButton>Go back</a>
+</p-card>

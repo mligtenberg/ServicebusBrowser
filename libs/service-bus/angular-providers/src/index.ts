@@ -1,10 +1,11 @@
-import { EnvironmentProviders, Provider } from '@angular/core';
+import { EnvironmentProviders, inject, Provider } from '@angular/core';
 import {
   ServiceBusManagementFrontendClient,
   ServiceBusMessagesFrontendClient,
   ServiceBusApiHandler,
 } from '@service-bus-browser/service-bus-frontend-clients';
 import { WebServiceBusApiHandler } from './web-service-bus-api-handler';
+import { HttpClient } from '@angular/common/http';
 
 export function provideServiceBusElectronClient(): (
   | Provider
@@ -34,18 +35,19 @@ export function provideServiceBusWebClient(
 ): (Provider | EnvironmentProviders)[] {
   return [
     {
-      provide: ServiceBusManagementFrontendClient,
+      provide: WebServiceBusApiHandler,
       useFactory: () =>
-        new ServiceBusManagementFrontendClient(
-          new WebServiceBusApiHandler(baseAddress)
-        ),
+        new WebServiceBusApiHandler(baseAddress, inject(HttpClient)),
+    },
+    {
+      provide: ServiceBusManagementFrontendClient,
+      useClass: ServiceBusManagementFrontendClient,
+      deps: [WebServiceBusApiHandler]
     },
     {
       provide: ServiceBusMessagesFrontendClient,
-      useFactory: () =>
-        new ServiceBusMessagesFrontendClient(
-          new WebServiceBusApiHandler(baseAddress)
-        ),
+      useClass: ServiceBusMessagesFrontendClient,
+      deps: [WebServiceBusApiHandler]
     },
   ];
 }
