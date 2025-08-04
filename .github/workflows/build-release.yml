@@ -150,7 +150,7 @@ jobs:
   createRelease:
     name: Create the release
     runs-on: ubuntu-latest
-    needs: [windowsBuild, linuxBuild, macBuild]
+    needs: [webBuild, windowsBuild, linuxBuild, macBuild]
     permissions:
       contents: write
     steps:
