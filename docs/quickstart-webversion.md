@@ -12,6 +12,68 @@ To do this:
 - Select the link under the "Managed application in local directory" header
 - In the "Properties" section, set "User assignment required?" to "Yes"
 
-## deploy to azure
-TODO, add a link to the deployment script
-![Deploy to Azure](https://aka.ms/deploytoazurebutton)
+## Configure the app
+create a file called `sbb-connections.json`, this file contains a array with the connections provided in the web ui
+the different connections types are:
+connection string:
+```json
+[
+  {
+    "id": "<GUID>",
+    "type": "connectionString",
+    "name": "<NAME>",
+    "connectionString": "<CONNECTION_STRING>"
+  }
+]
+```
+
+Service principal client secret:
+```json
+[
+  {
+    "id": "<GUID>",
+    "type": "ServicePrincipalClientSecret",
+    "name": "<NAME>",
+    "fullyQualifiedNamespace": "<NAMESPACE>",
+    "clientId": "<CLIENT_ID>",
+    "clientSecret": "<CLIENT_SECRET>",
+    "tenantId": "<TENANT_ID>",
+    "authority": "<AUTHORITY>"
+  }
+]
+```
+
+System assigned managed identity:
+```json
+[
+  {
+    "id": "<GUID>",
+    "type": "systemAssignedManagedIdentity",
+    "name": "<NAME>",
+    "fullyQualifiedNamespace": "<NAMESPACE>"
+  }
+]
+```
+
+User assigned managed identity:
+```json
+[
+  {
+    "id": "<GUID>",
+    "type": "userAssignedManagedIdentity",
+    "name": "<NAME>",
+    "fullyQualifiedNamespace": "<NAMESPACE>",
+    "clientId": "<CLIENT_ID>"
+  }
+]
+```
+
+## run the application
+To run the web version run the following docker command:
+```bash
+docker run -p 8080:80\
+  -e "EXPECTED_AUDIENCE=<clientId>"\
+  -e "OIDC_ISSUER=<AUTHORITY>"\
+  --mount type=bind,src=./sbb-connections.json,dst=/app/sbb-connections.json\
+  ghcr.io/mligtenberg/servicebusbrowser:main
+```
