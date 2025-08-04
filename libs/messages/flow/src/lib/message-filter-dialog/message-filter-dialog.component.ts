@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, linkedSignal, model, output } from '@angular/core';
+import { Component, computed, input, linkedSignal, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
@@ -17,7 +17,7 @@ import {
   BodyFilter
 } from '@service-bus-browser/messages-contracts';
 import { Select, SelectModule } from 'primeng/select';
-import { MessageFilterService } from '../message-filter/message-filter.service';
+import { filterIsValid } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-message-filter-dialog',
@@ -40,14 +40,13 @@ import { MessageFilterService } from '../message-filter/message-filter.service';
   styleUrls: ['./message-filter-dialog.component.scss'],
 })
 export class MessageFilterDialogComponent {
-  filterService = inject(MessageFilterService);
 
   visible = model<boolean>(false);
   filters = input.required<MessageFilter>();
   currentFilters = linkedSignal(this.filters);
   shadowCurrentFilters = linkedSignal(this.currentFilters);
   isFilterValid = computed(() => {
-    return this.filterService.filterIsValid(this.shadowCurrentFilters());
+    return filterIsValid(this.shadowCurrentFilters());
   })
   filtersUpdated = output<MessageFilter>();
 

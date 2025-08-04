@@ -96,6 +96,12 @@ export const logsReducer = createReducer(
       ...state,
       messageForBatchResend: messages
     }
+  }),
+  on(actions.setPageFilter, (state, { pageId, filter }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, filter } : page)
+    }
   })
 );
 

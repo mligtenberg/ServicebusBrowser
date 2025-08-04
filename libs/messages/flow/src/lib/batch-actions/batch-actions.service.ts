@@ -15,12 +15,10 @@ import {
   RemoveAction,
   ServiceBusMessage
 } from '@service-bus-browser/messages-contracts';
-import { MessageFilterService } from '../message-filter/message-filter.service';
+import { messageInFilter } from '@service-bus-browser/filtering';
 
 @Injectable()
 export class BatchActionsService {
-  filterService = inject(MessageFilterService);
-
   applyBatchActions<T extends ServiceBusMessage>(messages: T[], actions: Action[]): T[] {
     let modifiedMessages = messages;
     modifiedMessages = modifiedMessages.map(message => this.applyBatchActionsToMessage(message, actions));
@@ -38,7 +36,7 @@ export class BatchActionsService {
 
 
   public applyBatchAction<T extends ServiceBusMessage>(message: T, action: Action) {
-    if (action.applyOnFilter && !this.filterService.messageInFilter(message, action.applyOnFilter)) {
+    if (action.applyOnFilter && !messageInFilter(message, action.applyOnFilter)) {
       return message;
     }
 

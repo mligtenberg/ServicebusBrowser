@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import { MessageFilter, ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 
 export const peekMessages = createAction(
   '[Messages] peek messages',
@@ -76,3 +76,11 @@ export const setBatchResendMessages = createAction(
     messages: ServiceBusReceivedMessage[]
   }>()
 )
+
+export const setPageFilter = createAction(
+  '[Messages] set page filter',
+  props<{
+    pageId: UUID,
+    filter: MessageFilter
+  }>()
+);

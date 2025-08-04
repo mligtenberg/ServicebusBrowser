@@ -28,8 +28,8 @@ import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topolog
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Menu } from 'primeng/menu';
 import { MessageFilterDialogComponent } from '../message-filter-dialog/message-filter-dialog.component';
-import { MessageFilterService } from '../message-filter/message-filter.service';
 import { Tooltip } from 'primeng/tooltip';
+import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-messages-page',
@@ -49,7 +49,6 @@ import { Tooltip } from 'primeng/tooltip';
     MessageFilterDialogComponent,
     Tooltip,
   ],
-  providers: [MessageFilterService],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
 })
@@ -58,7 +57,6 @@ export class MessagesPageComponent {
   store = inject(Store);
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
-  messageFilterService = inject(MessageFilterService);
 
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
@@ -72,15 +70,18 @@ export class MessagesPageComponent {
     const filter = this.messageFilter();
     const messages = page.messages;
 
-    return this.messageFilterService.filterMessages(messages, filter);
+    return filterMessages(messages, filter);
   });
   selection = model<ServiceBusReceivedMessage[] | undefined>(undefined);
   menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
-  messageFilter = signal<MessageFilter>({
-    systemProperties: [],
-    applicationProperties: [],
-    body: [],
-  });
+  messageFilter = computed(() => {
+    const currentPage = this.currentPage();
+    return currentPage?.filter ?? {
+      systemProperties: [],
+      applicationProperties: [],
+      body: [],
+    };
+  })
   totalMessageCount = computed(() => this.currentPage()?.messages.length ?? 0);
   filteredMessageCount = computed(() => this.filteredMessages().length);
   filteredPercentage = computed(() => {
@@ -88,7 +89,7 @@ export class MessagesPageComponent {
     return total ? (this.filteredMessageCount() / total) * 100 : 0;
   });
   hasActiveFilters = computed(() => {
-    return this.messageFilterService.hasActiveFilters(this.messageFilter());
+    return hasActiveFilterFunc(this.messageFilter());
   });
   selectedMessage = computed(() => {
     const selection = this.selection();
@@ -361,14 +362,20 @@ export class MessagesPageComponent {
   }
 
   onFiltersUpdated(filter: MessageFilter) {
-    this.messageFilter.set(filter);
+    this.store.dispatch(MessagesActions.setPageFilter({
+      pageId: this.currentPage()!.id,
+      filter: filter,
+    }));
   }
 
   clearFilters() {
-    this.messageFilter.set({
-      systemProperties: [],
-      applicationProperties: [],
-      body: [],
-    });
+    this.store.dispatch(MessagesActions.setPageFilter({
+      pageId: this.currentPage()!.id,
+      filter: {
+        systemProperties: [],
+        applicationProperties: [],
+        body: [],
+      },
+    }));
   }
 }

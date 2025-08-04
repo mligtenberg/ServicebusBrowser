@@ -14,7 +14,7 @@ import { AddActionBodyComponent } from '../add-action-body/add-action-body.compo
 import { AlterActionBodyComponent } from '../alter-action-body/alter-action-body.component';
 import { RemoveActionBodyComponent } from '../remove-action-body/remove-action-body.component';
 import { MessageFilterDialogComponent } from '../../../message-filter-dialog/message-filter-dialog.component';
-import { MessageFilterService } from '../../../message-filter/message-filter.service';
+import { hasActiveFilters } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-action',
@@ -68,8 +68,6 @@ export class ActionComponent {
     }
   });
 
-  messageFilterService = inject(MessageFilterService);
-
   currentActionType = model<BatchActionType>();
   target = model<BatchActionTarget>();
   action = model<Action>();
@@ -90,7 +88,7 @@ export class ActionComponent {
     })
   }
 
-  isFilterActive = computed(() => this.messageFilterService.hasActiveFilters(this.messageFilter()));
+  isFilterActive = computed(() => hasActiveFilters(this.messageFilter()));
 
   constructor() {
     effect(() => {

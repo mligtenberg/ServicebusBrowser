@@ -1,7 +1,6 @@
 import { createSelector } from '@ngrx/store';
 import { featureSelector } from './messages.feature-selector';
 
-
 export const selectPages = createSelector(
   featureSelector,
   (state) => state.receivedMessages.map(
