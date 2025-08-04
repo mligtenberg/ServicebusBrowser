@@ -41,9 +41,12 @@ A modern, cross-platform desktop tool for managing Azure Service Bus resources. 
 
 ## Installation
 
-### Download Installer
+### Download Installer - Desktop
 - Get the latest Windows, Linux, or macOS installer from the [Releases page](https://github.com/mligtenberg/ServicebusBrowser/releases)
 
+### Web app
+- for a guide on how to use the web version, see [docs/quickstart-webversion.md](docs/quickstart-webversion.md)
+- 
 ### Manual Build (Release)
 **Requirements:**
 - Node.js v22
