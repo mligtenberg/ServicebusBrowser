@@ -36,8 +36,10 @@ jobs:
       - run: pnpm exec nx run servicebus-browser-web-frontend:build:production
       - run: pnpm exec nx run servicebus-browser-web-backend:build:production
       - run: mkdir -p dist/zip
-      - run: zip -r dist/zip/servicebus-browser-web-frontend.zip dist/apps/servicebus-browser-web-frontend
-      - run: zip -r dist/zip/servicebus-browser-web-backend.zip dist/apps/servicebus-browser-web-backend
+      - run: zip -r ../zip/servicebus-browser-web-frontend.zip servicebus-browser-web-frontend
+        working-directory: dist/apps
+      - run: zip -r ../zip/servicebus-browser-web-backend.zip servicebus-browser-web-backend
+        working-directory: dist/apps
       - name: Publish
         uses: actions/upload-artifact@v4
         with:
