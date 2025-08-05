@@ -46,7 +46,7 @@ A modern, cross-platform desktop tool for managing Azure Service Bus resources. 
 
 ### Web app
 - for a guide on how to use the web version, see [docs/quickstart-webversion.md](docs/quickstart-webversion.md)
-- 
+  
 ### Manual Build (Release)
 **Requirements:**
 - Node.js v22
