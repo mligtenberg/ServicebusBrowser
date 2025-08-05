@@ -4,7 +4,7 @@
 create a new app registration in the Azure portal with the following settings:
 - Authentication:
   - platform type: Single-page application
-  - Redirect URI: `https://<service-bus-browser-hostname`
+  - Redirect URI: `https://<service-bus-browser-hostname>`
 
 It is recommended to enable the "assignment required" in the connected enterprise applications settings.
 To do this:
