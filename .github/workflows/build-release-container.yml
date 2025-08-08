@@ -2,13 +2,6 @@ name: Build and Release Servicebus Browser container
 
 on:
   workflow_dispatch:
-    inputs:
-      releaseTitle:
-        description: "Release title"
-        required: true
-      tagVersion:
-        description: "Tag version"
-        required: true
 
 
 permissions:
