@@ -82,7 +82,7 @@
     "@types/node": "~22.13.14",
     "@typescript-eslint/utils": "^8.34.1",
     "angular-eslint": "20.1.1",
-    "electron": "^33.4.11",
+    "electron": "^35.7.5",
     "electron-builder": "^25.1.8",
     "electron-devtools-installer": "^4.0.0",
     "eslint": "^9.29.0",
