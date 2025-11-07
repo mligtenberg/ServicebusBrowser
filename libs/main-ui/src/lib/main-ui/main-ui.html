@@ -32,12 +32,18 @@
               <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closePage(page.id, $event)" class="close-button"></p-button>
             </p-tab>
           }
-          <p-tab [value]="'/messages/send'" [routerLink]="'/messages/send'">
-            <span>Send Message</span>
-          </p-tab>
-          <p-tab [value]="'/messages/batch-resend'" [routerLink]="'/messages/batch-resend'">
-            <span>Batch Resend</span>
-          </p-tab>
+          @for (page of sendMessagePages(); track page.id) {
+            <p-tab [value]="'/messages/send/' + page.id" [routerLink]="'/messages/send/' + page.id">
+              <span>{{ page.name }}</span>
+              <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closeSendMessagePage(page.id, $event)" class="close-button"></p-button>
+            </p-tab>
+          }
+          @for (page of batchResendPages(); track page.id) {
+            <p-tab [value]="'/messages/batch-resend/' + page.id" [routerLink]="'/messages/batch-resend/' + page.id">
+              <span>{{ page.name }}</span>
+              <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closeBatchResendPage(page.id, $event)" class="close-button"></p-button>
+            </p-tab>
+          }
         </p-tablist>
       </p-tabs>
       <div class="router-outlet">

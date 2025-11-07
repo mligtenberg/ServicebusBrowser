@@ -66,6 +66,8 @@ export class MainUiComponent {
   currentRoute = this.store.selectSignal(selectRoute);
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
   messagePages = this.store.selectSignal(MessagesSelectors.selectPages);
+  sendMessagePages = this.store.selectSignal(MessagesSelectors.selectSendMessagePages);
+  batchResendPages = this.store.selectSignal(MessagesSelectors.selectBatchResendPages);
   darkMode = this.themeService.darkMode;
 
   toggleLogs() {
@@ -74,6 +76,16 @@ export class MainUiComponent {
 
   closePage(pageId: UUID, event: Event) {
     this.store.dispatch(MessagesActions.closePage({ pageId: pageId }));
+    event.stopPropagation();
+  }
+
+  closeSendMessagePage(pageId: UUID, event: Event) {
+    this.store.dispatch(MessagesActions.closeSendMessagePage({ pageId: pageId }));
+    event.stopPropagation();
+  }
+
+  closeBatchResendPage(pageId: UUID, event: Event) {
+    this.store.dispatch(MessagesActions.closeBatchResendPage({ pageId: pageId }));
     event.stopPropagation();
   }
 }

@@ -254,13 +254,23 @@ export class SendMessageComponent {
   }
 
   constructor() {
+    // Load send message page or source message based on route
     this.activatedRoute.params.pipe(
       takeUntilDestroyed(),
       switchMap((params) => {
-        if (params['pageId'] && params['messageId']) {
-          return this.store.select(MessagesSelectors.selectMessage(params['pageId'], params['messageId']));
+        // Check if this is the send/:pageId route
+        if (params['pageId'] && !params['messageId']) {
+          // Load the send message page from store
+          return this.store.select(MessagesSelectors.selectSendMessagePage(params['pageId'])).pipe(
+            switchMap(page => {
+              // If page has a source message, load that too
+              if (page?.sourcePageId && page?.sourceMessageId) {
+                return this.store.select(MessagesSelectors.selectMessage(page.sourcePageId, page.sourceMessageId));
+              }
+              return [undefined];
+            })
+          );
         }
-
         return [undefined];
       })
     ).subscribe((message) => {

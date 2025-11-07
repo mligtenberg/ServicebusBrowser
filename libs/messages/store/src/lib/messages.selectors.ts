@@ -26,3 +26,35 @@ export const selectBatchResendMessages = createSelector(
   featureSelector,
   (state) => state.messageForBatchResend
 );
+
+// Send Message Page selectors
+export const selectSendMessagePages = createSelector(
+  featureSelector,
+  (state) => state.sendMessagePages.map(
+    (page) => ({
+      id: page.id,
+      name: page.name
+    })
+  )
+);
+
+export const selectSendMessagePage = (pageId: string) => createSelector(
+  featureSelector,
+  (state) => state.sendMessagePages.find((page) => page.id === pageId)
+);
+
+// Batch Resend Page selectors
+export const selectBatchResendPages = createSelector(
+  featureSelector,
+  (state) => state.batchResendPages.map(
+    (page) => ({
+      id: page.id,
+      name: page.name
+    })
+  )
+);
+
+export const selectBatchResendPage = (pageId: string) => createSelector(
+  featureSelector,
+  (state) => state.batchResendPages.find((page) => page.id === pageId)
+);

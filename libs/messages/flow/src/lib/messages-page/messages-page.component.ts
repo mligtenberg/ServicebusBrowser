@@ -261,12 +261,19 @@ export class MessagesPageComponent {
             : 'Batch resend selected messages',
           icon: 'pi pi-envelope',
           command: () => {
+            const pageId = crypto.randomUUID();
+            const messageName = allMessages
+              ? `Batch resend all (${menuSelection.length})`
+              : `Batch resend (${menuSelection.length})`;
+
             this.store.dispatch(
-              MessagesActions.setBatchResendMessages({
+              MessagesActions.openBatchResendPage({
+                pageId,
+                name: messageName,
                 messages: menuSelection,
               })
             );
-            this.router.navigate([this.baseRoute, 'batch-resend']);
+            this.router.navigate([this.baseRoute, 'batch-resend', pageId]);
           },
         },
         {
@@ -299,12 +306,18 @@ export class MessagesPageComponent {
         label: allMessages ? 'Resend message' : 'Resend selected message',
         icon: 'pi pi-envelope',
         command: () => {
-          this.router.navigate([
-            this.baseRoute,
-            'resend',
-            this.currentPage()!.id,
-            selectedMessage!.messageId,
-          ]);
+          const pageId = crypto.randomUUID();
+          const messageName = `Resend: ${selectedMessage!.subject || selectedMessage!.messageId}`;
+
+          this.store.dispatch(
+            MessagesActions.openSendMessagePage({
+              pageId,
+              name: messageName,
+              sourcePageId: this.currentPage()!.id,
+              sourceMessageId: selectedMessage!.messageId,
+            })
+          );
+          this.router.navigate([this.baseRoute, 'send', pageId]);
         },
       },
       {

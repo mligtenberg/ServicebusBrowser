@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { MessagePage, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { MessagePage, ServiceBusMessage, SendMessagePage, BatchResendPage } from '@service-bus-browser/messages-contracts';
 
 export const featureKey = 'messages';
 
@@ -8,11 +8,15 @@ import * as internalActions from './messages.internal-actions';
 
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
+  sendMessagePages: Array<SendMessagePage>;
+  batchResendPages: Array<BatchResendPage>;
   messageForBatchResend: Array<ServiceBusMessage>;
 }
 
 export const initialState: MessagesState = {
   receivedMessages: [],
+  sendMessagePages: [],
+  batchResendPages: [],
   messageForBatchResend: []
 };
 
@@ -101,6 +105,82 @@ export const logsReducer = createReducer(
     return {
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, filter } : page)
+    }
+  }),
+  // Send Message Page reducers
+  on(actions.openSendMessagePage, (state, { pageId, name, sourcePageId, sourceMessageId }): MessagesState => {
+    const existingPage = state.sendMessagePages.find(page => page.id === pageId);
+    if (existingPage) {
+      return state;
+    }
+
+    return {
+      ...state,
+      sendMessagePages: [
+        ...state.sendMessagePages,
+        {
+          id: pageId,
+          name,
+          sourcePageId,
+          sourceMessageId
+        }
+      ]
+    }
+  }),
+  on(actions.updateSendMessagePage, (state, { pageId, formState }): MessagesState => {
+    return {
+      ...state,
+      sendMessagePages: state.sendMessagePages.map(page =>
+        page.id === pageId ? { ...page, formState } : page
+      )
+    }
+  }),
+  on(actions.closeSendMessagePage, (state, { pageId }): MessagesState => {
+    return {
+      ...state,
+      sendMessagePages: state.sendMessagePages.filter(page => page.id !== pageId)
+    }
+  }),
+  // Batch Resend Page reducers
+  on(actions.openBatchResendPage, (state, { pageId, name, messages }): MessagesState => {
+    const existingPage = state.batchResendPages.find(page => page.id === pageId);
+    if (existingPage) {
+      return state;
+    }
+
+    return {
+      ...state,
+      batchResendPages: [
+        ...state.batchResendPages,
+        {
+          id: pageId,
+          name,
+          messages,
+          actions: [],
+          selectedEndpoint: null
+        }
+      ]
+    }
+  }),
+  on(actions.updateBatchResendPage, (state, { pageId, actions: pageActions, selectedEndpoint }): MessagesState => {
+    return {
+      ...state,
+      batchResendPages: state.batchResendPages.map(page => {
+        if (page.id !== pageId) {
+          return page;
+        }
+        return {
+          ...page,
+          ...(pageActions !== undefined && { actions: pageActions }),
+          ...(selectedEndpoint !== undefined && { selectedEndpoint })
+        }
+      })
+    }
+  }),
+  on(actions.closeBatchResendPage, (state, { pageId }): MessagesState => {
+    return {
+      ...state,
+      batchResendPages: state.batchResendPages.filter(page => page.id !== pageId)
     }
   })
 );

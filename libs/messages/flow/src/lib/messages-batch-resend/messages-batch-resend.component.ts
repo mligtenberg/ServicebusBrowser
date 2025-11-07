@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, inject, signal, viewChild, model, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Action,
@@ -21,10 +21,12 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { Listbox } from 'primeng/listbox';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'lib-messages-batch-resend',
@@ -56,6 +58,20 @@ export class MessagesBatchResendComponent {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private fileService = inject(FilesService);
+  private activatedRoute = inject(ActivatedRoute);
+
+  // Load page from store based on route param
+  private currentPageId = toSignal(
+    this.activatedRoute.params.pipe(map(params => params['pageId'] as string))
+  );
+
+  private currentPage = toSignal(
+    this.activatedRoute.params.pipe(
+      switchMap(params =>
+        this.store.select(MessagesSelectors.selectBatchResendPage(params['pageId']))
+      )
+    )
+  );
 
   protected actions = signal<Action[]>([]);
   protected previewDialogVisible = signal(false);
@@ -64,6 +80,9 @@ export class MessagesBatchResendComponent {
   protected editModeIndex = signal(-1);
   protected currentAction = model<Action | undefined>();
   protected selectedMessage = model<ServiceBusMessage | undefined>(undefined);
+  private isLoadingFromStore = signal(false);
+
+  protected originalMessages = computed(() => this.currentPage()?.messages ?? []);
   protected previewBatch = computed(() => this.originalMessages().slice(0, 100))
   protected previewMessage = computed(() => {
     const selectedMessage = this.selectedMessage();
@@ -77,7 +96,47 @@ export class MessagesBatchResendComponent {
     );
   });
 
-  originalMessages = this.store.selectSignal(MessagesSelectors.selectBatchResendMessages);
+  // Sync local state with store state
+  constructor() {
+    effect(() => {
+      const page = this.currentPage();
+      if (page) {
+        this.isLoadingFromStore.set(true);
+        this.actions.set(page.actions);
+        this.selectedEndpoint.set(page.selectedEndpoint);
+        // Use setTimeout to allow signals to settle before re-enabling saves
+        setTimeout(() => this.isLoadingFromStore.set(false), 0);
+      }
+    });
+
+    // Save actions to store when they change (but not during load)
+    effect(() => {
+      const pageId = this.currentPageId();
+      const actions = this.actions();
+      if (pageId && !this.isLoadingFromStore()) {
+        this.store.dispatch(
+          MessagesActions.updateBatchResendPage({
+            pageId,
+            actions
+          })
+        );
+      }
+    }, { allowSignalWrites: true });
+
+    // Save endpoint to store when it changes (but not during load)
+    effect(() => {
+      const pageId = this.currentPageId();
+      const endpoint = this.selectedEndpoint();
+      if (pageId && !this.isLoadingFromStore()) {
+        this.store.dispatch(
+          MessagesActions.updateBatchResendPage({
+            pageId,
+            selectedEndpoint: endpoint
+          })
+        );
+      }
+    }, { allowSignalWrites: true });
+  }
 
   storeAction(): void {
     const action = this.currentAction();
