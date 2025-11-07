@@ -32,6 +32,12 @@
               <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closePage(page.id, $event)" class="close-button"></p-button>
             </p-tab>
           }
+          <p-tab [value]="'/messages/send'" [routerLink]="'/messages/send'">
+            <span>Send Message</span>
+          </p-tab>
+          <p-tab [value]="'/messages/batch-resend'" [routerLink]="'/messages/batch-resend'">
+            <span>Batch Resend</span>
+          </p-tab>
         </p-tablist>
       </p-tabs>
       <div class="router-outlet">
