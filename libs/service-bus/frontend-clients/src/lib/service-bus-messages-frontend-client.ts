@@ -47,7 +47,7 @@ export class ServiceBusMessagesFrontendClient {
 
   async saveFile(
     fileName: string,
-    fileContent: string | Uint8Array,
+    fileContent: BlobPart,
     fileTypes: Array<{ extensions: string[]; name: string }>
   ): Promise<boolean> {
     return (await this.serviceBusApi.messagesDoRequest('storeFile', {

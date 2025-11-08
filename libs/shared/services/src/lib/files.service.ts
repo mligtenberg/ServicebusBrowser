@@ -10,7 +10,7 @@ export class FilesService {
 
   async saveFile(
     fileName: string,
-    content: string | Uint8Array,
+    content: BlobPart,
     fileTypes: Array<{ extensions: string[]; name: string }>
   ) {
     if ('electron' in window) {
