@@ -8,9 +8,7 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/servicebus-browser-frontend",
         "index": "apps/servicebus-browser-frontend/src/index.html",
@@ -34,9 +32,7 @@
             "output": "/assets"
           }
         ],
-        "styles": [
-          "apps/servicebus-browser-frontend/src/styles.scss"
-        ],
+        "styles": ["apps/servicebus-browser-frontend/src/styles.scss"],
         "scripts": []
       },
       "configurations": {
@@ -90,11 +86,10 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/servicebus-browser-frontend/jest.config.ts"
+        "jestConfig": "apps/servicebus-browser-frontend/jest.config.ts",
+        "tsConfig": "apps/servicebus-browser-frontend/tsconfig.spec.json"
       }
     },
     "serve-static": {
