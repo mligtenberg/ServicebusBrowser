@@ -35,7 +35,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/luxon": "^3.6.2",
     "axios": "^1.6.0",
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.1",
     "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "jose": "^6.0.12",
