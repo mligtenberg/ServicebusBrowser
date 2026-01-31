@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Card } from 'primeng/card';
 import { MsalBroadcastService } from '@azure/msal-angular';
 import { catchError, map } from 'rxjs';
@@ -9,7 +9,7 @@ import { ButtonDirective } from 'primeng/button';
 
 @Component({
   selector: 'app-login-failed',
-  imports: [CommonModule, Card, RouterLink, ButtonDirective],
+  imports: [Card, RouterLink, ButtonDirective],
   templateUrl: './login-failed.html',
   styleUrl: './login-failed.scss',
 })

@@ -1,5 +1,5 @@
 import { Component, effect, forwardRef, inject, input, model, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { InputGroup } from 'primeng/inputgroup';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -17,7 +17,6 @@ import {
 @Component({
   selector: 'sbb-tpl-endpoint-selector-input',
   imports: [
-    CommonModule,
     InputGroup,
     Dialog,
     InputText,
@@ -25,8 +24,8 @@ import {
     ScrollPanel,
     InputGroupAddon,
     EndpointSelectorTreeInputComponent,
-    FormsModule,
-  ],
+    FormsModule
+],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

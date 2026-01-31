@@ -1,12 +1,12 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SbbMenuItem } from '@service-bus-browser/shared-contracts';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 
 @Component({
   selector: 'sbb-context-menu',
-  imports: [CommonModule, ContextMenu],
+  imports: [ContextMenu],
   templateUrl: './context-menu.component.html',
   styleUrl: './context-menu.component.scss',
 })

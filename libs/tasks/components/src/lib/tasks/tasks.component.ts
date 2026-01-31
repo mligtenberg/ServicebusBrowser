@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TasksSummaryComponent } from '../tasks-summary/tasks-summary.component';
 import { Task } from '@service-bus-browser/tasks-contracts';
 import { Popover } from 'primeng/popover';
@@ -7,7 +7,7 @@ import { TaskCardComponent } from '../task-card/task-card.component';
 
 @Component({
   selector: 'sbb-task-tasks',
-  imports: [CommonModule, TasksSummaryComponent, Popover, TaskCardComponent],
+  imports: [TasksSummaryComponent, Popover, TaskCardComponent],
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.scss',
 })

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SubscriptionRule } from '@service-bus-browser/topology-contracts';
 import { faCheckToSlot } from '@fortawesome/free-solid-svg-icons';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
@@ -7,9 +7,8 @@ import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node
 @Component({
   selector: 'sbb-tpl-subscription-rule-tree-node',
   imports: [
-    CommonModule,
-    GenericTreeNodeComponent,
-  ],
+    GenericTreeNodeComponent
+],
   templateUrl: './subscription-rule-tree-node.component.html',
   styleUrl: './subscription-rule-tree-node.component.scss',
 })

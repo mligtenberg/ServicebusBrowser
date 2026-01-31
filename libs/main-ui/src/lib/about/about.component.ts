@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { TableModule } from 'primeng/table';
 
@@ -14,7 +14,7 @@ interface PackageInfo {
 @Component({
   selector: 'lib-about',
   standalone: true,
-  imports: [CommonModule, TableModule],
+  imports: [TableModule],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss'
 })

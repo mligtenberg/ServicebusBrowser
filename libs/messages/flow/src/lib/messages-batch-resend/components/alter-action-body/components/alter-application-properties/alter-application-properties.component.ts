@@ -1,5 +1,5 @@
 import { Component, computed, effect, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   AlterAction,
@@ -19,14 +19,13 @@ import { Tooltip } from 'primeng/tooltip';
   selector: 'lib-alter-application-properties',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     InputGroup,
     InputText,
     Select,
     DatePicker,
-    Tooltip,
-  ],
+    Tooltip
+],
   templateUrl: './alter-application-properties.component.html',
   styleUrls: ['./alter-application-properties.component.scss'],
 })

@@ -1,5 +1,5 @@
 import { Component, effect, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   AlterAction,
@@ -14,12 +14,11 @@ import { AlterApplicationPropertiesComponent } from './components/alter-applicat
 @Component({
   selector: 'lib-alter-action-body',
   imports: [
-    CommonModule,
     FormsModule,
     AlterBodyComponent,
     AlterSystemPropertiesComponent,
     AlterApplicationPropertiesComponent
-  ],
+],
   templateUrl: './alter-action-body.component.html',
   styleUrl: './alter-action-body.component.scss',
 })

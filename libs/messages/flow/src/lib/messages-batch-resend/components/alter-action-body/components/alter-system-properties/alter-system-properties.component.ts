@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   AlterAction,
@@ -23,7 +23,6 @@ import { Tooltip } from 'primeng/tooltip';
   selector: 'lib-alter-system-properties',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     InputGroup,
     InputText,
@@ -31,8 +30,8 @@ import { Tooltip } from 'primeng/tooltip';
     DatePicker,
     Popover,
     DurationInputComponent,
-    Tooltip,
-  ],
+    Tooltip
+],
   templateUrl: './alter-system-properties.component.html',
   styleUrls: ['./alter-system-properties.component.scss'],
 })

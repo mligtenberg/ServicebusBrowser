@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TopicWithChildrenAndLoadingState, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolderTree } from '@fortawesome/free-solid-svg-icons';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
@@ -7,9 +7,8 @@ import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node
 @Component({
   selector: 'sbb-tpl-topic-tree-node',
   imports: [
-    CommonModule,
-    GenericTreeNodeComponent,
-  ],
+    GenericTreeNodeComponent
+],
   templateUrl: './topic-tree-node.component.html',
   styleUrl: './topic-tree-node.component.scss',
 })

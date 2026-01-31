@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, model } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   BatchActionTarget,
@@ -19,7 +19,6 @@ import { hasActiveFilters } from '@service-bus-browser/filtering';
 @Component({
   selector: 'lib-action',
   imports: [
-    CommonModule,
     InputGroup,
     Select,
     Button,
@@ -27,8 +26,8 @@ import { hasActiveFilters } from '@service-bus-browser/filtering';
     AddActionBodyComponent,
     AlterActionBodyComponent,
     RemoveActionBodyComponent,
-    MessageFilterDialogComponent,
-  ],
+    MessageFilterDialogComponent
+],
   templateUrl: './action.component.html',
   styleUrl: './action.component.scss',
 })

@@ -21,7 +21,7 @@
         class="sql-textarea"
         pTextarea
         [ngClass]="{ 'darkMode': darkMode() }"
-        formControlName="sqlFilter"></textarea>
+      formControlName="sqlFilter"></textarea>
     </p-card>
   }
   @if (form.controls.type.value === 'correlation') {
@@ -29,38 +29,42 @@
       <p-card header="Correlation rules">
         <div formArrayName="correlationSystemProperties">
           <h3>System properties</h3>
-          <div *ngFor="let control of form.controls.correlationSystemProperties.controls; let i = index" [formGroupName]="i">
-            <div class="correlation-rule">
-              <p-input-group>
-                <p-select formControlName="key" [options]="systemFieldOptions"></p-select>
-                <input pInputText formControlName="value" placeholder="Value"/>
-                <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationSystemProperty(i)"></p-button>
-              </p-input-group>
+          @for (control of form.controls.correlationSystemProperties.controls; track control; let i = $index) {
+            <div [formGroupName]="i">
+              <div class="correlation-rule">
+                <p-input-group>
+                  <p-select formControlName="key" [options]="systemFieldOptions"></p-select>
+                  <input pInputText formControlName="value" placeholder="Value"/>
+                  <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationSystemProperty(i)"></p-button>
+                </p-input-group>
+              </div>
             </div>
-          </div>
+          }
           <button pButton type="button" (click)="addCorrelationSystemProperty()">Add</button>
         </div>
         <div formArrayName="correlationApplicationProperties">
           <h3>Application properties</h3>
-          <div *ngFor="let control of form.controls.correlationApplicationProperties.controls; let i = index" [formGroupName]="i">
-            <p-input-group>
-              <input pInputText formControlName="key" placeholder="Key"/>
-              <p-select [options]="dataTypeOptions" formControlName="datatype"></p-select>
-              @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'string') {
-                <input pInputText formControlName="value" placeholder="Value"/>
-              }
-              @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'number') {
-                <p-input-number formControlName="value" placeholder="Value"/>
-              }
-              @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'boolean') {
-                <p-select [options]="[true, false]" formControlName="value"></p-select>
-              }
-              @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'date') {
-                <p-date-picker formControlName="value"></p-date-picker>
-              }
-              <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationApplicationProperty(i)"></p-button>
-            </p-input-group>
-          </div>
+          @for (control of form.controls.correlationApplicationProperties.controls; track control; let i = $index) {
+            <div [formGroupName]="i">
+              <p-input-group>
+                <input pInputText formControlName="key" placeholder="Key"/>
+                <p-select [options]="dataTypeOptions" formControlName="datatype"></p-select>
+                @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'string') {
+                  <input pInputText formControlName="value" placeholder="Value"/>
+                }
+                @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'number') {
+                  <p-input-number formControlName="value" placeholder="Value"/>
+                }
+                @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'boolean') {
+                  <p-select [options]="[true, false]" formControlName="value"></p-select>
+                }
+                @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'date') {
+                  <p-date-picker formControlName="value"></p-date-picker>
+                }
+                <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationApplicationProperty(i)"></p-button>
+              </p-input-group>
+            </div>
+          }
           <button pButton type="button" (click)="addCorrelationApplicationProperty()">Add</button>
         </div>
       </p-card>
@@ -72,7 +76,7 @@
       class="sql-textarea"
       [ngClass]="{ 'darkMode': darkMode() }"
       pTextarea
-      formControlName="sqlAction"></textarea>
+    formControlName="sqlAction"></textarea>
   </p-card>
 
   <div class="actions">

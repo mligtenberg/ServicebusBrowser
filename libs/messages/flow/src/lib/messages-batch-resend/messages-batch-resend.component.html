@@ -19,43 +19,49 @@
           <p-button icon="pi pi-download" severity="secondary" text="true" pTooltip="Export Actions" [disabled]="currentActions.length === 0" (click)="exportActions()"></p-button>
         </div>
       </div>
-      <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}" *ngIf="currentActions.length > 0">
-        <div class="action-item" *ngFor="let action of currentActions; let i = index">
-          <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
-          <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
-          <div class="action-details">{{ getActionDescription(action) }}</div>
-          <div class="action-position">
-            <p-button
-              icon="pi pi-arrow-up"
-              severity="secondary"
-              text="true"
-              (click)="moveActionUp(i)"
-              [disabled]="i === 0"
-            ></p-button>
-            <p-button
-              icon="pi pi-arrow-down"
-              severity="secondary"
-              text="true"
-              (click)="moveActionDown(i)"
-              [disabled]="i === currentActions.length - 1"
-            ></p-button>
-          </div>
-          <div class="action-buttons">
-            <p-button icon="pi pi-pencil" severity="primary" text="true" (click)="editAction(i)"></p-button>
-            <p-button icon="pi pi-trash" severity="danger" text="true" (click)="removeAction(i)"></p-button>
-          </div>
-        </div>
-      </p-scroll-panel>
+      @if (currentActions.length > 0) {
+        <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}">
+          @for (action of currentActions; track action; let i = $index) {
+            <div class="action-item">
+              <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
+              <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
+              <div class="action-details">{{ getActionDescription(action) }}</div>
+              <div class="action-position">
+                <p-button
+                  icon="pi pi-arrow-up"
+                  severity="secondary"
+                  text="true"
+                  (click)="moveActionUp(i)"
+                  [disabled]="i === 0"
+                ></p-button>
+                <p-button
+                  icon="pi pi-arrow-down"
+                  severity="secondary"
+                  text="true"
+                  (click)="moveActionDown(i)"
+                  [disabled]="i === currentActions.length - 1"
+                ></p-button>
+              </div>
+              <div class="action-buttons">
+                <p-button icon="pi pi-pencil" severity="primary" text="true" (click)="editAction(i)"></p-button>
+                <p-button icon="pi pi-trash" severity="danger" text="true" (click)="removeAction(i)"></p-button>
+              </div>
+            </div>
+          }
+        </p-scroll-panel>
+      }
 
-      <div class="empty-state" [style]="{height: 'calc(100% - 7em)'}" *ngIf="currentActions.length === 0">
-        <p>No actions added yet. Add actions below to modify your messages before resending.</p>
-      </div>
+      @if (currentActions.length === 0) {
+        <div class="empty-state" [style]="{height: 'calc(100% - 7em)'}">
+          <p>No actions added yet. Add actions below to modify your messages before resending.</p>
+        </div>
+      }
 
       <div class="action-controls">
         <p-button label="Preview Changes" icon="pi pi-eye"
-                  (click)="previewChanges()"></p-button>
+        (click)="previewChanges()"></p-button>
         <p-button label="Resend" icon="pi pi-send" severity="success"
-                  [disabled]="currentActions.length === 0 || !selectedEndpoint()" (click)="resendMessages()"></p-button>
+        [disabled]="currentActions.length === 0 || !selectedEndpoint()" (click)="resendMessages()"></p-button>
       </div>
     </div>
 
@@ -64,44 +70,44 @@
         <h3>Edit Action</h3>
       }
       @else {
-        <h3>Add Action</h3>
-      }
-      <lib-action
-        #actionEditor
-        [(action)]="currentAction"></lib-action>
+      <h3>Add Action</h3>
+    }
+    <lib-action
+      #actionEditor
+    [(action)]="currentAction"></lib-action>
 
-      <div class="action-buttons">
-        <p-button [label]="editMode() ? 'Cancel' : 'Clear'" severity="danger" icon="pi pi-times" (click)="clearAction()"></p-button>
-        <p-button
-          [label]="editMode() ? 'Save Action' : 'Add Action'"
-          icon="pi pi-plus"
-          [disabled]="!canAddAction()"
-          (click)="storeAction()"
-        ></p-button>
-      </div>
+    <div class="action-buttons">
+      <p-button [label]="editMode() ? 'Cancel' : 'Clear'" severity="danger" icon="pi pi-times" (click)="clearAction()"></p-button>
+      <p-button
+        [label]="editMode() ? 'Save Action' : 'Add Action'"
+        icon="pi pi-plus"
+        [disabled]="!canAddAction()"
+        (click)="storeAction()"
+      ></p-button>
     </div>
   </div>
 </div>
+</div>
 
-<p-dialog
-  *ngIf="previewDialogVisible"
-  header="Preview Changes"
-  [(visible)]="previewDialogVisible"
-  [modal]="true"
-  [style]="{width: '90vw', height: '90vh'}"
-  [draggable]="false"
-  [resizable]="false">
-  <div class="preview-layout">
-    <!-- Message sidebar -->
-    <div class="message-sidebar">
-      <h3>Messages</h3>
-      <p>Below are the top 100 messages, select one to see a preview of your changes pipeline</p>
+@if (previewDialogVisible) {
+  <p-dialog
+    header="Preview Changes"
+    [(visible)]="previewDialogVisible"
+    [modal]="true"
+    [style]="{width: '90vw', height: '90vh'}"
+    [draggable]="false"
+    [resizable]="false">
+    <div class="preview-layout">
+      <!-- Message sidebar -->
+      <div class="message-sidebar">
+        <h3>Messages</h3>
+        <p>Below are the top 100 messages, select one to see a preview of your changes pipeline</p>
         <div class="message-list">
           <p-list-box
             scrollHeight="400px"
             [options]="previewBatch()"
             [(ngModel)]="selectedMessage"
-          >
+            >
             <ng-template pTemplate="item" let-message>
               <div class="message-item">
                 <div class="message-id">{{ getMessageListLine(message) }}</div>
@@ -109,51 +115,55 @@
             </ng-template>
           </p-list-box>
         </div>
-    </div>
-
-    <!-- Message details -->
-    <div class="message-details">
-      <p-scroll-panel [style]="{width: '100%', height: '100%'}">
-        @if (previewMessage(); as message) {
-          <div class="message-preview">
-            <h4>Message ID: {{ message.messageId }}</h4>
-            <p-divider></p-divider>
-            <p><strong>Body:</strong></p>
-            <pre>{{ message.body }}</pre>
-            <p-divider></p-divider>
-            <p><strong>System Properties:</strong></p>
-            <div class="properties-list">
-              <div class="property-item" *ngFor="let prop of getSystemProperties(message)">
-                <span class="property-name">{{ prop.key }}:</span>
-                <span class="property-value">{{ prop.value }}</span>
+      </div>
+      <!-- Message details -->
+      <div class="message-details">
+        <p-scroll-panel [style]="{width: '100%', height: '100%'}">
+          @if (previewMessage(); as message) {
+            <div class="message-preview">
+              <h4>Message ID: {{ message.messageId }}</h4>
+              <p-divider></p-divider>
+              <p><strong>Body:</strong></p>
+              <pre>{{ message.body }}</pre>
+              <p-divider></p-divider>
+              <p><strong>System Properties:</strong></p>
+              <div class="properties-list">
+                @for (prop of getSystemProperties(message); track prop) {
+                  <div class="property-item">
+                    <span class="property-name">{{ prop.key }}:</span>
+                    <span class="property-value">{{ prop.value }}</span>
+                  </div>
+                }
+              </div>
+              <p-divider></p-divider>
+              <p><strong>Application Properties:</strong></p>
+              <div class="properties-list">
+                @for (prop of getApplicationProperties(message); track prop) {
+                  <div class="property-item">
+                    <span class="property-name">{{ prop.key }}:</span>
+                    <span class="property-value">{{ prop.value }}</span>
+                  </div>
+                }
               </div>
             </div>
-            <p-divider></p-divider>
-            <p><strong>Application Properties:</strong></p>
-            <div class="properties-list">
-              <div class="property-item" *ngFor="let prop of getApplicationProperties(message)">
-                <span class="property-name">{{ prop.key }}:</span>
-                <span class="property-value">{{ prop.value }}</span>
-              </div>
+          } @else {
+            <div class="no-message-selected">
+              <p>Select a message from the sidebar to view details</p>
             </div>
-          </div>
-        } @else {
-          <div class="no-message-selected">
-            <p>Select a message from the sidebar to view details</p>
-          </div>
-        }
-      </p-scroll-panel>
+          }
+        </p-scroll-panel>
+      </div>
     </div>
-  </div>
-  <ng-template pTemplate="footer">
-    <div class="footer">
-      <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
-      <p-button label="Resend selected message" icon="pi pi-send"
-                (click)="resendSelectedMessage()"
-                [disabled]="!selectedMessage() || !selectedEndpoint()"
-                severity="success"></p-button>
-    </div>
-  </ng-template>
-</p-dialog>
+    <ng-template pTemplate="footer">
+      <div class="footer">
+        <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
+        <p-button label="Resend selected message" icon="pi pi-send"
+          (click)="resendSelectedMessage()"
+          [disabled]="!selectedMessage() || !selectedEndpoint()"
+        severity="success"></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+}
 
 <p-toast position="bottom-center"></p-toast>

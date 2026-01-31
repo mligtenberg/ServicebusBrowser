@@ -1,5 +1,5 @@
 import { Component, computed, input, linkedSignal, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
@@ -23,7 +23,6 @@ import { filterIsValid } from '@service-bus-browser/filtering';
   selector: 'lib-message-filter-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     Dialog,
     Button,
@@ -34,8 +33,8 @@ import { filterIsValid } from '@service-bus-browser/filtering';
     AccordionModule,
     SelectModule,
     ButtonDirective,
-    Select,
-  ],
+    Select
+],
   templateUrl: './message-filter-dialog.component.html',
   styleUrls: ['./message-filter-dialog.component.scss'],
 })

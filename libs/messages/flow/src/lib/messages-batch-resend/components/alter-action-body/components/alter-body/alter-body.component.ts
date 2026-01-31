@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   AlterAction,
@@ -21,7 +21,6 @@ import { Tooltip } from 'primeng/tooltip';
   selector: 'lib-alter-body',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     InputText,
     Select,
@@ -30,8 +29,8 @@ import { Tooltip } from 'primeng/tooltip';
     Dialog,
     EditorComponent,
     InputGroup,
-    Tooltip,
-  ],
+    Tooltip
+],
   templateUrl: './alter-body.component.html',
   styleUrls: ['./alter-body.component.scss'],
 })

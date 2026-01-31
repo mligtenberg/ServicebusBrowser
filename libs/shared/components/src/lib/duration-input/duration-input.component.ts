@@ -1,5 +1,5 @@
 import { Component, forwardRef, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   ControlValueAccessor,
   FormControl,
@@ -17,12 +17,11 @@ import { FloatLabel } from 'primeng/floatlabel';
 @Component({
   selector: 'sbb-duration-input',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     InputGroup,
     InputNumber,
-    FloatLabel,
-  ],
+    FloatLabel
+],
   templateUrl: './duration-input.component.html',
   styleUrl: './duration-input.component.scss',
   providers: [

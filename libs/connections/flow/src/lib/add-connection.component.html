@@ -128,12 +128,18 @@
     }
 
 
-    <section class="test-status" *ngIf="(connectionTestStatus$ | async) !== 'none'">
-      <div class="status-message" [ngClass]="{'success': (connectionTestStatus$ | async) === 'success', 'error': (connectionTestStatus$ | async) === 'error'}">
-        <span *ngIf="(connectionTestStatus$ | async) === 'success'">Connection test successful! You can now save the connection.</span>
-        <span *ngIf="(connectionTestStatus$ | async) === 'error'">Connection test failed. Please check your connection details and try again.</span>
-      </div>
-    </section>
+    @if ((connectionTestStatus$ | async) !== 'none') {
+      <section class="test-status">
+        <div class="status-message" [ngClass]="{'success': (connectionTestStatus$ | async) === 'success', 'error': (connectionTestStatus$ | async) === 'error'}">
+          @if ((connectionTestStatus$ | async) === 'success') {
+            <span>Connection test successful! You can now save the connection.</span>
+          }
+          @if ((connectionTestStatus$ | async) === 'error') {
+            <span>Connection test failed. Please check your connection details and try again.</span>
+          }
+        </div>
+      </section>
+    }
 
     <section class="actions">
       <button pButton severity="secondary" type="button">Cancel</button>

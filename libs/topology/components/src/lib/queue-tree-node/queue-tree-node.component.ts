@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { QueueWithMetaData } from '@service-bus-browser/topology-contracts';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
@@ -7,9 +7,8 @@ import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node
 @Component({
   selector: 'sbb-tpl-queue-tree-node',
   imports: [
-    CommonModule,
-    GenericTreeNodeComponent,
-  ],
+    GenericTreeNodeComponent
+],
   templateUrl: './queue-tree-node.component.html',
   styleUrl: './queue-tree-node.component.scss',
 })

@@ -1,5 +1,5 @@
 import { Component, effect, forwardRef, inject, input, output, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Store } from '@ngrx/store';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
@@ -9,7 +9,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'sbb-tpl-endpoint-selector-tree-input',
-  imports: [CommonModule, TopologyTreeComponent],
+  imports: [TopologyTreeComponent],
   templateUrl: './endpoint-selector-tree-input.component.html',
   styleUrl: './endpoint-selector-tree-input.component.scss',
   providers: [

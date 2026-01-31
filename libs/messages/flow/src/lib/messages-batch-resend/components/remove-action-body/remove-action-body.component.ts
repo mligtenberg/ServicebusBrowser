@@ -1,5 +1,5 @@
 import { Component, computed, effect, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   BatchActionTarget,
@@ -15,11 +15,10 @@ import { SystemPropertyKeys } from '../../../send-message/form';
 @Component({
   selector: 'lib-remove-action-body',
   imports: [
-    CommonModule,
     FormsModule,
     InputText,
-    Select,
-  ],
+    Select
+],
   templateUrl: './remove-action-body.component.html',
   styleUrl: './remove-action-body.component.scss',
 })

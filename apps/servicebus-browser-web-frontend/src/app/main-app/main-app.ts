@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Button } from 'primeng/button';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { Menu } from 'primeng/menu';
@@ -14,7 +14,7 @@ import { TopologyActions } from '@service-bus-browser/topology-store';
 
 @Component({
   selector: 'app-main-app',
-  imports: [CommonModule, Button, MainUiComponent, Menu],
+  imports: [Button, MainUiComponent, Menu],
   templateUrl: './main-app.html',
   styleUrl: './main-app.scss',
 })

@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { Card } from 'primeng/card';
@@ -35,7 +35,6 @@ import { SystemPropertyHelpers } from '../systemproperty-helpers';
 @Component({
   selector: 'lib-send-message',
   imports: [
-    CommonModule,
     EditorComponent,
     Card,
     ReactiveFormsModule,
@@ -51,8 +50,8 @@ import { SystemPropertyHelpers } from '../systemproperty-helpers';
     DatePicker,
     Popover,
     DurationInputComponent,
-    EndpointSelectorInputComponent,
-  ],
+    EndpointSelectorInputComponent
+],
   templateUrl: './send-message.component.html',
   styleUrl: './send-message.component.scss',
 })

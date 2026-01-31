@@ -68,16 +68,18 @@
           [scrollable]="true"
           scrollHeight="100cqh"
           [virtualScroll]="false"
-        >
+          >
           <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
             <tr style="height:30px">
-              <td *ngFor="let col of columns" class="user-selectable">
-                @if (isDate(rowData[col.field])) {
-                  {{ rowData[col.field] | date: 'medium' }}
-                } @else {
-                  {{ rowData[col.field] }}
-                }
-              </td>
+              @for (col of columns; track col) {
+                <td class="user-selectable">
+                  @if (isDate(rowData[col.field])) {
+                    {{ rowData[col.field] | date: 'medium' }}
+                  } @else {
+                    {{ rowData[col.field] }}
+                  }
+                </td>
+              }
             </tr>
           </ng-template>
         </p-table>

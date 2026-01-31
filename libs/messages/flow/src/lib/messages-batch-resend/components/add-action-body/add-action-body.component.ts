@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   Action,
   AddAction, BatchActionTarget, MessageFilter,
@@ -20,7 +20,6 @@ import { Checkbox } from 'primeng/checkbox';
 @Component({
   selector: 'lib-add-action-body',
   imports: [
-    CommonModule,
     DatePicker,
     DurationInputComponent,
     FormsModule,
@@ -29,8 +28,8 @@ import { Checkbox } from 'primeng/checkbox';
     Popover,
     Select,
     ReactiveFormsModule,
-    Checkbox,
-  ],
+    Checkbox
+],
   templateUrl: './add-action-body.component.html',
   styleUrl: './add-action-body.component.scss',
 })

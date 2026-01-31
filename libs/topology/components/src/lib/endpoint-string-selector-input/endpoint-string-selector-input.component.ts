@@ -1,12 +1,12 @@
 import { Component, forwardRef, input, model } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { EndpointSelectorInputComponent } from '../endpoint-selector-input/endpoint-selector-input.component';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 @Component({
   selector: 'sbb-tpl-endpoint-string-selector-input',
-  imports: [CommonModule, EndpointSelectorInputComponent, FormsModule],
+  imports: [EndpointSelectorInputComponent, FormsModule],
   templateUrl: './endpoint-string-selector-input.component.html',
   styleUrl: './endpoint-string-selector-input.component.scss',
   providers: [
