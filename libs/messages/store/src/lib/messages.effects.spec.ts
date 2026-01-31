@@ -10,7 +10,6 @@ import {
   ReceiveEndpoint,
   SendEndpoint,
 } from '@service-bus-browser/service-bus-contracts';
-
 const endpoint: ReceiveEndpoint & SendEndpoint = {
   connectionId: '00000000-0000-0000-0000-000000000001',
   queueName: 'test-queue',
@@ -18,14 +17,13 @@ const endpoint: ReceiveEndpoint & SendEndpoint = {
   endpoint: '',
   endpointDisplay: '',
 };
-
 const message = { body: 'a' } as any;
-
 describe('MessagesEffects', () => {
   let actions$: ReplaySubject<any>;
   let effects: MessagesEffects;
-  let service: { sendMessage: jest.Mock };
-
+  let service: {
+    sendMessage: jest.Mock;
+  };
   beforeEach(() => {
     Object.defineProperty(globalThis, 'crypto', {
       value: { randomUUID: () => '00000000-0000-0000-0000-000000000002' },
@@ -42,7 +40,6 @@ describe('MessagesEffects', () => {
     });
     effects = TestBed.inject(MessagesEffects);
   });
-
   it('loads peek messages', async () => {
     actions$ = new ReplaySubject(1);
     actions$.next(actions.peekMessages({ endpoint, maxAmount: 5 }));
@@ -57,7 +54,6 @@ describe('MessagesEffects', () => {
       })
     );
   });
-
   it('emits send success', async () => {
     service.sendMessage.mockResolvedValue(undefined);
     actions$ = new ReplaySubject(1);
@@ -67,7 +63,6 @@ describe('MessagesEffects', () => {
       internalActions.sendedMessage({ endpoint, message })
     );
   });
-
   it('emits send failed', async () => {
     service.sendMessage.mockRejectedValue(new Error('fail'));
     actions$ = new ReplaySubject(1);

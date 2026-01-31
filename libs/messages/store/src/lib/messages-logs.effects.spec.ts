@@ -7,14 +7,18 @@ import { Logger } from '@service-bus-browser/logs-services';
 import * as internalActions from './messages.internal-actions';
 import * as actions from './messages.actions';
 import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
-
-const endpoint: ReceiveEndpoint = { connectionId: '00000000-0000-0000-0000-000000000001', queueName: 'q', channel: undefined };
-
+const endpoint: ReceiveEndpoint = {
+  connectionId: '00000000-0000-0000-0000-000000000001',
+  queueName: 'q',
+  channel: undefined,
+};
 describe('MessagesLogsEffects', () => {
   let effects: MessagesLogsEffects;
   let actions$: ReplaySubject<any>;
-  let logger: { info: jest.Mock, error: jest.Mock };
-
+  let logger: {
+    info: jest.Mock;
+    error: jest.Mock;
+  };
   beforeEach(() => {
     logger = { info: jest.fn(), error: jest.fn() };
     TestBed.configureTestingModule({
@@ -22,19 +26,25 @@ describe('MessagesLogsEffects', () => {
         MessagesLogsEffects,
         provideMockStore({}),
         { provide: Logger, useValue: logger },
-        provideMockActions(() => actions$)
-      ]
+        provideMockActions(() => actions$),
+      ],
     });
     effects = TestBed.inject(MessagesLogsEffects);
   });
-
   it('logs progress', () => {
     actions$ = new ReplaySubject(1);
-    actions$.next(internalActions.peekMessagesPartLoaded({ pageId: '00000000-0000-0000-0000-000000000002', endpoint, maxAmount: 5, amountLoaded: 1, messages: [] }));
+    actions$.next(
+      internalActions.peekMessagesPartLoaded({
+        pageId: '00000000-0000-0000-0000-000000000002',
+        endpoint,
+        maxAmount: 5,
+        amountLoaded: 1,
+        messages: [],
+      })
+    );
     effects.logLoadingProgress$.subscribe();
     expect(logger.info).toHaveBeenCalled();
   });
-
   it('logs cleared', () => {
     actions$ = new ReplaySubject(1);
     actions$.next(actions.clearedEndpoint({ endpoint }));
