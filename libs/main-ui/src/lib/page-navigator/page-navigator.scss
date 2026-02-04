@@ -1,7 +1,7 @@
 .navigator {
   display: flex;
   overflow: auto;
-  border-bottom: solid 1px var(--p-tabs-tablist-border-color);
+  border-bottom: solid 1px hsl(0, 0%, 31%);
   max-width: 100%;
   text-wrap: nowrap;
   scrollbar-width: thin;
