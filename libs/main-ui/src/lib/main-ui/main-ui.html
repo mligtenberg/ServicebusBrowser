@@ -24,16 +24,7 @@
   </ng-template>
   <ng-template pTemplate>
     <div class="main-content">
-      <p-tabs [value]="currentRoute()" class="open-data-tabs" scrollable="">
-        <p-tablist>
-          @for (page of messagePages(); track page.id) {
-            <p-tab [value]="'/messages/page/' + page.id" [routerLink]="'/messages/page/' + page.id">
-              <span>{{ page.name }}</span>
-              <p-button [rounded]="true" [text]="true" severity="danger" icon="pi pi-times" (click)="closePage(page.id, $event)" class="close-button"></p-button>
-            </p-tab>
-          }
-        </p-tablist>
-      </p-tabs>
+      <lib-page-navigator/>
       <div class="router-outlet">
         <p-scroll-panel>
           <router-outlet></router-outlet>

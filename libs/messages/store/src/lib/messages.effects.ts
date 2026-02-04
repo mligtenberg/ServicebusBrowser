@@ -234,7 +234,7 @@ export class MessagesEffects {
               )
             ),
             map(() => internalActions.messagesExported()),
-            catchError(() => [internalActions.messagesExportFailed()])
+            catchError((e) => [internalActions.messagesExportFailed({ error: e })])
           )
         )
       ),

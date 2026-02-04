@@ -82,7 +82,10 @@ export const messagesExported = createAction(
 )
 
 export const messagesExportFailed = createAction(
-  '[Messages] messages export failed'
+  '[Messages] messages export failed',
+  props<{
+    error: Error
+  }>()
 )
 
 export const messagesImported = createAction(

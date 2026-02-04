@@ -1,0 +1,48 @@
+.navigator {
+  display: flex;
+  overflow: auto;
+  border-bottom: solid 1px var(--p-tabs-tablist-border-color);
+  max-width: 100%;
+  text-wrap: nowrap;
+  scrollbar-width: thin;
+}
+
+.page {
+  --color-active: var(--p-primary-color);
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  border-bottom: solid 1px transparent;
+  padding: 0 2px 0 6px;
+
+  &.active {
+    > div {
+      color: var(--color-active);
+    }
+    border-bottom: solid 1px var(--color-active);
+  }
+
+  &:not(.active) > div {
+    color: hsl(0, 0%, 65%);
+
+    &:focus-visible {
+      outline: var(--color-active) solid 2px;
+      outline-offset: -2px;
+    }
+
+    &:hover {
+      color: hsl(0, 0%, 100%);
+    }
+  }
+
+  .close-button {
+    color: hsl(0, 60%, 60%);
+    background: none;
+    border: none;
+
+    :hover {
+      color: hsl(0, 23%, 70%);
+    }
+  }
+}

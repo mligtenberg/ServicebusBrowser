@@ -1,0 +1,13 @@
+<div class="navigator">
+  @for (page of pages(); track page.id) {
+    <div class="page" draggable="true" [ngClass]="{'active': page === currentPage()}">
+      <div
+        [routerLink]="page.route"
+        tabindex="1"
+        [attr.aria-label]="page.name">{{ page.name }}</div>
+      <button tabindex="1" (click)="closePage(page.id, $event)" class="close-button">
+        <span class="pi pi-times"></span>
+      </button>
+    </div>
+  }
+</div>

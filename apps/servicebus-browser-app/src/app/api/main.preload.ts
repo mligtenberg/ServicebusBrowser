@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('serviceBusApi', {
       requestType,
       request
     ),
-  messagesDoRequest: (requestType: string, request) =>
-    ipcRenderer.invoke('service-bus:messages-do-request', requestType, request),
+  messagesDoRequest: (requestType: string, request) => {
+    return ipcRenderer.invoke('service-bus:messages-do-request', requestType, request);
+  }
 });

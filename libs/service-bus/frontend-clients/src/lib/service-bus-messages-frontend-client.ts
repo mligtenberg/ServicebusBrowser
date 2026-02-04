@@ -47,12 +47,15 @@ export class ServiceBusMessagesFrontendClient {
 
   async saveFile(
     fileName: string,
-    fileContent: BlobPart,
+    fileContent: Blob,
     fileTypes: Array<{ extensions: string[]; name: string }>
   ): Promise<boolean> {
+    const buffer = await fileContent.bytes();
+    console.log("buffer", buffer);
+
     return (await this.serviceBusApi.messagesDoRequest('storeFile', {
       fileName,
-      fileContent,
+      buffer,
       fileTypes,
     })) as boolean;
   }

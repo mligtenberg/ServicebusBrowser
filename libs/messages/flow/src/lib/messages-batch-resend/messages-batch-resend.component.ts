@@ -162,7 +162,8 @@ export class MessagesBatchResendComponent {
       actions: this.actions(),
     };
 
-    await this.fileService.saveFile('export.actionlist', JSON.stringify(actionContainer), [
+    const blob = new Blob([JSON.stringify(actionContainer)], {type: "application/json"});
+    await this.fileService.saveFile('export.actionlist', blob, [
       {
         extensions: ['actionlist'],
         name: 'Action List',

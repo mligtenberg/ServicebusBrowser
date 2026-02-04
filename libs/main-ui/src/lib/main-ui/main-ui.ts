@@ -19,6 +19,7 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { PageNavigator } from '../page-navigator/page-navigator';
 
 interface ElectronWindow {
   electron?: {
@@ -44,6 +45,7 @@ interface ElectronWindow {
     Button,
     NgClass,
     NgTemplateOutlet,
+    PageNavigator,
   ],
   selector: 'lib-main-ui',
   templateUrl: './main-ui.html',

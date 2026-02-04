@@ -1,8 +1,10 @@
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import JSZip from 'jszip';
 
-export async function makeZipFile(messages: ServiceBusReceivedMessage[]): Promise<BlobPart> {
-// Create zip file
+export async function makeZipFile(
+  messages: ServiceBusReceivedMessage[]
+): Promise<Blob> {
+  // Create zip file
   const zip = new JSZip();
 
   // Add each message to the zip
@@ -38,12 +40,12 @@ export async function makeZipFile(messages: ServiceBusReceivedMessage[]): Promis
       timeToLive: message.timeToLive,
       to: message.to,
       enqueuedSequenceNumber: message.enqueuedSequenceNumber,
-      applicationProperties: message.applicationProperties || {}
+      applicationProperties: message.applicationProperties || {},
     };
 
     messageFolder.file('properties.json', JSON.stringify(properties, null, 2));
   }
 
   // Generate the zip file
-  return await zip.generateAsync({ type: 'arraybuffer' });
+  return await zip.generateAsync({ type: 'blob' });
 }
