@@ -1,4 +1,4 @@
-import { Component, contentChild, effect, inject, input, signal, TemplateRef } from '@angular/core';
+import { Component, contentChild, inject, input, signal, TemplateRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Splitter } from 'primeng/splitter';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
@@ -9,15 +9,10 @@ import { Store } from '@ngrx/store';
 import { LogsSelectors } from '@service-bus-browser/logs-store';
 import { SidebarComponent } from '../sidebar/sidebar';
 import { Toast } from 'primeng/toast';
-import {
-  MessagesActions,
-  MessagesSelectors,
-} from '@service-bus-browser/messages-store';
-import { selectRoute } from '../ngrx/route.selectors';
-import { UUID } from '@service-bus-browser/shared-contracts';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { PageNavigator } from '../page-navigator/page-navigator';
+import { contentResize } from '@service-bus-browser/actions';
 
 @Component({
   imports: [
@@ -51,17 +46,14 @@ export class MainUiComponent {
   themeService = inject(ColorThemeService);
   logsOpened = signal(false);
 
-  currentRoute = this.store.selectSignal(selectRoute);
   logs = this.store.selectSignal(LogsSelectors.selectLogs);
-  messagePages = this.store.selectSignal(MessagesSelectors.selectPages);
   darkMode = this.themeService.darkMode;
 
   toggleLogs() {
     this.logsOpened.update((value) => !value);
   }
 
-  closePage(pageId: UUID, event: Event) {
-    this.store.dispatch(MessagesActions.closePage({ pageId: pageId }));
-    event.stopPropagation();
+  onResizeEnd() {
+    this.store.dispatch(contentResize());
   }
 }

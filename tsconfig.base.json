@@ -81,7 +81,8 @@
       ],
       "@service-bus-browser/topology-store": [
         "libs/topology/store/src/index.ts"
-      ]
+      ],
+      "@service-bus-browser/actions": ["libs/shared/actions/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

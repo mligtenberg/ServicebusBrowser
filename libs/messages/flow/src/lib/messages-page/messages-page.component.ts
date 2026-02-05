@@ -1,4 +1,11 @@
-import { Component, computed, inject, model, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  model,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import {
@@ -18,7 +25,6 @@ import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
@@ -30,6 +36,9 @@ import { Menu } from 'primeng/menu';
 import { MessageFilterDialogComponent } from '../message-filter-dialog/message-filter-dialog.component';
 import { Tooltip } from 'primeng/tooltip';
 import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
+import { EditorComponent } from 'ngx-monaco-editor-v2';
+import { Actions, ofType } from '@ngrx/effects';
+import { contentResize } from '@service-bus-browser/actions';
 
 @Component({
   selector: 'lib-messages-page.ts',
@@ -40,7 +49,6 @@ import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@servic
     FormsModule,
     Dialog,
     Button,
-    EditorComponent,
     ContextMenu,
     ScrollPanel,
     EndpointSelectorTreeInputComponent,
@@ -48,6 +56,7 @@ import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@servic
     Menu,
     MessageFilterDialogComponent,
     Tooltip,
+    EditorComponent,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -57,6 +66,9 @@ export class MessagesPageComponent {
   store = inject(Store);
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
+  actions = inject(Actions);
+
+  monacoEditor = viewChild<EditorComponent>('monacoEditor');
 
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
@@ -76,12 +88,14 @@ export class MessagesPageComponent {
   menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
   messageFilter = computed(() => {
     const currentPage = this.currentPage();
-    return currentPage?.filter ?? {
-      systemProperties: [],
-      applicationProperties: [],
-      body: [],
-    };
-  })
+    return (
+      currentPage?.filter ?? {
+        systemProperties: [],
+        applicationProperties: [],
+        body: [],
+      }
+    );
+  });
   totalMessageCount = computed(() => this.currentPage()?.messages.length ?? 0);
   filteredMessageCount = computed(() => this.filteredMessages().length);
   filteredPercentage = computed(() => {
@@ -226,6 +240,13 @@ export class MessagesPageComponent {
 
         this.currentPage.set(page);
       });
+
+    this.actions.pipe(
+      ofType(contentResize),
+      takeUntilDestroyed()
+    ).subscribe(() => {
+      (this.monacoEditor() as any)?._editor.layout();
+    })
   }
 
   getMenuItems(
@@ -362,20 +383,11 @@ export class MessagesPageComponent {
   }
 
   onFiltersUpdated(filter: MessageFilter) {
-    this.store.dispatch(MessagesActions.setPageFilter({
-      pageId: this.currentPage()!.id,
-      filter: filter,
-    }));
-  }
-
-  clearFilters() {
-    this.store.dispatch(MessagesActions.setPageFilter({
-      pageId: this.currentPage()!.id,
-      filter: {
-        systemProperties: [],
-        applicationProperties: [],
-        body: [],
-      },
-    }));
+    this.store.dispatch(
+      MessagesActions.setPageFilter({
+        pageId: this.currentPage()!.id,
+        filter: filter,
+      })
+    );
   }
 }
