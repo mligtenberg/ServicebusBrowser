@@ -38,7 +38,7 @@ describe('messages store reducer', () => {
       configurable: true,
     });
   });
-  it('creates a new page when loading messages', () => {
+  it('creates a new page.ts when loading messages', () => {
     const state = logsReducer(initialState, loadAction());
     expect(state.receivedMessages.length).toBe(1);
     expect(state.receivedMessages[0]).toMatchObject({
@@ -48,7 +48,7 @@ describe('messages store reducer', () => {
       messages: [],
     });
   });
-  it('does not duplicate existing page', () => {
+  it('does not duplicate existing page.ts', () => {
     const withPage = logsReducer(initialState, loadAction());
     const state = logsReducer(withPage, loadAction());
     expect(state.receivedMessages.length).toBe(1);
@@ -62,7 +62,7 @@ describe('messages store reducer', () => {
     state = logsReducer(state, partLoadedAction(pageId, msgs));
     expect(state.receivedMessages[0].messages.length).toBe(2);
   });
-  it('marks page loaded and sets name range', () => {
+  it('marks page.ts loaded and sets name range', () => {
     let state = logsReducer(initialState, loadAction());
     const msgs: ServiceBusReceivedMessage[] = [
       { body: 'a', sequenceNumber: '1', state: 'active' },
@@ -76,12 +76,12 @@ describe('messages store reducer', () => {
     expect(state.receivedMessages[0].loaded).toBe(true);
     expect(state.receivedMessages[0].name).toBe('test-queue (1 - 2)');
   });
-  it('removes page when closed', () => {
+  it('removes page.ts when closed', () => {
     let state = logsReducer(initialState, loadAction());
     state = logsReducer(state, Actions.closePage({ pageId }));
     expect(state.receivedMessages.length).toBe(0);
   });
-  it('adds page for imported messages', () => {
+  it('adds page.ts for imported messages', () => {
     const msgs: ServiceBusReceivedMessage[] = [
       { body: 'a', sequenceNumber: '1', state: 'active' },
     ];

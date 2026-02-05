@@ -4,7 +4,6 @@ import { Splitter } from 'primeng/splitter';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { Menubar } from 'primeng/menubar';
 import { ScrollPanel } from 'primeng/scrollpanel';
-import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { LogsListComponent } from '@service-bus-browser/logs-components';
 import { Store } from '@ngrx/store';
 import { LogsSelectors } from '@service-bus-browser/logs-store';
@@ -16,18 +15,9 @@ import {
 } from '@service-bus-browser/messages-store';
 import { selectRoute } from '../ngrx/route.selectors';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { PageNavigator } from '../page-navigator/page-navigator';
-
-interface ElectronWindow {
-  electron?: {
-    platform?: string;
-    onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
-    checkForUpdates?: () => Promise<void>;
-  };
-}
 
 @Component({
   imports: [
@@ -37,12 +27,8 @@ interface ElectronWindow {
     PrimeTemplate,
     Menubar,
     ScrollPanel,
-    Tabs,
-    TabList,
-    Tab,
     SidebarComponent,
     Toast,
-    Button,
     NgClass,
     NgTemplateOutlet,
     PageNavigator,

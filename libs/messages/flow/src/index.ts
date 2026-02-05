@@ -12,7 +12,7 @@ export const routes = (options: { baseRoute: string }): Routes => [
     ],
     children: [
       {
-        path: 'page/:pageId',
+        path: 'page.ts/:pageId',
         loadComponent: () => import('./lib/messages-page/messages-page.component').then(m => m.MessagesPageComponent),
       },
       {

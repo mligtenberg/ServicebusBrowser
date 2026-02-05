@@ -13,7 +13,7 @@ export const peekMessages = createAction(
 )
 
 export const closePage = createAction(
-  '[Messages] close page',
+  '[Messages] close page.ts',
   props<{
     pageId: UUID,
   }>()
@@ -78,7 +78,7 @@ export const setBatchResendMessages = createAction(
 )
 
 export const setPageFilter = createAction(
-  '[Messages] set page filter',
+  '[Messages] set page.ts filter',
   props<{
     pageId: UUID,
     filter: MessageFilter

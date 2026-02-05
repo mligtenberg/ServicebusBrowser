@@ -32,7 +32,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 
 @Component({
-  selector: 'lib-messages-page',
+  selector: 'lib-messages-page.ts',
   imports: [
     CommonModule,
     Card,
