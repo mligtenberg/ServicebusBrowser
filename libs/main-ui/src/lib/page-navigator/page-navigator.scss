@@ -1,14 +1,22 @@
 .navigator {
   display: flex;
   overflow-x: auto;
-  border-bottom: solid 1px light-dark(hsl(0, 0%, 88%),hsl(0, 0%, 31%));
   max-width: 100%;
   text-wrap: nowrap;
   scrollbar-width: thin;
   scrollbar-color: light-dark(hsl(0, 0%, 88%),hsl(0, 0%, 31%)) transparent;
+  position: relative;
 
-  &:empty {
-    border: none;
+  &:not(:empty)::after {
+    background: light-dark(hsl(0, 0%, 88%),hsl(0, 0%, 31%));
+    content: '';
+    width: 100%;
+    height: 1px;
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
   }
 }
 
@@ -20,6 +28,7 @@
   cursor: pointer;
   border-bottom: solid 1px transparent;
   padding: 0 2px 0 6px;
+  z-index: 2;
 
   &.active {
     > div {
