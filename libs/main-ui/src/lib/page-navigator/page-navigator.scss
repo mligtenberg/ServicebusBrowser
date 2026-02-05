@@ -1,10 +1,15 @@
 .navigator {
   display: flex;
-  overflow: auto;
-  border-bottom: solid 1px hsl(0, 0%, 31%);
+  overflow-x: auto;
+  border-bottom: solid 1px light-dark(hsl(0, 0%, 88%),hsl(0, 0%, 31%));
   max-width: 100%;
   text-wrap: nowrap;
   scrollbar-width: thin;
+  scrollbar-color: light-dark(hsl(0, 0%, 88%),hsl(0, 0%, 31%)) transparent;
+
+  &:empty {
+    border: none;
+  }
 }
 
 .page {
@@ -24,7 +29,7 @@
   }
 
   &:not(.active) > div {
-    color: hsl(0, 0%, 65%);
+    color: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 65%));
 
     &:focus-visible {
       outline: var(--color-active) solid 2px;
@@ -32,7 +37,7 @@
     }
 
     &:hover {
-      color: hsl(0, 0%, 100%);
+      color: light-dark(hsl(0, 0%, 15%), hsl(0, 0%, 100%));
     }
   }
 
@@ -42,7 +47,7 @@
     border: none;
 
     :hover {
-      color: hsl(0, 23%, 70%);
+      color: light-dark(hsl(0, 20%, 41%), hsl(0, 23%, 70%));
     }
   }
 }
