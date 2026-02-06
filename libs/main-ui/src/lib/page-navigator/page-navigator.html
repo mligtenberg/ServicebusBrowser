@@ -2,6 +2,8 @@
      cdkDropList
      cdkDropListOrientation="horizontal"
      (cdkDropListDropped)="drop($event)"
+     (scroll)="onElementChange()"
+     #pageNavigator
 >
   @for (page of pages(); track page.id; let i = $index) {
     <div
@@ -20,6 +22,19 @@
     </div>
   }
 </div>
-@if (pages().length > 0) {
-  <div class="navigator-border"></div>
-}
+
+<div class="navigator-border"></div>
+
+<button
+  class="move-scroll-button move-left"
+  (click)="scrollToStart(pageNavigator)"
+  [disabled]="scrollAtStart()"
+><span
+  class="pi pi-chevron-left"></span></button>
+<button
+  class="move-scroll-button move-right"
+  (click)="scrollToEnd(pageNavigator)"
+  [disabled]="scrollAtEnd()"
+><span
+  class="pi pi-chevron-right"></span></button>
+

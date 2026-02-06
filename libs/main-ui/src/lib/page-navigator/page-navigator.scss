@@ -1,10 +1,18 @@
+:host {
+  display: block;
+  position: relative;
+}
+
 .navigator {
   display: flex;
   overflow-x: auto;
   text-wrap: nowrap;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: light-dark(hsla(0, 0%, 88%, 70%),hsla(0, 0%, 31%, 70%)) transparent;
   position: relative;
+  padding-left: 35px;
+  padding-right: 35px;
+  height: 30px;
 }
 
 .navigator-border {
@@ -14,6 +22,43 @@
   z-index: 1;
 }
 
+.move-scroll-button {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  height: 29px;
+  width: 29px;
+  cursor: pointer;
+  background: var(--p-menubar-background);
+  border: none;
+
+  &.move-left {
+    left: 0;
+    &:after {
+      content: '';
+      position: absolute;
+      left: 29px;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(to left, transparent, var(--p-menubar-background));
+      width: 20px;
+    }
+  }
+  &.move-right {
+    right: 0;
+    &:after {
+      content: '';
+      position: absolute;
+      right: 29px;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(to right, transparent, var(--p-menubar-background));
+      width: 20px;
+    }
+  }
+}
+
 .page {
   --color-active: var(--p-primary-color);
   font-weight: bold;
@@ -21,6 +66,7 @@
   justify-content: center;
   cursor: pointer;
   border-bottom: solid 1px transparent;
+  height: 30px;
   padding: 5px 2px 3px 6px;
   z-index: 2;
 
