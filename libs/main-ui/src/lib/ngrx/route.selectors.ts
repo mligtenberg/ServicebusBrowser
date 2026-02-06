@@ -13,30 +13,29 @@ export const selectPages = createSelector(
   featureSelector,
   MessagesSelectors.selectPages,
   (state, messagePages) => {
-    const positions = state.pages.sort(p => p.position);
+    const positions = Object.entries(state.pages)
+      .map(([position, pageId]) => ({pageId, position: parseInt(position)}))
+      .sort(p => p.position);
     const pagesBase = [...messagePages].map((page) => ({
       ...page,
       position: positions.find((p) => p.pageId === page.id)?.position,
-      route: '/messages/page.ts/' + page.id
+      route: '/messages/page/' + page.id
     }));
 
-    let pages = pagesBase.filter(p => !p.position);
-    const pagesToInsert = pagesBase.filter(p => p.position);
+    let pages = pagesBase.filter(p => p.position === undefined);
+    const pagesToInsert = pagesBase.filter(p => p.position !== undefined);
 
     for (const page of pagesToInsert) {
       if (page.position === 0) {
-        pages = [
-          page,
-          ...pagesBase
-        ]
+        pages = [page, ...pages];
         continue;
       }
 
       pages = [
-        ...pagesBase.slice(0, (page.position ?? 1) - 1),
+        ...pages.slice(0, page.position ?? 0),
         page,
-        ...pagesBase.slice(page.position),
-      ]
+        ...pages.slice(page.position ?? 0),
+      ];
     }
 
     return pages;

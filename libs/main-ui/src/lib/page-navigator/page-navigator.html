@@ -1,10 +1,19 @@
-<div class="navigator">
+<div class="navigator"
+     cdkDropList
+     cdkDropListOrientation="horizontal"
+     (cdkDropListDropped)="drop($event)"
+>
   @for (page of pages(); track page.id) {
-    <div class="page" draggable="true" [ngClass]="{'active': page === currentPage()}">
-      <div
+    <div
+      class="page"
+      cdkDrag
+      [cdkDragData]="page.id"
+      [ngClass]="{'active': page === currentPage()}"
+    >
+      <span
         [routerLink]="page.route"
         tabindex="1"
-        [attr.aria-label]="page.name">{{ page.name }}</div>
+        [attr.aria-label]="page.name">{{ page.name }}</span>
       <button tabindex="1" (click)="closePage(page.id, $event)" class="close-button">
         <span class="pi pi-times"></span>
       </button>

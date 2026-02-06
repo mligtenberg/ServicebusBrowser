@@ -6,6 +6,7 @@ export const pagesActions = createActionGroup({
   events: {
     movePage: props<{
       id: UUID;
+      fromPosition: number;
       newPosition: number;
     }>(),
     closePage: props<{ id: UUID }>(),

@@ -2,15 +2,16 @@ import { Component, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectActivePage, selectPages } from '../ngrx/route.selectors';
 import { pagesActions } from '../ngrx/route.actions';
-import { UUID } from '@service-bus-browser/shared-contracts';
+import { Page, UUID } from '@service-bus-browser/shared-contracts';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
-  imports: [NgClass, RouterLink],
+  imports: [NgClass, RouterLink, CdkDropList, CdkDrag],
 })
 export class PageNavigator {
   store = inject(Store);
@@ -21,5 +22,14 @@ export class PageNavigator {
   closePage(pageId: UUID, event: Event) {
     this.store.dispatch(pagesActions.closePage({ id: pageId }));
     event.stopPropagation();
+  }
+
+  protected drop($event: CdkDragDrop<any, any>) {
+    console.log($event);
+    this.store.dispatch(pagesActions.movePage({
+      id: $event.item.data,
+      fromPosition: $event.previousIndex,
+      newPosition: $event.currentIndex
+    }));
   }
 }
