@@ -19,13 +19,12 @@ export class PageNavigator {
   pages = this.store.selectSignal(selectPages);
   currentPage = this.store.selectSignal(selectActivePage);
 
-  closePage(pageId: UUID, event: Event) {
-    this.store.dispatch(pagesActions.closePage({ id: pageId }));
+  closePage(pageId: UUID, event: Event, index: number) {
+    this.store.dispatch(pagesActions.closePage({ id: pageId, position: index }));
     event.stopPropagation();
   }
 
   protected drop($event: CdkDragDrop<any, any>) {
-    console.log($event);
     this.store.dispatch(pagesActions.movePage({
       id: $event.item.data,
       fromPosition: $event.previousIndex,

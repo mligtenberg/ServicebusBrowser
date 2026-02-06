@@ -57,10 +57,15 @@ export const routeReducer = createReducer(
       pages: newPages
     };
   }),
-  on(pagesActions.closePage, (state, { id }): RouteState => ({
+  on(pagesActions.closePage, (state, { id, position }): RouteState => ({
     ...state,
     pages: Object.entries(state.pages)
-      .filter(([position, pageId]) => pageId !== id)
+      .filter(([p, pageId]) => pageId !== id)
+      .map(([p, pageId]) => [parseInt(p), pageId] as [number, UUID])
+      .sort(
+        ([p1], [p2]) => p1 - p2
+      )
+      .map(([p, pageId]) => p > position ? [p - 1, pageId] : [p, pageId])
       .reduce<Record<number, UUID>>((acc, [position, pageId]) => ({ ...acc, [position]: pageId }), {})
   }))
 );

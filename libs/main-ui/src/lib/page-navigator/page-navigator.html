@@ -3,7 +3,7 @@
      cdkDropListOrientation="horizontal"
      (cdkDropListDropped)="drop($event)"
 >
-  @for (page of pages(); track page.id) {
+  @for (page of pages(); track page.id; let i = $index) {
     <div
       class="page"
       cdkDrag
@@ -14,7 +14,7 @@
         [routerLink]="page.route"
         tabindex="1"
         [attr.aria-label]="page.name">{{ page.name }}</span>
-      <button tabindex="1" (click)="closePage(page.id, $event)" class="close-button">
+      <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
         <span class="pi pi-times"></span>
       </button>
     </div>
