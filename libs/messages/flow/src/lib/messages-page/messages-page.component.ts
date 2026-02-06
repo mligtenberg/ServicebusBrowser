@@ -41,7 +41,7 @@ import { Actions, ofType } from '@ngrx/effects';
 import { contentResize } from '@service-bus-browser/actions';
 
 @Component({
-  selector: 'lib-messages-page.ts',
+  selector: 'lib-messages-page',
   imports: [
     CommonModule,
     Card,

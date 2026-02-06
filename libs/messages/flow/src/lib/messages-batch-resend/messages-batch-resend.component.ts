@@ -283,7 +283,7 @@ export class MessagesBatchResendComponent {
         // Close the preview dialog if it's open
         this.previewDialogVisible.set(false);
 
-        // Navigate back to messages page.ts
+        // Navigate back to messages page
         this.router.navigate(['/']);
       }
     } catch (error) {
