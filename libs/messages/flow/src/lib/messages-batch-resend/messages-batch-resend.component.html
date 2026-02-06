@@ -93,11 +93,12 @@
   <p-dialog
     header="Preview Changes"
     [(visible)]="previewDialogVisible"
+    appendTo="body"
     [modal]="true"
     [style]="{width: '90vw', height: '90vh'}"
     [draggable]="false"
     [resizable]="false">
-    <div class="preview-layout">
+    <div class="preview-layout" [ngClass]="{ darkMode: darkMode() }">
       <!-- Message sidebar -->
       <div class="message-sidebar">
         <h3>Messages</h3>
