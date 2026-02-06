@@ -25,16 +25,18 @@
 
 <div class="navigator-border"></div>
 
-<button
-  class="move-scroll-button move-left"
-  (click)="scrollToStart(pageNavigator)"
-  [disabled]="scrollAtStart()"
-><span
-  class="pi pi-chevron-left"></span></button>
-<button
-  class="move-scroll-button move-right"
-  (click)="scrollToEnd(pageNavigator)"
-  [disabled]="scrollAtEnd()"
-><span
-  class="pi pi-chevron-right"></span></button>
+@if (!scrollAtStart()) {
+  <button
+    class="move-scroll-button move-left"
+    (click)="scrollToStart(pageNavigator)"
+  ><span
+    class="pi pi-chevron-left"></span></button>
+}
 
+@if (!scrollAtEnd()) {
+  <button
+    class="move-scroll-button move-right"
+    (click)="scrollToEnd(pageNavigator)"
+  ><span
+    class="pi pi-chevron-right"></span></button>
+}

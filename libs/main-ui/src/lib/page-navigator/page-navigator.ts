@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   inject,
   signal,
   viewChild,
@@ -12,9 +13,10 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { Actions } from '@ngrx/effects';
+import { Actions, ofType } from '@ngrx/effects';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { delay } from 'rxjs';
+import { contentResize } from '@service-bus-browser/actions';
 
 @Component({
   selector: 'lib-page-navigator',
@@ -41,6 +43,13 @@ export class PageNavigator {
         delay(30)
       )
       .subscribe(() => this.onElementChange());
+
+    this.actions
+      .pipe(
+        ofType(contentResize),
+        takeUntilDestroyed()
+      )
+      .subscribe(() => this.onElementChange());
   }
 
   closePage(pageId: UUID, event: Event, index: number) {
@@ -48,6 +57,11 @@ export class PageNavigator {
       pagesActions.closePage({ id: pageId, position: index }),
     );
     event.stopPropagation();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.onElementChange();
   }
 
   protected drop($event: CdkDragDrop<any, any>) {
@@ -74,10 +88,10 @@ export class PageNavigator {
       return;
     }
 
-    this.scrollAtStart.update(() => navigator.scrollLeft === 0);
+    this.scrollAtStart.update(() => navigator.scrollLeft <= 10);
     this.scrollAtEnd.update(
       () =>
-        navigator.scrollLeft >= navigator.scrollWidth - navigator.clientWidth,
+        navigator.scrollLeft >= navigator.scrollWidth - navigator.clientWidth - 5,
     );
   }
 }
