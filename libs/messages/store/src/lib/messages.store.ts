@@ -1,10 +1,9 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { MessagePage, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
-
-export const featureKey = 'messages';
-
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
+
+export const featureKey = 'messages';
 
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
@@ -74,9 +73,7 @@ export const logsReducer = createReducer(
       receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
     }
   }),
-  on(internalActions.messagesImported, (state, { pageName, messages }): MessagesState => {
-    const pageId = crypto.randomUUID();
-
+  on(internalActions.messagesImported, (state, { pageId, pageName, messages }): MessagesState => {
     return {
       ...state,
       receivedMessages: [

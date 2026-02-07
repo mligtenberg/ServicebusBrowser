@@ -5,11 +5,14 @@ import { provideEffects } from '@ngrx/effects';
 import { MessagesEffects } from './lib/messages.effects';
 import { MessagesTasksEffects } from './lib/messages-tasks.effects';
 import { MessagesLogsEffects } from './lib/messages-logs.effects';
+import { MessagesToastsEffects } from './lib/messages-toasts.effects';
 
 import * as actions from './lib/messages.actions';
 import * as selectors from './lib/messages.selectors';
-import { MessagesToastsEffects } from './lib/messages-toasts.effects';
+import * as internalActions from './lib/messages.internal-actions';
+
 export const MessagesActions = actions;
+export const MessagesEffectActions = internalActions;
 export const MessagesSelectors = selectors;
 
 export function provideMessagesState(): (

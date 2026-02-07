@@ -91,6 +91,7 @@ export const messagesExportFailed = createAction(
 export const messagesImported = createAction(
   '[Messages] messages imported',
   props<{
+    pageId: UUID,
     pageName: string,
     messages: ServiceBusReceivedMessage[]
   }>()

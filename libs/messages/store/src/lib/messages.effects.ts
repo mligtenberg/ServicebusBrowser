@@ -264,7 +264,7 @@ export class MessagesEffects {
               return [action];
             }),
             map(({ pageName, messages }) =>
-              internalActions.messagesImported({ pageName, messages })
+              internalActions.messagesImported({ pageId: crypto.randomUUID(), pageName, messages })
             ),
             catchError(() => [internalActions.messagesImportFailed()])
           )
