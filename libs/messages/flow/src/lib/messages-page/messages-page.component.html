@@ -56,7 +56,8 @@
         [virtualScrollItemSize]="30"
         selectionMode="multiple"
         contextMenuSelectionMode="joint"
-        [(selection)]="selection"
+        [selection]="selection()"
+        (selectionChange)="setSelection($event)"
         [metaKeySelection]="true"
         [contextMenu]="cm"
         >

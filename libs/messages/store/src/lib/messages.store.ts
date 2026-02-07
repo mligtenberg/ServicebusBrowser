@@ -99,6 +99,15 @@ export const logsReducer = createReducer(
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, filter } : page)
     }
+  }),
+  on(actions.setPageSelection, (state, { pageId, sequenceNumber }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
+        ...page,
+        selectedMessageSequence: sequenceNumber
+      } : page)
+    }
   })
 );
 

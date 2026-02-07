@@ -227,7 +227,6 @@ export class MessagesPageComponent {
       .pipe(
         switchMap((params) => {
           const pageId: string = params['pageId'];
-          this.selection.set(undefined);
           return this.store.select(MessagesSelectors.selectPage(pageId));
         }),
         takeUntilDestroyed()
@@ -240,6 +239,16 @@ export class MessagesPageComponent {
 
         this.currentPage.set(page);
       });
+
+    this.activatedRoute.params.pipe(
+      switchMap((params) => {
+        const pageId: string = params['pageId'];
+        return this.store.select(MessagesSelectors.selectPageSelectedMessage(pageId));
+      }),
+      takeUntilDestroyed(),
+    ).subscribe((message) => {
+      this.selection.set(message ? [message] : undefined);
+    })
 
     this.actions.pipe(
       ofType(contentResize),
@@ -389,5 +398,12 @@ export class MessagesPageComponent {
         filter: filter,
       })
     );
+  }
+
+  protected setSelection($event: ServiceBusReceivedMessage[]) {
+    this.store.dispatch(MessagesActions.setPageSelection({
+      pageId: this.currentPage()!.id,
+      sequenceNumber: $event[0]?.sequenceNumber
+    }));
   }
 }

@@ -7,17 +7,26 @@ export const selectPages = createSelector(
   featureSelector,
   (state) =>
     state.receivedMessages.map((page) => ({
-        id: page.id,
-        name: page.name,
-        messages: page.messages,
-        type: 'messages',
-      })) as Array<Page & { messages: ServiceBusReceivedMessage[] }>,
+      id: page.id,
+      name: page.name,
+      messages: page.messages,
+      type: 'messages',
+    })) as Array<Page & { messages: ServiceBusReceivedMessage[] }>,
 );
 
-export const selectPage = (pageId: string) => createSelector(
-  featureSelector,
-  (state) => state.receivedMessages.find((page) => page.id === pageId)
-);
+export const selectPage = (pageId: string) =>
+  createSelector(featureSelector, (state) =>
+    state.receivedMessages.find((page) => page.id === pageId),
+  );
+
+export const selectPageSelectedMessage = (pageId: string) =>
+  createSelector(selectPage(pageId), (page) =>
+    page?.selectedMessageSequence === undefined
+      ? undefined
+      : page.messages.find(
+          (message) => message.sequenceNumber === page?.selectedMessageSequence,
+        ),
+  );
 
 export const selectMessage = (pageId: string, messageId: string) =>
   createSelector(selectPage(pageId), (page) =>

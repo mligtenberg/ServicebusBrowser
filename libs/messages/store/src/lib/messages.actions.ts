@@ -84,3 +84,11 @@ export const setPageFilter = createAction(
     filter: MessageFilter
   }>()
 );
+
+export const setPageSelection = createAction(
+  '[Messages] set page selection',
+  props<{
+    pageId: UUID;
+    sequenceNumber: string | undefined;
+  }>(),
+);

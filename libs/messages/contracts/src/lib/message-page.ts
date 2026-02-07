@@ -9,4 +9,5 @@ export interface MessagePage {
   loaded: boolean;
   messages: ServiceBusReceivedMessage[],
   filter?: MessageFilter;
+  selectedMessageSequence?: string;
 }
