@@ -1,7 +1,9 @@
 <div class="batch-resend-container" [ngClass]="{ darkMode: darkMode() }">
   <div class="batch-resend-header">
     <h2 class="title">Batch Actions</h2>
-    <p class="subtitle">Create a list of actions to modify your messages before resending</p>
+    <p class="subtitle">
+      Create a list of actions to modify your messages before resending
+    </p>
   </div>
 
   <div class="destination-selector">
@@ -15,17 +17,36 @@
       <div class="actions-header">
         <h3>Actions</h3>
         <div class="actions-header-buttons">
-          <p-button icon="pi pi-upload" severity="secondary" text="true" pTooltip="Import Actions" (click)="importActions()"></p-button>
-          <p-button icon="pi pi-download" severity="secondary" text="true" pTooltip="Export Actions" [disabled]="currentActions.length === 0" (click)="exportActions()"></p-button>
+          <p-button
+            icon="pi pi-upload"
+            severity="secondary"
+            text="true"
+            pTooltip="Import Actions"
+            (click)="importActions()"
+          ></p-button>
+          <p-button
+            icon="pi pi-download"
+            severity="secondary"
+            text="true"
+            pTooltip="Export Actions"
+            [disabled]="currentActions.length === 0"
+            (click)="exportActions()"
+          ></p-button>
         </div>
       </div>
       @if (currentActions.length > 0) {
-        <p-scroll-panel [style]="{height: 'calc(100% - 7em)'}">
+        <p-scroll-panel [style]="{ height: 'calc(100% - 7em)' }">
           @for (action of currentActions; track action; let i = $index) {
             <div class="action-item">
-              <div class="action-type">{{ getActionTypeLabel(action.type) }}</div>
-              <div class="action-target">{{ getActionTargetLabel(action.target) }}</div>
-              <div class="action-details">{{ getActionDescription(action) }}</div>
+              <div class="action-type">
+                {{ getActionTypeLabel(action.type) }}
+              </div>
+              <div class="action-target">
+                {{ getActionTargetLabel(action.target) }}
+              </div>
+              <div class="action-details">
+                {{ getActionDescription(action) }}
+              </div>
               <div class="action-position">
                 <p-button
                   icon="pi pi-arrow-up"
@@ -43,8 +64,18 @@
                 ></p-button>
               </div>
               <div class="action-buttons">
-                <p-button icon="pi pi-pencil" severity="primary" text="true" (click)="editAction(i)"></p-button>
-                <p-button icon="pi pi-trash" severity="danger" text="true" (click)="removeAction(i)"></p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="primary"
+                  text="true"
+                  (click)="editAction(i)"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text="true"
+                  (click)="removeAction(i)"
+                ></p-button>
               </div>
             </div>
           }
@@ -52,63 +83,79 @@
       }
 
       @if (currentActions.length === 0) {
-        <div class="empty-state" [style]="{height: 'calc(100% - 7em)'}">
-          <p>No actions added yet. Add actions below to modify your messages before resending.</p>
+        <div class="empty-state" [style]="{ height: 'calc(100% - 7em)' }">
+          <p>
+            No actions added yet. Add actions below to modify your messages
+            before resending.
+          </p>
         </div>
       }
 
       <div class="action-controls">
-        <p-button label="Preview Changes" icon="pi pi-eye"
-        (click)="previewChanges()"></p-button>
-        <p-button label="Resend" icon="pi pi-send" severity="success"
-        [disabled]="currentActions.length === 0 || !selectedEndpoint()" (click)="resendMessages()"></p-button>
+        <p-button
+          label="Preview Changes"
+          icon="pi pi-eye"
+          (click)="previewChanges()"
+        ></p-button>
+        <p-button
+          label="Resend"
+          icon="pi pi-send"
+          severity="success"
+          [disabled]="currentActions.length === 0 || !selectedEndpoint()"
+          (click)="resendMessages()"
+        ></p-button>
       </div>
     </div>
 
     <div class="action-editor">
       @if (editMode()) {
         <h3>Edit Action</h3>
+      } @else {
+        <h3>Add Action</h3>
       }
-      @else {
-      <h3>Add Action</h3>
-    }
-    <lib-action
-      #actionEditor
-    [(action)]="currentAction"></lib-action>
+      <lib-action #actionEditor [(action)]="currentAction"></lib-action>
 
-    <div class="action-buttons">
-      <p-button [label]="editMode() ? 'Cancel' : 'Clear'" severity="danger" icon="pi pi-times" (click)="clearAction()"></p-button>
-      <p-button
-        [label]="editMode() ? 'Save Action' : 'Add Action'"
-        icon="pi pi-plus"
-        [disabled]="!canAddAction()"
-        (click)="storeAction()"
-      ></p-button>
+      <div class="action-buttons">
+        <p-button
+          [label]="editMode() ? 'Cancel' : 'Clear'"
+          severity="danger"
+          icon="pi pi-times"
+          (click)="clearAction()"
+        ></p-button>
+        <p-button
+          [label]="editMode() ? 'Save Action' : 'Add Action'"
+          icon="pi pi-plus"
+          [disabled]="!canAddAction()"
+          (click)="storeAction()"
+        ></p-button>
+      </div>
     </div>
   </div>
 </div>
-</div>
 
-@if (previewDialogVisible()) {
-  <p-dialog
+@if (previewDrawerVisible()) {
+  <p-drawer
     header="Preview Changes"
-    [(visible)]="previewDialogVisible"
+    [(visible)]="previewDrawerVisible"
     appendTo="body"
     [modal]="true"
-    [style]="{width: '90vw', height: '90vh'}"
-    [draggable]="false"
-    [resizable]="false">
+    [style]="{ width: '85vw' }"
+    position="right"
+  >
     <div class="preview-layout" [ngClass]="{ darkMode: darkMode() }">
       <!-- Message sidebar -->
       <div class="message-sidebar">
         <h3>Messages</h3>
-        <p>Below are the top 100 messages, select one to see a preview of your changes pipeline</p>
+        <p>
+          Below are the top 100 messages, select one to see a preview of your
+          changes pipeline
+        </p>
         <div class="message-list">
           <p-list-box
             scrollHeight="400px"
             [options]="previewBatch()"
             [(ngModel)]="selectedMessage"
-            >
+          >
             <ng-template pTemplate="item" let-message>
               <div class="message-item">
                 <div class="message-id">{{ getMessageListLine(message) }}</div>
@@ -119,7 +166,7 @@
       </div>
       <!-- Message details -->
       <div class="message-details">
-        <p-scroll-panel [style]="{width: '100%', height: '100%'}">
+        <p-scroll-panel [style]="{ width: '100%', height: '100%' }">
           @if (previewMessage(); as message) {
             <div class="message-preview">
               <h4>Message ID: {{ message.messageId }}</h4>
@@ -158,13 +205,16 @@
     <ng-template pTemplate="footer">
       <div class="footer">
         <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
-        <p-button label="Resend selected message" icon="pi pi-send"
+        <p-button
+          label="Resend selected message"
+          icon="pi pi-send"
           (click)="resendSelectedMessage()"
           [disabled]="!selectedMessage() || !selectedEndpoint()"
-        severity="success"></p-button>
+          severity="success"
+        ></p-button>
       </div>
     </ng-template>
-  </p-dialog>
+  </p-drawer>
 }
 
 <p-toast position="bottom-center"></p-toast>
