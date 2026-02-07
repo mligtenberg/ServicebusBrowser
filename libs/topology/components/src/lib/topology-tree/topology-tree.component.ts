@@ -252,7 +252,7 @@ export class TopologyTreeComponent {
     ruleName: string;
   }>();
 
-  onSelectionChange(event: TreeNode | TreeNode[] | null) {
+  onSelectionChange(event: TreeNode | TreeNode[] | null | undefined) {
     // should not be an array since we have selection mode single
     if (!event || (event instanceof Array && event.length === 0)) {
       this.selection.set(null);
