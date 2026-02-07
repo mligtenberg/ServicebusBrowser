@@ -409,15 +409,15 @@
     <div
       class="actions"
     >
-      <button pButton class="p-button-outlined" (click)="onCancel()">
+      <p-button variant="text" (click)="onCancel()">
         Cancel
-      </button>
-      <button pButton class="p-button-danger" (click)="onClearAll()">
+      </p-button>
+      <p-button severity="danger" (click)="onClearAll()">
         Clear All
-      </button>
-      <button pButton (click)="onApply()" [disabled]="!isFilterValid()">
+      </p-button>
+      <p-button (click)="onApply()" [disabled]="!isFilterValid()">
         Apply
-      </button>
+      </p-button>
     </div>
   </div>
 </p-drawer>
