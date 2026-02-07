@@ -113,12 +113,19 @@
     </p-card>
     <p-card header="Properties" class="properties">
       <div class="table-container">
+        <p-context-menu
+          #propertyMenu
+          [model]="propertyMenuItems()"
+          appendTo="body"/>
         <p-table
           [columns]="propertiesCols"
           [value]="properties()"
           [scrollable]="true"
           scrollHeight="100cqh"
           [virtualScroll]="false"
+          dataKey="key"
+          [contextMenu]="propertyMenu"
+          [(contextMenuSelection)]="propertiesContextMenuSelection"
           >
           <ng-template
             pTemplate="body"
@@ -126,7 +133,7 @@
             let-rowIndex="rowIndex"
             let-columns="columns"
             >
-            <tr style="height: 30px">
+            <tr style="height: 30px" [pContextMenuRow]="rowData">
               @for (col of columns; track col) {
                 <td class="user-selectable">
                   {{ rowData[col.field] }}
@@ -139,12 +146,19 @@
     </p-card>
     <p-card header="Custom properties" class="custom-properties">
       <div class="table-container">
+        <p-context-menu
+          #customPropertyMenu
+          [model]="customPropertyMenuItems()"
+          appendTo="body"/>
         <p-table
           [columns]="propertiesCols"
           [value]="customProperties()"
           [scrollable]="true"
           scrollHeight="100cqh"
           [virtualScroll]="false"
+          dataKey="key"
+          [contextMenu]="customPropertyMenu"
+          [(contextMenuSelection)]="customPropertiesContextMenuSelection"
           >
           <ng-template
             pTemplate="body"
@@ -152,7 +166,7 @@
             let-rowIndex="rowIndex"
             let-columns="columns"
             >
-            <tr style="height: 30px">
+            <tr style="height: 30px" [pContextMenuRow]="rowData">
               @for (col of columns; track col) {
                 <td class="user-selectable">
                   {{ rowData[col.field] }}

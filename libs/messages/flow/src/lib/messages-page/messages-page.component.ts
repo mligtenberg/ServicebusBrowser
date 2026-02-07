@@ -39,6 +39,7 @@ import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@servic
 import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { Actions, ofType } from '@ngrx/effects';
 import { contentResize } from '@service-bus-browser/actions';
+import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
 
 @Component({
   selector: 'lib-messages-page',
@@ -160,6 +161,80 @@ export class MessagesPageComponent {
     }));
   });
 
+  propertiesContextMenuSelection = signal<
+    { key: systemPropertyKeys; value: unknown } | undefined
+  >(undefined);
+  customPropertiesContextMenuSelection = signal<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+
+  propertyMenuItems = computed(() => {
+    let selection = this.propertiesContextMenuSelection();
+    if (!selection) {
+      selection = { key: 'contentType', value: '' };
+    }
+
+    return [
+      {
+        label: 'Copy property',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
+        },
+      },
+      {
+        label: 'Copy property\'s value',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(selection.value as string);
+        },
+      },
+      {
+        label: `Add filter for ${selection.key}`,
+        icon: 'pi pi-filter',
+        command: () => {
+          this.filterOnSystemProperty(
+            selection.key,
+            selection.value as string | number | boolean | Date,
+          );
+        },
+      },
+    ];
+  });
+  customPropertyMenuItems = computed(() => {
+    let selection = this.customPropertiesContextMenuSelection();
+    if (!selection) {
+      selection = { key: 'contentType', value: '' };
+    }
+
+    return [
+      {
+        label: 'Copy property',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
+        },
+      },
+      {
+        label: 'Copy property\'s value',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(selection.value as string);
+        },
+      },
+      {
+        label: `Add filter for ${selection.key}`,
+        icon: 'pi pi-filter',
+        command: () => {
+          this.filterOnApplicationProperty(
+            selection.key,
+            selection.value as string | number | boolean | Date,
+          );
+        },
+      },
+    ];
+  });
+
   bodyLanguage = computed(() => {
     const message = this.selectedMessage();
     if (!message?.contentType) {
@@ -229,7 +304,7 @@ export class MessagesPageComponent {
           const pageId: string = params['pageId'];
           return this.store.select(MessagesSelectors.selectPage(pageId));
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(),
       )
       .subscribe((page) => {
         if (!page) {
@@ -240,22 +315,25 @@ export class MessagesPageComponent {
         this.currentPage.set(page);
       });
 
-    this.activatedRoute.params.pipe(
-      switchMap((params) => {
-        const pageId: string = params['pageId'];
-        return this.store.select(MessagesSelectors.selectPageSelectedMessage(pageId));
-      }),
-      takeUntilDestroyed(),
-    ).subscribe((message) => {
-      this.selection.set(message ? [message] : undefined);
-    })
+    this.activatedRoute.params
+      .pipe(
+        switchMap((params) => {
+          const pageId: string = params['pageId'];
+          return this.store.select(
+            MessagesSelectors.selectPageSelectedMessage(pageId),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((message) => {
+        this.selection.set(message ? [message] : undefined);
+      });
 
-    this.actions.pipe(
-      ofType(contentResize),
-      takeUntilDestroyed()
-    ).subscribe(() => {
-      (this.monacoEditor() as any)?._editor.layout();
-    })
+    this.actions
+      .pipe(ofType(contentResize), takeUntilDestroyed())
+      .subscribe(() => {
+        (this.monacoEditor() as any)?._editor.layout();
+      });
   }
 
   getMenuItems(
@@ -263,7 +341,7 @@ export class MessagesPageComponent {
       | ServiceBusReceivedMessage
       | ServiceBusReceivedMessage[]
       | undefined,
-    allMessages: boolean
+    allMessages: boolean,
   ) {
     if (!menuSelection) {
       return [];
@@ -294,7 +372,7 @@ export class MessagesPageComponent {
             this.store.dispatch(
               MessagesActions.setBatchResendMessages({
                 messages: menuSelection,
-              })
+              }),
             );
             this.router.navigate([this.baseRoute, 'batch-resend']);
           },
@@ -320,7 +398,7 @@ export class MessagesPageComponent {
         icon: 'pi pi-envelope',
         command: () => {
           this.menuMessagesSelection.set(
-            Array.isArray(menuSelection) ? menuSelection : [selectedMessage]
+            Array.isArray(menuSelection) ? menuSelection : [selectedMessage],
           );
           this.displaySendMessages.set(true);
         },
@@ -342,7 +420,7 @@ export class MessagesPageComponent {
         icon: 'pi pi-download',
         command: () => {
           this.menuMessagesSelection.set(
-            Array.isArray(menuSelection) ? menuSelection : [selectedMessage]
+            Array.isArray(menuSelection) ? menuSelection : [selectedMessage],
           );
           this.exportMessages();
         },
@@ -368,7 +446,7 @@ export class MessagesPageComponent {
       MessagesActions.sendMessages({
         endpoint,
         messages,
-      })
+      }),
     );
   }
 
@@ -383,7 +461,7 @@ export class MessagesPageComponent {
       MessagesActions.exportMessages({
         pageName: currentPage.name,
         messages: messagesToExport,
-      })
+      }),
     );
   }
 
@@ -396,14 +474,66 @@ export class MessagesPageComponent {
       MessagesActions.setPageFilter({
         pageId: this.currentPage()!.id,
         filter: filter,
-      })
+      }),
     );
   }
 
   protected setSelection($event: ServiceBusReceivedMessage[]) {
-    this.store.dispatch(MessagesActions.setPageSelection({
-      pageId: this.currentPage()!.id,
-      sequenceNumber: $event[0]?.sequenceNumber
-    }));
+    this.store.dispatch(
+      MessagesActions.setPageSelection({
+        pageId: this.currentPage()!.id,
+        sequenceNumber: $event[0]?.sequenceNumber,
+      }),
+    );
+  }
+
+  protected filterOnSystemProperty(
+    key: systemPropertyKeys,
+    value: string | number | boolean | Date,
+  ) {
+    this.displayFilterDialog.set(false);
+    const fieldType = typeof value as 'string' | 'number' | 'boolean' | 'date';
+
+    let currentFilter = this.messageFilter();
+    currentFilter = {
+      ...currentFilter,
+      systemProperties: [
+        ...currentFilter.systemProperties,
+        {
+          fieldName: key,
+          filterType: 'equals',
+          value: value,
+          fieldType: fieldType,
+          isActive: true,
+        } as any,
+      ],
+    };
+
+    this.onFiltersUpdated(currentFilter);
+  }
+
+  protected filterOnApplicationProperty(
+    key: string,
+    value: string | number | boolean | Date,
+  ) {
+    this.displayFilterDialog.set(false);
+    const fieldType = typeof value as 'string' | 'number' | 'boolean' | 'date';
+
+    let currentFilter = this.messageFilter();
+    currentFilter = {
+      ...currentFilter,
+      applicationProperties: [
+        ...currentFilter.applicationProperties,
+        {
+          fieldName: key,
+          filterType: 'equals',
+          value: value,
+          fieldType: fieldType,
+          isActive: true,
+        } as any,
+      ],
+    };
+
+    this.onFiltersUpdated(currentFilter);
   }
 }
