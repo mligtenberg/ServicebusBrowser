@@ -1,326 +1,423 @@
-<p-dialog
+<p-drawer
   header="Filter Messages"
   appendTo="body"
   [(visible)]="visible"
   [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [closable]="true"
+  position="right"
   (onHide)="onCancel()"
-  [style]="{'width': '90vw', 'height': '90vh'}"
-  class="dialog"
+  [style]="{ width: '600px', 'max-width': '90vw' }"
 >
-  @let filters = currentFilters();
-  <p-accordion [multiple]="true" [value]="['0']">
-    <!-- System Properties -->
-    <p-accordion-panel value="0">
-      <p-accordion-header>System Properties</p-accordion-header>
-      <p-accordion-content>
-        <div>
-          @for (filter of filters.systemProperties; track $index) {
-            <div class="filter-line system-property-filter-line">
-              <p-checkbox
-                [ngModel]="filter.isActive"
-                [binary]="true"
-                class="isActive"
-                (ngModelChange)="onSystemPropertyChange($index, 'isActive', $event)"
-              ></p-checkbox>
-
-              <p-select
-                [options]="getSystemPropertyOptions()"
-                [ngModel]="filter.fieldName"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select Property"
-                appendTo="body"
-                class="fieldName"
-                (ngModelChange)="onSystemPropertyChange($index, 'fieldName', $event)"
-              ></p-select>
-
-              @if (filter.fieldType === 'string') {
-                <p-select
-                  [options]="stringFilterTypes"
-                  [ngModel]="filter.filterType"
-                  appendTo="body"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Filter Type"
-                  class="filterType"
-                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-                ></p-select>
+  <div class="flex flex-column h-full">
+    <div class="flex-grow-1 overflow-y-auto pb-4">
+      @let filters = currentFilters();
+      <p-accordion [multiple]="true" [value]="['0']">
+        <!-- System Properties -->
+        <p-accordion-panel value="0">
+          <p-accordion-header>
+            <div class="filter-header">
+              System Properties
+              @let systemFilterTagValue = systemFilterTag();
+              @if (systemFilterTagValue) {
+                <p-tag>{{ systemFilterTagValue }}</p-tag>
               }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            <div>
+              @for (filter of filters.systemProperties; track $index) {
+                <div class="filter-line system-property-filter-line">
+                  <p-checkbox
+                    [ngModel]="filter.isActive"
+                    [binary]="true"
+                    class="isActive"
+                    (ngModelChange)="
+                      onSystemPropertyChange($index, 'isActive', $event)
+                    "
+                  ></p-checkbox>
 
-              @if (filter.fieldType === 'date') {
-                <p-select
-                  [options]="dateFilterTypes"
-                  [ngModel]="filter.filterType"
-                  appendTo="body"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Filter Type"
-                  class="filterType"
-                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-                ></p-select>
-              }
+                  <p-select
+                    [options]="getSystemPropertyOptions()"
+                    [ngModel]="filter.fieldName"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Property"
+                    appendTo="body"
+                    class="fieldName"
+                    (ngModelChange)="
+                      onSystemPropertyChange($index, 'fieldName', $event)
+                    "
+                  ></p-select>
 
-              @if (filter.fieldType === 'number') {
-                <p-select
-                  [options]="numberFilterTypes"
-                  [ngModel]="filter.filterType"
-                  appendTo="body"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Filter Type"
-                  class="filterType"
-                  (ngModelChange)="onSystemPropertyChange($index, 'filterType', $event)"
-                ></p-select>
-              }
+                  @if (filter.fieldType === 'string') {
+                    <p-select
+                      [options]="stringFilterTypes"
+                      [ngModel]="filter.filterType"
+                      appendTo="body"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'filterType', $event)
+                      "
+                    ></p-select>
+                  }
 
-              @if (filter.fieldType === 'string') {
-                <input
-                  pInputText
-                  [ngModel]="filter.value"
-                  placeholder="Value"
-                  class="value"
-                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
-                  (blur)="syncShadowFilters()"
-                />
-              }
+                  @if (filter.fieldType === 'date') {
+                    <p-select
+                      [options]="dateFilterTypes"
+                      [ngModel]="filter.filterType"
+                      appendTo="body"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'filterType', $event)
+                      "
+                    ></p-select>
+                  }
 
-              @if (filter.fieldType === 'date') {
-                <p-date-picker
-                  [ngModel]="filter.value"
-                  appendTo="body"
-                  [showTime]="true"
-                  class="value"
-                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
-                ></p-date-picker>
-              }
+                  @if (filter.fieldType === 'number') {
+                    <p-select
+                      [options]="numberFilterTypes"
+                      [ngModel]="filter.filterType"
+                      appendTo="body"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'filterType', $event)
+                      "
+                    ></p-select>
+                  }
 
-              @if (filter.fieldType === 'number') {
-                <p-inputNumber
-                  [ngModel]="filter.value"
-                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event, true)"
-                  (blur)="syncShadowFilters()"
-                  class="value"
-                ></p-inputNumber>
-              }
+                  @if (filter.fieldType === 'string') {
+                    <input
+                      pInputText
+                      [ngModel]="filter.value"
+                      placeholder="Value"
+                      class="value"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'value', $event, true)
+                      "
+                      (blur)="syncShadowFilters()"
+                    />
+                  }
 
-              @if (filter.fieldType === 'boolean') {
-                <p-checkbox
-                  [ngModel]="filter.value"
-                  [binary]="true"
-                  class="value"
-                  (ngModelChange)="onSystemPropertyChange($index, 'value', $event)"
-                ></p-checkbox>
+                  @if (filter.fieldType === 'date') {
+                    <p-date-picker
+                      [ngModel]="filter.value"
+                      appendTo="body"
+                      [showTime]="true"
+                      class="value"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'value', $event)
+                      "
+                    ></p-date-picker>
+                  }
+
+                  @if (filter.fieldType === 'number') {
+                    <p-inputNumber
+                      [ngModel]="filter.value"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'value', $event, true)
+                      "
+                      (blur)="syncShadowFilters()"
+                      class="value"
+                    ></p-inputNumber>
+                  }
+
+                  @if (filter.fieldType === 'boolean') {
+                    <p-checkbox
+                      [ngModel]="filter.value"
+                      [binary]="true"
+                      class="value"
+                      (ngModelChange)="
+                        onSystemPropertyChange($index, 'value', $event)
+                      "
+                    ></p-checkbox>
+                  }
+
+                  <p-button
+                    icon="pi pi-trash"
+                    class="p-button-danger p-button-outlined"
+                    (click)="removeSystemPropertyFilter($index)"
+                  ></p-button>
+                </div>
               }
 
               <p-button
-                icon="pi pi-trash"
-                class="p-button-danger p-button-outlined"
-                (click)="removeSystemPropertyFilter($index)"
+                icon="pi pi-plus"
+                label="Add System Property Filter"
+                class="p-button-outlined align-self-start"
+                (click)="addSystemPropertyFilter()"
               ></p-button>
             </div>
-          }
+          </p-accordion-content>
+        </p-accordion-panel>
 
-          <p-button
-            icon="pi pi-plus"
-            label="Add System Property Filter"
-            class="p-button-outlined align-self-start"
-            (click)="addSystemPropertyFilter()"
-          ></p-button>
-        </div>
-      </p-accordion-content>
-    </p-accordion-panel>
+        <!-- Application Properties -->
+        <p-accordion-panel value="1">
+          <p-accordion-header>
+            <div class="filter-header">
+            Application Properties
+              @let applicationFilterTagValue = customFilterTag();
+              @if (applicationFilterTagValue) {
+                <p-tag>{{ applicationFilterTagValue }}</p-tag>
+              }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @for (filter of filters.applicationProperties; track $index) {
+              <div class="filter-line application-property-filter-line">
+                <p-checkbox
+                  [ngModel]="filter.isActive"
+                  [binary]="true"
+                  class="isActive"
+                  (ngModelChange)="
+                    onApplicationPropertyTypeChange($index, 'isActive', $event)
+                  "
+                ></p-checkbox>
 
-    <!-- Application Properties -->
-    <p-accordion-panel value="1">
-      <p-accordion-header>Application Properties</p-accordion-header>
-      <p-accordion-content>
-        @for (filter of filters.applicationProperties; track $index) {
-          <div class="filter-line application-property-filter-line">
-            <p-checkbox
-              [ngModel]="filter.isActive"
-              [binary]="true"
-              class="isActive"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'isActive', $event)"
-            ></p-checkbox>
+                <input
+                  pInputText
+                  [ngModel]="filter.fieldName"
+                  placeholder="Property Name"
+                  class="fieldName"
+                  (ngModelChange)="
+                    onApplicationPropertyTypeChange(
+                      $index,
+                      'fieldName',
+                      $event,
+                      true
+                    )
+                  "
+                  (blur)="syncShadowFilters()"
+                />
 
-            <input
-              pInputText
-              [ngModel]="filter.fieldName"
-              placeholder="Property Name"
-              class="fieldName"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldName', $event, true)"
-              (blur)="syncShadowFilters()"
-            />
+                <p-select
+                  [options]="propertyTypes"
+                  [ngModel]="filter.fieldType"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Property Type"
+                  appendTo="body"
+                  class="fieldType"
+                  (ngModelChange)="
+                    onApplicationPropertyTypeChange($index, 'fieldType', $event)
+                  "
+                ></p-select>
 
-            <p-select
-              [options]="propertyTypes"
-              [ngModel]="filter.fieldType"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Property Type"
-              appendTo="body"
-              class="fieldType"
-              (ngModelChange)="onApplicationPropertyTypeChange($index, 'fieldType', $event)"
-            ></p-select>
+                @if (filter.fieldType === 'string') {
+                  <p-select
+                    [options]="stringFilterTypes"
+                    [ngModel]="filter.filterType"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Filter Type"
+                    appendTo="body"
+                    class="filterType"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange(
+                        $index,
+                        'filterType',
+                        $event
+                      )
+                    "
+                  ></p-select>
+                }
 
-            @if (filter.fieldType === 'string') {
-              <p-select
-                [options]="stringFilterTypes"
-                [ngModel]="filter.filterType"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                appendTo="body"
-                class="filterType"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-              ></p-select>
-            }
+                @if (filter.fieldType === 'date') {
+                  <p-select
+                    [options]="dateFilterTypes"
+                    [ngModel]="filter.filterType"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Filter Type"
+                    appendTo="body"
+                    class="filterType"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange(
+                        $index,
+                        'filterType',
+                        $event
+                      )
+                    "
+                  ></p-select>
+                }
 
-            @if (filter.fieldType === 'date') {
-              <p-select
-                [options]="dateFilterTypes"
-                [ngModel]="filter.filterType"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                appendTo="body"
-                class="filterType"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-              ></p-select>
-            }
+                @if (filter.fieldType === 'number') {
+                  <p-select
+                    [options]="numberFilterTypes"
+                    [ngModel]="filter.filterType"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Filter Type"
+                    appendTo="body"
+                    class="filterType"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange(
+                        $index,
+                        'filterType',
+                        $event
+                      )
+                    "
+                  ></p-select>
+                }
 
-            @if (filter.fieldType === 'number') {
-              <p-select
-                [options]="numberFilterTypes"
-                [ngModel]="filter.filterType"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter Type"
-                appendTo="body"
-                class="filterType"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'filterType', $event)"
-              ></p-select>
-            }
+                @if (filter.fieldType === 'string') {
+                  <input
+                    pInputText
+                    [ngModel]="filter.value"
+                    placeholder="Value"
+                    class="value"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange(
+                        $index,
+                        'value',
+                        $event,
+                        true
+                      )
+                    "
+                    (blur)="syncShadowFilters()"
+                  />
+                }
 
-            @if (filter.fieldType === 'string') {
-              <input
-                pInputText
-                [ngModel]="filter.value"
-                placeholder="Value"
-                class="value"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
-                (blur)="syncShadowFilters()"
-              />
-            }
+                @if (filter.fieldType === 'date') {
+                  <p-date-picker
+                    [ngModel]="filter.value"
+                    [showTime]="true"
+                    appendTo="body"
+                    class="value"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange($index, 'value', $event)
+                    "
+                  ></p-date-picker>
+                }
 
-            @if (filter.fieldType === 'date') {
-              <p-date-picker
-                [ngModel]="filter.value"
-                [showTime]="true"
-                appendTo="body"
-                class="value"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
-              ></p-date-picker>
-            }
+                @if (filter.fieldType === 'number') {
+                  <p-inputNumber
+                    [ngModel]="filter.value"
+                    class="value"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange(
+                        $index,
+                        'value',
+                        $event,
+                        true
+                      )
+                    "
+                    (blur)="syncShadowFilters()"
+                  ></p-inputNumber>
+                }
 
-            @if (filter.fieldType === 'number') {
-              <p-inputNumber
-                [ngModel]="filter.value"
-                class="value"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event, true)"
-                (blur)="syncShadowFilters()"
-              ></p-inputNumber>
-            }
+                @if (filter.fieldType === 'boolean') {
+                  <p-checkbox
+                    [ngModel]="filter.value"
+                    [binary]="true"
+                    class="value"
+                    (ngModelChange)="
+                      onApplicationPropertyTypeChange($index, 'value', $event)
+                    "
+                  ></p-checkbox>
+                }
 
-            @if (filter.fieldType === 'boolean') {
-              <p-checkbox
-                [ngModel]="filter.value"
-                [binary]="true"
-                class="value"
-                (ngModelChange)="onApplicationPropertyTypeChange($index, 'value', $event)"
-              ></p-checkbox>
+                <p-button
+                  icon="pi pi-trash"
+                  class="p-button-danger p-button-outlined"
+                  (click)="removeApplicationPropertyFilter($index)"
+                ></p-button>
+              </div>
             }
 
             <p-button
-              icon="pi pi-trash"
-              class="p-button-danger p-button-outlined"
-              (click)="removeApplicationPropertyFilter($index)"
+              icon="pi pi-plus"
+              label="Add Application Property Filter"
+              class="p-button-outlined align-self-start"
+              (click)="addApplicationPropertyFilter()"
             ></p-button>
-          </div>
-        }
+          </p-accordion-content>
+        </p-accordion-panel>
 
-        <p-button
-          icon="pi pi-plus"
-          label="Add Application Property Filter"
-          class="p-button-outlined align-self-start"
-          (click)="addApplicationPropertyFilter()"
-        ></p-button>
-      </p-accordion-content>
-    </p-accordion-panel>
+        <!-- Body -->
+        <p-accordion-panel value="2">
+          <p-accordion-header>
+            <div class="filter-header">
+            Message Body
+              @let bodyFilterTagValue = bodyFilterTag();
+              @if (bodyFilterTagValue) {
+                <p-tag>{{ bodyFilterTagValue }}</p-tag>
+              }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @for (filter of filters.body; track $index) {
+              <div class="filter-line body-filter-line">
+                <p-checkbox
+                  [ngModel]="filter.isActive"
+                  (ngModelChange)="
+                    onBodyFilterTypeChange($index, 'isActive', $event)
+                  "
+                  [binary]="true"
+                  class="isActive"
+                ></p-checkbox>
 
-    <!-- Body -->
-    <p-accordion-panel value="2">
-      <p-accordion-header>Message Body</p-accordion-header>
-      <p-accordion-content>
-        @for (filter of filters.body; track $index) {
-          <div class="filter-line body-filter-line">
-            <p-checkbox
-              [ngModel]="filter.isActive"
-              (ngModelChange)="onBodyFilterTypeChange($index, 'isActive', $event)"
-              [binary]="true"
-              class="isActive"
-            ></p-checkbox>
+                <p-select
+                  [options]="bodyFilterTypes"
+                  [ngModel]="filter.filterType"
+                  (ngModelChange)="
+                    onBodyFilterTypeChange($index, 'filterType', $event)
+                  "
+                  appendTo="body"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Filter Type"
+                  class="filterType"
+                ></p-select>
 
-            <p-select
-              [options]="bodyFilterTypes"
-              [ngModel]="filter.filterType"
-              (ngModelChange)="onBodyFilterTypeChange($index, 'filterType', $event)"
-              appendTo="body"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Filter Type"
-              class="filterType"
-            ></p-select>
+                <input
+                  pInputText
+                  [ngModel]="filter.value"
+                  (ngModelChange)="
+                    onBodyFilterTypeChange($index, 'value', $event, true)
+                  "
+                  placeholder="Value"
+                  class="value"
+                  (blur)="syncShadowFilters()"
+                />
 
-            <input
-              pInputText
-              [ngModel]="filter.value"
-              (ngModelChange)="onBodyFilterTypeChange($index, 'value', $event, true)"
-              placeholder="Value"
-              class="value"
-              (blur)="syncShadowFilters()"
-            />
+                <p-button
+                  icon="pi pi-trash"
+                  class="p-button-danger p-button-outlined"
+                  (click)="removeBodyFilter($index)"
+                ></p-button>
+              </div>
+            }
 
             <p-button
-              icon="pi pi-trash"
-              class="p-button-danger p-button-outlined"
-              (click)="removeBodyFilter($index)"
+              icon="pi pi-plus"
+              label="Add body Filter"
+              class="p-button-outlined align-self-start"
+              (click)="addBodyFilter()"
             ></p-button>
-          </div>
-        }
-
-        <p-button
-          icon="pi pi-plus"
-          label="Add body Filter"
-          class="p-button-outlined align-self-start"
-          (click)="addBodyFilter()"
-        ></p-button>
-      </p-accordion-content>
-    </p-accordion-panel>
-  </p-accordion>
-
-  <ng-template pTemplate="footer">
-    <button pButton class="p-button-outlined" (click)="onCancel()">
-      Cancel
-    </button>
-    <button pButton class="p-button-danger" (click)="onClearAll()">
-      Clear All
-    </button>
-    <button pButton (click)="onApply()" [disabled]="!isFilterValid()">
-      Apply
-    </button>
-  </ng-template>
-</p-dialog>
+          </p-accordion-content>
+        </p-accordion-panel>
+      </p-accordion>
+    </div>
+    <div
+      class="actions"
+    >
+      <button pButton class="p-button-outlined" (click)="onCancel()">
+        Cancel
+      </button>
+      <button pButton class="p-button-danger" (click)="onClearAll()">
+        Clear All
+      </button>
+      <button pButton (click)="onApply()" [disabled]="!isFilterValid()">
+        Apply
+      </button>
+    </div>
+  </div>
+</p-drawer>

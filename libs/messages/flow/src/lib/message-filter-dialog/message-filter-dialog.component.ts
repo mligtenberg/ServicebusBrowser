@@ -1,7 +1,14 @@
-import { Component, computed, input, linkedSignal, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  linkedSignal,
+  model,
+  output,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
+import { Drawer } from 'primeng/drawer';
 import { Button, ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
@@ -14,17 +21,18 @@ import {
   PropertyFilter,
   SYSTEM_PROPERTIES,
   StringFilter,
-  BodyFilter
+  BodyFilter,
 } from '@service-bus-browser/messages-contracts';
 import { Select, SelectModule } from 'primeng/select';
 import { filterIsValid } from '@service-bus-browser/filtering';
+import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'lib-message-filter-dialog',
   standalone: true,
   imports: [
     FormsModule,
-    Dialog,
+    Drawer,
     Button,
     InputText,
     DatePicker,
@@ -33,20 +41,20 @@ import { filterIsValid } from '@service-bus-browser/filtering';
     AccordionModule,
     SelectModule,
     ButtonDirective,
-    Select
-],
+    Select,
+    Tag,
+  ],
   templateUrl: './message-filter-dialog.component.html',
   styleUrls: ['./message-filter-dialog.component.scss'],
 })
 export class MessageFilterDialogComponent {
-
   visible = model<boolean>(false);
   filters = input.required<MessageFilter>();
   currentFilters = linkedSignal(this.filters);
   shadowCurrentFilters = linkedSignal(this.currentFilters);
   isFilterValid = computed(() => {
     return filterIsValid(this.shadowCurrentFilters());
-  })
+  });
   filtersUpdated = output<MessageFilter>();
 
   // Dropdown options
@@ -87,6 +95,42 @@ export class MessageFilterDialogComponent {
     { label: 'Not regex', value: 'notregex' },
   ];
 
+  systemFilterTag = computed(() => {
+    const filter = this.shadowCurrentFilters();
+    const activeFilterCount = filter.systemProperties.filter(f => f.isActive).length;
+    const filterCount = filter.systemProperties.length;
+
+    if (filterCount === 0) {
+      return undefined;
+    }
+
+    return `${activeFilterCount}/${filterCount}`;
+  });
+
+  customFilterTag = computed(() => {
+    const filter = this.shadowCurrentFilters();
+    const activeFilterCount = filter.applicationProperties.filter(f => f.isActive).length;
+    const filterCount = filter.applicationProperties.length;
+
+    if (filterCount === 0) {
+      return undefined;
+    }
+
+    return `${activeFilterCount}/${filterCount}`;
+  });
+
+  bodyFilterTag = computed(() => {
+    const filter = this.shadowCurrentFilters();
+    const activeFilterCount = filter.body.filter(f => f.isActive).length;
+    const filterCount = filter.body.length;
+
+    if (filterCount === 0) {
+      return undefined;
+    }
+
+    return `${activeFilterCount}/${filterCount}`;
+  })
+
   getSystemPropertyOptions() {
     return Object.entries(SYSTEM_PROPERTIES).map(([key, type]) => ({
       label: key,
@@ -116,8 +160,15 @@ export class MessageFilterDialogComponent {
     }));
   }
 
-  onSystemPropertyChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow = false) {
-    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+  onSystemPropertyChange(
+    index: number,
+    field: keyof PropertyFilter,
+    value: unknown,
+    useShadow = false,
+  ) {
+    const signalToUpdate = useShadow
+      ? this.shadowCurrentFilters
+      : this.currentFilters;
 
     signalToUpdate.update((current) => ({
       ...current,
@@ -129,8 +180,8 @@ export class MessageFilterDialogComponent {
         return {
           ...filter,
           [field]: value,
-        }
-      })
+        };
+      }),
     }));
   }
 
@@ -153,13 +204,20 @@ export class MessageFilterDialogComponent {
     this.currentFilters.update((current) => ({
       ...current,
       applicationProperties: current.applicationProperties.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       ),
     }));
   }
 
-  onApplicationPropertyTypeChange(index: number, field: keyof PropertyFilter, value: unknown, useShadow = false) {
-    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+  onApplicationPropertyTypeChange(
+    index: number,
+    field: keyof PropertyFilter,
+    value: unknown,
+    useShadow = false,
+  ) {
+    const signalToUpdate = useShadow
+      ? this.shadowCurrentFilters
+      : this.currentFilters;
 
     signalToUpdate.update((current) => ({
       ...current,
@@ -171,9 +229,9 @@ export class MessageFilterDialogComponent {
         return {
           ...filter,
           [field]: value,
-        }
-      })
-    }))
+        };
+      }),
+    }));
   }
 
   addBodyFilter() {
@@ -195,8 +253,15 @@ export class MessageFilterDialogComponent {
     }));
   }
 
-  onBodyFilterTypeChange(index: number, field: keyof BodyFilter, value: unknown, useShadow = false) {
-    const signalToUpdate = useShadow ? this.shadowCurrentFilters : this.currentFilters;
+  onBodyFilterTypeChange(
+    index: number,
+    field: keyof BodyFilter,
+    value: unknown,
+    useShadow = false,
+  ) {
+    const signalToUpdate = useShadow
+      ? this.shadowCurrentFilters
+      : this.currentFilters;
 
     signalToUpdate.update((current) => ({
       ...current,
@@ -208,9 +273,9 @@ export class MessageFilterDialogComponent {
         return {
           ...filter,
           [field]: value,
-        }
-      })
-    }))
+        };
+      }),
+    }));
   }
 
   syncShadowFilters() {

@@ -1,8 +1,3 @@
-:host ::ng-deep .p-dialog-content {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
 :host,
 ::ng-deep,
 .p-accordion,
@@ -13,12 +8,6 @@
 
 :host ::ng-deep .p-accordion .p-accordion-content {
   padding: 1.25rem;
-}
-
-:host ::ng-deep .p-dialog-footer {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
 }
 
 .filter-line {
@@ -45,4 +34,18 @@
   .value {
     flex: 1;
   }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 0 0;
+}
+
+.filter-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  --p-tag-gap: 0;
 }
