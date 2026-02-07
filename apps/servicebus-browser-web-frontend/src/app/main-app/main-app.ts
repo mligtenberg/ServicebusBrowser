@@ -84,7 +84,7 @@ export class MainApp {
 
   accountMenuItems: MenuItem[] = [
     {
-      label: 'Sing Out',
+      label: 'Sign-out',
       icon: 'pi pi-sign-out',
       command: () => {
         this.signOut();
