@@ -1,8 +1,10 @@
 import {
   Component,
   computed,
+  effect,
   linkedSignal,
   model,
+  signal,
 } from '@angular/core';
 
 import { Drawer } from 'primeng/drawer';
@@ -47,7 +49,11 @@ import { DatePickerSignalFormInput } from './date-picker-signal-form-input/date-
 export class MessageFilterEditorComponent {
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
-  shadowFilter = linkedSignal(this.filters);
+  shadowFilter = signal<MessageFilter>({
+    systemProperties: [],
+    applicationProperties: [],
+    body: [],
+  })
 
   filterForm = form(this.shadowFilter, (s) => {
     applyEach(s.systemProperties, (systemProperty) => {
@@ -154,6 +160,17 @@ export class MessageFilterEditorComponent {
     return `${activeFiltersCount}/${filterCount}`;
   });
 
+  constructor() {
+    effect(() => {
+      const filter = this.filters();
+      this.shadowFilter.set({
+        systemProperties: filter.systemProperties.map((f) => ({...f})) ?? [],
+        applicationProperties: filter.applicationProperties.map((f) => ({...f})) ?? [],
+        body: filter.body.map((f) => ({...f})) ?? [],
+      });
+    });
+  }
+
   protected addSystemPropertyFilter() {
     this.shadowFilter.update((f) => ({
       ...f,
@@ -235,6 +252,7 @@ export class MessageFilterEditorComponent {
 
   protected onApply() {
     this.filters.set(this.shadowFilter());
+    this.visible.set(false);
   }
 
   protected isFilterValid(): boolean {

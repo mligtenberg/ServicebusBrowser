@@ -18,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   MessageFilter,
   MessagePage,
+  PropertyFilter,
   ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
 import { Card } from 'primeng/card';
@@ -505,7 +506,7 @@ export class MessagesPageComponent {
           value: value,
           fieldType: fieldType,
           isActive: true,
-        } as any,
+        } as PropertyFilter,
       ],
     };
 
@@ -530,7 +531,7 @@ export class MessagesPageComponent {
           value: value,
           fieldType: fieldType,
           isActive: true,
-        } as any,
+        } as PropertyFilter,
       ],
     };
 
