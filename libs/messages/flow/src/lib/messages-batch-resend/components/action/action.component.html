@@ -43,8 +43,8 @@
   />
 }
 
-<lib-message-filter-dialog
+<lib-message-filter-editor
   [(visible)]="filterMenuVisable"
   [filters]="messageFilter()"
-  (filtersUpdated)="messageFilter.set($event)"
+  (filtersChange)="messageFilter.set($event)"
 />

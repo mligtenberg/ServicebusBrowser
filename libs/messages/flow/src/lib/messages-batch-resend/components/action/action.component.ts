@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model } from '@angular/core';
+import { Component, computed, effect, model } from '@angular/core';
 
 import {
   Action,
@@ -13,8 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { AddActionBodyComponent } from '../add-action-body/add-action-body.component';
 import { AlterActionBodyComponent } from '../alter-action-body/alter-action-body.component';
 import { RemoveActionBodyComponent } from '../remove-action-body/remove-action-body.component';
-import { MessageFilterDialogComponent } from '../../../message-filter-dialog/message-filter-dialog.component';
 import { hasActiveFilters } from '@service-bus-browser/filtering';
+import { MessageFilterEditorComponent } from '../../../message-filter-editor/message-filter-editor.component';
 
 @Component({
   selector: 'lib-action',
@@ -26,8 +26,8 @@ import { hasActiveFilters } from '@service-bus-browser/filtering';
     AddActionBodyComponent,
     AlterActionBodyComponent,
     RemoveActionBodyComponent,
-    MessageFilterDialogComponent
-],
+    MessageFilterEditorComponent,
+  ],
   templateUrl: './action.component.html',
   styleUrl: './action.component.scss',
 })
@@ -74,7 +74,7 @@ export class ActionComponent {
   protected messageFilter = model<MessageFilter>({
     body: [],
     systemProperties: [],
-    applicationProperties: []
+    applicationProperties: [],
   });
 
   clear() {
@@ -83,8 +83,8 @@ export class ActionComponent {
     this.messageFilter.set({
       body: [],
       systemProperties: [],
-      applicationProperties: []
-    })
+      applicationProperties: [],
+    });
   }
 
   isFilterActive = computed(() => hasActiveFilters(this.messageFilter()));
@@ -105,11 +105,13 @@ export class ActionComponent {
 
       this.currentActionType.set(action.type);
       this.target.set(action.target);
-      this.messageFilter.set(action.applyOnFilter ?? {
-        body: [],
-        applicationProperties: [],
-        systemProperties: []
-      });
+      this.messageFilter.set(
+        action.applyOnFilter ?? {
+          body: [],
+          applicationProperties: [],
+          systemProperties: [],
+        },
+      );
     });
   }
 

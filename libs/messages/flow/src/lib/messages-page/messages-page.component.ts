@@ -33,7 +33,7 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Menu } from 'primeng/menu';
-import { MessageFilterDialogComponent } from '../message-filter-dialog/message-filter-dialog.component';
+import { MessageFilterEditorComponent } from '../message-filter-editor/message-filter-editor.component';
 import { Tooltip } from 'primeng/tooltip';
 import { filterMessages, hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { EditorComponent } from 'ngx-monaco-editor-v2';
@@ -55,7 +55,7 @@ import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
     EndpointSelectorTreeInputComponent,
     ButtonDirective,
     Menu,
-    MessageFilterDialogComponent,
+    MessageFilterEditorComponent,
     Tooltip,
     EditorComponent,
   ],

@@ -1,10 +1,10 @@
 
 <div class="container">
-  <p-contextmenu
+  <p-context-menu
     #cm
     appendTo="body"
     [model]="messageContextMenu()"
-  ></p-contextmenu>
+  ></p-context-menu>
   <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
   <p-card class="messages">
     <div class="messages-header">
@@ -217,8 +217,8 @@
     </div>
   </p-dialog>
 
-  <lib-message-filter-dialog
+  <lib-message-filter-editor
     [(visible)]="displayFilterDialog"
     [filters]="messageFilter()"
-    (filtersUpdated)="onFiltersUpdated($event)"
-  ></lib-message-filter-dialog>
+    (filtersChange)="onFiltersUpdated($event)"
+  ></lib-message-filter-editor>
