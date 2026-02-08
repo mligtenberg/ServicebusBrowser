@@ -4,7 +4,7 @@ import {
   Action,
   AddAction, BatchActionTarget, MessageFilter,
   PropertyValue,
-  SystemKeyProperty
+  SystemPropertyKey
 } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyKeys } from '../../../send-message/form';
 import { DatePicker } from 'primeng/datepicker';
@@ -122,7 +122,7 @@ export class AddActionBodyComponent {
     });
   }
 
-  propertyUnknownType(key: SystemKeyProperty | '') {
+  propertyUnknownType(key: SystemPropertyKey | '') {
     return (
       !this.systemPropertyIsText(key) &&
       !this.systemPropertyIsDate(key) &&
@@ -130,7 +130,7 @@ export class AddActionBodyComponent {
     );
   }
 
-  systemPropertyIsText(key: SystemKeyProperty | '') {
+  systemPropertyIsText(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }
@@ -138,7 +138,7 @@ export class AddActionBodyComponent {
     return this.systemPropertyHelpers.propertyIsText(key);
   }
 
-  systemPropertyIsDate(key: SystemKeyProperty | '') {
+  systemPropertyIsDate(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }
@@ -146,7 +146,7 @@ export class AddActionBodyComponent {
     return this.systemPropertyHelpers.propertyIsDate(key);
   }
 
-  systemPropertyIsTimeSpan(key: SystemKeyProperty | '') {
+  systemPropertyIsTimeSpan(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }

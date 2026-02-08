@@ -1,4 +1,4 @@
-import { PropertyValue, SystemKeyProperty } from './messages-contracts';
+import { PropertyValue, SystemPropertyKey } from './messages-contracts';
 import { MessageFilter } from './message-filter.model';
 
 export type BatchActionType = 'add' | 'alter' | 'remove';
@@ -12,7 +12,7 @@ export type AddSystemPropertiesAction = BaseAction & {
   type: 'add';
   target: 'systemProperties';
   actionOnDuplicate: 'replace' | 'skip';
-  fieldName: SystemKeyProperty;
+  fieldName: SystemPropertyKey;
   value: PropertyValue;
 }
 
@@ -46,7 +46,7 @@ export type AlterBodyAction = AlterBodyFullReplaceAction | AlterBodyPartialRepla
 export type AlterSystemPropertyFullReplaceAction = BaseAction & {
   type: 'alter';
   target: 'systemProperties';
-  fieldName: SystemKeyProperty;
+  fieldName: SystemPropertyKey;
   value: PropertyValue;
   alterType: 'fullReplace';
 }
@@ -54,7 +54,7 @@ export type AlterSystemPropertyFullReplaceAction = BaseAction & {
 export type AlterSystemPropertyPartialReplaceAction = BaseAction & {
   type: 'alter';
   target: 'systemProperties';
-  fieldName: SystemKeyProperty;
+  fieldName: SystemPropertyKey;
   searchValue: string;
   value: string;
   alterType: 'searchAndReplace' | 'regexReplace';
@@ -88,7 +88,7 @@ export type AlterType = 'fullReplace' | 'searchAndReplace' | 'regexReplace';
 export type RemoveSystemPropertyAction = BaseAction & {
   type: 'remove';
   target: 'systemProperties';
-  fieldName: SystemKeyProperty;
+  fieldName: SystemPropertyKey;
 }
 
 export type RemoveApplicationPropertyAction = BaseAction & {

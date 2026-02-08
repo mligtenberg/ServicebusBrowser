@@ -19,6 +19,7 @@ import {
   MessageFilter,
   MessagePage,
   PropertyFilter,
+  ReceivedSystemPropertyKey,
   ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
 import { Card } from 'primeng/card';
@@ -41,6 +42,7 @@ import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { Actions, ofType } from '@ngrx/effects';
 import { contentResize } from '@service-bus-browser/actions';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { SystemPropertyHelpers } from '../systemproperty-helpers';
 
 @Component({
   selector: 'lib-messages-page',
@@ -64,6 +66,7 @@ import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
   styleUrl: './messages-page.component.scss',
 })
 export class MessagesPageComponent {
+  systemPropertyHelpers = inject(SystemPropertyHelpers);
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
   router = inject(Router);
@@ -184,7 +187,7 @@ export class MessagesPageComponent {
         },
       },
       {
-        label: 'Copy property\'s value',
+        label: "Copy property's value",
         icon: 'pi pi-copy',
         command: () => {
           navigator.clipboard.writeText(selection.value as string);
@@ -217,7 +220,7 @@ export class MessagesPageComponent {
         },
       },
       {
-        label: 'Copy property\'s value',
+        label: "Copy property's value",
         icon: 'pi pi-copy',
         command: () => {
           navigator.clipboard.writeText(selection.value as string);
@@ -518,7 +521,6 @@ export class MessagesPageComponent {
     value: string | number | boolean | Date,
   ) {
     this.displayFilterDialog.set(false);
-    const fieldType = typeof value as 'string' | 'number' | 'boolean' | 'date';
 
     let currentFilter = this.messageFilter();
     currentFilter = {
@@ -529,7 +531,7 @@ export class MessagesPageComponent {
           fieldName: key,
           filterType: 'equals',
           value: value,
-          fieldType: fieldType,
+          fieldType: this.systemPropertyHelpers.toFilterPropertyType(key as ReceivedSystemPropertyKey),
           isActive: true,
         } as PropertyFilter,
       ],

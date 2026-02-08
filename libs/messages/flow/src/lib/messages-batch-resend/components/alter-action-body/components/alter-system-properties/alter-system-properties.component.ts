@@ -6,7 +6,7 @@ import {
   AlterSystemPropertyActions, AlterSystemPropertyPartialReplaceAction,
   AlterType,
   PropertyValue,
-  SystemKeyProperty
+  SystemPropertyKey
 } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
@@ -41,7 +41,7 @@ export class AlterSystemPropertiesComponent {
 
   action = input<Action>();
   protected alterType = model<AlterType>('fullReplace');
-  protected fieldName = model<SystemKeyProperty | ''>('');
+  protected fieldName = model<SystemPropertyKey | ''>('');
   protected value = model<PropertyValue | undefined>();
   protected searchValue = model<string>('');
 
@@ -75,7 +75,7 @@ export class AlterSystemPropertiesComponent {
       return {
         type: 'alter',
         target: 'systemProperties',
-        fieldName: currentFieldName as SystemKeyProperty,
+        fieldName: currentFieldName as SystemPropertyKey,
         value: currentValue,
         alterType: 'fullReplace',
         applyOnFilter: {
@@ -94,7 +94,7 @@ export class AlterSystemPropertiesComponent {
       return {
         type: 'alter',
         target: 'systemProperties',
-        fieldName: currentFieldName as SystemKeyProperty,
+        fieldName: currentFieldName as SystemPropertyKey,
         searchValue: currentSearchValue,
         value: currentValue as string,
         alterType: currentAlterType,
@@ -141,7 +141,7 @@ export class AlterSystemPropertiesComponent {
     });
   }
 
-  propertyUnknownType(key: SystemKeyProperty | '') {
+  propertyUnknownType(key: SystemPropertyKey | '') {
     return (
       !this.systemPropertyIsText(key) &&
       !this.systemPropertyIsDate(key) &&
@@ -149,7 +149,7 @@ export class AlterSystemPropertiesComponent {
     );
   }
 
-  systemPropertyIsText(key: SystemKeyProperty | '') {
+  systemPropertyIsText(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }
@@ -157,7 +157,7 @@ export class AlterSystemPropertiesComponent {
     return this.systemPropertyHelpers.propertyIsText(key);
   }
 
-  systemPropertyIsDate(key: SystemKeyProperty | '') {
+  systemPropertyIsDate(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }
@@ -165,7 +165,7 @@ export class AlterSystemPropertiesComponent {
     return this.systemPropertyHelpers.propertyIsDate(key);
   }
 
-  systemPropertyIsTimeSpan(key: SystemKeyProperty | '') {
+  systemPropertyIsTimeSpan(key: SystemPropertyKey | '') {
     if (key === '') {
       return false;
     }

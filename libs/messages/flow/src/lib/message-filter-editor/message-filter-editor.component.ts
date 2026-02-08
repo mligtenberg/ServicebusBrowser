@@ -15,7 +15,7 @@ import {
   MessageFilter,
   PropertyFilter,
   SYSTEM_PROPERTIES,
-  SystemKeyProperty,
+  SystemPropertyKey,
 } from '@service-bus-browser/messages-contracts';
 import { filterIsValid } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
@@ -306,14 +306,8 @@ export class MessageFilterEditorComponent {
   }
 
   protected onSystemPropertyChange($event: string | undefined, index: number) {
-    const key = $event as SystemKeyProperty;
-    if (this.systemPropertyHelpers.propertyIsDate(key)) {
-      this.setSystemPropertyType(index, 'date');
-    } else if (this.systemPropertyHelpers.propertyIsTimeSpan(key)) {
-      this.setSystemPropertyType(index, 'timespan');
-    } else {
-      this.setSystemPropertyType(index, 'string');
-    }
+    const key = $event as SystemPropertyKey;
+    this.setSystemPropertyType(index, this.systemPropertyHelpers.toFilterPropertyType(key));
   }
 
   private setSystemPropertyType(

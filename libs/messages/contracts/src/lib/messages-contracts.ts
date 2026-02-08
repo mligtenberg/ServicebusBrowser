@@ -201,10 +201,10 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   readonly state: "active" | "deferred" | "scheduled";
 }
 
-export type SystemKeyProperty = Exclude<keyof ServiceBusMessage, 'body' | 'applicationProperties'>;
-export type ReceivedSystemKeyProperty = Exclude<keyof ServiceBusReceivedMessage, 'body' | 'applicationProperties'>;
+export type SystemPropertyKey = Exclude<keyof ServiceBusMessage, 'body' | 'applicationProperties'>;
+export type ReceivedSystemPropertyKey = Exclude<keyof ServiceBusReceivedMessage, 'body' | 'applicationProperties'>;
 
-export const SystemKeyProperties: SystemKeyProperty[] = [
+export const SystemKeyProperties: SystemPropertyKey[] = [
   'correlationId',
   'partitionKey',
   'sessionId',

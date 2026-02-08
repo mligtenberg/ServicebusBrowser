@@ -5,7 +5,7 @@ import {
   BatchActionTarget,
   MessageFilter,
   RemoveAction,
-  SystemKeyProperty
+  SystemPropertyKey
 } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
@@ -29,7 +29,7 @@ export class RemoveActionBodyComponent {
   removeActionUpdated = output<RemoveAction | undefined>();
 
   protected applicationPropertyName = model<string>('');
-  protected systemPropertyName = model<SystemKeyProperty | ''>('');
+  protected systemPropertyName = model<SystemPropertyKey | ''>('');
 
   systemPropertyKeys = SystemPropertyKeys;
 
@@ -48,7 +48,7 @@ export class RemoveActionBodyComponent {
       return {
         type: 'remove',
         target: 'systemProperties',
-        fieldName: fieldName as SystemKeyProperty,
+        fieldName: fieldName as SystemPropertyKey,
         applyOnFilter: this.messageFilter(),
       };
     }
@@ -76,7 +76,7 @@ export class RemoveActionBodyComponent {
       const action = this.action() as Partial<RemoveAction> | undefined;
 
       if (action?.fieldName && this.target() === 'systemProperties') {
-        this.systemPropertyName.set(action.fieldName as SystemKeyProperty);
+        this.systemPropertyName.set(action.fieldName as SystemPropertyKey);
       }
 
       if (action?.fieldName && this.target() === 'applicationProperties') {
