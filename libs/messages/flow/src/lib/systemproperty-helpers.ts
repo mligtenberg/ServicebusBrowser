@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
-import { SystemKeyProperty } from '@service-bus-browser/messages-contracts';
+import {
+  ReceivedSystemKeyProperty,
+  SystemKeyProperty,
+} from '@service-bus-browser/messages-contracts';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SystemPropertyHelpers {
-  propertyIsText(propertyName: SystemKeyProperty) {
+  propertyIsText(propertyName: SystemKeyProperty | ReceivedSystemKeyProperty) {
     const stringKeys = [
       'correlationId',
       'partitionKey',
@@ -19,12 +22,14 @@ export class SystemPropertyHelpers {
     return stringKeys.includes(propertyName);
   }
 
-  propertyIsDate(propertyName: SystemKeyProperty) {
-    const dateKeys = ['scheduledEnqueueTimeUtc'];
+  propertyIsDate(propertyName: SystemKeyProperty | ReceivedSystemKeyProperty) {
+    const dateKeys = ['scheduledEnqueueTimeUtc', 'enqueuedTimeUtc'];
     return dateKeys.includes(propertyName);
   }
 
-  propertyIsTimeSpan(propertyName: SystemKeyProperty) {
+  propertyIsTimeSpan(
+    propertyName: SystemKeyProperty | ReceivedSystemKeyProperty,
+  ) {
     const timeSpanKeys = ['timeToLive'];
     return timeSpanKeys.includes(propertyName);
   }

@@ -4,11 +4,12 @@
   [(visible)]="visible"
   [modal]="true"
   position="right"
-  [style]="{ width: '600px', 'max-width': '90vw' }"
+  [style]="{ width: '900px', 'max-width': '90vw' }"
   [closable]="false"
+  [dismissible]="false"
 >
-  <div class="flex flex-column h-full">
-    <div class="flex-grow-1 overflow-y-auto pb-4">
+  <div>
+    <div>
       <p-accordion [multiple]="true" [value]="['0', '1', '2']">
         <!-- System Properties -->
         <p-accordion-panel value="0">
@@ -23,119 +24,151 @@
           </p-accordion-header>
           <p-accordion-content>
             <div>
-              @for (
-                filter of filterForm.systemProperties().value();
+              @for (filter of filterForm.systemProperties().value();
                 let index = $index;
-                track index
-              ) {
+                track index) {
                 <div class="filter-line system-property-filter-line">
-                  <p-checkbox
-                    [binary]="true"
-                    class="isActive"
-                    [formField]="filterForm.systemProperties[index].isActive"
-                  />
+                  <p-input-group>
+                    <p-inputgroup-addon>
+                      <p-checkbox
+                        [binary]="true"
+                        class="isActive"
+                        [formField]="filterForm.systemProperties[index].isActive"
+                      />
+                    </p-inputgroup-addon>
 
-                  <lib-select-signal-form-input
-                    [options]="systemPropertyOptions"
-                    [formField]="filterForm.systemProperties[index].fieldName"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select Property"
-                    class="fieldName"
-                  />
-
-                  @if (filter.fieldType === 'string') {
                     <lib-select-signal-form-input
-                      [options]="stringFilterTypes"
-                      [formField]="
-                        filterForm.systemProperties[index].filterType
-                      "
-                      appendTo="body"
+                      [options]="systemPropertyOptions"
+                      [formField]="filterForm.systemProperties[index].fieldName"
+                      (valueChange)="onSystemPropertyChange($event, index)"
                       optionLabel="label"
                       optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
+                      placeholder="Select Property"
+                      class="fieldName"
                     />
-                  }
 
-                  @if (filter.fieldType === 'date') {
-                    <lib-select-signal-form-input
-                      [options]="dateFilterTypes"
-                      [formField]="
+                    @if (filter.fieldType === 'string') {
+                      <lib-select-signal-form-input
+                        [options]="stringFilterTypes"
+                        [formField]="
                         filterForm.systemProperties[index].filterType
                       "
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
-                    />
-                  }
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Filter Type"
+                        class="filterType"
+                      />
+                    }
 
-                  @if (filter.fieldType === 'number') {
-                    <lib-select-signal-form-input
-                      [options]="numberFilterTypes"
-                      [formField]="
+                    @if (filter.fieldType === 'date') {
+                      <lib-select-signal-form-input
+                        [options]="dateFilterTypes"
+                        [formField]="
                         filterForm.systemProperties[index].filterType
                       "
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
-                    />
-                  }
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Filter Type"
+                        class="filterType"
+                      />
+                    }
 
-                  @if (filter.fieldType === 'string') {
-                    <input
-                      pInputText
-                      [formField]="
+                    @if (filter.fieldType === 'number') {
+                      <lib-select-signal-form-input
+                        [options]="numberFilterTypes"
+                        [formField]="
+                        filterForm.systemProperties[index].filterType
+                      "
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Filter Type"
+                        class="filterType"
+                      />
+                    }
+
+                    @if (filter.fieldType === 'timespan') {
+                      <lib-select-signal-form-input
+                        [options]="timespanFilterTypes"
+                        [formField]="filterForm.systemProperties[index].filterType"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Filter Type"
+                        class="filterType"
+                      />
+                    }
+
+                    @if (filter.fieldType === 'string') {
+                      <input
+                        pInputText
+                        [formField]="
                         asStringValueTree(
                           filterForm.systemProperties[index].value
                         )
                       "
-                      placeholder="Value"
-                      class="value"
-                    />
-                  }
+                        placeholder="Value"
+                        class="value"
+                      />
+                    }
 
-                  @if (filter.fieldType === 'date') {
-                    <lib-date-picker-signal-form-input
-                      [formField]="
+                    @if (filter.fieldType === 'date') {
+                      <lib-date-picker-signal-form-input
+                        [formField]="
                         asDateValueTree(
                           filterForm.systemProperties[index].value
                         )
                       "
-                      class="value"
-                    />
-                  }
+                        class="value"
+                      />
+                    }
 
-                  @if (filter.fieldType === 'number') {
-                    <input type="number" pInputText
-                      [formField]="
+                    @if (filter.fieldType === 'number') {
+                      <input type="number" pInputText
+                             [formField]="
                         asNumberValueTree(
                           filterForm.systemProperties[index].value
                         )
                       "
-                      class="value"
-                    />
-                  }
+                             class="value"
+                      />
+                    }
 
-                  @if (filter.fieldType === 'boolean') {
-                    <p-checkbox
-                      [formField]="
+                    @if (filter.fieldType === 'boolean') {
+                      <p-checkbox
+                        [formField]="
                         asBooleanValueTree(
                           filterForm.systemProperties[index].value
                         )
                       "
-                      [binary]="true"
-                      class="value"
-                    />
-                  }
+                        [binary]="true"
+                        class="value"
+                      />
+                    }
 
-                  <p-button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    (click)="removeSystemPropertyFilter(index)"
-                  ></p-button>
+                    @if (filter.fieldType === 'timespan') {
+                      <input
+                        (click)="popover.toggle($event)"
+                        pInputText
+                        readonly
+                        [value]="filter.value"
+                        class="time-span-trigger"
+                        aria-disabled="false"
+                        placeholder="Value" />
+                      <p-popover
+                        appendTo="body"
+                        #popover
+                      >
+                        <sbb-duration-input
+                          [formField]="asStringValueTree(filterForm.systemProperties[index].value)"
+                        />
+                      </p-popover>
+                    }
+
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      (click)="removeSystemPropertyFilter(index)"
+                    ></p-button>
+                  </p-input-group>
                 </div>
               }
 
@@ -161,129 +194,131 @@
             </div>
           </p-accordion-header>
           <p-accordion-content>
-            @for (
-              filter of filterForm.applicationProperties().value();
+            @for (filter of filterForm.applicationProperties().value();
               let index = $index;
-              track index
-            ) {
+              track index) {
               <div class="filter-line application-property-filter-line">
-                <p-checkbox
-                  [formField]="filterForm.applicationProperties[index].isActive"
-                  [binary]="true"
-                  class="isActive"
-                />
+                <p-input-group>
+                  <p-inputgroup-addon>
+                    <p-checkbox
+                      [formField]="filterForm.applicationProperties[index].isActive"
+                      [binary]="true"
+                      class="isActive"
+                    />
+                  </p-inputgroup-addon>
 
-                <input
-                  pInputText
-                  [formField]="
-                    filterForm.applicationProperties[index].fieldName
-                  "
-                  placeholder="Property Name"
-                  class="fieldName"
-                />
-
-                <lib-select-signal-form-input
-                  [options]="propertyTypes"
-                  [formField]="
-                    filterForm.applicationProperties[index].fieldType
-                  "
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Property Type"
-                  class="fieldType"
-                />
-
-                @if (filter.fieldType === 'string') {
-                  <lib-select-signal-form-input
-                    [options]="stringFilterTypes"
-                    [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Filter Type"
-                    class="filterType"
-                  />
-                }
-
-                @if (filter.fieldType === 'date') {
-                  <lib-select-signal-form-input
-                    [options]="dateFilterTypes"
-                    [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Filter Type"
-                    class="filterType"
-                  />
-                }
-
-                @if (filter.fieldType === 'number') {
-                  <lib-select-signal-form-input
-                    [options]="numberFilterTypes"
-                    [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Filter Type"
-                    class="filterType"
-                  />
-                }
-
-                @if (filter.fieldType === 'string') {
                   <input
                     pInputText
                     [formField]="
+                    filterForm.applicationProperties[index].fieldName
+                  "
+                    placeholder="Property Name"
+                    class="fieldName"
+                  />
+
+                  <lib-select-signal-form-input
+                    [options]="propertyTypes"
+                    [formField]="
+                    filterForm.applicationProperties[index].fieldType
+                  "
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Property Type"
+                    class="fieldType"
+                  />
+
+                  @if (filter.fieldType === 'string') {
+                    <lib-select-signal-form-input
+                      [options]="stringFilterTypes"
+                      [formField]="
+                      filterForm.applicationProperties[index].filterType
+                    "
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                    />
+                  }
+
+                  @if (filter.fieldType === 'date') {
+                    <lib-select-signal-form-input
+                      [options]="dateFilterTypes"
+                      [formField]="
+                      filterForm.applicationProperties[index].filterType
+                    "
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                    />
+                  }
+
+                  @if (filter.fieldType === 'number') {
+                    <lib-select-signal-form-input
+                      [options]="numberFilterTypes"
+                      [formField]="
+                      filterForm.applicationProperties[index].filterType
+                    "
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter Type"
+                      class="filterType"
+                    />
+                  }
+
+                  @if (filter.fieldType === 'string') {
+                    <input
+                      pInputText
+                      [formField]="
                       asStringValueTree(
                         filterForm.applicationProperties[index].value
                       )
                     "
-                    placeholder="Value"
-                    class="value"
-                  />
-                }
+                      placeholder="Value"
+                      class="value"
+                    />
+                  }
 
-                @if (filter.fieldType === 'date') {
-                  <lib-date-picker-signal-form-input
-                    [formField]="
+                  @if (filter.fieldType === 'date') {
+                    <lib-date-picker-signal-form-input
+                      [formField]="
                       asDateValueTree(
                         filterForm.applicationProperties[index].value
                       )
                     "
-                    class="value"
-                  />
-                }
+                      class="value"
+                    />
+                  }
 
-                @if (filter.fieldType === 'number') {
-                  <input type="number" pInputText
-                    [formField]="
+                  @if (filter.fieldType === 'number') {
+                    <input type="number" pInputText
+                           [formField]="
                       asNumberValueTree(
                         filterForm.applicationProperties[index].value
                       )
                     "
-                    class="value"
-                  />
-                }
+                           class="value"
+                    />
+                  }
 
-                @if (filter.fieldType === 'boolean') {
-                  <p-checkbox
-                    [formField]="
+                  @if (filter.fieldType === 'boolean') {
+                    <p-checkbox
+                      [formField]="
                       asBooleanValueTree(
                         filterForm.applicationProperties[index].value
                       )
                     "
-                    [binary]="true"
-                    class="value"
-                  />
-                }
+                      [binary]="true"
+                      class="value"
+                    />
+                  }
 
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  (click)="removeApplicationPropertyFilter(index)"
-                ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    (click)="removeApplicationPropertyFilter(index)"
+                  ></p-button>
+                </p-input-group>
               </div>
             }
 
@@ -308,40 +343,40 @@
             </div>
           </p-accordion-header>
           <p-accordion-content>
-            @for (
-              filter of filterForm.body().value();
+            @for (filter of filterForm.body().value();
               let index = $index;
-              track index
-            ) {
-              <div class="filter-line body-filter-line">
-                <p-checkbox
-                  [formField]="filterForm.body[index].isActive"
-                  [binary]="true"
-                  class="isActive"
-                />
+              track index) {
+                <p-input-group>
+                  <p-inputgroup-addon>
+                    <p-checkbox
+                      [formField]="filterForm.body[index].isActive"
+                      [binary]="true"
+                      class="isActive"
+                    />
+                  </p-inputgroup-addon>
 
-                <lib-select-signal-form-input
-                  [options]="bodyFilterTypes"
-                  [formField]="filterForm.body[index].filterType"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Filter Type"
-                  class="filterType"
-                />
+                  <lib-select-signal-form-input
+                    [options]="bodyFilterTypes"
+                    [formField]="filterForm.body[index].filterType"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Filter Type"
+                    class="filterType"
+                  />
 
-                <input
-                  pInputText
-                  [formField]="asStringValueTree(filterForm.body[index].value)"
-                  placeholder="Value"
-                  class="value"
-                />
+                  <input
+                    pInputText
+                    [formField]="asStringValueTree(filterForm.body[index].value)"
+                    placeholder="Value"
+                    class="value"
+                  />
 
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  (click)="removeBodyFilter(index)"
-                ></p-button>
-              </div>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    (click)="removeBodyFilter(index)"
+                  ></p-button>
+                </p-input-group>
             }
 
             <p-button
@@ -355,8 +390,8 @@
       </p-accordion>
     </div>
     <div class="actions">
-      <p-button variant="text" (click)="onCancel()"> Cancel </p-button>
-      <p-button severity="danger" (click)="onClearAll()"> Clear All </p-button>
+      <p-button variant="text" (click)="onCancel()"> Cancel</p-button>
+      <p-button severity="danger" (click)="onClearAll()"> Clear All</p-button>
       <p-button (click)="onApply()" [disabled]="!isFilterValid()">
         Apply
       </p-button>

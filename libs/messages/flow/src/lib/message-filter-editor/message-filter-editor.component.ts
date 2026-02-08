@@ -1,8 +1,7 @@
 import {
   Component,
   computed,
-  effect,
-  linkedSignal,
+  effect, inject,
   model,
   signal,
 } from '@angular/core';
@@ -14,7 +13,9 @@ import { AccordionModule } from 'primeng/accordion';
 
 import {
   MessageFilter,
+  PropertyFilter,
   SYSTEM_PROPERTIES,
+  SystemKeyProperty,
 } from '@service-bus-browser/messages-contracts';
 import { filterIsValid } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
@@ -28,6 +29,12 @@ import {
 import { Checkbox } from 'primeng/checkbox';
 import { SelectSignalFormInput } from './select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from './date-picker-signal-form-input/date-picker-signal-form-input';
+import { SystemPropertyKeys } from '../send-message/form';
+import { SystemPropertyHelpers } from '../systemproperty-helpers';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { DurationInputComponent } from '@service-bus-browser/shared-components';
+import { Popover } from 'primeng/popover';
 
 @Component({
   selector: 'lib-message-filter-editor',
@@ -42,18 +49,24 @@ import { DatePickerSignalFormInput } from './date-picker-signal-form-input/date-
     FormField,
     SelectSignalFormInput,
     DatePickerSignalFormInput,
+    InputGroup,
+    InputGroupAddon,
+    DurationInputComponent,
+    Popover,
   ],
   templateUrl: './message-filter-editor.component.html',
   styleUrls: ['./message-filter-editor.component.scss'],
 })
 export class MessageFilterEditorComponent {
+  systemPropertyHelpers = inject(SystemPropertyHelpers);
+
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
   shadowFilter = signal<MessageFilter>({
     systemProperties: [],
     applicationProperties: [],
     body: [],
-  })
+  });
 
   filterForm = form(this.shadowFilter, (s) => {
     applyEach(s.systemProperties, (systemProperty) => {
@@ -75,7 +88,10 @@ export class MessageFilterEditorComponent {
   systemPropertyOptions = Object.entries(SYSTEM_PROPERTIES).map(([key]) => ({
     label: key,
     value: key,
-  }));
+  })) as {
+    label: string;
+    value: SystemPropertyKeys;
+  }[];
 
   propertyTypes = [
     { label: 'Text', value: 'string' },
@@ -107,6 +123,13 @@ export class MessageFilterEditorComponent {
     { label: 'Not equals', value: 'notequals' },
   ];
 
+  timespanFilterTypes = [
+    { label: 'Greater Than', value: 'greater' },
+    { label: 'Less Than', value: 'less' },
+    { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
+  ];
+
   bodyFilterTypes = [
     { label: 'Contains', value: 'contains' },
     { label: 'Regex', value: 'regex' },
@@ -116,9 +139,7 @@ export class MessageFilterEditorComponent {
 
   systemFilterTag = computed(() => {
     const shadowFilter = this.shadowFilter();
-    const filterCount = shadowFilter.systemProperties.filter(
-      (f) => f.isActive,
-    ).length;
+    const filterCount = shadowFilter.systemProperties.length;
     const activeFiltersCount = shadowFilter.systemProperties.filter(
       (f) => f.isActive,
     ).length;
@@ -132,9 +153,7 @@ export class MessageFilterEditorComponent {
 
   applicationFilterTag = computed(() => {
     const shadowFilter = this.shadowFilter();
-    const filterCount = shadowFilter.applicationProperties.filter(
-      (f) => f.isActive,
-    ).length;
+    const filterCount = shadowFilter.applicationProperties.length;
     const activeFiltersCount = shadowFilter.applicationProperties.filter(
       (f) => f.isActive,
     ).length;
@@ -148,7 +167,7 @@ export class MessageFilterEditorComponent {
 
   bodyFilterTag = computed(() => {
     const shadowFilter = this.shadowFilter();
-    const filterCount = shadowFilter.body.filter((f) => f.isActive).length;
+    const filterCount = shadowFilter.body.length;
     const activeFiltersCount = shadowFilter.body.filter(
       (f) => f.isActive,
     ).length;
@@ -161,12 +180,15 @@ export class MessageFilterEditorComponent {
   });
 
   constructor() {
+    // not sure the filter is stored in ngrx or if this is because signal forms (still experimental)
+    // but somehow a symbol function is missing if we used a linked signal
     effect(() => {
       const filter = this.filters();
       this.shadowFilter.set({
-        systemProperties: filter.systemProperties.map((f) => ({...f})) ?? [],
-        applicationProperties: filter.applicationProperties.map((f) => ({...f})) ?? [],
-        body: filter.body.map((f) => ({...f})) ?? [],
+        systemProperties: filter.systemProperties.map((f) => ({ ...f })) ?? [],
+        applicationProperties:
+          filter.applicationProperties.map((f) => ({ ...f })) ?? [],
+        body: filter.body.map((f) => ({ ...f })) ?? [],
       });
     });
   }
@@ -210,7 +232,7 @@ export class MessageFilterEditorComponent {
           value: '',
         },
       ],
-    }))
+    }));
   }
 
   protected removeApplicationPropertyFilter(index: number) {
@@ -247,7 +269,7 @@ export class MessageFilterEditorComponent {
       systemProperties: [],
       applicationProperties: [],
       body: [],
-    })
+    });
   }
 
   protected onApply() {
@@ -281,5 +303,35 @@ export class MessageFilterEditorComponent {
     value: FieldTree<unknown, string>,
   ): FieldTree<boolean, string> {
     return value as FieldTree<boolean, string>;
+  }
+
+  protected onSystemPropertyChange($event: string | undefined, index: number) {
+    const key = $event as SystemKeyProperty;
+    if (this.systemPropertyHelpers.propertyIsDate(key)) {
+      this.setSystemPropertyType(index, 'date');
+    } else if (this.systemPropertyHelpers.propertyIsTimeSpan(key)) {
+      this.setSystemPropertyType(index, 'timespan');
+    } else {
+      this.setSystemPropertyType(index, 'string');
+    }
+  }
+
+  private setSystemPropertyType(
+    index: number,
+    type: 'string' | 'date' | 'number' | 'boolean' | 'timespan',
+  ) {
+    this.shadowFilter.update((f) => ({
+      ...f,
+      systemProperties: f.systemProperties.map((p, i) => {
+        if (i !== index) {
+          return p;
+        }
+
+        return {
+          ...p,
+          fieldType: type,
+        } as PropertyFilter;
+      })
+    }));
   }
 }

@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  justify-content: stretch;
+}
+
+::ng-deep {
+  p-date-picker input {
+    min-width: 9rem;
+  }
+}

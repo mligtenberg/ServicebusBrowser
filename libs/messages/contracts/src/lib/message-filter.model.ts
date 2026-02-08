@@ -1,6 +1,6 @@
 export interface MessageFilterBase {
   fieldName: string;
-  fieldType: 'string' | 'date' | 'number' | 'boolean';
+  fieldType: 'string' | 'date' | 'number' | 'boolean' | 'timespan';
   isActive: boolean;
 }
 
@@ -28,7 +28,13 @@ export interface BooleanFilter extends MessageFilterBase {
   value: boolean;
 }
 
-export type PropertyFilter = StringFilter | DateFilter | NumberFilter | BooleanFilter;
+export interface TimespanFilter extends MessageFilterBase {
+  fieldType: 'timespan';
+  filterType: 'greater' | 'less' | 'equals' | 'notequals';
+  value: string;
+}
+
+export type PropertyFilter = StringFilter | DateFilter | NumberFilter | BooleanFilter | TimespanFilter;
 
 export type BodyFilter = {
   isActive: boolean;

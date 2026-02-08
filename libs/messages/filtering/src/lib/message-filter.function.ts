@@ -5,14 +5,19 @@ import {
   NumberFilter,
   PropertyFilter,
   ServiceBusMessage,
-  StringFilter
+  StringFilter,
+  TimespanFilter,
 } from '@service-bus-browser/messages-contracts';
+import { Duration } from 'luxon';
 
 /**
  * Service for filtering messages based on various criteria
  */
 
-export function filterMessages<T extends ServiceBusMessage>(messages: T[], filter: MessageFilter): T[] {
+export function filterMessages<T extends ServiceBusMessage>(
+  messages: T[],
+  filter: MessageFilter,
+): T[] {
   if (!hasActiveFilters(filter)) {
     return messages;
   }
@@ -34,7 +39,10 @@ export function filterMessages<T extends ServiceBusMessage>(messages: T[], filte
   return filteredMessages;
 }
 
-export function messageInFilter<T extends ServiceBusMessage>(message: T, filter: MessageFilter): boolean {
+export function messageInFilter<T extends ServiceBusMessage>(
+  message: T,
+  filter: MessageFilter,
+): boolean {
   if (!hasActiveFilters(filter)) {
     return true;
   }
@@ -66,15 +74,23 @@ export function messageInFilter<T extends ServiceBusMessage>(message: T, filter:
   return true;
 }
 
-function filterBySystemProperty<T extends ServiceBusMessage>(messages: T[], filter: MessageFilter): T[] {
+function filterBySystemProperty<T extends ServiceBusMessage>(
+  messages: T[],
+  filter: MessageFilter,
+): T[] {
   let filteredMessages = messages;
   for (const filterPart of filter.systemProperties) {
-    filteredMessages = filteredMessages.filter(message => messageInSystemPropertyFilter(message, filterPart));
+    filteredMessages = filteredMessages.filter((message) =>
+      messageInSystemPropertyFilter(message, filterPart),
+    );
   }
   return filteredMessages;
 }
 
-function messageInSystemPropertyFilter<T extends ServiceBusMessage>(message: T, filter: PropertyFilter): boolean {
+function messageInSystemPropertyFilter<T extends ServiceBusMessage>(
+  message: T,
+  filter: PropertyFilter,
+): boolean {
   if (!filter.isActive) {
     return true;
   }
@@ -85,15 +101,23 @@ function messageInSystemPropertyFilter<T extends ServiceBusMessage>(message: T, 
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByApplicationProperty<T extends ServiceBusMessage>(messages: T[], filter: MessageFilter): T[] {
+function filterByApplicationProperty<T extends ServiceBusMessage>(
+  messages: T[],
+  filter: MessageFilter,
+): T[] {
   let filteredMessages = messages;
   for (const filterPart of filter.applicationProperties) {
-    filteredMessages = filteredMessages.filter(message => messageInApplicationPropertyFilter(message, filterPart));
+    filteredMessages = filteredMessages.filter((message) =>
+      messageInApplicationPropertyFilter(message, filterPart),
+    );
   }
   return filteredMessages;
 }
 
-function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(message: T, filter: PropertyFilter): boolean {
+function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(
+  message: T,
+  filter: PropertyFilter,
+): boolean {
   if (!filter.isActive) {
     return true;
   }
@@ -104,15 +128,23 @@ function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(message
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByBody<T extends ServiceBusMessage>(messages: T[], filter: MessageFilter): T[] {
+function filterByBody<T extends ServiceBusMessage>(
+  messages: T[],
+  filter: MessageFilter,
+): T[] {
   let filteredMessages = messages;
   for (const filterPart of filter.body) {
-    filteredMessages = filteredMessages.filter((message) => messageInBodyFilter(message, filterPart));
+    filteredMessages = filteredMessages.filter((message) =>
+      messageInBodyFilter(message, filterPart),
+    );
   }
   return filteredMessages;
 }
 
-function messageInBodyFilter<T extends ServiceBusMessage>(message: T, filter: BodyFilter): boolean {
+function messageInBodyFilter<T extends ServiceBusMessage>(
+  message: T,
+  filter: BodyFilter,
+): boolean {
   if (!filter.isActive) {
     return true;
   }
@@ -154,7 +186,10 @@ function messageInBodyFilter<T extends ServiceBusMessage>(message: T, filter: Bo
   throw new Error(`Unknown body filter type: ${filter.filterType}`);
 }
 
-export function matchesPropertyFilter(value: any, filter: PropertyFilter): boolean {
+export function matchesPropertyFilter(
+  value: any,
+  filter: PropertyFilter,
+): boolean {
   switch (filter.fieldType) {
     case 'string':
       return matchesStringFilter(String(value), filter);
@@ -162,6 +197,8 @@ export function matchesPropertyFilter(value: any, filter: PropertyFilter): boole
       return matchesDateFilter(value, filter);
     case 'number':
       return matchesNumberFilter(Number(value), filter);
+    case 'timespan':
+      return matchesTimeSpanFilter(String(value), filter);
     case 'boolean':
       return value === filter.value;
     default:
@@ -220,6 +257,28 @@ function matchesDateFilter(value: Date | string, filter: DateFilter): boolean {
   }
 }
 
+function matchesTimeSpanFilter(value: string, filter: TimespanFilter): boolean {
+  const timespanValue = Duration.fromISO(value);
+  const filterTimespan = Duration.fromISO(filter.value);
+
+  if (!timespanValue.isValid || !filterTimespan.isValid) {
+    return false;
+  }
+
+  switch (filter.filterType) {
+    case 'greater':
+      return timespanValue.toMillis() > filterTimespan.toMillis();
+    case 'less':
+      return timespanValue.toMillis() < filterTimespan.toMillis();
+    case 'equals':
+      return timespanValue.toMillis() === filterTimespan.toMillis();
+    case 'notequals':
+      return timespanValue.toMillis() !== filterTimespan.toMillis();
+    default:
+      return false;
+  }
+}
+
 function matchesNumberFilter(value: number, filter: NumberFilter): boolean {
   if (isNaN(value)) {
     return false;
@@ -248,27 +307,35 @@ export function hasActiveFilters(filter: MessageFilter): boolean {
 }
 
 export function hasActiveSystemPropertyFilters(filter: MessageFilter): boolean {
-  return filter.systemProperties.some(prop => prop.isActive);
+  return filter.systemProperties.some((prop) => prop.isActive);
 }
 
-export function hasActiveApplicationPropertyFilters(filter: MessageFilter): boolean {
-  return filter.applicationProperties.some(prop => prop.isActive);
+export function hasActiveApplicationPropertyFilters(
+  filter: MessageFilter,
+): boolean {
+  return filter.applicationProperties.some((prop) => prop.isActive);
 }
 
 export function hasActiveBodyFilter(filter: MessageFilter): boolean {
-  return filter.body.some(prop => prop.isActive);
+  return filter.body.some((prop) => prop.isActive);
 }
 
 export function filterIsValid(filter: MessageFilter): boolean {
-  if (filter.systemProperties.filter(prop => !isPropertyFilterValid(prop)).length) {
+  if (
+    filter.systemProperties.filter((prop) => !isPropertyFilterValid(prop))
+      .length
+  ) {
     return false;
   }
 
-  if (filter.applicationProperties.filter(prop => !isPropertyFilterValid(prop)).length) {
+  if (
+    filter.applicationProperties.filter((prop) => !isPropertyFilterValid(prop))
+      .length
+  ) {
     return false;
   }
 
-  if (filter.body.filter(prop => !isBodyFilterValid(prop)).length) {
+  if (filter.body.filter((prop) => !isBodyFilterValid(prop)).length) {
     return false;
   }
 
@@ -316,11 +383,19 @@ function isPropertyFilterValid(filter: PropertyFilter): boolean {
     return true;
   }
 
+  if (filter.fieldType === 'timespan') {
+    return isTimespanFilterValid(filter);
+  }
+
   return false;
 }
 
 function isStringFilterValid(filter: StringFilter): boolean {
-  if (filter.value === undefined || filter.value === null || filter.value === '') {
+  if (
+    filter.value === undefined ||
+    filter.value === null ||
+    filter.value === ''
+  ) {
     return false;
   }
 
@@ -336,7 +411,11 @@ function isStringFilterValid(filter: StringFilter): boolean {
 }
 
 function isNumberFilterValid(filter: NumberFilter): boolean {
-  if (filter.value === undefined || filter.value === null || isNaN(Number(filter.value))) {
+  if (
+    filter.value === undefined ||
+    filter.value === null ||
+    isNaN(Number(filter.value))
+  ) {
     return false;
   }
 
@@ -349,6 +428,22 @@ function isNumberFilterValid(filter: NumberFilter): boolean {
 
 function isDateFilterValid(filter: DateFilter): boolean {
   if (filter.value === undefined || filter.value === null) {
+    return false;
+  }
+
+  if (!filter.filterType) {
+    return false;
+  }
+
+  return true;
+}
+
+function isTimespanFilterValid(filter: TimespanFilter): boolean {
+  if (
+    filter.value === undefined ||
+    filter.value === null ||
+    !Duration.fromISO(filter.value).isValid
+  ) {
     return false;
   }
 

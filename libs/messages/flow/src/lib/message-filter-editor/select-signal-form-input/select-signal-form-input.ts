@@ -11,16 +11,16 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './select-signal-form-input.html',
   styleUrl: './select-signal-form-input.scss',
 })
-export class SelectSignalFormInput
-  implements FormValueControl<unknown | undefined>
+export class SelectSignalFormInput<T>
+  implements FormValueControl<T | undefined>
 {
-  value = model<unknown>();
+  value = model<T>();
   disabled = input<boolean>(false);
   readonly = input<boolean>(false);
   hidden = input<boolean>(false);
   required = input<boolean>(false);
 
-  options = input<unknown[]>();
+  options = input<Record<string, T | string>[]>();
   optionLabel = input<string>();
   optionValue = input<string>();
   placeholder = input<string>();
