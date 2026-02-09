@@ -1,7 +1,8 @@
 import { dialog } from 'electron';
 import * as fs from 'fs';
+import { ServiceBusServerFunc } from './types';
 
-export const storeFile = async (body: { fileName: string, fileContent: string | Uint8Array, fileTypes: Electron.FileFilter[] }) => {
+const storeFile = async (body: { fileName: string, fileContent: string | Uint8Array, fileTypes: Electron.FileFilter[] }) => {
   const { fileName, fileContent, fileTypes } = body;
 
   const { canceled, filePath } = await dialog.showSaveDialog({
@@ -19,3 +20,6 @@ export const storeFile = async (body: { fileName: string, fileContent: string | 
   return true;
 }
 
+export default new Map<string, ServiceBusServerFunc>([
+  ['storeFile', storeFile],
+]);

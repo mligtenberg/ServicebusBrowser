@@ -1,6 +1,7 @@
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { ServiceBusServerFunc } from './types';
 
 const getSendClient = (sendEndpoint: SendEndpoint, connectionManager: ConnectionManager) => {
   const connectionId = sendEndpoint.connectionId;
@@ -10,7 +11,7 @@ const getSendClient = (sendEndpoint: SendEndpoint, connectionManager: Connection
     .getMessageSendClient(sendEndpoint);
 }
 
-export const sendMessage = (body: {
+const sendMessage = (body: {
   endpoint: SendEndpoint,
   message: ServiceBusMessage,
 }, connectionManager: ConnectionManager) => {
@@ -19,10 +20,15 @@ export const sendMessage = (body: {
   return sendClient.send(body.message);
 }
 
-export const sendMessages = (body: {
+const sendMessages = (body: {
   endpoint: SendEndpoint,
   messages: ServiceBusMessage[],
 }, connectionManager: ConnectionManager)=> {
   const sendClient = getSendClient(body.endpoint, connectionManager);
   return sendClient.send(body.messages);
 }
+
+export default new Map<string, ServiceBusServerFunc>([
+  ['sendMessage', sendMessage],
+  ['sendMessages', sendMessages],
+]);

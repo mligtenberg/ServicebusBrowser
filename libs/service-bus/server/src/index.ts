@@ -1,39 +1,22 @@
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
+import { management, messages } from './lib/service-bus-server';
 
 export class Server {
   constructor(private connectionManager: ConnectionManager) {}
 
-  async managementExecute(actionName: string, requestBody: unknown) {
-    const module = require(`./lib/service-bus-server`);
-    const func = module.management[actionName];
-
-    if (func && typeof func === 'function') {
-      const result = func(requestBody, this.connectionManager);
-
-      // if is a promise, wait for it to resolve
-      if (result instanceof Promise) {
-        return await result;
-      }
-
-      return result;
+  managementExecute(actionName: string, requestBody: unknown) {
+    if (management.has(actionName)) {
+      const func = management.get(actionName);
+      return func?.(requestBody, this.connectionManager) ?? Promise.reject('Action returned undefined');
     }
 
     throw new Error(`Action ${actionName} not found`);
   }
 
-  async messagesExecute(actionName: string, requestBody: unknown) {
-    const module = require(`./lib/service-bus-server`);
-    const func = module.messages[actionName];
-
-    if (func && typeof func === 'function') {
-      const result = func(requestBody, this.connectionManager);
-
-      // if is a promise, wait for it to resolve
-      if (result instanceof Promise) {
-        return await result;
-      }
-
-      return result;
+  messagesExecute(actionName: string, requestBody: unknown) {
+    if (messages.has(actionName)) {
+      const func = messages.get(actionName);
+      return func?.(requestBody, this.connectionManager) ?? Promise.reject("Action returned undefined");
     }
 
     throw new Error(`Action ${actionName} not found`);

@@ -1,6 +1,7 @@
 import Long from 'long';
 import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
+import { ServiceBusServerFunc } from './types';
 
 const getReceiveClient = (receiveEndpoint: ReceiveEndpoint, connectionManager: ConnectionManager) => {
   const connectionId = receiveEndpoint.connectionId;
@@ -10,7 +11,7 @@ const getReceiveClient = (receiveEndpoint: ReceiveEndpoint, connectionManager: C
     .getMessageReceiveClient(receiveEndpoint);
 }
 
-export const peekMessages = (body: {
+const peekMessages = (body: {
   endpoint: ReceiveEndpoint,
   maxMessageCount: number,
   fromSequenceNumber?: string,
@@ -21,7 +22,7 @@ export const peekMessages = (body: {
   return receiveClient.peekMessages(body.maxMessageCount, fromSequenceNumber);
 }
 
-export const receiveMessages = (body: {
+const receiveMessages = (body: {
   endpoint: ReceiveEndpoint,
   maxMessageCount: number
 }, connectionManager: ConnectionManager) => {
@@ -29,3 +30,8 @@ export const receiveMessages = (body: {
 
   return receiveClient.receiveMessages(body.maxMessageCount);
 }
+
+export default new Map<string, ServiceBusServerFunc>([
+  ['peekMessages', peekMessages],
+  ['receiveMessages', receiveMessages],
+]);
