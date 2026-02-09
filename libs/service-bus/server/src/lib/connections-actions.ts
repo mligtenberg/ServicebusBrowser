@@ -14,8 +14,7 @@ const removeConnection = (body: { connectionId: UUID }, connectionManager: Conne
 }
 
 const listConnections = async (body: void, connectionManager: ConnectionManager) => {
-  connectionManager.listConnections();
-  return Promise.resolve();
+  return Promise.resolve(connectionManager.listConnections());
 };
 
 const checkConnection = async (connection: Connection, connectionManager: ConnectionManager) => {
