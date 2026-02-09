@@ -19,12 +19,12 @@ export const selectPage = (pageId: string) =>
     state.receivedMessages.find((page) => page.id === pageId),
   );
 
-export const selectPageSelectedMessage = (pageId: string) =>
+export const selectPageSelectedMessages = (pageId: string) =>
   createSelector(selectPage(pageId), (page) =>
-    page?.selectedMessageSequence === undefined
+    page?.selectedMessageSequences === undefined
       ? undefined
-      : page.messages.find(
-          (message) => message.sequenceNumber === page?.selectedMessageSequence,
+      : page.messages.filter(
+          (message) => message.sequenceNumber ? page.selectedMessageSequences!.includes(message.sequenceNumber) : false,
         ),
   );
 

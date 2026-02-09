@@ -89,6 +89,6 @@ export const setPageSelection = createAction(
   '[Messages] set page selection',
   props<{
     pageId: UUID;
-    sequenceNumber: string | undefined;
+    sequenceNumbers: string[] | undefined;
   }>(),
 );

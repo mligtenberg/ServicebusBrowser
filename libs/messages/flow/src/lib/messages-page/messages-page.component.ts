@@ -324,13 +324,13 @@ export class MessagesPageComponent {
         switchMap((params) => {
           const pageId: string = params['pageId'];
           return this.store.select(
-            MessagesSelectors.selectPageSelectedMessage(pageId),
+            MessagesSelectors.selectPageSelectedMessages(pageId),
           );
         }),
         takeUntilDestroyed(),
       )
-      .subscribe((message) => {
-        this.selection.set(message ? [message] : undefined);
+      .subscribe((messages) => {
+        this.selection.set(messages ? messages : undefined);
       });
 
     this.actions
@@ -486,7 +486,9 @@ export class MessagesPageComponent {
     this.store.dispatch(
       MessagesActions.setPageSelection({
         pageId: this.currentPage()!.id,
-        sequenceNumber: $event[0]?.sequenceNumber,
+        sequenceNumbers: $event
+          ?.map((message) => message.sequenceNumber)
+          .filter(sn => sn !== undefined),
       }),
     );
   }
