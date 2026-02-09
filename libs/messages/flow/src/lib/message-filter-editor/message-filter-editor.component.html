@@ -5,8 +5,7 @@
   [modal]="true"
   position="right"
   [style]="{ width: '900px', 'max-width': '90vw' }"
-  [closable]="false"
-  [dismissible]="false"
+  (onHide)="onCancel()"
 >
   <div>
     <div>
