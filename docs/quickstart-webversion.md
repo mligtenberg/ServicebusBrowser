@@ -15,6 +15,7 @@ To do this:
 ## Configure the app
 create a file called `sbb-connections.json`, this file contains a array with the connections provided in the web ui
 the different connections types are:
+
 connection string:
 ```json
 [
@@ -26,6 +27,8 @@ connection string:
   }
 ]
 ```
+> [!IMPORTANT]
+> While possible, using connection strings in the web version of Service Bus Browser is strongly discouraged due to security concerns.
 
 Service principal client secret:
 ```json
