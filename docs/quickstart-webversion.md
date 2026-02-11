@@ -28,7 +28,7 @@ connection string:
 ]
 ```
 > [!IMPORTANT]
-> While possible, using connection strings in the web version of Service Bus Browser is strongly discouraged due to security concerns.
+> While possible, using connection strings in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
 
 Service principal client secret:
 ```json
@@ -45,6 +45,8 @@ Service principal client secret:
   }
 ]
 ```
+> [!IMPORTANT]
+> While possible, using service principal secrets in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
 
 System assigned managed identity:
 ```json
