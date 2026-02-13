@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { DatePickerSignalFormInput } from '../date-picker-signal-form-input/date-picker-signal-form-input';
@@ -8,6 +8,14 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { SelectSignalFormInput } from '../select-signal-form-input/select-signal-form-input';
+import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
+import {
+  PropertyFilter,
+  SYSTEM_PROPERTIES,
+  SystemPropertyKey,
+} from '@service-bus-browser/messages-contracts';
+import { SystemPropertyHelpers } from '../../systemproperty-helpers';
+import { SystemPropertyKeys } from '../../send-message/form';
 
 @Component({
   selector: 'lib-system-property-form',
@@ -20,9 +28,126 @@ import { SelectSignalFormInput } from '../select-signal-form-input/select-signal
     InputGroupAddon,
     InputText,
     Popover,
-    SelectSignalFormInput
+    SelectSignalFormInput,
+    FormField,
   ],
   templateUrl: './system-property-form.html',
   styleUrl: './system-property-form.scss',
 })
-export class SystemPropertyForm {}
+export class SystemPropertyForm implements FormValueControl<PropertyFilter> {
+  value = model<PropertyFilter>({
+    value: '',
+    fieldType: 'string',
+    filterType: 'equals',
+    fieldName: '',
+    isActive: true,
+  });
+
+  disabled = input<boolean>(false);
+  readonly = input<boolean>(false);
+  hidden = input<boolean>(false);
+  invalid = input<boolean>(false);
+  touched = model<boolean>(false);
+  required = input<boolean>(false);
+  removable = input<boolean>(false);
+  removedPressed = output<void>();
+
+  systemPropertyHelpers = inject(SystemPropertyHelpers);
+
+  systemPropertyOptions = Object.entries(SYSTEM_PROPERTIES).map(([key]) => ({
+    label: key,
+    value: key,
+  })) as {
+    label: string;
+    value: SystemPropertyKeys;
+  }[];
+
+  stringFilterTypes = [
+    { label: 'Contains', value: 'contains' },
+    { label: 'Equals', value: 'equals' },
+    { label: 'Regex', value: 'regex' },
+    { label: 'Not contains', value: 'notcontains' },
+    { label: 'Not equals', value: 'notequals' },
+    { label: 'Not regex', value: 'notregex' },
+  ];
+
+  dateFilterTypes = [
+    { label: 'Before', value: 'before' },
+    { label: 'After', value: 'after' },
+    { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
+  ];
+
+  numberFilterTypes = [
+    { label: 'Greater Than', value: 'greater' },
+    { label: 'Less Than', value: 'less' },
+    { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
+  ];
+
+  timespanFilterTypes = [
+    { label: 'Greater Than', value: 'greater' },
+    { label: 'Less Than', value: 'less' },
+    { label: 'Equals', value: 'equals' },
+    { label: 'Not equals', value: 'notequals' },
+  ];
+
+  propertyForm = form(this.value, (v) => {
+    if (this.required()) {
+      required(v.fieldName);
+      required(v.fieldType);
+      required(v.filterType);
+    }
+
+    if (this.disabled()) {
+      formDisabled(v);
+    }
+  });
+
+  protected asStringValueTree(
+    value: FieldTree<unknown, string>,
+  ): FieldTree<string, string> {
+    return value as FieldTree<string, string>;
+  }
+
+  protected asDateValueTree(
+    value: FieldTree<unknown, string>,
+  ): FieldTree<Date, string> {
+    return value as FieldTree<Date, string>;
+  }
+
+  protected asNumberValueTree(
+    value: FieldTree<unknown, string>,
+  ): FieldTree<number, string> {
+    return value as FieldTree<number, string>;
+  }
+
+  protected asBooleanValueTree(
+    value: FieldTree<unknown, string>,
+  ): FieldTree<boolean, string> {
+    return value as FieldTree<boolean, string>;
+  }
+
+  protected remove() {
+    this.removedPressed.emit();
+  }
+
+  protected onSystemPropertyChange($event: string | undefined) {
+    const key = $event as SystemPropertyKey;
+    this.setSystemPropertyType(
+      this.systemPropertyHelpers.toFilterPropertyType(key),
+    );
+  }
+
+  private setSystemPropertyType(
+    type: 'string' | 'date' | 'number' | 'boolean' | 'timespan',
+  ) {
+    this.value.update(
+      (filter) =>
+        ({
+          ...filter,
+          fieldType: type,
+        }) as PropertyFilter,
+    );
+  }
+}

@@ -35,6 +35,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { Popover } from 'primeng/popover';
+import { SystemPropertyForm } from './system-property-form/system-property-form';
 
 @Component({
   selector: 'lib-message-filter-editor',
@@ -53,12 +54,12 @@ import { Popover } from 'primeng/popover';
     InputGroupAddon,
     DurationInputComponent,
     Popover,
+    SystemPropertyForm,
   ],
   templateUrl: './message-filter-editor.component.html',
   styleUrls: ['./message-filter-editor.component.scss'],
 })
 export class MessageFilterEditorComponent {
-  systemPropertyHelpers = inject(SystemPropertyHelpers);
 
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
@@ -85,14 +86,6 @@ export class MessageFilterEditorComponent {
   });
 
   // Dropdown options
-  systemPropertyOptions = Object.entries(SYSTEM_PROPERTIES).map(([key]) => ({
-    label: key,
-    value: key,
-  })) as {
-    label: string;
-    value: SystemPropertyKeys;
-  }[];
-
   propertyTypes = [
     { label: 'Text', value: 'string' },
     { label: 'Date', value: 'date' },
@@ -303,29 +296,5 @@ export class MessageFilterEditorComponent {
     value: FieldTree<unknown, string>,
   ): FieldTree<boolean, string> {
     return value as FieldTree<boolean, string>;
-  }
-
-  protected onSystemPropertyChange($event: string | undefined, index: number) {
-    const key = $event as SystemPropertyKey;
-    this.setSystemPropertyType(index, this.systemPropertyHelpers.toFilterPropertyType(key));
-  }
-
-  private setSystemPropertyType(
-    index: number,
-    type: 'string' | 'date' | 'number' | 'boolean' | 'timespan',
-  ) {
-    this.shadowFilter.update((f) => ({
-      ...f,
-      systemProperties: f.systemProperties.map((p, i) => {
-        if (i !== index) {
-          return p;
-        }
-
-        return {
-          ...p,
-          fieldType: type,
-        } as PropertyFilter;
-      })
-    }));
   }
 }

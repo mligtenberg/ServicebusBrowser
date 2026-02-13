@@ -1,141 +1,121 @@
-<p-input-group>
-  <p-inputgroup-addon>
-    <p-checkbox
-      [binary]="true"
-      class="isActive"
-      [formField]="filterForm.systemProperties[index].isActive"
-    />
-  </p-inputgroup-addon>
-
-  <lib-select-signal-form-input
-    [options]="systemPropertyOptions"
-    [formField]="filterForm.systemProperties[index].fieldName"
-    (valueChange)="onSystemPropertyChange($event, index)"
-    optionLabel="label"
-    optionValue="value"
-    placeholder="Select Property"
-    class="fieldName"
-  />
-
-  @if (filter.fieldType === 'string') {
-    <lib-select-signal-form-input
-      [options]="stringFilterTypes"
-      [formField]="
-                        filterForm.systemProperties[index].filterType
-                      "
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Filter Type"
-      class="filterType"
-    />
-  }
-
-  @if (filter.fieldType === 'date') {
-    <lib-select-signal-form-input
-      [options]="dateFilterTypes"
-      [formField]="
-                        filterForm.systemProperties[index].filterType
-                      "
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Filter Type"
-      class="filterType"
-    />
-  }
-
-  @if (filter.fieldType === 'number') {
-    <lib-select-signal-form-input
-      [options]="numberFilterTypes"
-      [formField]="
-                        filterForm.systemProperties[index].filterType
-                      "
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Filter Type"
-      class="filterType"
-    />
-  }
-
-  @if (filter.fieldType === 'timespan') {
-    <lib-select-signal-form-input
-      [options]="timespanFilterTypes"
-      [formField]="filterForm.systemProperties[index].filterType"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Filter Type"
-      class="filterType"
-    />
-  }
-
-  @if (filter.fieldType === 'string') {
-    <input
-      pInputText
-      [formField]="
-                        asStringValueTree(
-                          filterForm.systemProperties[index].value
-                        )
-                      "
-      placeholder="Value"
-      class="value"
-    />
-  }
-
-  @if (filter.fieldType === 'date') {
-    <lib-date-picker-signal-form-input
-      [formField]="
-                        asDateValueTree(
-                          filterForm.systemProperties[index].value
-                        )
-                      "
-      class="value"
-    />
-  }
-
-  @if (filter.fieldType === 'number') {
-    <input type="number" pInputText
-           [formField]="
-                        asNumberValueTree(
-                          filterForm.systemProperties[index].value
-                        )
-                      "
-           class="value"
-    />
-  }
-
-  @if (filter.fieldType === 'boolean') {
-    <p-checkbox
-      [formField]="
-                        asBooleanValueTree(
-                          filterForm.systemProperties[index].value
-                        )
-                      "
-      [binary]="true"
-      class="value"
-    />
-  }
-
-  @if (filter.fieldType === 'timespan') {
-    <input
-      (click)="popover.toggle($event)"
-      pInputText
-      readonly
-      [value]="filter.value"
-      class="time-span-trigger"
-      aria-disabled="false"
-      placeholder="Value" />
-    <p-popover
-      appendTo="body"
-      #popover
-    >
-      <sbb-duration-input
-        [formField]="asStringValueTree(filterForm.systemProperties[index].value)"
+  <p-input-group>
+    <p-inputgroup-addon>
+      <p-checkbox
+        [binary]="true"
+        class="isActive"
+        [formField]="propertyForm.isActive"
       />
-    </p-popover>
-  }
+    </p-inputgroup-addon>
 
-  <p-button
-    icon="pi pi-trash"
-    severity="danger"
-    (click)="removeSystemPropertyFilter(index)"
-  ></p-button>
-</p-input-group>
+    <lib-select-signal-form-input
+      [options]="systemPropertyOptions"
+      [formField]="propertyForm.fieldName"
+      (valueChange)="onSystemPropertyChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select Property"
+      class="fieldName"
+    />
+
+    @if (propertyForm.fieldType().value() === 'string') {
+      <lib-select-signal-form-input
+        [options]="stringFilterTypes"
+        [formField]="propertyForm.filterType"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Filter Type"
+        class="filterType"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'date') {
+      <lib-select-signal-form-input
+        [options]="dateFilterTypes"
+        [formField]="propertyForm.filterType"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Filter Type"
+        class="filterType"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'number') {
+      <lib-select-signal-form-input
+        [options]="numberFilterTypes"
+        [formField]="propertyForm.filterType"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Filter Type"
+        class="filterType"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'timespan') {
+      <lib-select-signal-form-input
+        [options]="timespanFilterTypes"
+        [formField]="propertyForm.filterType"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Filter Type"
+        class="filterType"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'string') {
+      <input
+        pInputText
+        [formField]="asStringValueTree(propertyForm.value)"
+        placeholder="Value"
+        class="value"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'date') {
+      <lib-date-picker-signal-form-input
+        [formField]="asDateValueTree(propertyForm.value)"
+        class="value"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'number') {
+      <input type="number" pInputText
+             [formField]="asNumberValueTree(propertyForm.value)"
+             class="value"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'boolean') {
+      <p-checkbox
+        [formField]="asBooleanValueTree(propertyForm.value)"
+        [binary]="true"
+        class="value"
+      />
+    }
+
+    @if (propertyForm.fieldType().value() === 'timespan') {
+      <input
+        (click)="popover.toggle($event)"
+        pInputText
+        readonly
+        [value]="propertyForm.value().value()"
+        class="time-span-trigger"
+        aria-disabled="false"
+        placeholder="Value" />
+      <p-popover
+        appendTo="body"
+        #popover
+      >
+        <sbb-duration-input
+          [formField]="asStringValueTree(propertyForm.value)"
+        />
+      </p-popover>
+    }
+
+    @if (removable()) {
+      <p-button
+        icon="pi pi-trash"
+        severity="danger"
+        (click)="remove()"
+      ></p-button>
+    }
+  </p-input-group>
