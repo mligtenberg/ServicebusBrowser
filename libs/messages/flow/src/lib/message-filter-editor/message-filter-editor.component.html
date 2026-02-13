@@ -61,127 +61,11 @@
               let index = $index;
               track index) {
               <div class="filter-line application-property-filter-line">
-                <p-input-group>
-                  <p-inputgroup-addon>
-                    <p-checkbox
-                      [formField]="filterForm.applicationProperties[index].isActive"
-                      [binary]="true"
-                      class="isActive"
-                    />
-                  </p-inputgroup-addon>
-
-                  <input
-                    pInputText
-                    [formField]="
-                    filterForm.applicationProperties[index].fieldName
-                  "
-                    placeholder="Property Name"
-                    class="fieldName"
-                  />
-
-                  <lib-select-signal-form-input
-                    [options]="propertyTypes"
-                    [formField]="
-                    filterForm.applicationProperties[index].fieldType
-                  "
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Property Type"
-                    class="fieldType"
-                  />
-
-                  @if (filter.fieldType === 'string') {
-                    <lib-select-signal-form-input
-                      [options]="stringFilterTypes"
-                      [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'date') {
-                    <lib-select-signal-form-input
-                      [options]="dateFilterTypes"
-                      [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'number') {
-                    <lib-select-signal-form-input
-                      [options]="numberFilterTypes"
-                      [formField]="
-                      filterForm.applicationProperties[index].filterType
-                    "
-                      optionLabel="label"
-                      optionValue="value"
-                      placeholder="Filter Type"
-                      class="filterType"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'string') {
-                    <input
-                      pInputText
-                      [formField]="
-                      asStringValueTree(
-                        filterForm.applicationProperties[index].value
-                      )
-                    "
-                      placeholder="Value"
-                      class="value"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'date') {
-                    <lib-date-picker-signal-form-input
-                      [formField]="
-                      asDateValueTree(
-                        filterForm.applicationProperties[index].value
-                      )
-                    "
-                      class="value"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'number') {
-                    <input type="number" pInputText
-                           [formField]="
-                      asNumberValueTree(
-                        filterForm.applicationProperties[index].value
-                      )
-                    "
-                           class="value"
-                    />
-                  }
-
-                  @if (filter.fieldType === 'boolean') {
-                    <p-checkbox
-                      [formField]="
-                      asBooleanValueTree(
-                        filterForm.applicationProperties[index].value
-                      )
-                    "
-                      [binary]="true"
-                      class="value"
-                    />
-                  }
-
-                  <p-button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    (click)="removeApplicationPropertyFilter(index)"
-                  ></p-button>
-                </p-input-group>
+                <lib-application-property-form
+                  [formField]="filterForm.applicationProperties[index]"
+                  [removable]="true"
+                  (removedPressed)="removeApplicationPropertyFilter(index)"
+                />
               </div>
             }
 
@@ -209,37 +93,13 @@
             @for (filter of filterForm.body().value();
               let index = $index;
               track index) {
-                <p-input-group>
-                  <p-inputgroup-addon>
-                    <p-checkbox
-                      [formField]="filterForm.body[index].isActive"
-                      [binary]="true"
-                      class="isActive"
-                    />
-                  </p-inputgroup-addon>
-
-                  <lib-select-signal-form-input
-                    [options]="bodyFilterTypes"
-                    [formField]="filterForm.body[index].filterType"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Filter Type"
-                    class="filterType"
-                  />
-
-                  <input
-                    pInputText
-                    [formField]="asStringValueTree(filterForm.body[index].value)"
-                    placeholder="Value"
-                    class="value"
-                  />
-
-                  <p-button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    (click)="removeBodyFilter(index)"
-                  ></p-button>
-                </p-input-group>
+              <div class="filter-line application-property-filter-line">
+                <lib-body-property-form
+                  [formField]="filterForm.body[index]"
+                  [removable]="true"
+                  (removedPressed)="removeBodyFilter(index)"
+                />
+              </div>
             }
 
             <p-button

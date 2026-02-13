@@ -11,11 +11,16 @@ import { SelectSignalFormInput } from '../select-signal-form-input/select-signal
 import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
 import {
   PropertyFilter,
-  SYSTEM_PROPERTIES,
   SystemPropertyKey,
 } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../../systemproperty-helpers';
-import { SystemPropertyKeys } from '../../send-message/form';
+import {
+  dateFilterTypes,
+  numberFilterTypes,
+  stringFilterTypes,
+  systemPropertyOptions,
+  timespanFilterTypes,
+} from '../options';
 
 @Component({
   selector: 'lib-system-property-form',
@@ -54,43 +59,11 @@ export class SystemPropertyForm implements FormValueControl<PropertyFilter> {
 
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
-  systemPropertyOptions = Object.entries(SYSTEM_PROPERTIES).map(([key]) => ({
-    label: key,
-    value: key,
-  })) as {
-    label: string;
-    value: SystemPropertyKeys;
-  }[];
-
-  stringFilterTypes = [
-    { label: 'Contains', value: 'contains' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Regex', value: 'regex' },
-    { label: 'Not contains', value: 'notcontains' },
-    { label: 'Not equals', value: 'notequals' },
-    { label: 'Not regex', value: 'notregex' },
-  ];
-
-  dateFilterTypes = [
-    { label: 'Before', value: 'before' },
-    { label: 'After', value: 'after' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
-
-  numberFilterTypes = [
-    { label: 'Greater Than', value: 'greater' },
-    { label: 'Less Than', value: 'less' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
-
-  timespanFilterTypes = [
-    { label: 'Greater Than', value: 'greater' },
-    { label: 'Less Than', value: 'less' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
+  stringFilterTypes = stringFilterTypes;
+  dateFilterTypes = dateFilterTypes;
+  numberFilterTypes = numberFilterTypes;
+  timespanFilterTypes = timespanFilterTypes;
+  systemPropertyOptions = systemPropertyOptions;
 
   propertyForm = form(this.value, (v) => {
     if (this.required()) {

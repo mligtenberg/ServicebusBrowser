@@ -1,0 +1,33 @@
+<p-input-group>
+  <p-inputgroup-addon>
+    <p-checkbox
+      [formField]="bodyForm.isActive"
+      [binary]="true"
+      class="isActive"
+    />
+  </p-inputgroup-addon>
+
+  <lib-select-signal-form-input
+    [options]="bodyFilterTypes"
+    [formField]="bodyForm.filterType"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Filter Type"
+    class="filterType"
+  />
+
+  <input
+    pInputText
+    [formField]="asStringValueTree(bodyForm.value)"
+    placeholder="Value"
+    class="value"
+  />
+
+  @if (removable()) {
+    <p-button
+      icon="pi pi-trash"
+      severity="danger"
+      (click)="removeBody()"
+    ></p-button>
+  }
+</p-input-group>

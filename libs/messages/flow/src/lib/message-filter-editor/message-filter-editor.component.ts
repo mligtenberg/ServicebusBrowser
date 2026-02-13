@@ -1,21 +1,17 @@
 import {
   Component,
   computed,
-  effect, inject,
+  effect,
   model,
   signal,
 } from '@angular/core';
 
 import { Drawer } from 'primeng/drawer';
 import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
 import { AccordionModule } from 'primeng/accordion';
 
 import {
   MessageFilter,
-  PropertyFilter,
-  SYSTEM_PROPERTIES,
-  SystemPropertyKey,
 } from '@service-bus-browser/messages-contracts';
 import { filterIsValid } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
@@ -26,16 +22,10 @@ import {
   FormField,
   required,
 } from '@angular/forms/signals';
-import { Checkbox } from 'primeng/checkbox';
-import { SelectSignalFormInput } from './select-signal-form-input/select-signal-form-input';
-import { DatePickerSignalFormInput } from './date-picker-signal-form-input/date-picker-signal-form-input';
-import { SystemPropertyKeys } from '../send-message/form';
-import { SystemPropertyHelpers } from '../systemproperty-helpers';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { Popover } from 'primeng/popover';
 import { SystemPropertyForm } from './system-property-form/system-property-form';
+import { bodyFilterTypes } from './options';
+import { ApplicationPropertyForm } from './application-property-form/application-property-form';
+import { BodyPropertyForm } from './body-property-form/body-property-form';
 
 @Component({
   selector: 'lib-message-filter-editor',
@@ -43,24 +33,17 @@ import { SystemPropertyForm } from './system-property-form/system-property-form'
   imports: [
     Drawer,
     Button,
-    InputText,
     AccordionModule,
     Tag,
-    Checkbox,
     FormField,
-    SelectSignalFormInput,
-    DatePickerSignalFormInput,
-    InputGroup,
-    InputGroupAddon,
-    DurationInputComponent,
-    Popover,
     SystemPropertyForm,
+    ApplicationPropertyForm,
+    BodyPropertyForm,
   ],
   templateUrl: './message-filter-editor.component.html',
   styleUrls: ['./message-filter-editor.component.scss'],
 })
 export class MessageFilterEditorComponent {
-
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
   shadowFilter = signal<MessageFilter>({
@@ -84,51 +67,6 @@ export class MessageFilterEditorComponent {
       required(property.filterType);
     });
   });
-
-  // Dropdown options
-  propertyTypes = [
-    { label: 'Text', value: 'string' },
-    { label: 'Date', value: 'date' },
-    { label: 'Number', value: 'number' },
-    { label: 'Boolean', value: 'boolean' },
-  ];
-
-  stringFilterTypes = [
-    { label: 'Contains', value: 'contains' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Regex', value: 'regex' },
-    { label: 'Not contains', value: 'notcontains' },
-    { label: 'Not equals', value: 'notequals' },
-    { label: 'Not regex', value: 'notregex' },
-  ];
-
-  dateFilterTypes = [
-    { label: 'Before', value: 'before' },
-    { label: 'After', value: 'after' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
-
-  numberFilterTypes = [
-    { label: 'Greater Than', value: 'greater' },
-    { label: 'Less Than', value: 'less' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
-
-  timespanFilterTypes = [
-    { label: 'Greater Than', value: 'greater' },
-    { label: 'Less Than', value: 'less' },
-    { label: 'Equals', value: 'equals' },
-    { label: 'Not equals', value: 'notequals' },
-  ];
-
-  bodyFilterTypes = [
-    { label: 'Contains', value: 'contains' },
-    { label: 'Regex', value: 'regex' },
-    { label: 'Not contains', value: 'notcontains' },
-    { label: 'Not regex', value: 'notregex' },
-  ];
 
   systemFilterTag = computed(() => {
     const shadowFilter = this.shadowFilter();
@@ -253,7 +191,13 @@ export class MessageFilterEditorComponent {
   }
 
   protected onCancel() {
-    this.shadowFilter.set(this.filters());
+    this.shadowFilter.set({
+      systemProperties: this.filters().systemProperties.map((f) => ({ ...f })),
+      applicationProperties: this.filters().applicationProperties.map(
+        (f) => ({ ...f }),
+      ),
+      body: this.filters().body.map((f) => ({ ...f })),
+    });
     this.visible.set(false);
   }
 
@@ -272,29 +216,5 @@ export class MessageFilterEditorComponent {
 
   protected isFilterValid(): boolean {
     return filterIsValid(this.shadowFilter());
-  }
-
-  protected asStringValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<string, string> {
-    return value as FieldTree<string, string>;
-  }
-
-  protected asDateValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<Date, string> {
-    return value as FieldTree<Date, string>;
-  }
-
-  protected asNumberValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<number, string> {
-    return value as FieldTree<number, string>;
-  }
-
-  protected asBooleanValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<boolean, string> {
-    return value as FieldTree<boolean, string>;
   }
 }

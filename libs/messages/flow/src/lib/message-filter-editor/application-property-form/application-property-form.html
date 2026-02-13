@@ -1,0 +1,97 @@
+<p-input-group>
+  <p-inputgroup-addon>
+    <p-checkbox
+      [formField]="propertyForm.isActive"
+      [binary]="true"
+      class="isActive"
+    />
+  </p-inputgroup-addon>
+
+  <input
+    pInputText
+    [formField]="propertyForm.fieldName"
+    placeholder="Property Name"
+    class="fieldName"
+  />
+
+  <lib-select-signal-form-input
+    [options]="propertyTypes"
+    [formField]="propertyForm.fieldType"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Property Type"
+    class="fieldType"
+  />
+
+  @if (propertyForm.fieldType().value() === 'string') {
+    <lib-select-signal-form-input
+      [options]="stringFilterTypes"
+      [formField]="propertyForm.filterType"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Filter Type"
+      class="filterType"
+    />
+  }
+
+  @if (propertyForm.fieldType().value()  === 'date') {
+    <lib-select-signal-form-input
+      [options]="dateFilterTypes"
+      [formField]="propertyForm.filterType"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Filter Type"
+      class="filterType"
+    />
+  }
+
+  @if (propertyForm.fieldType().value()  === 'number') {
+    <lib-select-signal-form-input
+      [options]="numberFilterTypes"
+      [formField]="propertyForm.filterType"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Filter Type"
+      class="filterType"
+    />
+  }
+
+  @if (propertyForm.fieldType().value()  === 'string') {
+    <input
+      pInputText
+      [formField]="asStringValueTree(propertyForm.value)"
+      placeholder="Value"
+      class="value"
+    />
+  }
+
+  @if (propertyForm.fieldType().value() === 'date') {
+    <lib-date-picker-signal-form-input
+      [formField]="asDateValueTree(propertyForm.value)"
+      class="value"
+    />
+  }
+
+  @if (propertyForm.fieldType().value() === 'number') {
+    <input type="number" pInputText
+           [formField]="asNumberValueTree(propertyForm.value)"
+           class="value"
+    />
+  }
+
+  @if (propertyForm.fieldType().value() === 'boolean') {
+    <p-checkbox
+      [formField]="asBooleanValueTree(propertyForm.value)"
+      [binary]="true"
+      class="value"
+    />
+  }
+
+  @if (removable()) {
+    <p-button
+      icon="pi pi-trash"
+      severity="danger"
+      (click)="remove()"
+    ></p-button>
+  }
+</p-input-group>
