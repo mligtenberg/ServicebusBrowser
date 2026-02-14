@@ -10,6 +10,7 @@ import { MessagesToastsEffects } from './lib/messages-toasts.effects';
 import * as actions from './lib/messages.actions';
 import * as selectors from './lib/messages.selectors';
 import * as internalActions from './lib/messages.internal-actions';
+import { MessagesDbEffects } from './lib/messages-db.effects';
 
 export const MessagesActions = actions;
 export const MessagesEffectActions = internalActions;
@@ -25,7 +26,8 @@ export function provideMessagesState(): (
       MessagesEffects,
       MessagesTasksEffects,
       MessagesLogsEffects,
-      MessagesToastsEffects
+      MessagesToastsEffects,
+      MessagesDbEffects
     ]),
   ];
 }

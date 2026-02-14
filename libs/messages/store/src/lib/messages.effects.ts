@@ -166,7 +166,7 @@ export class MessagesEffects {
       ofType(actions.sendMessage),
       mergeMap(({ endpoint, message }) =>
         from(this.messagesService.sendMessage(endpoint, message)).pipe(
-          map(() => internalActions.sendedMessage({ endpoint, message })),
+          map(() => internalActions.sentMessage({ endpoint, message })),
           catchError(() => [
             internalActions.messageSendFailed({ endpoint, message }),
           ])

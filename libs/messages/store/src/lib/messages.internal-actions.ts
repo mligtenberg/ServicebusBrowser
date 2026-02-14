@@ -34,7 +34,7 @@ export const continueClearingEndpoint = createAction(
   }>()
 )
 
-export const sendedMessage = createAction(
+export const sentMessage = createAction(
   '[Messages] message sended',
   props<{
     endpoint: SendEndpoint,

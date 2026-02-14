@@ -60,7 +60,7 @@ describe('MessagesEffects', () => {
     actions$.next(actions.sendMessage({ endpoint, message }));
     const result = await firstValueFrom(effects.sendMessage$);
     expect(result).toEqual(
-      internalActions.sendedMessage({ endpoint, message })
+      internalActions.sentMessage({ endpoint, message })
     );
   });
   it('emits send failed', async () => {

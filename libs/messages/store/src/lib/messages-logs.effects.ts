@@ -44,7 +44,7 @@ export class MessagesLogsEffects {
   ), { dispatch: false });
 
   logMessageSend$ = createEffect(() => this.actions.pipe(
-    ofType(internalActions.sendedMessage),
+    ofType(internalActions.sentMessage),
     tap(({ endpoint, message }) => {
       this.logger.info(`Sended message to ${'queueName' in endpoint ? endpoint.queueName : endpoint.topicName}`);
     })
