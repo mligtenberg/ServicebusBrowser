@@ -17,15 +17,10 @@ export const initialState: MessagesState = {
 
 export const logsReducer = createReducer(
   initialState,
-  on(internalActions.peekMessagesLoad, (state, { pageId, endpoint }): MessagesState => {
+  on(internalActions.pageCreated, (state, { pageId, pageName, loadedFromDb }): MessagesState => {
     const page = state.receivedMessages.find(page => page.id === pageId);
     if (page) {
       return state;
-    }
-
-    let name = 'queueName' in endpoint ? endpoint.queueName : `${endpoint.topicName}/${endpoint.subscriptionName}`;
-    if (endpoint.channel) {
-      name += ` (${endpoint.channel})`;
     }
 
     return {
@@ -34,27 +29,12 @@ export const logsReducer = createReducer(
         ...state.receivedMessages,
         {
           id: pageId,
-          name: `${name} (loading...)`,
+          name: pageName,
           retrievedAt: new Date(),
-          loaded: false,
-          messages: []
+          loaded: loadedFromDb
         }
       ]
     }
-  }),
-  on(internalActions.peekMessagesPartLoaded, (state, { pageId, messages }): MessagesState => {
-    const page = state.receivedMessages.find(page => page.id === pageId);
-    if (!page) {
-      return state;
-    }
-
-    return {
-      ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, messages: [
-        ...page.messages,
-          ...messages
-        ] } : page)
-    };
   }),
   on(actions.peekMessagesLoadingDone, (state, { pageId }): MessagesState => {
 
@@ -62,7 +42,6 @@ export const logsReducer = createReducer(
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
         ...page,
-        name: page.name.replace(' (loading...)', ` (${page?.messages[0]?.sequenceNumber ?? '0'} - ${page?.messages[page.messages.length - 1]?.sequenceNumber ?? '0'})`),
         loaded: true
       } : page)
     }
@@ -73,7 +52,7 @@ export const logsReducer = createReducer(
       receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
     }
   }),
-  on(internalActions.messagesImported, (state, { pageId, pageName, messages }): MessagesState => {
+  on(internalActions.messagesImported, (state, { pageId, pageName }): MessagesState => {
     return {
       ...state,
       receivedMessages: [
@@ -82,8 +61,7 @@ export const logsReducer = createReducer(
           id: pageId,
           name: `Imported: ${pageName}`,
           retrievedAt: new Date(),
-          loaded: true,
-          messages
+          loaded: true
         }
       ]
     }

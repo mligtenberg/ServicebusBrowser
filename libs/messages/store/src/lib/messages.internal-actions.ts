@@ -3,6 +3,15 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
+export const pageCreated = createAction(
+  '[Messages] page created',
+  props<{
+    pageId: UUID,
+    pageName: string,
+    loadedFromDb: boolean
+  }>()
+)
+
 export const peekMessagesLoad = createAction(
   '[Messages] load peek messages',
   props<{
@@ -92,11 +101,14 @@ export const messagesImported = createAction(
   '[Messages] messages imported',
   props<{
     pageId: UUID,
-    pageName: string,
-    messages: ServiceBusReceivedMessage[]
+    pageName: string
   }>()
 )
 
 export const messagesImportFailed = createAction(
   '[Messages] messages import failed'
+)
+
+export const loadPagesFromDb = createAction(
+  '[Messages] load pages from db'
 )

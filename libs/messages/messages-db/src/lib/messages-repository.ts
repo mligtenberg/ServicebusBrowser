@@ -46,12 +46,15 @@ export class MessagesRepository {
     const objectStore = messagesDb
       .transaction('messages')
       .objectStore('messages');
-    if (!filter) {
-      return objectStore.count();
+    if (!filter || this.isFilterEmpty(filter)) {
+      return await new Promise<number>((resolve) => {
+        const countRequest = objectStore.count();
+        countRequest.onsuccess = (event) => resolve((event.target as any).result);
+      })
     }
 
     let count = 0;
-    return await new Promise((resolve, reject) => {
+    return await new Promise<number>((resolve) => {
       objectStore.openCursor().onsuccess = (event) => {
         const cursor = (event.target as any).result as IDBCursorWithValue;
         if (!cursor) {
@@ -69,6 +72,17 @@ export class MessagesRepository {
     });
   }
 
+  async getMessage(pageId: UUID, sequenceNumber: string) {
+    const messagesDb = await getMessagesDb(pageId);
+    const objectStore = messagesDb
+      .transaction('messages')
+      .objectStore('messages');
+    return await new Promise<ServiceBusReceivedMessage>((resolve, reject) => {
+      const request = objectStore.get(sequenceNumber);
+      request.onsuccess = (event) => resolve((event.target as any).result);
+    })
+  }
+
   async getMessages(
     pageId: UUID,
     filter?: MessageFilter,
@@ -79,13 +93,16 @@ export class MessagesRepository {
     const objectStore = messagesDb
       .transaction('messages')
       .objectStore('messages');
-    if (!filter) {
-      return objectStore.getAll();
+    if (!filter || this.isFilterEmpty(filter)) {
+      return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
+        const request = objectStore.getAll();
+        request.onsuccess = (event) => resolve((event.target as any).result);
+      })
     }
 
     let walked = 0;
 
-    return await new Promise((resolve, reject) => {
+    return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
       const messages: ServiceBusReceivedMessage[] = [];
       objectStore.openCursor().onsuccess = (event) => {
         const cursor = (event.target as any).result as IDBCursorWithValue;
@@ -111,6 +128,16 @@ export class MessagesRepository {
     });
   }
 
+  async getPages() {
+    const pagesStore = this.database
+      .transaction('pages', 'readonly')
+      .objectStore('pages');
+    return await new Promise<Page[]>((resolve, reject) => {
+      const request = pagesStore.getAll();
+      request.onsuccess = (event) => resolve((event.target as any).result);
+    });
+  }
+
   async closePage(pageId: UUID) {
     const pagesStore = this.database
       .transaction('pages', 'readwrite')
@@ -118,5 +145,9 @@ export class MessagesRepository {
     pagesStore.delete(pageId);
 
     deleteMessagesDb(pageId);
+  }
+
+  private isFilterEmpty(filter: MessageFilter) {
+    return !filter.body.length && !filter.systemProperties.length && !filter.applicationProperties.length;
   }
 }

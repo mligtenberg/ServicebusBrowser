@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
-import { catchError, EMPTY, from, map, mergeMap, switchMap, tap } from 'rxjs';
+import { catchError, from, map, mergeMap, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as actions from './messages.actions';
@@ -10,8 +10,6 @@ import Long from 'long';
 import { clearedEndpoint } from './messages.actions';
 import { FilesService } from '@service-bus-browser/services';
 import { makeZipFile } from './make-zip-file.func';
-import { importZipFile } from './import-zip-file.func';
-
 @Injectable({
   providedIn: 'root',
 })
@@ -21,21 +19,6 @@ export class MessagesEffects {
   actions$ = inject(Actions);
   messagesService = inject(ServiceBusMessagesFrontendClient);
   fileService = inject(FilesService);
-
-  loadPeekQueueMessages$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(actions.peekMessages),
-      map(({ endpoint, maxAmount, fromSequenceNumber }) =>
-        internalActions.peekMessagesLoad({
-          pageId: crypto.randomUUID(),
-          endpoint,
-          maxAmount,
-          alreadyLoadedAmount: 0,
-          fromSequenceNumber: fromSequenceNumber ?? '0',
-        })
-      )
-    )
-  );
 
   loadPeekQueueMessagesPart$ = createEffect(() =>
     this.actions$.pipe(
@@ -54,8 +37,8 @@ export class MessagesEffects {
             this.messagesService.peekMessages(
               endpoint,
               maxAmountToLoad,
-              Long.fromString(fromSequenceNumber)
-            )
+              Long.fromString(fromSequenceNumber),
+            ),
           );
 
           return messages$.pipe(
@@ -66,12 +49,12 @@ export class MessagesEffects {
                 maxAmount: maxAmount - messages.length,
                 amountLoaded: alreadyLoadedAmount + messages.length,
                 messages,
-              })
-            )
+              }),
+            ),
           );
-        }
-      )
-    )
+        },
+      ),
+    ),
   );
 
   loadMoreMessages$ = createEffect(() =>
@@ -83,7 +66,7 @@ export class MessagesEffects {
         }
 
         const sequenceNumbers = messages.map((m) =>
-          Long.fromString(m.sequenceNumber ?? '0')
+          Long.fromString(m.sequenceNumber ?? '0'),
         );
         const highestSequenceNumber =
           sequenceNumbers.length === 0
@@ -101,8 +84,8 @@ export class MessagesEffects {
           alreadyLoadedAmount: amountLoaded,
           fromSequenceNumber,
         });
-      })
-    )
+      }),
+    ),
   );
 
   initClearEndpoint$ = createEffect(() =>
@@ -117,8 +100,8 @@ export class MessagesEffects {
           endpoint,
           messagesToClearCount: messagesToClearCount,
         });
-      })
-    )
+      }),
+    ),
   );
 
   clearEndpoint$ = createEffect(() =>
@@ -136,7 +119,7 @@ export class MessagesEffects {
               : messagesToClearCount;
 
           return from(
-            this.messagesService.receiveMessages(endpoint, receiveCount)
+            this.messagesService.receiveMessages(endpoint, receiveCount),
           ).pipe(
             map((messages) => {
               if (
@@ -154,11 +137,11 @@ export class MessagesEffects {
                 messagesToClearCount: messagesToClearCount - messages.length,
                 lastClearRoundReceivedMessagesCount: messages.length,
               });
-            })
+            }),
           );
-        }
-      )
-    )
+        },
+      ),
+    ),
   );
 
   sendMessage$ = createEffect(() =>
@@ -169,10 +152,10 @@ export class MessagesEffects {
           map(() => internalActions.sentMessage({ endpoint, message })),
           catchError(() => [
             internalActions.messageSendFailed({ endpoint, message }),
-          ])
-        )
-      )
-    )
+          ]),
+        ),
+      ),
+    ),
   );
 
   sendMessages$ = createEffect(() =>
@@ -185,8 +168,8 @@ export class MessagesEffects {
           messagesToSend: messages,
           endpoint,
         });
-      })
-    )
+      }),
+    ),
   );
 
   continueSendingMessages$ = createEffect(() =>
@@ -205,7 +188,7 @@ export class MessagesEffects {
                   endpoint,
                   messagesToSend: rest,
                   sendAmount: sendAmount + messages.length,
-                })
+                }),
           ),
           catchError(() => [
             internalActions.messagesSendFailed({
@@ -214,10 +197,10 @@ export class MessagesEffects {
               sendAmount: sendAmount + 1,
               taskId,
             }),
-          ])
+          ]),
         );
-      })
-    )
+      }),
+    ),
   );
 
   exportMessages$ = createEffect(
@@ -230,46 +213,16 @@ export class MessagesEffects {
               from(
                 this.fileService.saveFile(`${pageName}.zip`, blob, [
                   { name: 'Zip files', extensions: ['zip'] },
-                ])
-              )
+                ]),
+              ),
             ),
             map(() => internalActions.messagesExported()),
-            catchError((e) => [internalActions.messagesExportFailed({ error: e })])
-          )
-        )
+            catchError((e) => [
+              internalActions.messagesExportFailed({ error: e }),
+            ]),
+          ),
+        ),
       ),
-    { dispatch: true }
-  );
-
-  importMessages$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(actions.importMessages),
-        mergeMap(() =>
-          from(this.fileService.openFile(
-            [{ name: 'messages export zip', extensions: ['.zip']}],
-            'binary'
-          )).pipe(
-            switchMap(({ fileName, contents }) => {
-              return from(importZipFile(contents)).pipe(
-                map((messages) => ({
-                  pageName: fileName.replace(/\.zip$/, ''),
-                  messages,
-                }))
-            )}),
-            switchMap((action) => {
-              if (action.messages.length === 0) {
-                return EMPTY;
-              }
-              return [action];
-            }),
-            map(({ pageName, messages }) =>
-              internalActions.messagesImported({ pageId: crypto.randomUUID(), pageName, messages })
-            ),
-            catchError(() => [internalActions.messagesImportFailed()])
-          )
-        )
-      ),
-    { dispatch: true }
+    { dispatch: true },
   );
 }
