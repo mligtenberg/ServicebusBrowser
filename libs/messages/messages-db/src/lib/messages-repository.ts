@@ -49,8 +49,9 @@ export class MessagesRepository {
     if (!filter || this.isFilterEmpty(filter)) {
       return await new Promise<number>((resolve) => {
         const countRequest = objectStore.count();
-        countRequest.onsuccess = (event) => resolve((event.target as any).result);
-      })
+        countRequest.onsuccess = (event) =>
+          resolve((event.target as any).result);
+      });
     }
 
     let count = 0;
@@ -97,6 +98,7 @@ export class MessagesRepository {
     filter?: MessageFilter,
     skip?: number,
     take?: number,
+    ascending?: boolean,
   ) {
     if (take === 0) {
       return [];
@@ -106,18 +108,13 @@ export class MessagesRepository {
     const objectStore = messagesDb
       .transaction('messages')
       .objectStore('messages');
-    if ((!filter || this.isFilterEmpty(filter)) && !skip && !take) {
-      return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
-        const request = objectStore.getAll();
-        request.onsuccess = (event) => resolve((event.target as any).result);
-      })
-    }
-
     let walked = 0;
 
     return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
       const messages: ServiceBusReceivedMessage[] = [];
-      objectStore.openCursor().onsuccess = (event) => {
+      objectStore
+        .index('Key')
+        .openCursor(null, ascending ? 'next' : 'prev').onsuccess = (event) => {
         const cursor = (event.target as any).result as IDBCursorWithValue;
         if (!cursor) {
           resolve(messages);
@@ -151,6 +148,27 @@ export class MessagesRepository {
     });
   }
 
+  async getPage(pageId: UUID) {
+    const pagesStore = this.database
+      .transaction('pages', 'readonly')
+      .objectStore('pages');
+    return await new Promise<Page>((resolve, reject) => {
+      const request = pagesStore.get(pageId);
+      request.onsuccess = (event) => resolve((event.target as any).result);
+    });
+  }
+
+  async updatePageName(pageId: UUID, pageName: string) {
+    const page = await this.getPage(pageId);
+    const pagesStore = this.database
+      .transaction('pages', 'readwrite')
+      .objectStore('pages');
+    pagesStore.put({
+      ...page,
+      name: pageName,
+    } as Page);
+  }
+
   async closePage(pageId: UUID) {
     const pagesStore = this.database
       .transaction('pages', 'readwrite')
@@ -161,6 +179,10 @@ export class MessagesRepository {
   }
 
   private isFilterEmpty(filter: MessageFilter) {
-    return !filter.body.length && !filter.systemProperties.length && !filter.applicationProperties.length;
+    return (
+      !filter.body.length &&
+      !filter.systemProperties.length &&
+      !filter.applicationProperties.length
+    );
   }
 }

@@ -572,7 +572,12 @@ export class MessagesPageComponent {
     });
   }
 
-  protected onSelectionChange($event: any) {
-    
+  protected onSelectionChange($event: string[]) {
+    this.store.dispatch(
+      MessagesActions.setPageSelection({
+        pageId: this.currentPage()!.id,
+        sequenceNumbers: $event,
+      }),
+    );
   }
 }

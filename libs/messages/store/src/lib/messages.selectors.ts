@@ -8,7 +8,7 @@ export const selectPages = createSelector(
   (state) =>
     state.receivedMessages.map((page) => ({
       id: page.id,
-      name: page.name,
+      name: page.loaded ? page.name : page.name + ' (loading)',
       type: 'messages',
     })) as Array<Page & { messages: ServiceBusReceivedMessage[] }>,
 );
@@ -22,8 +22,3 @@ export const selectBatchResendMessages = createSelector(
   featureSelector,
   (state) => state.messageForBatchResend,
 );
-
-export const selectPageSelectedMessages = (pageId: string) => createSelector(
-  selectPage(pageId),
-  (page) => page?.selectedMessageSequences ?? []
-)

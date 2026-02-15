@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { catchError, EMPTY, from, map, mergeMap, switchMap } from 'rxjs';
+import { catchError, EMPTY, forkJoin, from, map, mergeMap, switchMap } from 'rxjs';
 import {
   loadPagesFromDb,
   messagesImported,
@@ -10,8 +10,14 @@ import {
   pageCreated,
   peekMessagesLoad,
   peekMessagesPartLoaded,
+  updatePageName,
 } from './messages.internal-actions';
-import { closePage, importMessages, peekMessages } from './messages.actions';
+import {
+  closePage,
+  importMessages,
+  peekMessages,
+  peekMessagesLoadingDone,
+} from './messages.actions';
 import { importZipFile } from './import-zip-file.func';
 import { FilesService } from '@service-bus-browser/services';
 
@@ -33,11 +39,15 @@ export class MessagesDbEffects implements OnInitEffects {
     this.actions$.pipe(
       ofType(loadPagesFromDb),
       switchMap(() => from(repository.getPages())),
-      mergeMap((pages) => pages.map((page) => pageCreated({
-        pageId: page.id,
-        pageName: page.name,
-        loadedFromDb: true,
-      }))),
+      mergeMap((pages) =>
+        pages.map((page) =>
+          pageCreated({
+            pageId: page.id,
+            pageName: page.name,
+            loadedFromDb: true,
+          }),
+        ),
+      ),
     ),
   );
 
@@ -153,4 +163,28 @@ export class MessagesDbEffects implements OnInitEffects {
       ),
     { dispatch: true },
   );
+
+  peekMessagesLoadingDone$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(peekMessagesLoadingDone),
+      switchMap(({ pageId }) => {
+        return forkJoin([
+          from(repository.getPage(pageId)),
+          from(repository.getMessages(pageId, undefined, 0, 1, true)),
+          from(repository.getMessages(pageId, undefined, 0, 1, false)),
+        ]);
+      }),
+      map(([page, firstPage, secondPage]) =>
+        updatePageName({
+          pageId: page.id,
+          pageName: !firstPage.length ? `${page.name} (empty)` : `${page.name} (${firstPage[0].sequenceNumber} - ${secondPage[0].sequenceNumber})`,
+        }),
+      ),
+    ),
+  );
+
+  updatePageName$ = createEffect(() => this.actions$.pipe(
+    ofType(updatePageName),
+    switchMap(({ pageId, pageName }) => from(repository.updatePageName(pageId, pageName))),
+  ), { dispatch: false });
 }

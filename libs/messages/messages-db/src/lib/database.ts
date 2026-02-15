@@ -33,10 +33,12 @@ export function getMessagesDb(pageId: UUID) {
     request.onupgradeneeded = function (e) {
       const db = request.result;
       // Create an objectStore for this database
-      db.createObjectStore('messages', {
+      const store = db.createObjectStore('messages', {
         keyPath: 'key',
         autoIncrement: false,
       });
+
+      store.createIndex('Key', 'key', { unique: true });
 
       return;
     };

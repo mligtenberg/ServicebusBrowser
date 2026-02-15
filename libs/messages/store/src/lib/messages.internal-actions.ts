@@ -112,3 +112,11 @@ export const messagesImportFailed = createAction(
 export const loadPagesFromDb = createAction(
   '[Messages] load pages from db'
 )
+
+export const updatePageName = createAction(
+  '[Messages] update page name',
+  props<{
+    pageId: UUID,
+    pageName: string
+  }>()
+)

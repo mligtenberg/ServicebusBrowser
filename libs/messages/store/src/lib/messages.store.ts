@@ -86,6 +86,12 @@ export const logsReducer = createReducer(
         selectedMessageSequences: sequenceNumbers
       } : page)
     }
+  }),
+  on(internalActions.updatePageName, (state, { pageId, pageName }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, name: pageName } : page)
+    }
   })
 );
 
