@@ -352,6 +352,7 @@ export class MessagesPageComponent {
         }
 
         this.currentPage.set(page);
+        this.selection.set(page.selectedMessageSequences ?? []);
       });
 
     this.actions
@@ -501,7 +502,7 @@ export class MessagesPageComponent {
     value: string | number | boolean | Date,
   ) {
     this.displayFilterDialog.set(false);
-    const fieldType = typeof value as 'string' | 'number' | 'boolean' | 'date';
+    const fieldType = this.systemPropertyHelpers.toFilterPropertyType(key);
 
     let currentFilter = this.messageFilter();
     currentFilter = {

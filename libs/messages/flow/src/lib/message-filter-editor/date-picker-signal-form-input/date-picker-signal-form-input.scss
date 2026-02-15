@@ -1,6 +1,7 @@
 :host {
   display: flex;
   justify-content: stretch;
+  flex: 1;
 }
 
 ::ng-deep {
