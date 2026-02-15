@@ -49,17 +49,20 @@
       </div>
       <p-table
         [columns]="cols"
-        [value]="filteredMessages()"
+        [rows]="100"
+        [value]="virtualMessages()"
         [scrollable]="true"
         scrollHeight="300px"
         [virtualScroll]="true"
         [virtualScrollItemSize]="42"
         selectionMode="multiple"
         contextMenuSelectionMode="joint"
-        [selection]="selection()"
-        (selectionChange)="setSelection($event)"
+        [(selection)]="selection"
+        (selectionChange)="onSelectionChange($event)"
         [metaKeySelection]="true"
         [contextMenu]="cm"
+        [lazy]="true"
+        (onLazyLoad)="loadMessages($event)"
         >
         <ng-template pTemplate="header" let-columns>
           <tr>
@@ -77,9 +80,8 @@
           let-columns="columns"
           >
           <tr
-            style="height: 30px"
-            [pContextMenuRow]="rowData"
-            [pSelectableRow]="rowData"
+            [pContextMenuRow]="rowData.sequenceNumber"
+            [pSelectableRow]="rowData.sequenceNumber"
             [pContextMenuRowIndex]="rowIndex"
             [pSelectableRowIndex]="rowIndex"
             >

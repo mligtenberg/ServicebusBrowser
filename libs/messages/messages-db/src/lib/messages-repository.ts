@@ -98,11 +98,15 @@ export class MessagesRepository {
     skip?: number,
     take?: number,
   ) {
+    if (take === 0) {
+      return [];
+    }
+
     const messagesDb = await getMessagesDb(pageId);
     const objectStore = messagesDb
       .transaction('messages')
       .objectStore('messages');
-    if (!filter || this.isFilterEmpty(filter)) {
+    if ((!filter || this.isFilterEmpty(filter)) && !skip && !take) {
       return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
         const request = objectStore.getAll();
         request.onsuccess = (event) => resolve((event.target as any).result);
