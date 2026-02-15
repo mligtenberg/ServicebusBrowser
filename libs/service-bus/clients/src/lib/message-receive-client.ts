@@ -54,19 +54,31 @@ export class MessageReceiveClient {
   }
 
   private mapMessage(message: ServiceBusReceivedMessage): contracts.ServiceBusReceivedMessage {
-    const mappedMessageId: string | number | undefined = message.messageId instanceof Buffer
-      ? message.messageId.toString('utf-8')
-      : message.messageId as string | number | undefined;
+    const mappedMessageId: string | number | undefined =
+      message.messageId instanceof Buffer
+        ? message.messageId.toString('utf-8')
+        : (message.messageId as string | number | undefined);
 
-    const mappedCorrelationId: string | number | undefined = message.correlationId instanceof Buffer
-      ? message.correlationId.toString('utf-8')
-      : message.correlationId as string | number | undefined;
+    const mappedCorrelationId: string | number | undefined =
+      message.correlationId instanceof Buffer
+        ? message.correlationId.toString('utf-8')
+        : (message.correlationId as string | number | undefined);
 
-    const body = message.body instanceof Uint8Array
-      ? Buffer.from(message.body).toString('utf-8')
-      : message.body as string;
+    const body =
+      message.body instanceof Uint8Array
+        ? Buffer.from(message.body).toString('utf-8')
+        : (message.body as string);
+
+    // the max sequenc number of a long is 19 digits long
+    const prefixAmount = 20 - (message.sequenceNumber?.toString().length ?? 0);
+    let key = '';
+    for (let i = 0; i < prefixAmount; i++) {
+      key += '0';
+    }
+    key += message.sequenceNumber?.toString();
 
     return {
+      key: key,
       messageId: mappedMessageId,
       body: body,
       applicationProperties: message.applicationProperties,
@@ -86,7 +98,9 @@ export class MessageReceiveClient {
       partitionKey: message.partitionKey,
       lockToken: message.lockToken,
       scheduledEnqueueTimeUtc: message.scheduledEnqueueTimeUtc,
-      timeToLive: message.timeToLive ? Duration.fromObject({ milliseconds: message.timeToLive }).toISO() : undefined,
+      timeToLive: message.timeToLive
+        ? Duration.fromObject({ milliseconds: message.timeToLive }).toISO()
+        : undefined,
       state: message.state,
       lockedUntilUtc: message.lockedUntilUtc,
       sequenceNumber: message.sequenceNumber?.toString(),

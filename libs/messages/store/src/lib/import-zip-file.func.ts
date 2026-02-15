@@ -28,8 +28,17 @@ export async function importZipFile(content: ArrayBuffer) {
     const propertiesContent = await propertiesFile.async('string');
     const properties = JSON.parse(propertiesContent);
 
+    // the max sequenc number of a long is 19 digits long
+    const prefixAmount = 20 - properties.sequenceNumber.length;
+    let key = "";
+    for (let i = 0; i < prefixAmount; i++) {
+      key += "0";
+    }
+    key += properties.sequenceNumber;
+
     // Create message object
     const message: ServiceBusReceivedMessage = {
+      key: key,
       body: bodyContent,
       messageId: properties.messageId,
       sequenceNumber: properties.sequenceNumber,

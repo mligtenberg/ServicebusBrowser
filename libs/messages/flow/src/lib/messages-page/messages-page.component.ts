@@ -13,7 +13,7 @@ import {
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, from, of, switchMap } from 'rxjs';
+import { combineLatest, from, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   MessageFilter,
@@ -84,7 +84,6 @@ export class MessagesPageComponent {
   sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
 
-  selectionSequenceNumbers = signal<string[] | undefined>(undefined);
   menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
   messageFilter = computed(() => {
     const currentPage = this.currentPage();
@@ -107,35 +106,33 @@ export class MessagesPageComponent {
     },
   );
 
-  selection = toSignal(
-    forkJoin([
-      toObservable(this.currentPage),
-      toObservable(this.selectionSequenceNumbers),
-    ]).pipe(
-      switchMap(([currentPage, selection]) => {
-        if (!currentPage || !selection) {
+  selection = toSignal(toObservable(this.currentPage).pipe(
+      switchMap((currentPage) => {
+        if (!currentPage?.selectedMessageSequences?.length) {
           return [];
         }
 
-        return from(repository.getMessages(this.currentPage()!.id, {
-          body: [],
-          applicationProperties: [],
-          systemProperties: selection.map(
-            (sn) =>
-              ({
-                fieldName: 'SequenceNumber',
-                filterType: 'equals',
-                value: sn,
-                fieldType: 'string',
-                isActive: true,
-              }) as PropertyFilter,
-          ),
-        }));
+        return from(
+          repository.getMessages(this.currentPage()!.id, {
+            body: [],
+            applicationProperties: [],
+            systemProperties: currentPage.selectedMessageSequences.map(
+              (sn) =>
+                ({
+                  fieldName: 'SequenceNumber',
+                  filterType: 'equals',
+                  value: sn,
+                  fieldType: 'string',
+                  isActive: true,
+                }) as PropertyFilter,
+            ),
+          }),
+        );
       }),
     ),
     {
       initialValue: [],
-    }
+    },
   );
 
   totalMessageCount = toSignal(
@@ -149,7 +146,7 @@ export class MessagesPageComponent {
     ),
   );
   filteredMessageCount = toSignal(
-    forkJoin([
+    combineLatest([
       toObservable(this.currentPage),
       toObservable(this.messageFilter),
     ]).pipe(
@@ -173,25 +170,15 @@ export class MessagesPageComponent {
     return hasActiveFilterFunc(this.messageFilter());
   });
 
-  // selectedMessage = computed(() => {
-  //   const selection = this.selection();
-  //   if (Array.isArray(selection) && selection.length === 1) {
-  //     return selection[0];
-  //   }
-  //   if (Array.isArray(selection)) {
-  //     return undefined;
-  //   }
-  //   return selection;
-  // });
-
   selectedMessage = toSignal(
-    toObservable(this.selectionSequenceNumbers).pipe(
-      switchMap((selection) => {
-        if (!selection || selection.length === 0) {
-          return of(undefined);
+    toObservable(this.currentPage).pipe(
+      switchMap((currentPage) => {
+        if (!currentPage?.selectedMessageSequences?.length) {
+          return [];
         }
+
         return from(
-          repository.getMessage(this.currentPage()!.id, selection[0]),
+          repository.getMessage(currentPage.id, currentPage.selectedMessageSequences[0]),
         );
       }),
     ),
@@ -369,7 +356,7 @@ export class MessagesPageComponent {
   ];
 
   messageContextMenu = computed<MenuItem[]>(() => {
-    const contextMenuSelection = this.selectionSequenceNumbers();
+    const contextMenuSelection = this.selection();
     return this.getMenuItems(contextMenuSelection, false);
   });
 
@@ -433,20 +420,20 @@ export class MessagesPageComponent {
             : 'Batch resend selected messages',
           icon: 'pi pi-envelope',
           command: () => {
-              this.store.dispatch(
-                MessagesActions.setBatchResendMessages({
-                  messages: this.selection(),
-                }),
-              );
-              this.router.navigate([this.baseRoute, 'batch-resend']);
+            this.store.dispatch(
+              MessagesActions.setBatchResendMessages({
+                messages: this.selection(),
+              }),
+            );
+            this.router.navigate([this.baseRoute, 'batch-resend']);
           },
         },
         {
           label: allMessages ? 'Export all messages' : 'Export selection',
           icon: 'pi pi-download',
           command: () => {
-              this.menuMessagesSelection.set(this.selection());
-              this.exportMessages();
+            this.menuMessagesSelection.set(this.selection());
+            this.exportMessages();
           },
         },
       ];
@@ -461,8 +448,8 @@ export class MessagesPageComponent {
         label: 'Quick resend message',
         icon: 'pi pi-envelope',
         command: () => {
-            this.menuMessagesSelection.set(this.selection());
-            this.displaySendMessages.set(true);
+          this.menuMessagesSelection.set(this.selection());
+          this.displaySendMessages.set(true);
         },
       },
       {

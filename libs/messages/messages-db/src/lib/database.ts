@@ -34,7 +34,7 @@ export function getMessagesDb(pageId: UUID) {
       const db = request.result;
       // Create an objectStore for this database
       db.createObjectStore('messages', {
-        keyPath: 'sequenceNumber',
+        keyPath: 'key',
         autoIncrement: false,
       });
 

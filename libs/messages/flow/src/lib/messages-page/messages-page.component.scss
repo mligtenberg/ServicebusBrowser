@@ -177,3 +177,9 @@ ngx-monaco-editor {
   height: 100%;
   position: absolute;
 }
+
+td {
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}

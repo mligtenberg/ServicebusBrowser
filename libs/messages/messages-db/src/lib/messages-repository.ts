@@ -77,10 +77,19 @@ export class MessagesRepository {
     const objectStore = messagesDb
       .transaction('messages')
       .objectStore('messages');
+
+    // the max sequenc number of a long is 19 digits long
+    const prefixAmount = 20 - sequenceNumber.length;
+    let key = '';
+    for (let i = 0; i < prefixAmount; i++) {
+      key += '0';
+    }
+    key += sequenceNumber;
+
     return await new Promise<ServiceBusReceivedMessage>((resolve, reject) => {
-      const request = objectStore.get(sequenceNumber);
+      const request = objectStore.get(key);
       request.onsuccess = (event) => resolve((event.target as any).result);
-    })
+    });
   }
 
   async getMessages(

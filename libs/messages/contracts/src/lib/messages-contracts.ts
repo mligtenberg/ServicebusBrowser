@@ -121,6 +121,11 @@ export interface ServiceBusMessage {
  */
 export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   /**
+   * The key of the message. used for storing in service bus browser
+   */
+  key: string;
+
+  /**
    * The reason for deadlettering the message.
    * @readonly
    */
@@ -198,7 +203,7 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
    * State of the message can be active, deferred or scheduled. Deferred messages have deferred state,
    * scheduled messages have scheduled state, all other messages have active state.
    */
-  readonly state: "active" | "deferred" | "scheduled";
+  readonly state: 'active' | 'deferred' | 'scheduled';
 }
 
 export type SystemPropertyKey = Exclude<keyof ServiceBusMessage, 'body' | 'applicationProperties'>;
