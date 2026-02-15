@@ -48,6 +48,7 @@
         </div>
       </div>
       <p-table
+        #messageTable
         [columns]="cols"
         [rows]="100"
         [value]="virtualMessages()"
@@ -55,10 +56,10 @@
         scrollHeight="300px"
         [virtualScroll]="true"
         [virtualScrollItemSize]="42"
+        [selection]="selection()"
+        (selectionChange)="onSelectionChange($event)"
         selectionMode="multiple"
         contextMenuSelectionMode="joint"
-        [(selection)]="selection"
-        (selectionChange)="onSelectionChange($event)"
         [metaKeySelection]="true"
         [contextMenu]="cm"
         [lazy]="true"

@@ -1,7 +1,9 @@
 import {
+  ApplicationRef,
   Component,
   computed,
-  inject, linkedSignal,
+  inject,
+  linkedSignal,
   model,
   signal,
   viewChild,
@@ -76,6 +78,7 @@ export class MessagesPageComponent {
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
   actions = inject(Actions);
+  appRef = inject(ApplicationRef);
 
   monacoEditor = viewChild<EditorComponent>('monacoEditor');
 
@@ -96,7 +99,9 @@ export class MessagesPageComponent {
     );
   });
   virtualMessages = linkedSignal(() =>
-    Array.from<ServiceBusReceivedMessage>({ length: this.filteredMessageCount() }),
+    Array.from<ServiceBusReceivedMessage>({
+      length: this.filteredMessageCount(),
+    }),
   );
 
   selection = signal<string[]>([]);
@@ -562,22 +567,27 @@ export class MessagesPageComponent {
 
     //populate page of virtual cars
     this.virtualMessages.update((vm) => {
-      Array.prototype.splice.apply(vm, [
-        first,
-        rows,
-        ...messages,
-      ]);
+      Array.prototype.splice.apply(vm, [first, rows, ...messages]);
 
       return vm;
     });
   }
 
-  protected onSelectionChange($event: string[]) {
+  protected onSelectionChange($event: (string | ServiceBusReceivedMessage)[]) {
+    const selection = $event
+      .map((e) => (typeof e === 'string' ? e : (e.sequenceNumber ?? '')))
+      .filter((e) => e !== '')
+      // Distinct messages by sequence number
+      .filter((e, i, arr) => arr.indexOf(e) === i);
+
+    this.selection.set(selection);
     this.store.dispatch(
       MessagesActions.setPageSelection({
         pageId: this.currentPage()!.id,
-        sequenceNumbers: $event,
+        sequenceNumbers: selection,
       }),
     );
+
+    this.appRef.tick();
   }
 }

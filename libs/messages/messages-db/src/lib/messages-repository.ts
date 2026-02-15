@@ -103,6 +103,9 @@ export class MessagesRepository {
     if (take === 0) {
       return [];
     }
+    if (ascending === undefined) {
+      ascending = true;
+    }
 
     const messagesDb = await getMessagesDb(pageId);
     const objectStore = messagesDb
@@ -118,6 +121,7 @@ export class MessagesRepository {
         const cursor = (event.target as any).result as IDBCursorWithValue;
         if (!cursor) {
           resolve(messages);
+          return;
         }
 
         const message = cursor.value as ServiceBusReceivedMessage;
