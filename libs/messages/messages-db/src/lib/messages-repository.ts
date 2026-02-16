@@ -153,7 +153,6 @@ export class MessagesRepository {
     }
 
     const messagesDb = await getMessagesDb(pageId);
-    let walked = 0;
 
     if (selection?.length) {
       await this.walkMessagesWithCallbackForSelection(
@@ -167,6 +166,7 @@ export class MessagesRepository {
       )
     }
 
+    let walked = 0;
     let continueCursor = true;
     let lastKey: string | null = null;
 
@@ -201,13 +201,16 @@ export class MessagesRepository {
           if (!filter || messageInFilter(message, filter)) {
             walked++;
 
-            if (!skip || walked > skip) {
-              const result = callback?.(message);
-              if (result instanceof Promise) {
-                result.then(() => resolve(true));
-              } else {
-                cursor.continue();
-              }
+            if(skip && walked <= skip) {
+              cursor.continue();
+              return;
+            }
+
+            const result = callback?.(message);
+            if (result instanceof Promise) {
+              result.then(() => resolve(true));
+            } else {
+              cursor.continue();
             }
 
             if (take && walked >= (skip ?? 0) + take) {
@@ -228,9 +231,6 @@ export class MessagesRepository {
     take?: number,
     ascending?: boolean,
   ) {
-    const messagesDb = await getMessagesDb(pageId);
-    const transaction = messagesDb.transaction('messages', 'readonly');
-    const objectStore = transaction.objectStore('messages');
     let walked = 0;
 
     if (selection?.length) {
@@ -248,11 +248,13 @@ export class MessagesRepository {
           continue;
         }
 
-        if (!skip || walked > skip) {
-          const result = callback(message);
-          if (result instanceof Promise) {
-            await result;
-          }
+        if (skip && walked <= skip) {
+          continue;
+        }
+
+        const result = callback(message);
+        if (result instanceof Promise) {
+          await result;
         }
 
         if (take && walked >= (skip ?? 0) + take) {
