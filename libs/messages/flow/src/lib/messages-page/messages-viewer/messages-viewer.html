@@ -28,7 +28,7 @@
       [metaKeySelection]="this.multiselect()"
       [contextMenu]="showMessageContextMenu() ? cm : undefined"
       [lazy]="this.lazy()"
-      (onLazyLoad)="lazyLoadTriggered?.emit($event)"
+      (onLazyLoad)="onLazyLoad($event)"
     >
       <ng-template pTemplate="header" let-columns>
         <tr>

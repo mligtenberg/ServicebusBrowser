@@ -227,4 +227,8 @@ export class MessagesViewer {
     this.selection.set(selection);
     this.appRef.tick();
   }
+
+  protected onLazyLoad($event: TableLazyLoadEvent) {
+    this.lazyLoadTriggered?.emit($event);
+  }
 }

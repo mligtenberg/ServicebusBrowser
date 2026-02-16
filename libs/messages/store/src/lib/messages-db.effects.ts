@@ -18,8 +18,6 @@ import {
   peekMessages,
   peekMessagesLoadingDone,
 } from './messages.actions';
-import { importZipFile } from './import-zip-file.func';
-import { FilesService } from '@service-bus-browser/services';
 import { ExportMessagesUtil } from './export-messages-util';
 
 const repository = await getMessagesRepository();
