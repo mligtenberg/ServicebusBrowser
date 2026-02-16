@@ -14,7 +14,7 @@ import {
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, from, of, startWith, switchMap } from 'rxjs';
+import { combineLatest, from, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   MessageFilter,
@@ -43,6 +43,7 @@ import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { MessagesViewer } from './messages-viewer/messages-viewer';
+import { ResendMessagesUtil } from '../resendmessages-util';
 
 const repository = await getMessagesRepository();
 
@@ -66,6 +67,7 @@ const repository = await getMessagesRepository();
   styleUrl: './messages-page.component.scss',
 })
 export class MessagesPageComponent {
+  resendMessagesUtil = inject(ResendMessagesUtil);
   systemPropertyHelpers = inject(SystemPropertyHelpers);
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
@@ -74,10 +76,11 @@ export class MessagesPageComponent {
   actions = inject(Actions);
   appRef = inject(ApplicationRef);
 
-
+  // TODO: improve this
+  resendAllMessages = model<boolean>(false);
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
-  displayFilterDialog = model<boolean>(false);
+  displayFilterEditor = model<boolean>(false);
   sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
   menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
@@ -315,7 +318,7 @@ export class MessagesPageComponent {
             : 'Quick selected resend messages',
           icon: 'pi pi-envelope',
           command: () => {
-            this.menuMessagesSelection.set([]);
+            this.resendAllMessages.set(allMessages);
             this.displaySendMessages.set(true);
           },
         },
@@ -384,24 +387,28 @@ export class MessagesPageComponent {
   }
 
   sendMessages() {
-    const messages = this.menuMessagesSelection();
+    const selection = this.selection();
     const endpoint = this.sendEndpoint();
+    const sendAllMessages = this.resendAllMessages();
+
     if (
       !endpoint ||
-      !messages ||
-      !Array.isArray(messages) ||
-      messages.length === 0
+      !sendAllMessages && !(selection && Array.isArray(selection) && selection.length > 0)
     ) {
-      console.error('Invalid endpoint or messages');
+      console.error('Invalid endpoint or messages', {
+        selection,
+        endpoint,
+        sendAllMessages
+      });
       return;
     }
 
     this.displaySendMessages.set(false);
-    this.store.dispatch(
-      MessagesActions.sendMessages({
-        endpoint,
-        messages,
-      }),
+    this.resendMessagesUtil.resendMessages(
+      endpoint,
+      this.currentPage()!.id,
+      this.messageFilter(),
+      sendAllMessages ? undefined : selection
     );
   }
 
@@ -421,7 +428,7 @@ export class MessagesPageComponent {
   }
 
   openFilterDialog() {
-    this.displayFilterDialog.set(true);
+    this.displayFilterEditor.set(true);
   }
 
   onFiltersUpdated(filter: MessageFilter) {
@@ -439,7 +446,7 @@ export class MessagesPageComponent {
     key: systemPropertyKeys,
     value: string | number | boolean | Date,
   ) {
-    this.displayFilterDialog.set(false);
+    this.displayFilterEditor.set(false);
     const fieldType = this.systemPropertyHelpers.toFilterPropertyType(key);
 
     let currentFilter = this.messageFilter();
@@ -464,7 +471,7 @@ export class MessagesPageComponent {
     key: string,
     value: string | number | boolean | Date,
   ) {
-    this.displayFilterDialog.set(false);
+    this.displayFilterEditor.set(false);
 
     let currentFilter = this.messageFilter();
     currentFilter = {
