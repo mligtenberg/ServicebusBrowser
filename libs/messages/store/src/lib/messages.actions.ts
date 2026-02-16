@@ -73,8 +73,9 @@ export const sendPartialBatch = createAction(
 export const exportMessages = createAction(
   '[Messages] export messages',
   props<{
-    pageName: string,
-    messages: ServiceBusReceivedMessage[]
+    pageId: UUID,
+    filter?: MessageFilter,
+    selection?: string[],
   }>()
 )
 

@@ -34,6 +34,7 @@
     "@primeuix/themes": "^2.0.3",
     "@types/file-saver": "^2.0.7",
     "@types/luxon": "^3.7.1",
+    "@zip.js/zip.js": "^2.8.20",
     "axios": "^1.13.5",
     "body-parser": "^2.2.2",
     "express": "^4.22.1",

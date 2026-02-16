@@ -87,7 +87,10 @@ export const messagesSendFailed = createAction(
 )
 
 export const messagesExported = createAction(
-  '[Messages] messages exported'
+  '[Messages] messages exported',
+  props<{
+    pageId: UUID
+  }>()
 )
 
 export const messagesExportFailed = createAction(

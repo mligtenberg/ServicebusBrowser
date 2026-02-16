@@ -139,7 +139,7 @@ export class MessagesRepository {
 
   async walkMessagesWithCallback(
     pageId: UUID,
-    callback: (message: ServiceBusReceivedMessage) => void | Promise<void>,
+    callback: (message: ServiceBusReceivedMessage, index: number) => void | Promise<void>,
     filter?: MessageFilter,
     skip?: number,
     take?: number,
@@ -168,6 +168,7 @@ export class MessagesRepository {
     }
 
     let walked = 0;
+    let currentIndex = 0;
     let continueCursor = true;
     let lastKey: string | null = null;
 
@@ -212,7 +213,8 @@ export class MessagesRepository {
               return;
             }
 
-            const result = callback?.(message);
+            const result = callback?.(message, currentIndex);
+            currentIndex++;
             if (result instanceof Promise) {
               result.then(() => resolve(true));
               return;
@@ -228,7 +230,7 @@ export class MessagesRepository {
 
   private async walkMessagesWithCallbackForSelection(
     pageId: UUID,
-    callback: (message: ServiceBusReceivedMessage) => void | Promise<void>,
+    callback: (message: ServiceBusReceivedMessage, index: number) => void | Promise<void>,
     selection: string[],
     filter?: MessageFilter,
     skip?: number,
@@ -236,6 +238,7 @@ export class MessagesRepository {
     ascending?: boolean,
   ) {
     let walked = 0;
+    let currentIndex = 0;
 
     if (selection?.length) {
       let keys = selection.map(sequenceNumberToKey);
@@ -247,6 +250,10 @@ export class MessagesRepository {
 
       for (const key of keys) {
         const message = await this.getMessage(pageId, key);
+        if (filter && !messageInFilter(message, filter)) {
+          continue;
+        }
+
         walked++;
         if (!message) {
           continue;
@@ -256,7 +263,8 @@ export class MessagesRepository {
           continue;
         }
 
-        const result = callback(message);
+        const result = callback(message, currentIndex);
+        currentIndex++;
         if (result instanceof Promise) {
           await result;
         }

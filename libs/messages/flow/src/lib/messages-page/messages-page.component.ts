@@ -343,8 +343,7 @@ export class MessagesPageComponent {
           label: allMessages ? 'Export all messages' : 'Export selection',
           icon: 'pi pi-download',
           command: () => {
-            this.menuMessagesSelection.set([]);
-            this.exportMessages();
+            this.exportMessages(allMessages);
           },
         },
       ];
@@ -379,8 +378,7 @@ export class MessagesPageComponent {
         label: 'Export message',
         icon: 'pi pi-download',
         command: () => {
-          this.menuMessagesSelection.set([]);
-          this.exportMessages();
+          this.exportMessages(allMessages);
         },
       },
     ];
@@ -412,17 +410,17 @@ export class MessagesPageComponent {
     );
   }
 
-  exportMessages() {
-    const messagesToExport = this.menuMessagesSelection();
+  exportMessages(allMessages: boolean) {
     const currentPage = this.currentPage();
-    if (!currentPage || messagesToExport.length === 0) {
+    if (!currentPage) {
       return;
     }
 
     this.store.dispatch(
       MessagesActions.exportMessages({
-        pageName: currentPage.name,
-        messages: messagesToExport,
+        pageId: currentPage.id,
+        filter: this.messageFilter(),
+        selection: allMessages ? undefined : this.selection(),
       }),
     );
   }
