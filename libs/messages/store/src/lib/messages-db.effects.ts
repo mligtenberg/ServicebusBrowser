@@ -20,6 +20,7 @@ import {
 } from './messages.actions';
 import { importZipFile } from './import-zip-file.func';
 import { FilesService } from '@service-bus-browser/services';
+import { ExportMessagesUtil } from './export-messages-util';
 
 const repository = await getMessagesRepository();
 
@@ -33,7 +34,8 @@ export class MessagesDbEffects implements OnInitEffects {
 
   store = inject(Store);
   actions$ = inject(Actions);
-  fileService = inject(FilesService);
+  exportMessagesUtil = inject(ExportMessagesUtil);
+
 
   loadPagesFromDb$ = createEffect(() =>
     this.actions$.pipe(
@@ -116,53 +118,58 @@ export class MessagesDbEffects implements OnInitEffects {
     },
   );
 
-  importMessages$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(importMessages),
-        mergeMap(() =>
-          from(
-            this.fileService.openFile(
-              [{ name: 'messages export zip', extensions: ['.zip'] }],
-              'binary',
-            ),
-          ).pipe(
-            switchMap(({ fileName, contents }) => {
-              return from(importZipFile(contents)).pipe(
-                map((messages) => ({
-                  pageName: fileName.replace(/\.zip$/, ''),
-                  messages,
-                })),
-              );
-            }),
-            mergeMap(({ pageName, messages }) => {
-              if (messages.length === 0) {
-                return EMPTY;
-              }
-              const pageId = crypto.randomUUID();
-              const task = repository
-                .addPage({
-                  id: pageId,
-                  name: pageName,
-                  retrievedAt: new Date(),
-                })
-                .then(() => repository.addMessages(pageId, messages));
+  // importMessages$ = createEffect(
+  //   () =>
+  //     this.actions$.pipe(
+  //       ofType(importMessages),
+  //       mergeMap(() =>
+  //         from(
+  //           this.fileService.openFile(
+  //             [{ name: 'messages export zip', extensions: ['.zip'] }],
+  //             'binary',
+  //           ),
+  //         ).pipe(
+  //           switchMap(({ fileName, contents }) => {
+  //             return from(importZipFile(contents)).pipe(
+  //               map((messages) => ({
+  //                 pageName: fileName.replace(/\.zip$/, ''),
+  //                 messages,
+  //               })),
+  //             );
+  //           }),
+  //           mergeMap(({ pageName, messages }) => {
+  //             if (messages.length === 0) {
+  //               return EMPTY;
+  //             }
+  //             const pageId = crypto.randomUUID();
+  //             const task = repository
+  //               .addPage({
+  //                 id: pageId,
+  //                 name: pageName,
+  //                 retrievedAt: new Date(),
+  //               })
+  //               .then(() => repository.addMessages(pageId, messages));
+  //
+  //             return from(task).pipe(
+  //               map(() =>
+  //                 messagesImported({
+  //                   pageId,
+  //                   pageName,
+  //                 }),
+  //               ),
+  //             );
+  //           }),
+  //           catchError(() => [messagesImportFailed()]),
+  //         ),
+  //       ),
+  //     ),
+  //   { dispatch: true },
+  // );
 
-              return from(task).pipe(
-                map(() =>
-                  messagesImported({
-                    pageId,
-                    pageName,
-                  }),
-                ),
-              );
-            }),
-            catchError(() => [messagesImportFailed()]),
-          ),
-        ),
-      ),
-    { dispatch: true },
-  );
+  importMessages$ = createEffect(() => this.actions$.pipe(
+    ofType(importMessages),
+    mergeMap(() => this.exportMessagesUtil.importMessages()),
+  ), { dispatch: false });
 
   peekMessagesLoadingDone$ = createEffect(() =>
     this.actions$.pipe(

@@ -62,7 +62,7 @@ export const logsReducer = createReducer(
         ...state.receivedMessages,
         {
           id: pageId,
-          name: `Imported: ${pageName}`,
+          name: pageName,
           retrievedAt: new Date(),
           loaded: true
         }
