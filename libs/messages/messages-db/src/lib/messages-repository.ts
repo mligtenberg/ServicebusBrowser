@@ -77,6 +77,7 @@ export class MessagesRepository {
         const cursor = (event.target as any).result as IDBCursorWithValue;
         if (!cursor) {
           resolve(count);
+          return;
         }
 
         const message = cursor.value as ServiceBusReceivedMessage;
@@ -206,15 +207,17 @@ export class MessagesRepository {
               return;
             }
 
+            if (take && walked > (skip ?? 0) + take) {
+              resolve(false);
+              return;
+            }
+
             const result = callback?.(message);
             if (result instanceof Promise) {
               result.then(() => resolve(true));
             } else {
               cursor.continue();
-            }
-
-            if (take && walked >= (skip ?? 0) + take) {
-              resolve(false);
+              return;
             }
           }
         };
