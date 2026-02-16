@@ -58,6 +58,18 @@ export const sendMessages = createAction(
   }>()
 )
 
+export const sendPartialBatch = createAction(
+  '[Messages] send partial batch',
+  props<{
+    transactionId: UUID;
+    endpoint: SendEndpoint;
+    messages: ServiceBusMessage[];
+    alreadySentAmount: number;
+    totalAmount: number;
+    lastBatch: boolean;
+  }>(),
+);
+
 export const exportMessages = createAction(
   '[Messages] export messages',
   props<{
@@ -70,12 +82,6 @@ export const importMessages = createAction(
   '[Messages] import messages'
 )
 
-export const setBatchResendMessages = createAction(
-  '[Messages] set batch resend messages',
-  props<{
-    messages: ServiceBusReceivedMessage[]
-  }>()
-)
 
 export const setPageFilter = createAction(
   '[Messages] set page filter',

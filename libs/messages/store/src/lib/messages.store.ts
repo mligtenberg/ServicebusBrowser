@@ -1,18 +1,21 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { MessagePage, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { MessagePage } from '@service-bus-browser/messages-contracts';
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const featureKey = 'messages';
 
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
-  messageForBatchResend: Array<ServiceBusMessage>;
+  messageForBatchResend: Array<string>;
+  runningBatchSendTasks: UUID[];
 }
 
 export const initialState: MessagesState = {
   receivedMessages: [],
-  messageForBatchResend: []
+  messageForBatchResend: [],
+  runningBatchSendTasks: []
 };
 
 export const logsReducer = createReducer(
@@ -66,12 +69,6 @@ export const logsReducer = createReducer(
       ]
     }
   }),
-  on(actions.setBatchResendMessages, (state, { messages }): MessagesState => {
-    return {
-      ...state,
-      messageForBatchResend: messages
-    }
-  }),
   on(actions.setPageFilter, (state, { pageId, filter }): MessagesState => {
     return {
       ...state,
@@ -91,6 +88,18 @@ export const logsReducer = createReducer(
     return {
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, name: pageName } : page)
+    }
+  }),
+  on(actions.sendPartialBatch, (state, { transactionId }): MessagesState => {
+    return {
+      ...state,
+      runningBatchSendTasks: [...state.runningBatchSendTasks, transactionId]
+    }
+  }),
+  on(internalActions.batchSendCompleted, (state, { transactionId }): MessagesState => {
+    return {
+      ...state,
+      runningBatchSendTasks: state.runningBatchSendTasks.filter(taskId => taskId !== transactionId)
     }
   })
 );

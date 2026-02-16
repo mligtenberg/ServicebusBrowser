@@ -1,6 +1,6 @@
 import { createSelector } from '@ngrx/store';
 import { featureSelector } from './messages.feature-selector';
-import { Page } from '@service-bus-browser/shared-contracts';
+import { Page, UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusReceivedMessage } from '@azure/service-bus';
 
 export const selectPages = createSelector(
@@ -18,7 +18,5 @@ export const selectPage = (pageId: string) =>
     state.receivedMessages.find((page) => page.id === pageId),
   );
 
-export const selectBatchResendMessages = createSelector(
-  featureSelector,
-  (state) => state.messageForBatchResend,
-);
+export const selectIsTransactionRunning = (transactionId: UUID) => createSelector(featureSelector,
+  (state) => state.runningBatchSendTasks.some(t => t === transactionId));

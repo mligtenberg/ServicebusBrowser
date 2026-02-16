@@ -1,15 +1,22 @@
 
 <div class="container">
-  <p-context-menu
-    #cm
-    appendTo="body"
-    [model]="messageContextMenu()"
-  ></p-context-menu>
-  <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
-  <p-card class="messages">
-    <div class="messages-header">
-      <div class="p-card-title">Messages</div>
-      <div class="header-actions">
+  @if (currentPage(); as page) {
+    <lib-messages-viewer
+      [pageId]="page.id"
+      [messages]="virtualMessages()"
+      [lazy]="true"
+      (lazyLoadTriggered)="loadMessages($event)"
+      [multiselect]="true"
+      [messagesContextMenu]="messageContextMenu()"
+      [systemPropertiesContextMenu]="systemPropertiesContextMenu()"
+      [(systemPropertiesContextMenuSelection)]="systemPropertiesContextMenuSelection"
+      [applicationPropertiesContextMenu]="applicationPropertiesContextMenu()"
+      [(applicationPropertiesContextMenuSelection)]="applicationPropertiesContextMenuSelection"
+      [(selection)]="selection"
+      (selectionChange)="onSelectionChange($event)"
+    >
+      <ng-template #messagesHeader>
+        <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
         <div class="status-widget" [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }">
           <button
             type="button"
@@ -18,186 +25,38 @@
             aria-label="Filtered messages count"
             pTooltip="Filtered messages count"
             tooltipPosition="bottom"
-            >
+          >
             <i class="pi pi-search"></i>
             <span class="count">{{ filteredMessageCount() }}</span>
             <span class="subtext"
-              >({{ filteredPercentage() | number : '1.1-1' }}%)</span
-              >
-            </button>
-            <button
-              type="button"
-              class="badge total"
-              title="Total messages count"
-              aria-label="Total messages count"
-              pTooltip="Total messages count"
-              tooltipPosition="bottom"
-              >
-              <i class="pi pi-inbox"></i>
-              <span class="count">{{ totalMessageCount() }}</span>
-            </button>
-          </div>
-          <div class="header-buttons">
-            <p-button
-              (click)="openFilterDialog()"
-              [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
-              text="true"
-              />
-            <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true" />
-          </div>
-        </div>
-      </div>
-      <p-table
-        #messageTable
-        [columns]="cols"
-        [rows]="100"
-        [value]="virtualMessages()"
-        [scrollable]="true"
-        scrollHeight="300px"
-        [virtualScroll]="true"
-        [virtualScrollItemSize]="42"
-        [selection]="selection()"
-        (selectionChange)="onSelectionChange($event)"
-        selectionMode="multiple"
-        contextMenuSelectionMode="joint"
-        [metaKeySelection]="true"
-        [contextMenu]="cm"
-        [lazy]="true"
-        (onLazyLoad)="loadMessages($event)"
-        >
-        <ng-template pTemplate="header" let-columns>
-          <tr>
-            @for (col of columns; track col) {
-              <th style="width: 20%">
-                {{ col.header }}
-              </th>
-            }
-          </tr>
-        </ng-template>
-        <ng-template
-          pTemplate="body"
-          let-rowData
-          let-rowIndex="rowIndex"
-          let-columns="columns"
-          >
-          <tr
-            [pContextMenuRow]="rowData.sequenceNumber"
-            [pSelectableRow]="rowData.sequenceNumber"
-            [pContextMenuRowIndex]="rowIndex"
-            [pSelectableRowIndex]="rowIndex"
+            >({{ filteredPercentage() | number : '1.1-1' }}%)</span
             >
-            @for (col of columns; track col) {
-              <td>
-                {{ rowData[col.field] }}
-              </td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
-    <p-card header="Body" class="body">
-      @if (selectedMessage()) {
-        <div class="fullscreen-button">
+          </button>
+          <button
+            type="button"
+            class="badge total"
+            title="Total messages count"
+            aria-label="Total messages count"
+            pTooltip="Total messages count"
+            tooltipPosition="bottom"
+          >
+            <i class="pi pi-inbox"></i>
+            <span class="count">{{ totalMessageCount() }}</span>
+          </button>
+        </div>
+        <div class="header-buttons">
           <p-button
-            icon="pi pi-window-maximize"
-            (click)="displayBodyFullscreen.set(true)"
-            [rounded]="true"
-            [text]="true"
-          ></p-button>
+            (click)="openFilterDialog()"
+            [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
+            text="true"
+          />
+          <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true" />
         </div>
-        <div class="editor">
-          <ngx-monaco-editor
-            [options]="editorOptions()"
-            [ngModel]="body()"
-            #monacoEditor
-          ></ngx-monaco-editor>
-        </div>
-      }
-    </p-card>
-    <p-card header="Properties" class="properties">
-      <div class="table-container">
-        <p-context-menu
-          #propertyMenu
-          [model]="propertyMenuItems()"
-          appendTo="body"/>
-        <p-table
-          [columns]="propertiesCols"
-          [value]="properties()"
-          [scrollable]="true"
-          scrollHeight="100cqh"
-          [virtualScroll]="false"
-          dataKey="key"
-          [contextMenu]="propertyMenu"
-          [(contextMenuSelection)]="propertiesContextMenuSelection"
-          >
-          <ng-template
-            pTemplate="body"
-            let-rowData
-            let-rowIndex="rowIndex"
-            let-columns="columns"
-            >
-            <tr style="height: 30px" [pContextMenuRow]="rowData">
-              @for (col of columns; track col) {
-                <td class="user-selectable">
-                  {{ rowData[col.field] }}
-                </td>
-              }
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-    </p-card>
-    <p-card header="Custom properties" class="custom-properties">
-      <div class="table-container">
-        <p-context-menu
-          #customPropertyMenu
-          [model]="customPropertyMenuItems()"
-          appendTo="body"/>
-        <p-table
-          [columns]="propertiesCols"
-          [value]="customProperties()"
-          [scrollable]="true"
-          scrollHeight="100cqh"
-          [virtualScroll]="false"
-          dataKey="key"
-          [contextMenu]="customPropertyMenu"
-          [(contextMenuSelection)]="customPropertiesContextMenuSelection"
-          >
-          <ng-template
-            pTemplate="body"
-            let-rowData
-            let-rowIndex="rowIndex"
-            let-columns="columns"
-            >
-            <tr style="height: 30px" [pContextMenuRow]="rowData">
-              @for (col of columns; track col) {
-                <td class="user-selectable">
-                  {{ rowData[col.field] }}
-                </td>
-              }
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-    </p-card>
-  </div>
+      </ng-template>
+    </lib-messages-viewer>
+  }
+</div>
 
-  <p-dialog
-    header="Message body"
-    appendTo="body"
-    [(visible)]="displayBodyFullscreen"
-    [modal]="true"
-    [style]="{ width: '100%', height: '100%' }"
-    >
-    @if (displayBodyFullscreen()) {
-      <div class="editor">
-        <ngx-monaco-editor
-          [options]="editorOptions()"
-          [ngModel]="body()"
-        ></ngx-monaco-editor>
-      </div>
-    }
-  </p-dialog>
 
   <p-dialog
     header="Send messages"

@@ -24,7 +24,7 @@ export const routes = (options: { baseRoute: string }): Routes => [
         loadComponent: () => import('./lib/send-message/send-message.component').then(m => m.SendMessageComponent),
       },
       {
-        path: 'batch-resend',
+        path: 'batch-resend/:pageId',
         loadComponent: () => import('./lib/messages-batch-resend/messages-batch-resend.component').then(m => m.MessagesBatchResendComponent),
       }
     ]

@@ -1,30 +1,3 @@
-:host {
-  ::ng-deep .p-card.p-component {
-    height: 100%;
-  }
-
-  ::ng-deep .p-card-body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .p-card-content {
-      height: 100%;
-    }
-  }
-
-  ::ng-deep .messages .p-virtualscroller {
-    height: 300px;
-  }
-}
-
-.messages-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-
 .status-widget {
   padding: 0.2em 16px;
   display: inline-flex;
@@ -54,7 +27,6 @@
   color: #e0f2ff;
 }
 
-
 .status-widget .badge.total {
   background: #eaeaea;
   color: #333;
@@ -76,110 +48,10 @@
 }
 
 .container {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  grid-template-rows: minmax(400px, auto) 1fr;
-  grid-template-areas:
-    'messages properties'
-    'body custom-properties';
-  gap: 1rem;
-  padding: 1rem;
   width: 100cqw;
   height: 100cqh;
-  box-sizing: border-box;
-
-  @container mainContent (width < 900px) {
-    grid-template-areas:
-      'messages'
-      'body'
-      'properties'
-      'custom-properties';
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(400px, auto) repeat(3, minmax(20rem, 1fr));
-  }
-
-  p-table {
-    height: 100%;
-  }
 }
 
-pre {
-  margin: 0;
-
-  code {
-    padding: 0.5rem;
-    padding-right: 2rem;
-  }
-}
-
-.messages {
-  grid-area: messages;
-}
-
-.messages-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-
-    .header-buttons {
-      display: flex;
-    }
-  }
-}
-
-.body {
-  grid-area: body;
-  position: relative;
-}
-
-.fullscreen-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 1;
-}
-
-.properties {
-  grid-area: properties;
-}
-
-.custom-properties {
-  grid-area: custom-properties;
-}
-
-p-card {
-  height: 100%;
-}
-
-.table-container {
-  height: 100%;
-  container: table / size;
-}
-
-.fullscreen-code {
-  width: 100%;
-  height: 100%;
-}
-
-.editor {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-ngx-monaco-editor {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-}
-
-td {
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+lib-messages-viewer {
+  flex: 1;
 }

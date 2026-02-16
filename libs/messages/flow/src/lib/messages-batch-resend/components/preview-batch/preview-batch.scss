@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+  flex: 1;
+}
+
+lib-messages-viewer {
+  flex: 1;
+}

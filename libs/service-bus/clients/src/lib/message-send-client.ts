@@ -10,6 +10,7 @@ export class MessageSendClient {
   async send(input: contracts.ServiceBusMessage | contracts.ServiceBusMessage[]): Promise<void> {
     const sender = this.getSender();
 
+    console.log('requested');
     if (typeof input === 'object' && !Array.isArray(input)) {
       const mappedMessage = this.mapMessage(input);
       await sender.sendMessages(mappedMessage);
@@ -18,6 +19,7 @@ export class MessageSendClient {
       const mappedMessages = input.map(this.mapMessage);
       await sender.sendMessages(mappedMessages);
     }
+    console.log('sent');
   }
 
   mapMessage(message: contracts.ServiceBusMessage): ServiceBusMessage {

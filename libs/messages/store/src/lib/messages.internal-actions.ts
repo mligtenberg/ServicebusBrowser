@@ -120,3 +120,10 @@ export const updatePageName = createAction(
     pageName: string
   }>()
 )
+
+export const batchSendCompleted = createAction(
+  '[Messages] batch messages send completed',
+  props<{
+    transactionId: UUID,
+  }>()
+)

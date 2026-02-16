@@ -17,7 +17,9 @@ import {
 } from '@service-bus-browser/messages-contracts';
 import { messageInFilter } from '@service-bus-browser/filtering';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class BatchActionsService {
   applyBatchActions<T extends ServiceBusMessage>(messages: T[], actions: Action[]): T[] {
     let modifiedMessages = messages;

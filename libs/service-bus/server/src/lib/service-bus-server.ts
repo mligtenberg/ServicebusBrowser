@@ -8,14 +8,6 @@ import sendMessagesActions from './send-messages-actions';
 import storeFileActions from './store-file-action';
 import { ServiceBusServerFunc } from './types';
 
-// export const management = {
-//   ...connectionActions,
-//   ...queuesActions,
-//   ...topicsActions,
-//   ...subscriptionsActions,
-//   ...rulesActions,
-// }
-
 export const management = new Map<string, ServiceBusServerFunc>([
   ...connectionActions.entries(),
   ...queuesActions.entries(),

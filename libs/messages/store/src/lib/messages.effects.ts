@@ -10,6 +10,9 @@ import Long from 'long';
 import { clearedEndpoint } from './messages.actions';
 import { FilesService } from '@service-bus-browser/services';
 import { makeZipFile } from './make-zip-file.func';
+import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { batchSendCompleted } from './messages.internal-actions';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -201,6 +204,26 @@ export class MessagesEffects {
         );
       }),
     ),
+  );
+
+  sendBatchMessages = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(actions.sendPartialBatch),
+        mergeMap(({ transactionId, endpoint, messages }) => {
+          const numberOfSetsNeeded = Math.ceil(messages.length / 50);
+          const sets: ServiceBusMessage[][] = [];
+          for (let i = 0; i < numberOfSetsNeeded; i++) {
+            sets.push(messages.slice(i * 50, (i + 1) * 50));
+          }
+          return from((async () => {
+              for (const set of sets) {
+                await this.messagesService.sendMessages(endpoint, set);
+              }
+            })()
+          ).pipe(map(() => batchSendCompleted({ transactionId })));
+        }),
+      ),
   );
 
   exportMessages$ = createEffect(
