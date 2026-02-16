@@ -215,11 +215,12 @@ export class MessagesRepository {
             const result = callback?.(message);
             if (result instanceof Promise) {
               result.then(() => resolve(true));
-            } else {
-              cursor.continue();
               return;
             }
           }
+
+          cursor.continue();
+          return;
         };
       });
     }

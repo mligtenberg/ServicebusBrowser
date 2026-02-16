@@ -511,7 +511,6 @@ export class MessagesPageComponent {
       rows,
     );
 
-    //populate page of virtual cars
     this.virtualMessages.update((vm) => {
       Array.prototype.splice.apply(vm, [first, rows, ...messages]);
 
