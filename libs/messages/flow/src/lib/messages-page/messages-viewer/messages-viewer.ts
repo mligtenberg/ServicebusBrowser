@@ -77,21 +77,23 @@ export class MessagesViewer {
     combineLatest([
       toObservable(this.pageId),
       toObservable(this.selection),
+      toObservable(this.messages)
     ]).pipe(
-      switchMap(([pageId, selection]) => {
+      switchMap(([pageId, selection, messages]) => {
+        if (typeof selection === 'object') {
+          selection = selection[0];
+        }
+
         if (selection === undefined || selection === null) {
           return [undefined];
         }
 
-        if (typeof selection === 'string') {
-          return from(repository.getMessage(pageId, selection));
+        const message = messages.find((m) => m?.sequenceNumber === selection);
+        if (message) {
+          return [message];
         }
 
-        if (selection.length === 0) {
-          return [undefined];
-        }
-
-        return from(repository.getMessage(pageId, selection[0])).pipe(
+        return from(repository.getMessage(pageId, selection)).pipe(
           startWith(undefined),
         );
       }),
