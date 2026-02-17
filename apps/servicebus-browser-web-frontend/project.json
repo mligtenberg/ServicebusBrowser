@@ -13,7 +13,8 @@
         "outputPath": "dist/apps/servicebus-browser-web-frontend",
         "browser": "apps/servicebus-browser-web-frontend/src/main.ts",
         "loader": {
-          ".ttf": "binary"
+          ".ttf": "binary",
+          ".css": "file"
         },
         "polyfills": [],
         "tsConfig": "apps/servicebus-browser-web-frontend/tsconfig.app.json",
@@ -34,7 +35,7 @@
             "output": "/assets"
           }
         ],
-        "styles": ["apps/servicebus-browser-web-frontend/src/styles.scss"]
+        "styles": ["apps/servicebus-browser-web-frontend/src/styles.scss", "node_modules/monaco-editor/min/vs/editor/editor.main.css"]
       },
       "configurations": {
         "production": {

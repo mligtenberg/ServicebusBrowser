@@ -81,6 +81,7 @@ export class Editor implements OnDestroy, FormValueControl<string> {
 
     const urlPrefix = this.monacoConfig.urlPrefix ?? '';
     window.MonacoEnvironment = {
+      baseUrl: urlPrefix,
       getWorkerUrl: function (moduleId, label) {
         if (label === 'json') {
           return urlPrefix + '/vs/language/json/json.worker.js';
