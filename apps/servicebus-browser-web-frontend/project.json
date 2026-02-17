@@ -12,6 +12,9 @@
       "options": {
         "outputPath": "dist/apps/servicebus-browser-web-frontend",
         "browser": "apps/servicebus-browser-web-frontend/src/main.ts",
+        "loader": {
+          ".ttf": "binary"
+        },
         "polyfills": [],
         "tsConfig": "apps/servicebus-browser-web-frontend/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
@@ -38,8 +41,7 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "2mb",
-              "maximumError": "3mb"
+              "maximumWarning": "2mb"
             },
             {
               "type": "anyComponentStyle",

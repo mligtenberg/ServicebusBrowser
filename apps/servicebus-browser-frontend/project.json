@@ -10,6 +10,9 @@
       "executor": "@angular-devkit/build-angular:application",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "loader": {
+          ".ttf": "binary"
+        },
         "outputPath": "dist/apps/servicebus-browser-frontend",
         "index": "apps/servicebus-browser-frontend/src/index.html",
         "browser": "apps/servicebus-browser-frontend/src/main.ts",
@@ -23,7 +26,7 @@
           },
           {
             "glob": "**/*",
-            "input": "node_modules/monaco-editor",
+            "input": "node_modules/monaco-editor/esm",
             "output": "/assets/monaco/"
           },
           {
@@ -40,8 +43,7 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "2mb",
-              "maximumError": "3mb"
+              "maximumWarning": "2mb"
             },
             {
               "type": "anyComponentStyle",

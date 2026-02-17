@@ -52,11 +52,11 @@
   [resizable]="false"
   appendTo="body">
   <div class="monaco-editor-container">
-    <ngx-monaco-editor
+    <sbb-editor
     [style]="{height: '100%'}"
-      [options]="editorOptions()"
+      [editorOptions]="editorOptions()"
       [(ngModel)]="value"
-    ></ngx-monaco-editor>
+    ></sbb-editor>
   </div>
   <ng-template #footer>
     <p-button label="Done" icon="pi pi-check" (click)="monacoDialogVisible.set(false)" styleClass="p-button-success"></p-button>

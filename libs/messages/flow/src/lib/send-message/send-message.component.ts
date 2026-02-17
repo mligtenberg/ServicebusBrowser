@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { Card } from 'primeng/card';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,11 +22,11 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { DatePicker } from 'primeng/datepicker';
 import { Popover } from 'primeng/popover';
-import { DurationInputComponent } from '@service-bus-browser/shared-components';
+import { DurationInputComponent, FormEditor } from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Store } from '@ngrx/store';
-import { MessagesActions, MessagesSelectors } from '@service-bus-browser/messages-store';
+import { MessagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
 import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
@@ -38,7 +37,6 @@ const repository = await getMessagesRepository();
 @Component({
   selector: 'lib-send-message',
   imports: [
-    EditorComponent,
     Card,
     ReactiveFormsModule,
     AutoCompleteModule,
@@ -53,8 +51,9 @@ const repository = await getMessagesRepository();
     DatePicker,
     Popover,
     DurationInputComponent,
-    EndpointSelectorInputComponent
-],
+    EndpointSelectorInputComponent,
+    FormEditor,
+  ],
   templateUrl: './send-message.component.html',
   styleUrl: './send-message.component.scss',
 })
@@ -66,7 +65,12 @@ export class SendMessageComponent {
 
   form = signal(this.createForm());
 
-  typeOptions: CustomPropertyType[] = ['string', 'datetime', 'number', 'boolean'];
+  typeOptions: CustomPropertyType[] = [
+    'string',
+    'datetime',
+    'number',
+    'boolean',
+  ];
 
   contentTypeSuggestions = computed(() => {
     if (this.contentTypeSearch() === null) {
@@ -83,18 +87,19 @@ export class SendMessageComponent {
     ];
 
     return contentTypes.filter((ct) =>
-      ct.toLowerCase().includes((this.contentTypeSearch() ?? '').toLowerCase())
+      ct.toLowerCase().includes((this.contentTypeSearch() ?? '').toLowerCase()),
     );
   });
 
   contentTypeSearch = signal<string | null>(null);
   contentType = toSignal(
     toObservable(this.form).pipe(
-      switchMap((form) => form.controls.contentType.valueChanges.pipe(
-        startWith(form.controls.contentType.value),
-      )),
-
-    )
+      switchMap((form) =>
+        form.controls.contentType.valueChanges.pipe(
+          startWith(form.controls.contentType.value),
+        ),
+      ),
+    ),
   );
   bodyLanguage = computed(() => {
     const contentType = this.contentType() ?? '';
@@ -122,14 +127,14 @@ export class SendMessageComponent {
     return 'text';
   });
   editorOptions = computed(() => {
-    return ({
+    return {
       theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
       automaticLayout: true,
       language: this.bodyLanguage(),
       minimap: {
         enabled: false,
       },
-    })
+    };
   });
 
   addProperty() {
@@ -155,8 +160,8 @@ export class SendMessageComponent {
     return SystemKeyProperties.filter(
       (key) =>
         !this.form().controls.properties.value.some(
-          (p, i) => p.key === key && i !== index
-        )
+          (p, i) => p.key === key && i !== index,
+        ),
     );
   }
 
@@ -166,7 +171,7 @@ export class SendMessageComponent {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsText(key)
+    return this.systemPropertyHelpers.propertyIsText(key);
   }
 
   propertyIsDate(index: number) {
@@ -175,7 +180,7 @@ export class SendMessageComponent {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsDate(key)
+    return this.systemPropertyHelpers.propertyIsDate(key);
   }
 
   propertyIsTimeSpan(index: number) {
@@ -184,7 +189,7 @@ export class SendMessageComponent {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsTimeSpan(key)
+    return this.systemPropertyHelpers.propertyIsTimeSpan(key);
   }
 
   propertyUnknownType(index: number) {
@@ -211,9 +216,7 @@ export class SendMessageComponent {
       }),
     });
 
-    this.form().controls.customProperties.push(
-      group
-    );
+    this.form().controls.customProperties.push(group);
 
     return group;
   }
@@ -236,97 +239,131 @@ export class SendMessageComponent {
         message: {
           body: formValue.body,
           contentType: formValue.contentType ?? undefined,
-          timeToLive: (formValue.properties.find(x => x.key === "timeToLive")?.value ?? undefined) as string | undefined,
-          messageId: (formValue.properties.find(x => x.key === "messageId")?.value ?? undefined) as string | undefined,
-          correlationId: (formValue.properties.find(x => x.key === "correlationId")?.value ?? undefined) as string | undefined,
-          to: (formValue.properties.find(x => x.key === "to")?.value ?? undefined) as string | undefined,
-          replyTo: (formValue.properties.find(x => x.key === "replyTo")?.value ?? undefined) as string | undefined,
-          replyToSessionId: (formValue.properties.find(x => x.key === "replyToSessionId")?.value ?? undefined) as string | undefined,
-          sessionId: (formValue.properties.find(x => x.key === "sessionId")?.value ?? undefined) as string | undefined,
-          subject: (formValue.properties.find(x => x.key === "subject")?.value ?? undefined) as string | undefined,
-          partitionKey: (formValue.properties.find(x => x.key === "partitionKey")?.value ?? undefined) as string | undefined,
-          scheduledEnqueueTimeUtc: (formValue.properties.find(x => x.key === "scheduledEnqueueTimeUtc")?.value ?? undefined) as Date | undefined,
-          applicationProperties: formValue.customProperties.reduce((acc, x) => {
-            acc[x.key] = x.value;
-            return acc;
-          }, {} as Record<string, string | number | Date | boolean>),
-        }
-      })
-    )
+          timeToLive: (formValue.properties.find((x) => x.key === 'timeToLive')
+            ?.value ?? undefined) as string | undefined,
+          messageId: (formValue.properties.find((x) => x.key === 'messageId')
+            ?.value ?? undefined) as string | undefined,
+          correlationId: (formValue.properties.find(
+            (x) => x.key === 'correlationId',
+          )?.value ?? undefined) as string | undefined,
+          to: (formValue.properties.find((x) => x.key === 'to')?.value ??
+            undefined) as string | undefined,
+          replyTo: (formValue.properties.find((x) => x.key === 'replyTo')
+            ?.value ?? undefined) as string | undefined,
+          replyToSessionId: (formValue.properties.find(
+            (x) => x.key === 'replyToSessionId',
+          )?.value ?? undefined) as string | undefined,
+          sessionId: (formValue.properties.find((x) => x.key === 'sessionId')
+            ?.value ?? undefined) as string | undefined,
+          subject: (formValue.properties.find((x) => x.key === 'subject')
+            ?.value ?? undefined) as string | undefined,
+          partitionKey: (formValue.properties.find(
+            (x) => x.key === 'partitionKey',
+          )?.value ?? undefined) as string | undefined,
+          scheduledEnqueueTimeUtc: (formValue.properties.find(
+            (x) => x.key === 'scheduledEnqueueTimeUtc',
+          )?.value ?? undefined) as Date | undefined,
+          applicationProperties: formValue.customProperties.reduce(
+            (acc, x) => {
+              acc[x.key] = x.value;
+              return acc;
+            },
+            {} as Record<string, string | number | Date | boolean>,
+          ),
+        },
+      }),
+    );
   }
 
   constructor() {
-    this.activatedRoute.params.pipe(
-      takeUntilDestroyed(),
-      switchMap((params) => {
-        if (params['pageId'] && params['messageId']) {
-          return repository.getMessage(params['pageId'], params['messageId']);
+    this.activatedRoute.params
+      .pipe(
+        takeUntilDestroyed(),
+        switchMap((params) => {
+          if (params['pageId'] && params['messageId']) {
+            return repository.getMessage(params['pageId'], params['messageId']);
+          }
+
+          return [undefined];
+        }),
+      )
+      .subscribe((message) => {
+        this.form.set(this.createForm());
+
+        if (!message) {
+          return;
         }
 
-        return [undefined];
-      })
-    ).subscribe((message) => {
-      this.form.set(this.createForm());
+        const form = this.form();
 
-      if (!message) {
-        return;
-      }
+        const newValue = {
+          body: message.body,
+          contentType: message.contentType,
+          customProperties: message.applicationProperties
+            ? Object.entries(message.applicationProperties).map(
+                ([key, value]) => {
+                  return {
+                    key,
+                    type:
+                      typeof value === 'string'
+                        ? 'string'
+                        : typeof value === 'number'
+                          ? 'number'
+                          : typeof value === 'boolean'
+                            ? 'boolean'
+                            : ('datetime' as CustomPropertyType),
+                    value: value ?? '',
+                  };
+                },
+              )
+            : [],
+        };
 
-      const form = this.form();
+        form.patchValue(newValue);
 
-      const newValue = {
-        body: message.body,
-        contentType: message.contentType,
-        customProperties: message.applicationProperties ? Object
-          .entries(message.applicationProperties)
-          .map(([key, value]) => {
-            return {
-              key,
-              type: typeof value === 'string' ? 'string' :
-                typeof value === 'number' ? 'number' :
-                  typeof value === 'boolean' ? 'boolean' :
-                    'datetime' as CustomPropertyType,
-              value: value ?? ''
-            };
-          }) : [],
-      };
+        const systemProperties = Object.entries(message)
+          .filter(
+            ([key]) =>
+              key !== 'body' &&
+              key !== 'contentType' &&
+              key !== 'applicationProperties',
+          )
+          .map(([key, value]) => ({
+            key: key as SystemPropertyKeys,
+            value: value ?? '',
+          }));
 
-      form.patchValue(newValue);
+        for (const property of systemProperties) {
+          if (!property.value || !SystemPropertyKeys.includes(property.key)) {
+            continue;
+          }
 
-      const systemProperties = Object.entries(message)
-        .filter(([key]) => key !== 'body' && key !== 'contentType' && key !== 'applicationProperties')
-        .map(([key, value]) => ({
-          key: key as SystemPropertyKeys,
-          value: value ?? ''
-        }));
-
-      for (const property of systemProperties) {
-        if (!property.value || !SystemPropertyKeys.includes(property.key)) {
-          continue;
-        }
-
-        const group = this.addProperty();
-        group.patchValue({
-          key: property.key,
-          value: property.value
-        })
-      }
-
-      if (message.applicationProperties) {
-        for (const property in message.applicationProperties) {
-          const group = this.addCustomProperty();
-          const value = message.applicationProperties[property];
+          const group = this.addProperty();
           group.patchValue({
-            key: property,
-            type: typeof value === 'string' ? 'string' :
-              typeof value === 'number' ? 'number' :
-                typeof value === 'boolean' ? 'boolean' :
-                  'datetime' as CustomPropertyType,
-            value: value ?? ''
-          })
+            key: property.key,
+            value: property.value,
+          });
         }
-      }
-  });
+
+        if (message.applicationProperties) {
+          for (const property in message.applicationProperties) {
+            const group = this.addCustomProperty();
+            const value = message.applicationProperties[property];
+            group.patchValue({
+              key: property,
+              type:
+                typeof value === 'string'
+                  ? 'string'
+                  : typeof value === 'number'
+                    ? 'number'
+                    : typeof value === 'boolean'
+                      ? 'boolean'
+                      : ('datetime' as CustomPropertyType),
+              value: value ?? '',
+            });
+          }
+        }
+      });
   }
 
   private createForm() {
@@ -339,7 +376,7 @@ export class SendMessageComponent {
       customProperties: new FormArray<FormGroup<CustomPropertyGroup>>([]),
       endpoint: new FormControl<SendEndpoint | null>(null, {
         validators: [Validators.required],
-      })
+      }),
     });
   }
 }

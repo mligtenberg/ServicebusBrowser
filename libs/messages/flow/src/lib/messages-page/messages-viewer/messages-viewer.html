@@ -71,10 +71,10 @@
         ></p-button>
       </div>
       <div class="editor">
-        <ngx-monaco-editor
-          [options]="editorOptions()"
-          [ngModel]="body()"
-        ></ngx-monaco-editor>
+        <sbb-editor
+          [editorOptions]="editorOptions()"
+          [value]="body()"
+        ></sbb-editor>
       </div>
     }
   </p-card>
@@ -155,10 +155,10 @@
 >
   @if (displayBodyFullscreen()) {
     <div class="editor">
-      <ngx-monaco-editor
-        [options]="editorOptions()"
-        [ngModel]="body()"
-      ></ngx-monaco-editor>
+      <sbb-editor
+        [editorOptions]="editorOptions()"
+        [value]="body()"
+      ></sbb-editor>
     </div>
   }
 </p-dialog>

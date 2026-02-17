@@ -23,10 +23,6 @@ import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import {
-  MonacoEditorModule,
-  NgxMonacoEditorConfig,
-} from 'ngx-monaco-editor-v2';
-import {
   HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
@@ -42,16 +38,11 @@ import {
   MsalInterceptor,
   MsalService,
 } from '@azure/msal-angular';
-
-const monacoConfig: NgxMonacoEditorConfig = {
-  baseUrl: 'assets',
-  requireConfig: { preferScriptTags: true },
-};
+import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // primeng
-    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: theme,
@@ -68,19 +59,18 @@ export const appConfig: ApplicationConfig = {
     // config
     provideZonelessChangeDetection(),
     provideHttpClient(),
-    provideRouter(
-      appRoutes,
-      withPreloading(PreloadAllModules)
-    ),
+    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideLogsState(),
     provideTasksState(),
     provideMessagesState(),
     provideTopologyState(),
-    provideServiceBusWebClient("/api/"),
+    provideServiceBusWebClient('/api/'),
     provideMainUi(),
 
     // monaco
-    importProvidersFrom([MonacoEditorModule.forRoot(monacoConfig)]),
+    provideMonacoConfig({
+      urlPrefix: '/assets/monaco',
+    }),
 
     // ngrx
     provideStore(),
@@ -95,22 +85,22 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: MsalInterceptor,
-      multi: true
+      multi: true,
     },
     {
       provide: MSAL_INSTANCE,
-      useFactory: MSALInstanceFactory
+      useFactory: MSALInstanceFactory,
     },
     {
       provide: MSAL_INTERCEPTOR_CONFIG,
-      useFactory: MSALInterceptorConfigFactory
+      useFactory: MSALInterceptorConfigFactory,
     },
     {
       provide: MSAL_GUARD_CONFIG,
-      useFactory: MSALGuardConfigFactory
+      useFactory: MSALGuardConfigFactory,
     },
     MsalService,
     MsalGuard,
-    MsalBroadcastService
+    MsalBroadcastService,
   ],
 };

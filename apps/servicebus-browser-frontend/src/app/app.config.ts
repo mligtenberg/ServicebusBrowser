@@ -1,6 +1,5 @@
 import {
   ApplicationConfig,
-  importProvidersFrom,
   isDevMode,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -12,7 +11,6 @@ import {
 } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
 import { provideStore } from '@ngrx/store';
@@ -23,22 +21,13 @@ import { MessageService } from 'primeng/api';
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
-import {
-  MonacoEditorModule,
-  NgxMonacoEditorConfig,
-} from 'ngx-monaco-editor-v2';
 import { provideHttpClient } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
-
-const monacoConfig: NgxMonacoEditorConfig = {
-  baseUrl: 'assets',
-  requireConfig: { preferScriptTags: true },
-};
+import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // primeng
-    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: theme,
@@ -51,6 +40,9 @@ export const appConfig: ApplicationConfig = {
       provide: MessageService,
       useClass: MessageService,
     },
+    provideMonacoConfig({
+      urlPrefix: '/assets/monaco'
+    }),
 
     // config
     provideZonelessChangeDetection(),
@@ -66,9 +58,6 @@ export const appConfig: ApplicationConfig = {
     provideTopologyState(),
     provideServiceBusElectronClient(),
     provideMainUi(),
-
-    // monaco
-    importProvidersFrom([MonacoEditorModule.forRoot(monacoConfig)]),
 
     // ngrx
     provideStore(),

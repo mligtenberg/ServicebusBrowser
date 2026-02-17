@@ -14,7 +14,6 @@ import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { ContextMenu } from 'primeng/contextmenu';
 import { NgTemplateOutlet } from '@angular/common';
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
@@ -26,6 +25,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { Editor } from '@service-bus-browser/shared-components';
 
 const repository = await getMessagesRepository();
 
@@ -35,7 +35,7 @@ const repository = await getMessagesRepository();
     Button,
     Card,
     ContextMenu,
-    EditorComponent,
+    Editor,
     PrimeTemplate,
     TableModule,
     Dialog,

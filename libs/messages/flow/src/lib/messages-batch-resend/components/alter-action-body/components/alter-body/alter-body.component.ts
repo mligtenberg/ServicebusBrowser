@@ -13,9 +13,9 @@ import { Select } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
-import { EditorComponent } from 'ngx-monaco-editor-v2';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { Tooltip } from 'primeng/tooltip';
+import { Editor } from '@service-bus-browser/shared-components';
 
 @Component({
   selector: 'lib-alter-body',
@@ -27,7 +27,7 @@ import { Tooltip } from 'primeng/tooltip';
     Textarea,
     Button,
     Dialog,
-    EditorComponent,
+    Editor,
     InputGroup,
     Tooltip
 ],
