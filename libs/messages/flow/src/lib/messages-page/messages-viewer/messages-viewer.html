@@ -1,0 +1,164 @@
+<div class="container">
+  <p-card class="messages">
+    <div class="messages-header">
+      <div class="p-card-title">Messages</div>
+      <div class="header-actions">
+        @if (messagesHeader(); as ref) {
+          <ng-container *ngTemplateOutlet="ref"></ng-container>
+        }
+      </div>
+    </div>
+    <p-context-menu
+      #cm
+      appendTo="body"
+      [model]="messagesContextMenu()"
+    />
+    <p-table
+      [columns]="cols"
+      [rows]="500"
+      [value]="messages()"
+      [scrollable]="true"
+      scrollHeight="300px"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="41"
+      [selection]="selection()"
+      (selectionChange)="onSelectionChange($event)"
+      [selectionMode]="this.multiselect() ? 'multiple' : 'single'"
+      contextMenuSelectionMode="joint"
+      [metaKeySelection]="this.multiselect()"
+      [contextMenu]="showMessageContextMenu() ? cm : undefined"
+      [lazy]="this.lazy()"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          @for (col of columns; track col) {
+            <th style="width: 20%">
+              {{ col.header }}
+            </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr
+          [pContextMenuRow]="rowData.sequenceNumber"
+          [pSelectableRow]="rowData.sequenceNumber"
+          [pContextMenuRowIndex]="rowIndex"
+          [pSelectableRowIndex]="rowIndex"
+        >
+          @for (col of columns; track col) {
+            <td>
+              {{ rowData[col.field] }}
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+  <p-card header="Body" class="body">
+    @if (selectedMessage()) {
+      <div class="fullscreen-button">
+        <p-button
+          icon="pi pi-window-maximize"
+          (click)="displayBodyFullscreen.set(true)"
+          [rounded]="true"
+          [text]="true"
+        ></p-button>
+      </div>
+      <div class="editor">
+        <ngx-monaco-editor
+          [options]="editorOptions()"
+          [ngModel]="body()"
+        ></ngx-monaco-editor>
+      </div>
+    }
+  </p-card>
+  <p-card header="Properties" class="properties">
+    <div class="table-container">
+      <p-context-menu
+        #propertyMenu
+        [model]="systemPropertiesContextMenu()"
+        appendTo="body"/>
+      <p-table
+        [columns]="propertiesCols"
+        [value]="properties()"
+        [scrollable]="true"
+        scrollHeight="100cqh"
+        [virtualScroll]="false"
+        dataKey="key"
+        [contextMenu]="showSystemPropertiesContextMenu() ? propertyMenu : undefined"
+        [(contextMenuSelection)]="systemPropertiesContextMenuSelection"
+      >
+        <ng-template
+          pTemplate="body"
+          let-rowData
+          let-rowIndex="rowIndex"
+          let-columns="columns"
+        >
+          <tr style="height: 30px" [pContextMenuRow]="rowData">
+            @for (col of columns; track col) {
+              <td class="user-selectable">
+                {{ rowData[col.field] }}
+              </td>
+            }
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+  <p-card header="Application properties" class="application-properties">
+    <div class="table-container">
+      <p-context-menu
+        #customPropertyMenu
+        [model]="applicationPropertiesContextMenu()"
+        appendTo="body"/>
+      <p-table
+        [columns]="propertiesCols"
+        [value]="applicationProperties()"
+        [scrollable]="true"
+        scrollHeight="100cqh"
+        [virtualScroll]="false"
+        dataKey="key"
+        [contextMenu]="showApplicationPropertiesContextMenu() ? customPropertyMenu : undefined"
+        [(contextMenuSelection)]="applicationPropertiesContextMenuSelection"
+      >
+        <ng-template
+          pTemplate="body"
+          let-rowData
+          let-rowIndex="rowIndex"
+          let-columns="columns"
+        >
+          <tr style="height: 30px" [pContextMenuRow]="rowData">
+            @for (col of columns; track col) {
+              <td class="user-selectable">
+                {{ rowData[col.field] }}
+              </td>
+            }
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>
+
+<p-dialog
+  header="Message body"
+  appendTo="body"
+  [(visible)]="displayBodyFullscreen"
+  [modal]="true"
+  [style]="{ width: '100%', height: '100%' }"
+>
+  @if (displayBodyFullscreen()) {
+    <div class="editor">
+      <ngx-monaco-editor
+        [options]="editorOptions()"
+        [ngModel]="body()"
+      ></ngx-monaco-editor>
+    </div>
+  }
+</p-dialog>

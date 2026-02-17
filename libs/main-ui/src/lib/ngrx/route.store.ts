@@ -67,7 +67,12 @@ export const routeReducer = createReducer(
       )
       .map(([p, pageId]) => p > position ? [p - 1, pageId] : [p, pageId])
       .reduce<Record<number, UUID>>((acc, [position, pageId]) => ({ ...acc, [position]: pageId }), {})
-  }))
+  })),
+  on(pagesActions.loadPageOrderFromStorage, (state, { orderOverrides }): RouteState => ({
+      ...state,
+      pages: orderOverrides
+    })
+  )
 );
 
 export const routeFeature = createFeature({

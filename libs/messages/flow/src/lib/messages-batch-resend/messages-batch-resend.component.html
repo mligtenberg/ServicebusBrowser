@@ -101,7 +101,7 @@
           label="Resend"
           icon="pi pi-send"
           severity="success"
-          [disabled]="currentActions.length === 0 || !selectedEndpoint()"
+          [disabled]="!selectedEndpoint() || !messageCount()"
           (click)="resendMessages()"
         ></p-button>
       </div>
@@ -143,73 +143,25 @@
     position="right"
   >
     <div class="preview-layout" [ngClass]="{ darkMode: darkMode() }">
-      <!-- Message sidebar -->
-      <div class="message-sidebar">
-        <h3>Messages</h3>
-        <p>
-          Below are the top 100 messages, select one to see a preview of your
-          changes pipeline
-        </p>
-        <div class="message-list">
-          <p-list-box
-            scrollHeight="400px"
-            [options]="previewBatch()"
-            [(ngModel)]="selectedMessage"
-          >
-            <ng-template pTemplate="item" let-message>
-              <div class="message-item">
-                <div class="message-id">{{ getMessageListLine(message) }}</div>
-              </div>
-            </ng-template>
-          </p-list-box>
-        </div>
-      </div>
-      <!-- Message details -->
-      <div class="message-details">
-        <p-scroll-panel [style]="{ width: '100%', height: '100%' }">
-          @if (previewMessage(); as message) {
-            <div class="message-preview">
-              <h4>Message ID: {{ message.messageId }}</h4>
-              <p-divider></p-divider>
-              <p><strong>Body:</strong></p>
-              <pre>{{ message.body }}</pre>
-              <p-divider></p-divider>
-              <p><strong>System Properties:</strong></p>
-              <div class="properties-list">
-                @for (prop of getSystemProperties(message); track prop) {
-                  <div class="property-item">
-                    <span class="property-name">{{ prop.key }}:</span>
-                    <span class="property-value">{{ prop.value }}</span>
-                  </div>
-                }
-              </div>
-              <p-divider></p-divider>
-              <p><strong>Application Properties:</strong></p>
-              <div class="properties-list">
-                @for (prop of getApplicationProperties(message); track prop) {
-                  <div class="property-item">
-                    <span class="property-name">{{ prop.key }}:</span>
-                    <span class="property-value">{{ prop.value }}</span>
-                  </div>
-                }
-              </div>
-            </div>
-          } @else {
-            <div class="no-message-selected">
-              <p>Select a message from the sidebar to view details</p>
-            </div>
-          }
-        </p-scroll-panel>
-      </div>
+      <!-- the if statement forces the messages to be retrieved from the indexeddb -->
+      @if (previewDrawerVisible()) {
+        <lib-preview-batch
+          [pageId]="pageId()"
+          [messageFilter]="messageFilter()"
+          [batchModificationActions]="actions()"
+          [selection]="selection()"
+          [(selectedMessageSequence)]="selectedMessageSequence"
+        />
+      }
     </div>
     <ng-template pTemplate="footer">
       <div class="footer">
-        <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
+        <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpointForPreview" />
         <p-button
           label="Resend selected message"
           icon="pi pi-send"
           (click)="resendSelectedMessage()"
-          [disabled]="!selectedMessage() || !selectedEndpoint()"
+          [disabled]="!selectedMessageSequence() || !selectedEndpointForPreview()"
           severity="success"
         ></p-button>
       </div>

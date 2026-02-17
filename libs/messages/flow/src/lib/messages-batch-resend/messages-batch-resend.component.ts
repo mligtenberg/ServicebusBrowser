@@ -5,7 +5,6 @@ import {
   signal,
   viewChild,
   model,
-  computed,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,6 +12,7 @@ import {
   AddAction,
   AlterAction,
   BatchActionTarget,
+  MessageFilter,
   RemoveAction,
   ServiceBusMessage,
 } from '@service-bus-browser/messages-contracts';
@@ -20,7 +20,6 @@ import { BatchActionsService } from '../batch-actions/batch-actions.service';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
 import {
-  MessagesSelectors,
   MessagesActions,
 } from '@service-bus-browser/messages-store';
 import { ButtonModule } from 'primeng/button';
@@ -31,10 +30,16 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
-import { Listbox } from 'primeng/listbox';
+import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, map, of, switchMap } from 'rxjs';
+import { PreviewBatch } from './components/preview-batch/preview-batch';
+import { ResendMessagesUtil } from '../resendmessages-util';
+
+const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-messages-batch-resend',
@@ -50,18 +55,43 @@ import { Listbox } from 'primeng/listbox';
     ToastModule,
     TooltipModule,
     EndpointSelectorInputComponent,
-    Listbox,
+    PreviewBatch,
   ],
-  providers: [BatchActionsService, MessageService],
+  providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
   styleUrl: './messages-batch-resend.component.scss',
 })
 export class MessagesBatchResendComponent {
-  darkMode = inject(ColorThemeService).darkMode;
+  private activatedRoute = inject(ActivatedRoute);
+  protected darkMode = inject(ColorThemeService).darkMode;
+  private resendUtil = inject(ResendMessagesUtil);
+
+  selection = toSignal<string[]>(
+    this.activatedRoute.url.pipe(map(() => history.state.selection)),
+  );
+
+  messageFilter = toSignal<MessageFilter>(
+    this.activatedRoute.url.pipe(map(() => history.state.filter)),
+  );
+
+  pageId = toSignal(
+    this.activatedRoute.params.pipe(map((params) => params['pageId'])),
+  );
+
+  messageCount = toSignal(
+    combineLatest([
+      toObservable(this.pageId),
+      toObservable(this.messageFilter),
+      toObservable(this.selection),
+    ]).pipe(
+      switchMap(([pageId, messageFilter, selection]) =>
+        repository.countMessages(pageId, messageFilter, selection),
+      ),
+    ),
+  );
 
   actionEditor = viewChild<ActionComponent>('actionEditor');
 
-  private batchActionsService = inject(BatchActionsService);
   private store = inject(Store);
   private messageService = inject(MessageService);
   private router = inject(Router);
@@ -70,27 +100,25 @@ export class MessagesBatchResendComponent {
   protected actions = signal<Action[]>([]);
   protected previewDrawerVisible = signal(false);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
+  protected selectedEndpointForPreview = model<SendEndpoint | null>(null);
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
   protected currentAction = model<Action | undefined>();
-  protected selectedMessage = model<ServiceBusMessage | undefined>(undefined);
-  protected previewBatch = computed(() =>
-    this.originalMessages().slice(0, 100),
-  );
-  protected previewMessage = computed(() => {
-    const selectedMessage = this.selectedMessage();
-    if (!selectedMessage) {
-      return null;
-    }
+  protected selectedMessageSequence = model<string | undefined>(undefined);
 
-    return this.batchActionsService.applyBatchActionsToMessage(
-      selectedMessage,
-      this.actions(),
-    );
-  });
+  protected previewMessage = toSignal(
+    combineLatest([
+      toObservable(this.selectedMessageSequence),
+      toObservable(this.pageId),
+    ]).pipe(
+      switchMap(([selectedMessageSequence, pageId]) => {
+        if (!selectedMessageSequence || !pageId) {
+          return of(undefined);
+        }
 
-  originalMessages = this.store.selectSignal(
-    MessagesSelectors.selectBatchResendMessages,
+        return repository.getMessage(pageId, selectedMessageSequence);
+      }),
+    ),
   );
 
   storeAction(): void {
@@ -190,25 +218,7 @@ export class MessagesBatchResendComponent {
     ]);
   }
 
-  getMessageListLine(message: ServiceBusMessage) {
-    if (message.subject && message.subject.length > 0) {
-      return message.subject;
-    }
-
-    return message.messageId;
-  }
-
   previewChanges() {
-    if (this.originalMessages().length === 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'No Messages',
-        detail: 'No messages to preview changes',
-      });
-      return;
-    }
-
-    this.selectedMessage.set(undefined);
     this.previewDrawerVisible.set(true);
   }
 
@@ -253,19 +263,12 @@ export class MessagesBatchResendComponent {
         detail: 'Failed to send modified message. Check the logs for details.',
       });
     }
+
+    this.previewDrawerVisible.set(false);
   }
 
-  resendMessages() {
+  async resendMessages() {
     const selectedEndpoint = this.selectedEndpoint();
-    if (this.originalMessages.length === 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'No Messages',
-        detail: 'No messages to resend',
-      });
-      return;
-    }
-
     if (!selectedEndpoint) {
       this.messageService.add({
         severity: 'error',
@@ -275,42 +278,21 @@ export class MessagesBatchResendComponent {
       return;
     }
 
-    try {
-      let messagesToSend: ServiceBusMessage[] = [];
+    const pageId = this.pageId();
+    const selection = this.selection();
+    await this.resendUtil.resendMessages(
+      selectedEndpoint,
+      pageId,
+      this.messageFilter(),
+      selection,
+      this.actions(),
+    );
 
-      // Otherwise, apply actions to all original messages
-      messagesToSend = this.batchActionsService.applyBatchActions(
-        this.originalMessages(),
-        this.actions(),
-      );
+    // Close the preview drawer if it's open
+    this.previewDrawerVisible.set(false);
 
-      if (messagesToSend && messagesToSend.length > 0) {
-        this.store.dispatch(
-          MessagesActions.sendMessages({
-            endpoint: selectedEndpoint,
-            messages: messagesToSend,
-          }),
-        );
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Messages Sent',
-          detail: `${messagesToSend.length} messages have been sent`,
-        });
-
-        // Close the preview drawer if it's open
-        this.previewDrawerVisible.set(false);
-
-        // Navigate back to messages page
-        this.router.navigate(['/']);
-      }
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to send modified messages. Check the logs for details.',
-      });
-    }
+    // Navigate back to messages page
+    this.router.navigate(['/']);
   }
 
   getActionTypeLabel(type: string): string {
@@ -359,32 +341,6 @@ export class MessagesBatchResendComponent {
       default:
         return '';
     }
-  }
-
-  getSystemProperties(
-    message: ServiceBusMessage,
-  ): { key: string; value: any }[] {
-    return Object.entries(message)
-      .filter(([key]) => {
-        return (
-          key !== 'body' &&
-          key !== 'applicationProperties' &&
-          key !== 'deadLetterSource' &&
-          key !== 'deadLetterReason' &&
-          key !== 'deadLetterErrorDescription'
-        );
-      })
-      .map(([key, value]) => ({ key, value }));
-  }
-
-  getApplicationProperties(
-    message: ServiceBusMessage,
-  ): { key: string; value: any }[] {
-    if (!message.applicationProperties) return [];
-
-    return Object.entries(message.applicationProperties).map(
-      ([key, value]) => ({ key, value }),
-    );
   }
 
   moveActionUp(index: number) {

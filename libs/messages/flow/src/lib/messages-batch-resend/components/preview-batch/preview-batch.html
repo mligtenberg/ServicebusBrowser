@@ -1,0 +1,7 @@
+<lib-messages-viewer
+  [pageId]="pageId()"
+  [messages]="messages()"
+  [lazy]="true"
+  (lazyLoadTriggered)="loadMessages($event)"
+  (selectionChange)="selectionChanged($event)"
+/>

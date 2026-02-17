@@ -3,6 +3,15 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
+export const pageCreated = createAction(
+  '[Messages] page created',
+  props<{
+    pageId: UUID,
+    pageName: string,
+    loadedFromDb: boolean
+  }>()
+)
+
 export const peekMessagesLoad = createAction(
   '[Messages] load peek messages',
   props<{
@@ -34,7 +43,7 @@ export const continueClearingEndpoint = createAction(
   }>()
 )
 
-export const sendedMessage = createAction(
+export const sentMessage = createAction(
   '[Messages] message sended',
   props<{
     endpoint: SendEndpoint,
@@ -78,7 +87,10 @@ export const messagesSendFailed = createAction(
 )
 
 export const messagesExported = createAction(
-  '[Messages] messages exported'
+  '[Messages] messages exported',
+  props<{
+    pageId: UUID
+  }>()
 )
 
 export const messagesExportFailed = createAction(
@@ -92,11 +104,29 @@ export const messagesImported = createAction(
   '[Messages] messages imported',
   props<{
     pageId: UUID,
-    pageName: string,
-    messages: ServiceBusReceivedMessage[]
+    pageName: string
   }>()
 )
 
 export const messagesImportFailed = createAction(
   '[Messages] messages import failed'
+)
+
+export const loadPagesFromDb = createAction(
+  '[Messages] load pages from db'
+)
+
+export const updatePageName = createAction(
+  '[Messages] update page name',
+  props<{
+    pageId: UUID,
+    pageName: string
+  }>()
+)
+
+export const batchSendCompleted = createAction(
+  '[Messages] batch messages send completed',
+  props<{
+    transactionId: UUID,
+  }>()
 )

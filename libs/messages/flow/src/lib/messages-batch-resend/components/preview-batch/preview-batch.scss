@@ -1,11 +1,10 @@
 :host {
   display: flex;
   justify-content: stretch;
+  align-items: stretch;
   flex: 1;
 }
 
-::ng-deep {
-  p-date-picker input {
-    min-width: 9rem;
-  }
+lib-messages-viewer {
+  flex: 1;
 }

@@ -121,6 +121,11 @@ export interface ServiceBusMessage {
  */
 export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   /**
+   * The key of the message. used for storing in service bus browser
+   */
+  key: string;
+
+  /**
    * The reason for deadlettering the message.
    * @readonly
    */
@@ -198,7 +203,7 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
    * State of the message can be active, deferred or scheduled. Deferred messages have deferred state,
    * scheduled messages have scheduled state, all other messages have active state.
    */
-  readonly state: "active" | "deferred" | "scheduled";
+  readonly state: 'active' | 'deferred' | 'scheduled';
 }
 
 export type SystemPropertyKey = Exclude<keyof ServiceBusMessage, 'body' | 'applicationProperties'>;
@@ -216,3 +221,15 @@ export const SystemKeyProperties: SystemPropertyKey[] = [
   'scheduledEnqueueTimeUtc',
   'timeToLive',
 ];
+
+export function sequenceNumberToKey(sequenceNumber: string): string {
+  // the max sequenc number of a long is 19 digits long
+  const prefixAmount = 20 - sequenceNumber.length;
+  let key = '';
+  for (let i = 0; i < prefixAmount; i++) {
+    key += '0';
+  }
+  key += sequenceNumber;
+
+  return key;
+}

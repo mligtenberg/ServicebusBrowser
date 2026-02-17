@@ -12,7 +12,7 @@ export class MessagesToastsEffects {
   messageService = inject(MessageService);
 
   showMessageSendSuccess$ = createEffect(() => this.actions$.pipe(
-    ofType(internalActions.sendedMessage),
+    ofType(internalActions.sentMessage),
     tap(({endpoint}) => {
       this.messageService.add({
         severity: 'success',

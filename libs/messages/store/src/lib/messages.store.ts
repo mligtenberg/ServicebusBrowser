@@ -1,31 +1,29 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { MessagePage, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
+import { MessagePage } from '@service-bus-browser/messages-contracts';
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const featureKey = 'messages';
 
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
-  messageForBatchResend: Array<ServiceBusMessage>;
+  messageForBatchResend: Array<string>;
+  runningBatchSendTasks: UUID[];
 }
 
 export const initialState: MessagesState = {
   receivedMessages: [],
-  messageForBatchResend: []
+  messageForBatchResend: [],
+  runningBatchSendTasks: []
 };
 
 export const logsReducer = createReducer(
   initialState,
-  on(internalActions.peekMessagesLoad, (state, { pageId, endpoint }): MessagesState => {
+  on(internalActions.pageCreated, (state, { pageId, pageName, loadedFromDb }): MessagesState => {
     const page = state.receivedMessages.find(page => page.id === pageId);
     if (page) {
       return state;
-    }
-
-    let name = 'queueName' in endpoint ? endpoint.queueName : `${endpoint.topicName}/${endpoint.subscriptionName}`;
-    if (endpoint.channel) {
-      name += ` (${endpoint.channel})`;
     }
 
     return {
@@ -34,27 +32,12 @@ export const logsReducer = createReducer(
         ...state.receivedMessages,
         {
           id: pageId,
-          name: `${name} (loading...)`,
+          name: pageName,
           retrievedAt: new Date(),
-          loaded: false,
-          messages: []
+          loaded: loadedFromDb
         }
       ]
     }
-  }),
-  on(internalActions.peekMessagesPartLoaded, (state, { pageId, messages }): MessagesState => {
-    const page = state.receivedMessages.find(page => page.id === pageId);
-    if (!page) {
-      return state;
-    }
-
-    return {
-      ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, messages: [
-        ...page.messages,
-          ...messages
-        ] } : page)
-    };
   }),
   on(actions.peekMessagesLoadingDone, (state, { pageId }): MessagesState => {
 
@@ -62,7 +45,6 @@ export const logsReducer = createReducer(
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
         ...page,
-        name: page.name.replace(' (loading...)', ` (${page?.messages[0]?.sequenceNumber ?? '0'} - ${page?.messages[page.messages.length - 1]?.sequenceNumber ?? '0'})`),
         loaded: true
       } : page)
     }
@@ -73,25 +55,18 @@ export const logsReducer = createReducer(
       receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
     }
   }),
-  on(internalActions.messagesImported, (state, { pageId, pageName, messages }): MessagesState => {
+  on(internalActions.messagesImported, (state, { pageId, pageName }): MessagesState => {
     return {
       ...state,
       receivedMessages: [
         ...state.receivedMessages,
         {
           id: pageId,
-          name: `Imported: ${pageName}`,
+          name: pageName,
           retrievedAt: new Date(),
-          loaded: true,
-          messages
+          loaded: true
         }
       ]
-    }
-  }),
-  on(actions.setBatchResendMessages, (state, { messages }): MessagesState => {
-    return {
-      ...state,
-      messageForBatchResend: messages
     }
   }),
   on(actions.setPageFilter, (state, { pageId, filter }): MessagesState => {
@@ -107,6 +82,24 @@ export const logsReducer = createReducer(
         ...page,
         selectedMessageSequences: sequenceNumbers
       } : page)
+    }
+  }),
+  on(internalActions.updatePageName, (state, { pageId, pageName }): MessagesState => {
+    return {
+      ...state,
+      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, name: pageName } : page)
+    }
+  }),
+  on(actions.sendPartialBatch, (state, { transactionId }): MessagesState => {
+    return {
+      ...state,
+      runningBatchSendTasks: [...state.runningBatchSendTasks, transactionId]
+    }
+  }),
+  on(internalActions.batchSendCompleted, (state, { transactionId }): MessagesState => {
+    return {
+      ...state,
+      runningBatchSendTasks: state.runningBatchSendTasks.filter(taskId => taskId !== transactionId)
     }
   })
 );

@@ -31,6 +31,9 @@ import { MessagesActions, MessagesSelectors } from '@service-bus-browser/message
 import { ActivatedRoute } from '@angular/router';
 import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
+import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-send-message',
@@ -257,7 +260,7 @@ export class SendMessageComponent {
       takeUntilDestroyed(),
       switchMap((params) => {
         if (params['pageId'] && params['messageId']) {
-          return this.store.select(MessagesSelectors.selectMessage(params['pageId'], params['messageId']));
+          return repository.getMessage(params['pageId'], params['messageId']);
         }
 
         return [undefined];

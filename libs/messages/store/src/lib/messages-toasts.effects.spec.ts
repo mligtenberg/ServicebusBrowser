@@ -31,7 +31,7 @@ describe('MessagesToastsEffects', () => {
   });
   it('shows success toast', () => {
     actions$ = new ReplaySubject(1);
-    actions$.next(internalActions.sendedMessage({ endpoint, message }));
+    actions$.next(internalActions.sentMessage({ endpoint, message }));
     effects.showMessageSendSuccess$.subscribe();
     expect(service.add).toHaveBeenCalled();
   });

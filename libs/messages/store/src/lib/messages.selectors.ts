@@ -1,6 +1,6 @@
 import { createSelector } from '@ngrx/store';
 import { featureSelector } from './messages.feature-selector';
-import { Page } from '@service-bus-browser/shared-contracts';
+import { Page, UUID } from '@service-bus-browser/shared-contracts';
 import { ServiceBusReceivedMessage } from '@azure/service-bus';
 
 export const selectPages = createSelector(
@@ -8,8 +8,7 @@ export const selectPages = createSelector(
   (state) =>
     state.receivedMessages.map((page) => ({
       id: page.id,
-      name: page.name,
-      messages: page.messages,
+      name: page.loaded ? page.name : page.name + ' (loading)',
       type: 'messages',
     })) as Array<Page & { messages: ServiceBusReceivedMessage[] }>,
 );
@@ -19,21 +18,5 @@ export const selectPage = (pageId: string) =>
     state.receivedMessages.find((page) => page.id === pageId),
   );
 
-export const selectPageSelectedMessages = (pageId: string) =>
-  createSelector(selectPage(pageId), (page) =>
-    page?.selectedMessageSequences === undefined
-      ? undefined
-      : page.messages.filter(
-          (message) => message.sequenceNumber ? page.selectedMessageSequences!.includes(message.sequenceNumber) : false,
-        ),
-  );
-
-export const selectMessage = (pageId: string, messageId: string) =>
-  createSelector(selectPage(pageId), (page) =>
-    page?.messages.find((message) => message.messageId === messageId),
-  );
-
-export const selectBatchResendMessages = createSelector(
-  featureSelector,
-  (state) => state.messageForBatchResend,
-);
+export const selectIsTransactionRunning = (transactionId: UUID) => createSelector(featureSelector,
+  (state) => state.runningBatchSendTasks.some(t => t === transactionId));
