@@ -1,4 +1,4 @@
-import { Component, computed, effect, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { Editor } from '../editor/editor';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as monaco from 'monaco-editor';
@@ -32,15 +32,6 @@ export class FormEditor implements ControlValueAccessor {
 
   private onChange: ((_: string) => void) | undefined = undefined;
 
-  constructor() {
-    effect(() => {
-      const value = this.value();
-      if (this.onChange) {
-        this.onChange(value);
-      }
-    });
-  }
-
   writeValue(obj: string | undefined): void {
     this.value.set(obj ?? '');
   }
@@ -53,5 +44,11 @@ export class FormEditor implements ControlValueAccessor {
 
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
+  }
+
+  protected propagateChanges($event: string) {
+    if (this.onChange) {
+      this.onChange($event);
+    }
   }
 }

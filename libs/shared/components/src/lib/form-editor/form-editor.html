@@ -1,4 +1,5 @@
 <sbb-editor
   [editorOptions]="formIncludedEditorOptions()"
   [(value)]="value"
+  (valueChange)="propagateChanges($event)"
 />

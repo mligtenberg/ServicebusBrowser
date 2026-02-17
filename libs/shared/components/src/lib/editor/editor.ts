@@ -10,6 +10,7 @@ import {
 import { FormValueControl } from '@angular/forms/signals';
 
 import * as monaco from 'monaco-editor';
+import { toObservable } from '@angular/core/rxjs-interop';
 const MONACO_CONFIG = new InjectionToken<{
   urlPrefix?: string;
 }>('monaco configuration');
@@ -35,6 +36,9 @@ export class Editor implements OnDestroy, FormValueControl<string> {
   value = model<string>('');
   monacoConfig = inject(MONACO_CONFIG);
 
+  private value$ = toObservable(this.value);
+  private editorOptions$ = toObservable(this.editorOptions);
+
   constructor() {
     this.setupMonacoEnvironment();
 
@@ -52,12 +56,20 @@ export class Editor implements OnDestroy, FormValueControl<string> {
         ...this.editorOptions(),
         value: this.value(),
       });
+
+      this.editor.onDidBlurEditorText((event) => {
+        const newValue = this.editor?.getValue();
+        this.value.set(newValue ?? '');
+      });
     });
 
     effect(() => {
-      const value = this.value();
+      const newValue = this.value();
       if (this.editor) {
-        this.editor.setValue(value);
+        const currentValue = this.editor.getValue();
+        if (newValue !== currentValue) {
+          this.editor.setValue(newValue);
+        }
       }
     });
   }
