@@ -19,7 +19,7 @@ export async function validateJWT(token: string) {
 
     // Step 3: Verify JWT
     const { payload } = await jwtVerify(token, JWKS, {
-      issuer: OIDC_ISSUER,
+      issuer: oidcConfig.issuer,
       audience: EXPECTED_AUDIENCE,
     });
 
