@@ -12,10 +12,6 @@
       height: 100%;
     }
   }
-
-  ::ng-deep .messages .p-virtualscroller {
-    height: 300px;
-  }
 }
 
 .messages-header {
@@ -45,10 +41,6 @@
       'custom-properties';
     grid-template-columns: 1fr;
     grid-template-rows: minmax(400px, auto) repeat(3, minmax(20rem, 1fr));
-  }
-
-  p-table {
-    height: 100%;
   }
 }
 
@@ -114,17 +106,18 @@ p-card {
   height: 100%;
 }
 
+.messages-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .editor {
   width: 100%;
   height: 100%;
   overflow: hidden;
   position: relative;
-}
-
-ngx-monaco-editor {
-  width: 100%;
-  height: 100%;
-  position: absolute;
 }
 
 td {

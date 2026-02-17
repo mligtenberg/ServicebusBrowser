@@ -26,6 +26,7 @@ import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
 import { Editor } from '@service-bus-browser/shared-components';
+import { Tooltip } from 'primeng/tooltip';
 
 const repository = await getMessagesRepository();
 
@@ -41,6 +42,7 @@ const repository = await getMessagesRepository();
     Dialog,
     FormsModule,
     NgTemplateOutlet,
+    Tooltip,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
@@ -77,7 +79,7 @@ export class MessagesViewer {
     combineLatest([
       toObservable(this.pageId),
       toObservable(this.selection),
-      toObservable(this.messages)
+      toObservable(this.messages),
     ]).pipe(
       switchMap(([pageId, selection, messages]) => {
         if (typeof selection === 'object') {

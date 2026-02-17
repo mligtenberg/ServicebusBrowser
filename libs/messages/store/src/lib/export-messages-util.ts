@@ -69,47 +69,17 @@ export class ExportMessagesUtil {
 
     const zip = new ZipWriter(writableStream);
 
+    let messages: {index: number, message: ServiceBusReceivedMessage}[] = [];
+
     await repository.walkMessagesWithCallback(
       pageId,
-      (message, index) => {
-        const messageFolder = `message${index}_${message.messageId}`;
-        zip.add(`${messageFolder}`, undefined, {
-          directory: true,
-        });
+      async (message, index) => {
+        messages.push({index, message});
 
-        let body = '';
-        if (typeof message.body === 'string') {
-          body = message.body;
-        } else if (message.body) {
-          try {
-            body = JSON.stringify(message.body, null, 2);
-          } catch {
-            body = String(message.body);
-          }
-        }
+        if ((index + 1) % 500 === 0) {
+          await Promise.all(messages.map(async ({index, message}) => this.addToZip(zip, index, message)));
 
-        const bodyStream = new Blob([body]).stream();
-        zip.add(`${messageFolder}/body.txt`, bodyStream);
-
-        const properties = {
-          messageId: message.messageId,
-          sequenceNumber: message.sequenceNumber,
-          subject: message.subject,
-          correlationId: message.correlationId,
-          contentType: message.contentType,
-          enqueuedTimeUtc: message.enqueuedTimeUtc,
-          timeToLive: message.timeToLive,
-          to: message.to,
-          enqueuedSequenceNumber: message.enqueuedSequenceNumber,
-          applicationProperties: message.applicationProperties || {},
-        };
-
-        const propertiesStream = new Blob([
-          JSON.stringify(properties, null, 2),
-        ]).stream();
-        zip.add(`${messageFolder}/properties.json`, propertiesStream);
-
-        if (index % 100 === 0) {
+          messages = [];
           this.store.dispatch(
             TasksActions.setProgress({
               id: taskId,
@@ -125,6 +95,14 @@ export class ExportMessagesUtil {
       true,
       selection,
     );
+
+    if (messages.length > 0) {
+      await Promise.all(
+        messages.map(async ({ index, message }) =>
+          this.addToZip(zip, index, message),
+        ),
+      );
+    }
 
     this.store.dispatch(
       TasksActions.setProgress({
@@ -147,6 +125,45 @@ export class ExportMessagesUtil {
     }
 
     this.store.dispatch(TasksActions.completeTask({ id: taskId }));
+  }
+
+  private async addToZip(zip: ZipWriter<unknown>, index: number, message: ServiceBusReceivedMessage) {
+    const messageFolder = `message${index}_${message.messageId}`;
+    await zip.add(`${messageFolder}`, undefined, {
+      directory: true,
+    });
+
+    let body = '';
+    if (typeof message.body === 'string') {
+      body = message.body;
+    } else if (message.body) {
+      try {
+        body = JSON.stringify(message.body, null, 2);
+      } catch {
+        body = String(message.body);
+      }
+    }
+
+    const bodyStream = new Blob([body]).stream();
+    await zip.add(`${messageFolder}/body.txt`, bodyStream);
+
+    const properties = {
+      messageId: message.messageId,
+      sequenceNumber: message.sequenceNumber,
+      subject: message.subject,
+      correlationId: message.correlationId,
+      contentType: message.contentType,
+      enqueuedTimeUtc: message.enqueuedTimeUtc,
+      timeToLive: message.timeToLive,
+      to: message.to,
+      enqueuedSequenceNumber: message.enqueuedSequenceNumber,
+      applicationProperties: message.applicationProperties || {},
+    };
+
+    const propertiesStream = new Blob([
+      JSON.stringify(properties, null, 2),
+    ]).stream();
+    await zip.add(`${messageFolder}/properties.json`, propertiesStream);
   }
 
   public async importMessages() {

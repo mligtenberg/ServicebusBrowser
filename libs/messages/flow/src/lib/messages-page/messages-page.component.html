@@ -18,7 +18,7 @@
       <ng-template #messagesHeader>
         <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
         <div class="status-widget" [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }">
-          <button
+          <div
             type="button"
             class="badge filtered"
             title="Filtered messages"
@@ -28,14 +28,14 @@
           >
             <i class="pi pi-search"></i>
             @if (filteredMessageCount() !== undefined) {
-              <span class="count">{{ filteredMessageCount() }}</span>
+              <span class="count">{{ filteredMessageCount() | number }}</span>
               <span class="subtext">({{ filteredPercentage() | number : '1.1-1' }}%)</span>
             }
             @else {
               <i class="pi pi-spin pi-spinner"></i>
             }
-          </button>
-          <button
+          </div>
+          <div
             type="button"
             class="badge total"
             title="Total messages count"
@@ -45,12 +45,12 @@
           >
             <i class="pi pi-inbox"></i>
             @if (totalMessageCount() !== undefined) {
-              <span class="count">{{ totalMessageCount() }}</span>
+              <span class="count">{{ totalMessageCount() | number }}</span>
             }
             @else {
               <i class="pi pi-spin pi-spinner"></i>
             }
-          </button>
+          </div>
         </div>
         <div class="header-buttons">
           <p-button
