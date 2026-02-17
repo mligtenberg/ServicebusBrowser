@@ -25,7 +25,7 @@
           },
           {
             "glob": "**/*",
-            "input": "node_modules/monaco-editor",
+            "input": "node_modules/monaco-editor/esm",
             "output": "/assets/monaco/"
           },
           {
