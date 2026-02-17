@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { featureKey, RouteState } from './route.store';
 import { MessagesSelectors } from '@service-bus-browser/messages-store';
 
-const featureSelector = createFeatureSelector<RouteState>(featureKey);
+export const featureSelector = createFeatureSelector<RouteState>(featureKey);
 
 export const selectRoute = createSelector(
   featureSelector,

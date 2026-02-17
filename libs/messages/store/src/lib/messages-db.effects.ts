@@ -34,13 +34,15 @@ export class MessagesDbEffects implements OnInitEffects {
       ofType(loadPagesFromDb),
       switchMap(() => from(repository.getPages())),
       mergeMap((pages) =>
-        pages.map((page) =>
-          pageCreated({
-            pageId: page.id,
-            pageName: page.name,
-            loadedFromDb: true,
-          }),
-        ),
+        pages
+          .sort((a, b) => a.retrievedAt > b.retrievedAt ? 1 : -1)
+          .map((page) =>
+            pageCreated({
+              pageId: page.id,
+              pageName: page.name,
+              loadedFromDb: true,
+            }),
+          ),
       ),
     ),
   );

@@ -9,6 +9,9 @@ export const pagesActions = createActionGroup({
       fromPosition: number;
       newPosition: number;
     }>(),
-    closePage: props<{ id: UUID, position: number }>(),
+    loadPageOrderFromStorage: props<{
+      orderOverrides: Record<number, UUID>;
+    }>(),
+    closePage: props<{ id: UUID; position: number }>(),
   },
 });
