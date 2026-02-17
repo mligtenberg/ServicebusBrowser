@@ -2,11 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { catchError, EMPTY, forkJoin, from, map, mergeMap, switchMap } from 'rxjs';
+import { forkJoin, from, map, mergeMap, switchMap } from 'rxjs';
 import {
   loadPagesFromDb,
-  messagesImported,
-  messagesImportFailed,
   pageCreated,
   peekMessagesLoad,
   peekMessagesPartLoaded,
@@ -14,11 +12,9 @@ import {
 } from './messages.internal-actions';
 import {
   closePage,
-  importMessages,
   peekMessages,
   peekMessagesLoadingDone,
 } from './messages.actions';
-import { ExportMessagesUtil } from './export-messages-util';
 
 const repository = await getMessagesRepository();
 
@@ -32,8 +28,6 @@ export class MessagesDbEffects implements OnInitEffects {
 
   store = inject(Store);
   actions$ = inject(Actions);
-  exportMessagesUtil = inject(ExportMessagesUtil);
-
 
   loadPagesFromDb$ = createEffect(() =>
     this.actions$.pipe(
@@ -116,59 +110,6 @@ export class MessagesDbEffects implements OnInitEffects {
     },
   );
 
-  // importMessages$ = createEffect(
-  //   () =>
-  //     this.actions$.pipe(
-  //       ofType(importMessages),
-  //       mergeMap(() =>
-  //         from(
-  //           this.fileService.openFile(
-  //             [{ name: 'messages export zip', extensions: ['.zip'] }],
-  //             'binary',
-  //           ),
-  //         ).pipe(
-  //           switchMap(({ fileName, contents }) => {
-  //             return from(importZipFile(contents)).pipe(
-  //               map((messages) => ({
-  //                 pageName: fileName.replace(/\.zip$/, ''),
-  //                 messages,
-  //               })),
-  //             );
-  //           }),
-  //           mergeMap(({ pageName, messages }) => {
-  //             if (messages.length === 0) {
-  //               return EMPTY;
-  //             }
-  //             const pageId = crypto.randomUUID();
-  //             const task = repository
-  //               .addPage({
-  //                 id: pageId,
-  //                 name: pageName,
-  //                 retrievedAt: new Date(),
-  //               })
-  //               .then(() => repository.addMessages(pageId, messages));
-  //
-  //             return from(task).pipe(
-  //               map(() =>
-  //                 messagesImported({
-  //                   pageId,
-  //                   pageName,
-  //                 }),
-  //               ),
-  //             );
-  //           }),
-  //           catchError(() => [messagesImportFailed()]),
-  //         ),
-  //       ),
-  //     ),
-  //   { dispatch: true },
-  // );
-
-  importMessages$ = createEffect(() => this.actions$.pipe(
-    ofType(importMessages),
-    mergeMap(() => this.exportMessagesUtil.importMessages()),
-  ), { dispatch: false });
-
   peekMessagesLoadingDone$ = createEffect(() =>
     this.actions$.pipe(
       ofType(peekMessagesLoadingDone),
@@ -182,14 +123,22 @@ export class MessagesDbEffects implements OnInitEffects {
       map(([page, firstPage, secondPage]) =>
         updatePageName({
           pageId: page.id,
-          pageName: !firstPage.length ? `${page.name} (empty)` : `${page.name} (${firstPage[0].sequenceNumber} - ${secondPage[0].sequenceNumber})`,
+          pageName: !firstPage.length
+            ? `${page.name} (empty)`
+            : `${page.name} (${firstPage[0].sequenceNumber} - ${secondPage[0].sequenceNumber})`,
         }),
       ),
     ),
   );
 
-  updatePageName$ = createEffect(() => this.actions$.pipe(
-    ofType(updatePageName),
-    switchMap(({ pageId, pageName }) => from(repository.updatePageName(pageId, pageName))),
-  ), { dispatch: false });
+  updatePageName$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(updatePageName),
+        switchMap(({ pageId, pageName }) =>
+          from(repository.updatePageName(pageId, pageName)),
+        ),
+      ),
+    { dispatch: false },
+  );
 }

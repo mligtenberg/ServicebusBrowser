@@ -27,10 +27,13 @@
             tooltipPosition="bottom"
           >
             <i class="pi pi-search"></i>
-            <span class="count">{{ filteredMessageCount() }}</span>
-            <span class="subtext"
-            >({{ filteredPercentage() | number : '1.1-1' }}%)</span
-            >
+            @if (filteredMessageCount() !== undefined) {
+              <span class="count">{{ filteredMessageCount() }}</span>
+              <span class="subtext">({{ filteredPercentage() | number : '1.1-1' }}%)</span>
+            }
+            @else {
+              <i class="pi pi-spin pi-spinner"></i>
+            }
           </button>
           <button
             type="button"
@@ -41,7 +44,12 @@
             tooltipPosition="bottom"
           >
             <i class="pi pi-inbox"></i>
-            <span class="count">{{ totalMessageCount() }}</span>
+            @if (totalMessageCount() !== undefined) {
+              <span class="count">{{ totalMessageCount() }}</span>
+            }
+            @else {
+              <i class="pi pi-spin pi-spinner"></i>
+            }
           </button>
         </div>
         <div class="header-buttons">

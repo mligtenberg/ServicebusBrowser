@@ -14,7 +14,15 @@ import {
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, from, of, switchMap } from 'rxjs';
+import {
+  combineLatest,
+  distinctUntilChanged,
+  from,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from 'rxjs';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   MessageFilter,
@@ -96,7 +104,7 @@ export class MessagesPageComponent {
   });
   virtualMessages = linkedSignal(() =>
     Array.from<ServiceBusReceivedMessage>({
-      length: this.filteredMessageCount(),
+      length: this.filteredMessageCount() ?? 0,
     }),
   );
 
@@ -104,34 +112,48 @@ export class MessagesPageComponent {
 
   totalMessageCount = toSignal(
     toObservable(this.currentPage).pipe(
-      switchMap((page) => {
-        if (!page) {
-          return of(0);
+      map((page) => page?.id),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        if (!pageId) {
+          return of(undefined);
         }
-        return from(repository.countMessages(page.id));
+        return from(repository.countMessages(pageId))
+          .pipe(startWith(undefined));
       }),
     ),
   );
   filteredMessageCount = toSignal(
     combineLatest([
-      toObservable(this.currentPage),
+      toObservable(this.currentPage).pipe(map((page) => page?.id)),
       toObservable(this.messageFilter),
     ]).pipe(
-      switchMap(([page, filter]) => {
-        if (!page) {
-          return of(0);
+      distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+      switchMap(([pageId, filter]) => {
+        if (!pageId) {
+          return of(undefined);
         }
-        return from(repository.countMessages(page.id, filter));
+        return from(repository.countMessages(pageId, filter))
+          .pipe(startWith(undefined));
       }),
     ),
     {
-      initialValue: 0,
+      initialValue: undefined,
     },
   );
 
   filteredPercentage = computed(() => {
     const total = this.totalMessageCount();
-    return total ? (this.filteredMessageCount() / total) * 100 : 0;
+    const filtered = this.filteredMessageCount();
+
+    if (total === undefined || filtered === undefined) {
+      return undefined;
+    }
+    if (total === 0 || filtered === 0) {
+      return 0;
+    }
+
+    return total ? (filtered / total) * 100 : 0;
   });
   hasActiveFilters = computed(() => {
     return hasActiveFilterFunc(this.messageFilter());

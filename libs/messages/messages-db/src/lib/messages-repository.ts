@@ -72,23 +72,17 @@ export class MessagesRepository {
       return count;
     }
 
-    return await new Promise<number>((resolve) => {
-      objectStore.openCursor().onsuccess = (event) => {
-        const cursor = (event.target as any).result as IDBCursorWithValue;
-        if (!cursor) {
-          resolve(count);
-          return;
-        }
+    await this.walkMessagesWithCallback(
+      pageId,
+      () => { count++; },
+      filter,
+      undefined,
+      undefined,
+      undefined,
+      selection,
+    )
 
-        const message = cursor.value as ServiceBusReceivedMessage;
-
-        if (filter && messageInFilter(message, filter)) {
-          count++;
-        }
-
-        cursor.continue();
-      };
-    });
+    return count;
   }
 
   async getMessage(pageId: UUID, sequenceNumber: string) {

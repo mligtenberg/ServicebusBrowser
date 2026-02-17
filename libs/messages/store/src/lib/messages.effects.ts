@@ -7,7 +7,10 @@ import { Store } from '@ngrx/store';
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 import Long from 'long';
-import { clearedEndpoint } from './messages.actions';
+import {
+  clearedEndpoint,
+  importMessages,
+} from './messages.actions';
 import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 import { batchSendCompleted } from './messages.internal-actions';
 import { ExportMessagesUtil } from './export-messages-util';
@@ -230,23 +233,30 @@ export class MessagesEffects {
       this.actions$.pipe(
         ofType(actions.exportMessages),
         mergeMap(({ pageId, filter, selection }) =>
-          from(this.exportMessagesUtil.exportMessages(
-            pageId,
-            filter,
-            selection
-          )).pipe(
-            map(() => internalActions.messagesExported({
-              pageId,
-            })),
+          from(
+            this.exportMessagesUtil.exportMessages(pageId, filter, selection),
+          ).pipe(
+            map(() =>
+              internalActions.messagesExported({
+                pageId,
+              }),
+            ),
             catchError((e) => {
               console.error(e);
-              return [
-                internalActions.messagesExportFailed({ error: e }),
-              ]
+              return [internalActions.messagesExportFailed({ error: e })];
             }),
           ),
         ),
       ),
     { dispatch: true },
+  );
+
+  importMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(importMessages),
+        mergeMap(() => this.exportMessagesUtil.importMessages()),
+      ),
+    { dispatch: false },
   );
 }
