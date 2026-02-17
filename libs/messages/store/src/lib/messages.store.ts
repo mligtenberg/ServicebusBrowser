@@ -18,7 +18,7 @@ export const initialState: MessagesState = {
   runningBatchSendTasks: []
 };
 
-export const logsReducer = createReducer(
+export const messagesReducer = createReducer(
   initialState,
   on(internalActions.pageCreated, (state, { pageId, pageName, loadedFromDb }): MessagesState => {
     const page = state.receivedMessages.find(page => page.id === pageId);
@@ -34,7 +34,9 @@ export const logsReducer = createReducer(
           id: pageId,
           name: pageName,
           retrievedAt: new Date(),
-          loaded: loadedFromDb
+          loaded: loadedFromDb,
+          type: 'messages',
+          blocked: !loadedFromDb
         }
       ]
     }
@@ -45,7 +47,8 @@ export const logsReducer = createReducer(
       ...state,
       receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
         ...page,
-        loaded: true
+        loaded: true,
+        blocked: false
       } : page)
     }
   }),
@@ -64,7 +67,9 @@ export const logsReducer = createReducer(
           id: pageId,
           name: pageName,
           retrievedAt: new Date(),
-          loaded: true
+          loaded: true,
+          type: 'messages',
+          blocked: false
         }
       ]
     }
@@ -106,5 +111,5 @@ export const logsReducer = createReducer(
 
 export const feature = createFeature({
   name: featureKey,
-  reducer: logsReducer
+  reducer: messagesReducer
 });

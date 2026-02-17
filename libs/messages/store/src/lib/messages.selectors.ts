@@ -1,16 +1,10 @@
 import { createSelector } from '@ngrx/store';
 import { featureSelector } from './messages.feature-selector';
-import { Page, UUID } from '@service-bus-browser/shared-contracts';
-import { ServiceBusReceivedMessage } from '@azure/service-bus';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const selectPages = createSelector(
   featureSelector,
-  (state) =>
-    state.receivedMessages.map((page) => ({
-      id: page.id,
-      name: page.loaded ? page.name : page.name + ' (loading)',
-      type: 'messages',
-    })) as Array<Page & { messages: ServiceBusReceivedMessage[] }>,
+  (state) => state.receivedMessages,
 );
 
 export const selectPage = (pageId: string) =>

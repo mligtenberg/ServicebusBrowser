@@ -38,6 +38,8 @@ export const selectPages = createSelector(
       ];
     }
 
+    console.log(pages);
+
     return pages;
   }
 );

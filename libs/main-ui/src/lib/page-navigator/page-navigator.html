@@ -10,15 +10,24 @@
       class="page"
       cdkDrag
       [cdkDragData]="page.id"
-      [ngClass]="{'active': page === currentPage()}"
+      [ngClass]="{'active': page === currentPage(), disabled: page.blocked }"
     >
-      <span
-        [routerLink]="page.route"
-        tabindex="1"
-        [attr.aria-label]="page.name">{{ page.name }}</span>
-      <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
-        <span class="pi pi-times"></span>
-      </button>
+      @if (page.blocked) {
+        <span
+          [attr.aria-label]="page.name">{{ page.name }}</span>
+        <button tabindex="1" disabled class="close-button">
+          <span class="pi pi-times"></span>
+        </button>
+      }
+      @else {
+        <span
+          [routerLink]="page.route"
+          tabindex="1"
+          [attr.aria-label]="page.name">{{ page.name }}</span>
+        <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
+          <span class="pi pi-times"></span>
+        </button>
+      }
     </div>
   }
 </div>

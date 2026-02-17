@@ -89,6 +89,11 @@
     }
   }
 
+  &.disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+
   .close-button {
     color: hsl(0, 60%, 60%);
     background: none;

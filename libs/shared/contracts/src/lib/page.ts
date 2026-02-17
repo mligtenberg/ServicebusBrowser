@@ -4,4 +4,5 @@ export type Page = {
   id: UUID;
   name: string;
   type: string;
+  blocked?: boolean;
 }
