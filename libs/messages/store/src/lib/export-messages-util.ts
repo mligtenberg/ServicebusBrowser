@@ -109,19 +109,29 @@ export class ExportMessagesUtil {
         ]).stream();
         zip.add(`${messageFolder}/properties.json`, propertiesStream);
 
-        this.store.dispatch(
-          TasksActions.setProgress({
-            id: taskId,
-            statusDescription: `${index + 1}/${count}`,
-            progress: ((index + 1) / count) * 100,
-          }),
-        );
+        if (index % 100 === 0) {
+          this.store.dispatch(
+            TasksActions.setProgress({
+              id: taskId,
+              statusDescription: `${index + 1}/${count}`,
+              progress: ((index + 1) / count) * 100,
+            }),
+          );
+        }
       },
       filter,
       undefined,
       undefined,
       true,
       selection,
+    );
+
+    this.store.dispatch(
+      TasksActions.setProgress({
+        id: taskId,
+        statusDescription: 'Finalizing export',
+        progress: 100,
+      }),
     );
 
     await zip.close();
@@ -174,14 +184,6 @@ export class ExportMessagesUtil {
         readStream = new Blob([contents]).stream();
       }
 
-      this.store.dispatch(
-        TasksActions.createTask({
-          id: taskId,
-          description: `importing: ${fileName}`,
-          hasProgress: false
-        }),
-      );
-
       const pageName = "imported: " + fileName.replace(/\.zip$/i, '');
       const pageId = crypto.randomUUID();
 
@@ -194,8 +196,20 @@ export class ExportMessagesUtil {
       const zip = new ZipReader(readStream);
       const entries = await zip.getEntries();
       const dirs = entries.filter((entry) => entry.directory);
+      const totalItemCount = dirs.length;
 
+      let processedItemCount = 0;
       let messages: ServiceBusReceivedMessage[] = [];
+
+      this.store.dispatch(
+        TasksActions.createTask({
+          id: taskId,
+          description: `importing: ${fileName}`,
+          hasProgress: true,
+          initialProgress: 0,
+          statusDescription: `0/${totalItemCount}`,
+        }),
+      );
       for (const dir of dirs) {
         const bodyEntry = entries.find((entry) => entry.filename === `${dir.filename}body.txt`);
         const propertiesEntry = entries.find((entry) => entry.filename === `${dir.filename}properties.json`);
@@ -240,6 +254,14 @@ export class ExportMessagesUtil {
 
         if (messages.length >= 1000) {
           await repository.addMessages(pageId, messages);
+
+          processedItemCount += messages.length;
+          this.store.dispatch(TasksActions.setProgress({
+            id: taskId,
+            statusDescription: `${processedItemCount}/${totalItemCount}`,
+            progress: ((processedItemCount / totalItemCount) * 100),
+          }))
+
           messages = [];
         }
       }
