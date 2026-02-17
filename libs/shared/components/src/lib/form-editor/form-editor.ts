@@ -47,7 +47,10 @@ export class FormEditor implements ControlValueAccessor {
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
-  registerOnTouched(fn: any): void {}
+  registerOnTouched(fn: any): void {
+    // NOOP
+  }
+
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
   }
