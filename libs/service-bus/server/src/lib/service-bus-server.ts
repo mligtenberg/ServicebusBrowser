@@ -5,7 +5,6 @@ import subscriptionsActions from './subscriptions-actions';
 import rulesActions from './subscription-rule-actions';
 import receiveMessagesActions from './receive-messages-actions';
 import sendMessagesActions from './send-messages-actions';
-import storeFileActions from './store-file-action';
 import { ServiceBusServerFunc } from './types';
 
 export const management = new Map<string, ServiceBusServerFunc>([
@@ -19,6 +18,5 @@ export const management = new Map<string, ServiceBusServerFunc>([
 export const messages = new Map<string, ServiceBusServerFunc>([
   ...receiveMessagesActions.entries(),
   ...sendMessagesActions.entries(),
-  ...storeFileActions.entries(),
 ]);
 
