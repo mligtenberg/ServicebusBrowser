@@ -1,21 +1,23 @@
 import {
-  ApplicationRef,
+  ChangeDetectorRef,
   Component,
   computed,
   contentChild,
+  effect,
   inject,
   input,
   model,
   output,
   signal,
   TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { ContextMenu } from 'primeng/contextmenu';
 import { NgTemplateOutlet } from '@angular/common';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import { Dialog } from 'primeng/dialog';
 import { ColorThemeService } from '@service-bus-browser/services';
@@ -26,7 +28,7 @@ import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
 import { Editor } from '@service-bus-browser/shared-components';
-import { Tooltip } from 'primeng/tooltip';
+import { Paginator, PaginatorState } from 'primeng/paginator';
 
 const repository = await getMessagesRepository();
 
@@ -42,17 +44,19 @@ const repository = await getMessagesRepository();
     Dialog,
     FormsModule,
     NgTemplateOutlet,
-    Tooltip,
+    Paginator,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
 })
 export class MessagesViewer {
-  appRef = inject(ApplicationRef);
+  private cdRef = inject(ChangeDetectorRef);
   colorThemeService = inject(ColorThemeService);
 
   // template references
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
+  messagesTable = viewChild.required('messagesTable', { read: Table });
+  messagesPaginator = viewChild('messagesPaginator', { read: Paginator });
 
   // inputs
   lazy = input<boolean>(false);
@@ -64,6 +68,7 @@ export class MessagesViewer {
   systemPropertiesContextMenu = input<MenuItem[]>([]);
 
   messages = input.required<ServiceBusReceivedMessage[]>();
+  maxMessagesPerPage = input<number>(100000);
 
   selection = model<string | string[]>();
   systemPropertiesContextMenuSelection = model<
@@ -101,6 +106,22 @@ export class MessagesViewer {
       }),
     ),
   );
+
+  currentPageNumber = signal(1);
+
+  usePagination = computed(
+    () => this.messages().length > this.maxMessagesPerPage(),
+  );
+  currentPageMessages = computed(() => {
+    const currentPageIndex = this.currentPageNumber() - 1;
+    const maxMessagesPerPage = this.maxMessagesPerPage();
+
+    const startIndex = currentPageIndex * maxMessagesPerPage;
+    const endIndex = startIndex + maxMessagesPerPage;
+
+    const messages = this.messages().slice(startIndex, endIndex);
+    return messages;
+  });
 
   showMessageContextMenu = computed(
     () => this.messagesContextMenu().length > 0,
@@ -208,6 +229,19 @@ export class MessagesViewer {
     { field: 'value', header: 'Value' },
   ];
 
+  constructor() {
+    effect(() => {
+      this.currentPageNumber();
+      this.messagesTable().reset();
+    });
+  }
+
+  reset() {
+    this.messagesTable().reset();
+    this.currentPageNumber.set(1);
+    this.messagesPaginator()?.changePage(0);
+  }
+
   protected onSelectionChange(
     $event: (string | ServiceBusReceivedMessage)[] | string,
   ) {
@@ -227,10 +261,21 @@ export class MessagesViewer {
       .filter((e, i, arr) => arr.indexOf(e) === i);
 
     this.selection.set(selection);
-    this.appRef.tick();
+    setTimeout(() => this.cdRef.detectChanges());
   }
 
   protected onLazyLoad($event: TableLazyLoadEvent) {
+    const previousPagesMessagesCount =
+      (this.currentPageNumber() - 1) * this.maxMessagesPerPage();
+    $event = {
+      ...$event,
+      first: previousPagesMessagesCount + ($event.first ?? 0),
+      last: previousPagesMessagesCount + ($event.last ?? 0),
+    };
     this.lazyLoadTriggered?.emit($event);
+  }
+
+  protected setPage($event: PaginatorState) {
+    this.currentPageNumber.set(($event.page ?? 0) + 1);
   }
 }

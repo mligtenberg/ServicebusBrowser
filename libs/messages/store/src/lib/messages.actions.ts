@@ -1,7 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
-import { MessageFilter, ServiceBusMessage, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import { MessageFilter, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 
 export const peekMessages = createAction(
   '[Messages] peek messages',

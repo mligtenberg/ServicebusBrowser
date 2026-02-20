@@ -5,6 +5,5 @@ export type MessagePage = {
   retrievedAt: Date;
   loaded: boolean;
   filter?: MessageFilter;
-  selectedMessageSequences?: string[];
   type: 'messages';
 } & Page;

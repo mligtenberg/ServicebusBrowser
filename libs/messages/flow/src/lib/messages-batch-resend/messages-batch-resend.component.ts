@@ -14,9 +14,7 @@ import {
   BatchActionTarget,
   MessageFilter,
   RemoveAction,
-  ServiceBusMessage,
 } from '@service-bus-browser/messages-contracts';
-import { BatchActionsService } from '../batch-actions/batch-actions.service';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
 import {

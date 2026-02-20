@@ -4,9 +4,6 @@
       <div class="messages-header">
         <div class="p-card-title">Messages</div>
         <div class="header-actions">
-          @if (messages().length > 500000) {
-            <i class="pi pi-exclamation-triangle" pTooltip="Large message volumes may not display correctly. Use filters to reduce the result set." tooltipPosition="bottom"></i>
-          }
           @if (messagesHeader(); as ref) {
             <ng-container *ngTemplateOutlet="ref"></ng-container>
           }
@@ -18,9 +15,10 @@
         [model]="messagesContextMenu()"
       />
       <p-table
+        #messagesTable
         [columns]="cols"
         [rows]="500"
-        [value]="messages()"
+        [value]="currentPageMessages()"
         [scrollable]="true"
         scrollHeight="flex"
         [virtualScroll]="true"
@@ -63,6 +61,14 @@
           </tr>
         </ng-template>
       </p-table>
+      @if (usePagination()) {
+        <p-paginator
+          [rows]="maxMessagesPerPage()"
+          [totalRecords]="messages().length"
+          (onPageChange)="setPage($event)"
+          #messagesPaginator
+        />
+      }
     </div>
   </p-card>
   <p-card header="Body" class="body">

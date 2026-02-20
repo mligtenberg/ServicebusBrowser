@@ -6,6 +6,7 @@ import {
   linkedSignal,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -22,6 +23,7 @@ import {
   of,
   startWith,
   switchMap,
+  take,
 } from 'rxjs';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -84,7 +86,8 @@ export class MessagesPageComponent {
   actions = inject(Actions);
   appRef = inject(ApplicationRef);
 
-  // TODO: improve this
+  messagesViewer = viewChild.required('messagesViewer', { read: MessagesViewer })
+
   resendAllMessages = model<boolean>(false);
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
@@ -296,9 +299,10 @@ export class MessagesPageComponent {
   constructor() {
     this.activatedRoute.params
       .pipe(
-        switchMap((params) => {
-          const pageId: string = params['pageId'];
-          return this.store.select(MessagesSelectors.selectPage(pageId));
+        map((params) => params['pageId']),
+        distinctUntilChanged(),
+        switchMap((pageId) => {
+          return this.store.select(MessagesSelectors.selectPage(pageId))
         }),
         takeUntilDestroyed(),
       )
@@ -309,7 +313,22 @@ export class MessagesPageComponent {
         }
 
         this.currentPage.set(page);
-        this.selection.set(page.selectedMessageSequences ?? []);
+      });
+
+    this.activatedRoute.params
+      .pipe(
+        map((params) => params['pageId']),
+        distinctUntilChanged(),
+        switchMap((pageId) => {
+          // we only need to load the selection if the page first loads.
+          // otherwise, this state is maintained in the component itself
+          return this.store.select(MessagesSelectors.selectPageSelection(pageId))
+            .pipe(take(1))
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((selection) => {
+        this.selection.set(selection);
       });
   }
 
@@ -460,6 +479,7 @@ export class MessagesPageComponent {
     );
 
     this.selection.set([]);
+    this.messagesViewer().reset();
   }
 
   protected filterOnSystemProperty(
@@ -518,9 +538,6 @@ export class MessagesPageComponent {
     const rows = $event.rows ?? 0;
 
     await this.loadRows(first, rows, this.currentPage()!.id);
-
-    //trigger change detection
-    $event.forceUpdate?.();
   }
 
   private async loadRows(first: number, rows: number, pageId: UUID) {
@@ -532,9 +549,13 @@ export class MessagesPageComponent {
     );
 
     this.virtualMessages.update((vm) => {
-      Array.prototype.splice.apply(vm, [first, rows, ...messages]);
+      const newMessages = [
+        ...vm.slice(0, first),
+        ...messages.slice(0, rows),
+        ...vm.slice(first + rows, vm.length)
+      ];
 
-      return vm;
+      return newMessages;
     });
   }
 

@@ -9,13 +9,15 @@ export const featureKey = 'messages';
 export type MessagesState = {
   receivedMessages: Array<MessagePage>;
   messageForBatchResend: Array<string>;
+  selectionPerPage: Record<UUID, string[]>;
   runningBatchSendTasks: UUID[];
 }
 
 export const initialState: MessagesState = {
   receivedMessages: [],
   messageForBatchResend: [],
-  runningBatchSendTasks: []
+  runningBatchSendTasks: [],
+  selectionPerPage: {}
 };
 
 export const messagesReducer = createReducer(
@@ -83,10 +85,10 @@ export const messagesReducer = createReducer(
   on(actions.setPageSelection, (state, { pageId, sequenceNumbers }): MessagesState => {
     return {
       ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
-        ...page,
-        selectedMessageSequences: sequenceNumbers
-      } : page)
+      selectionPerPage: {
+        ...state.selectionPerPage,
+        [pageId]: sequenceNumbers
+      }
     }
   }),
   on(internalActions.updatePageName, (state, { pageId, pageName }): MessagesState => {
