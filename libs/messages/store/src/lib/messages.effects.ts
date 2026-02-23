@@ -14,6 +14,9 @@ import {
 import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 import { batchSendCompleted } from './messages.internal-actions';
 import { ExportMessagesUtil } from './export-messages-util';
+import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+const repository = await getMessagesRepository();
 
 @Injectable({
   providedIn: 'root',
@@ -65,6 +68,11 @@ export class MessagesEffects {
   loadMoreMessages$ = createEffect(() =>
     this.actions$.pipe(
       ofType(internalActions.peekMessagesPartLoaded),
+      mergeMap(action => {
+        return from(repository.addMessages(action.pageId, action.messages)).pipe(
+          map(() => action),
+        )
+      }),
       map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
         if (maxAmount <= 0 || messages.length === 0) {
           return actions.peekMessagesLoadingDone({ pageId, endpoint });

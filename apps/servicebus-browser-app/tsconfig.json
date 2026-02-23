@@ -4,5 +4,5 @@
     "types": ["node"],
     "importHelpers": true
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../../types/**/*.d.ts"]
 }

@@ -86,19 +86,6 @@ export class MessagesDbEffects implements OnInitEffects {
     ),
   );
 
-  addMessages$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(peekMessagesPartLoaded),
-        switchMap(({ pageId, messages }) => {
-          return from(repository.addMessages(pageId, messages));
-        }),
-      ),
-    {
-      dispatch: false,
-    },
-  );
-
   closePage$ = createEffect(
     () =>
       this.actions$.pipe(

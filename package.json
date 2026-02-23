@@ -32,6 +32,7 @@
     "@ngrx/store": "21.0.1",
     "@ngrx/store-devtools": "21.0.1",
     "@primeuix/themes": "^2.0.3",
+    "@sqlite.org/sqlite-wasm": "3.51.2-build6",
     "@types/file-saver": "^2.0.7",
     "@types/luxon": "^3.7.1",
     "@zip.js/zip.js": "^2.8.20",

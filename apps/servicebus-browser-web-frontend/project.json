@@ -73,7 +73,14 @@
       },
       "defaultConfiguration": "development",
       "options": {
-        "proxyConfig": "apps/servicebus-browser-web-frontend/proxy.conf.json"
+        "proxyConfig": "apps/servicebus-browser-web-frontend/proxy.conf.json",
+        "prebundle": {
+          "exclude": ["@sqlite.org/sqlite-wasm"]
+        },
+        "headers": {
+          "Cross-Origin-Opener-Policy": "same-origin",
+          "Cross-Origin-Embedder-Policy": "require-corp"
+        }
       }
     },
     "extract-i18n": {

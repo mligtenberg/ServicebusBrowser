@@ -1,5 +1,5 @@
 import { MessagesRepository } from './lib/messages-repository';
-import { getPagesDb } from './lib/database';
+import { getPagesDb } from './lib/get-database';
 
 const repository = getPagesDb()
 .then(db => new MessagesRepository(db));

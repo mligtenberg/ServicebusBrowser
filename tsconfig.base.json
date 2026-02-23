@@ -85,7 +85,7 @@
       "@service-bus-browser/actions": ["libs/shared/actions/src/index.ts"],
       "@service-bus-browser/messages-db": [
         "libs/messages/messages-db/src/index.ts"
-      ]
+      ],
     }
   },
   "exclude": ["node_modules", "tmp"]

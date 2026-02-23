@@ -1,6 +1,6 @@
 import SquirrelEvents from './app/events/squirrel.events';
 import ElectronEvents from './app/events/electron.events';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 import App from './app/app';
 import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import ServiceBusEvents from './app/events/service-bus.events';
@@ -40,8 +40,18 @@ if (App.isDevelopmentMode()) {
   App.application.whenReady().then(() => {
     installExtension(REDUX_DEVTOOLS)
       .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-
-    App.mainWindow.webContents.openDevTools();
+      .then(() =>
+        session.defaultSession
+          .loadExtension(
+            '/Users/martin/Library/Application Support/Google/Chrome/Default/Extensions/acndjpgkpaclldomagafnognkcgjignd/1.9.0_0/',
+          )
+          .then(({ id }) => {
+            // ...
+          }),
+      )
+        .then(() => {
+          App.mainWindow.webContents.openDevTools();
+        })
+        .catch((err) => console.log('An error occurred: ', err));
   });
 }

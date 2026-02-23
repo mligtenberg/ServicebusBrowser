@@ -65,6 +65,11 @@ export default class App {
     const width = Math.min(1280, workAreaSize.width || 1280);
     const height = Math.min(720, workAreaSize.height || 720);
 
+    const additionalWebPreferences: Electron.WebPreferences = App.application
+      .isPackaged
+      ? { contextIsolation: true, sandbox: true, nodeIntegration: false }
+      : { contextIsolation: true };
+
     // Create the browser window.
     App.mainWindow = new BrowserWindow({
       width: width,
@@ -74,6 +79,7 @@ export default class App {
       frame: true,
       autoHideMenuBar: true,
       webPreferences: {
+        ...additionalWebPreferences,
         contextIsolation: true,
         backgroundThrottling: false,
         preload: join(__dirname, 'main.preload.js'),

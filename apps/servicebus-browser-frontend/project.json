@@ -33,6 +33,11 @@
             "glob": "**/*",
             "input": "assets",
             "output": "/assets"
+          },
+          {
+            "glob": "**/*",
+            "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
+            "output": ""
           }
         ],
         "styles": [
@@ -76,7 +81,14 @@
       },
       "defaultConfiguration": "development",
       "options": {
-        "proxyConfig": "apps/servicebus-browser-frontend/proxy.conf.json"
+        "proxyConfig": "apps/servicebus-browser-frontend/proxy.conf.json",
+        "prebundle": {
+          "exclude": ["@sqlite.org/sqlite-wasm"]
+        },
+        "headers": {
+          "Cross-Origin-Opener-Policy": "same-origin",
+          "Cross-Origin-Embedder-Policy": "require-corp"
+        }
       },
       "continuous": true
     },

@@ -1,20 +1,21 @@
 import {
-  MessageFilter, sequenceNumberToKey,
+  MessageFilter,
   ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
 import { Page } from './models/page';
-import { deleteMessagesDb, getMessagesDb } from './database';
+import { getMessagesDb } from './get-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { messageInFilter } from '@service-bus-browser/filtering';
+import { MessagesDatabase } from './messages-database';
 
 export class MessagesRepository {
   database: IDBDatabase;
+  messagesDbs: Record<UUID, MessagesDatabase> = {};
 
   constructor(database: IDBDatabase) {
     this.database = database;
   }
 
-  async addPage(page: Page) {
+  async addPage(page: Omit<Page, 'messageStorage'>) {
     await new Promise((resolve, reject) => {
       const pagesStore = this.database
         .transaction('pages', 'readwrite')
@@ -23,6 +24,7 @@ export class MessagesRepository {
         name: page.name,
         retrievedAt: page.retrievedAt,
         id: page.id,
+        messageStorage: 'sqlite'
       } as Page);
 
       request.onsuccess = resolve;
@@ -31,14 +33,9 @@ export class MessagesRepository {
   }
 
   async addMessages(pageId: UUID, messages: ServiceBusReceivedMessage[]) {
-    const messagesDb = await getMessagesDb(pageId);
-    const messagesStore = messagesDb
-      .transaction('messages', 'readwrite')
-      .objectStore('messages');
-
-    for (const message of messages) {
-      messagesStore.put(message);
-    }
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.addMessages(messages);
   }
 
   async countMessages(
@@ -46,58 +43,15 @@ export class MessagesRepository {
     filter?: MessageFilter,
     selection?: string[],
   ) {
-    const messagesDb = await getMessagesDb(pageId);
-    const objectStore = messagesDb
-      .transaction('messages', 'readonly')
-      .objectStore('messages');
-    if ((!filter || this.isFilterEmpty(filter)) && !selection) {
-      return await new Promise<number>((resolve) => {
-        const countRequest = objectStore.count();
-        countRequest.onsuccess = (event) =>
-          resolve((event.target as any).result);
-      });
-    }
-
-    let count = 0;
-    if (selection) {
-      for (const key of selection) {
-        const message = await this.getMessage(pageId, key);
-        if (filter && !messageInFilter(message, filter)) {
-          continue;
-        }
-
-        count++;
-      }
-
-      return count;
-    }
-
-    await this.walkMessagesWithCallback(
-      pageId,
-      () => { count++; },
-      filter,
-      undefined,
-      undefined,
-      undefined,
-      selection,
-    )
-
-    return count;
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.countMessages(filter, selection);
   }
 
   async getMessage(pageId: UUID, sequenceNumber: string) {
-    const messagesDb = await getMessagesDb(pageId);
-    const objectStore = messagesDb
-      .transaction('messages', 'readonly')
-      .objectStore('messages');
-
-    // the max sequenc number of a long is 19 digits long
-    const key = sequenceNumberToKey(sequenceNumber);
-
-    return await new Promise<ServiceBusReceivedMessage>((resolve, reject) => {
-      const request = objectStore.get(key);
-      request.onsuccess = (event) => resolve((event.target as any).result);
-    });
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getMessage(sequenceNumber);
   }
 
   async getMessages(
@@ -108,168 +62,39 @@ export class MessagesRepository {
     ascending?: boolean,
     selection?: string[],
   ) {
-    if (take === 0) {
-      return [];
-    }
-    if (ascending === undefined) {
-      ascending = true;
-    }
-
-    return await new Promise<ServiceBusReceivedMessage[]>((resolve, reject) => {
-      const messages: ServiceBusReceivedMessage[] = [];
-      this.walkMessagesWithCallback(
-        pageId,
-        (message) => {
-          messages.push(message);
-        },
-        filter,
-        skip,
-        take,
-        ascending,
-        selection,
-      ).then(() => resolve(messages));
-    });
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getMessages(
+      filter,
+      skip,
+      take,
+      ascending,
+      selection,
+    );
   }
 
   async walkMessagesWithCallback(
     pageId: UUID,
-    callback: (message: ServiceBusReceivedMessage, index: number) => void | Promise<void>,
+    callback: (
+      message: ServiceBusReceivedMessage,
+      index: number,
+    ) => void | Promise<void>,
     filter?: MessageFilter,
     skip?: number,
     take?: number,
     ascending?: boolean,
     selection?: string[],
   ) {
-    if (take === 0) {
-      return;
-    }
-    if (ascending === undefined) {
-      ascending = true;
-    }
-
-    const messagesDb = await getMessagesDb(pageId);
-
-    if (selection?.length) {
-      await this.walkMessagesWithCallbackForSelection(
-        pageId,
-        callback,
-        selection,
-        filter,
-        skip,
-        take,
-        ascending,
-      )
-    }
-
-    let walked = 0;
-    let currentIndex = 0;
-    let continueCursor = true;
-    let lastKey: string | null = null;
-
-    while (continueCursor) {
-      const objectStore = messagesDb
-        .transaction('messages', 'readonly')
-        .objectStore('messages');
-
-      const idbFilter = lastKey
-        ? IDBKeyRange.lowerBound(lastKey, true)
-        : undefined;
-
-      continueCursor = await new Promise<boolean>((resolve, reject) => {
-        objectStore.openCursor(
-          idbFilter,
-          ascending ? 'next' : 'prev',
-        ).onsuccess = (event) => {
-          const cursor = (event.target as any).result as IDBCursorWithValue;
-          if (!cursor) {
-            resolve(false);
-            return;
-          }
-
-          const message = cursor.value as ServiceBusReceivedMessage;
-          if (message.key === lastKey) {
-            cursor.continue();
-            return;
-          }
-
-          lastKey = message.key;
-
-          if (!filter || messageInFilter(message, filter)) {
-            walked++;
-
-            if(skip && walked <= skip) {
-              cursor.continue();
-              return;
-            }
-
-            if (take && walked > (skip ?? 0) + take) {
-              resolve(false);
-              return;
-            }
-
-            const result = callback?.(message, currentIndex);
-            currentIndex++;
-            if (result instanceof Promise) {
-              result.then(() => resolve(true));
-              return;
-            }
-          }
-
-          cursor.continue();
-          return;
-        };
-      });
-    }
-  }
-
-  private async walkMessagesWithCallbackForSelection(
-    pageId: UUID,
-    callback: (message: ServiceBusReceivedMessage, index: number) => void | Promise<void>,
-    selection: string[],
-    filter?: MessageFilter,
-    skip?: number,
-    take?: number,
-    ascending?: boolean,
-  ) {
-    let walked = 0;
-    let currentIndex = 0;
-
-    if (selection?.length) {
-      let keys = selection.map(sequenceNumberToKey);
-      if (ascending) {
-        keys = keys.sort((a, b) => a.localeCompare(b));
-      } else {
-        keys = keys.sort((a, b) => b.localeCompare(a));
-      }
-
-      for (const key of keys) {
-        const message = await this.getMessage(pageId, key);
-        if (filter && !messageInFilter(message, filter)) {
-          continue;
-        }
-
-        walked++;
-        if (!message) {
-          continue;
-        }
-
-        if (skip && walked <= skip) {
-          continue;
-        }
-
-        const result = callback(message, currentIndex);
-        currentIndex++;
-        if (result instanceof Promise) {
-          await result;
-        }
-
-        if (take && walked >= (skip ?? 0) + take) {
-          return;
-        }
-      }
-
-      return;
-    }
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.walkMessagesWithCallback(
+      callback,
+      filter,
+      skip,
+      take,
+      ascending,
+      selection,
+    );
   }
 
   async getPages() {
@@ -289,7 +114,10 @@ export class MessagesRepository {
     return await new Promise<Page>((resolve, reject) => {
       const request = pagesStore.get(pageId);
       request.onsuccess = (event) => resolve((event.target as any).result);
-    });
+    }).then((page) => ({
+      ...page,
+      messageStorage: page.messageStorage ?? 'indexeddb',
+    }));
   }
 
   async updatePageName(pageId: UUID, pageName: string) {
@@ -304,19 +132,24 @@ export class MessagesRepository {
   }
 
   async closePage(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    await messagesDb.deleteDatabase();
+
     const pagesStore = this.database
       .transaction('pages', 'readwrite')
       .objectStore('pages');
-    pagesStore.delete(pageId);
 
-    deleteMessagesDb(pageId);
+    pagesStore.delete(pageId);
   }
 
-  private isFilterEmpty(filter: MessageFilter) {
-    return (
-      !filter.body.length &&
-      !filter.systemProperties.length &&
-      !filter.applicationProperties.length
-    );
+  private async getMessagesDb(page: Page) {
+    if (page.id in this.messagesDbs) {
+      return this.messagesDbs[page.id];
+    }
+
+    const messagesDb = await getMessagesDb(page);
+    this.messagesDbs[page.id] = messagesDb;
+    return messagesDb;
   }
 }
