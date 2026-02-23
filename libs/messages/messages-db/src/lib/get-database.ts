@@ -28,13 +28,24 @@ export function getPagesDb() {
   });
 }
 
+const dbs: Record<string, MessagesDatabase> = {};
 
 export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
+  if (page.id in dbs) {
+    const db = dbs[page.id];
+    if (db instanceof SqliteMessagesDatabase)
+      await db.initialize();
+    return db;
+  }
+
   if (page.messageStorage === 'indexeddb') {
-    return new IndexedDbMessagesDatabase(page.id);
+    const db = new IndexedDbMessagesDatabase(page.id);
+    dbs[page.id] = db;
+    return db;
   }
   if (page.messageStorage === 'sqlite') {
     const db = new SqliteMessagesDatabase(page.id);
+    dbs[page.id] = db;
     await db.initialize();
     return db;
   }

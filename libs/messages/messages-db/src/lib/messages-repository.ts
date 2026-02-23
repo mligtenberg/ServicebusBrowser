@@ -5,11 +5,9 @@ import {
 import { Page } from './models/page';
 import { getMessagesDb } from './get-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessagesDatabase } from './messages-database';
 
 export class MessagesRepository {
   database: IDBDatabase;
-  messagesDbs: Record<UUID, MessagesDatabase> = {};
 
   constructor(database: IDBDatabase) {
     this.database = database;
@@ -144,12 +142,6 @@ export class MessagesRepository {
   }
 
   private async getMessagesDb(page: Page) {
-    if (page.id in this.messagesDbs) {
-      return this.messagesDbs[page.id];
-    }
-
-    const messagesDb = await getMessagesDb(page);
-    this.messagesDbs[page.id] = messagesDb;
-    return messagesDb;
+    return await getMessagesDb(page);
   }
 }

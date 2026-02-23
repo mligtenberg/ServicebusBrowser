@@ -160,5 +160,7 @@ declare module '@sqlite.org/sqlite-wasm' {
     }): Promise<PromiserResponse<T>>;
   };
 
-  function sqlite3Worker1Promiser(): Promise<Promiser>;
+  function sqlite3Worker1Promiser(
+    config?: Sqlite3Worker1PromiserConfig | OnreadyFunction,
+  ): Promise<Promiser>;
 }

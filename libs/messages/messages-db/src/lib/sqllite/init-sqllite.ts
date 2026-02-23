@@ -1,8 +1,14 @@
 import { sqlite3Worker1Promiser } from '@sqlite.org/sqlite-wasm';
 
-async function initializeWorker() {
+export async function initializeWorker() {
   try {
-    const promiser = await sqlite3Worker1Promiser();
+    const promiser = await sqlite3Worker1Promiser({
+      worker: function () {
+        return new Worker(new URL('../../../../../../sqlite/my-sqlite3-worker.mjs', import.meta.url), {
+          type: 'module',
+        });
+      },
+    });
 
     const configResponse = await promiser('config-get', {});
     if (configResponse.type === 'error') {
@@ -20,8 +26,3 @@ async function initializeWorker() {
   }
 }
 
-const promiserTask = initializeWorker();
-
-export function getPromiser() {
-  return promiserTask;
-}

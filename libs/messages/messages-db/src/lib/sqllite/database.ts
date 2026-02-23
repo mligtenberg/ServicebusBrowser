@@ -1,11 +1,11 @@
 import {
   Database as SqliteDatabase
 } from '@sqlite.org/sqlite-wasm';
-import { getPromiser } from './init-sqllite';
+import { initializeWorker } from './init-sqllite';
 
 export class Database {
   private database?: SqliteDatabase;
-  private promiser?: Awaited<ReturnType<typeof getPromiser>>;
+  private promiser?: Awaited<ReturnType<typeof initializeWorker>>;
 
   constructor(private dbName: string) {}
 
@@ -26,14 +26,15 @@ export class Database {
       return;
     }
 
-    this.promiser = await getPromiser();
+    this.promiser = await initializeWorker();
     const openResponse = await this.promiser('open', {
       filename: `file:sqlite/${this.dbName}.sqlite3?vfs=opfs`,
     });
 
-    if (openResponse.type === 'error') throw new Error(
-      `Failed to open database: ${openResponse.result.message}`
-    )
+    if (openResponse.type === 'error')
+      throw new Error(
+        `Failed to open database: ${openResponse.result.message}`,
+      );
 
     this.database = openResponse.result;
   }

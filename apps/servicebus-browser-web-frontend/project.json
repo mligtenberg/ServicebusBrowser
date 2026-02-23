@@ -33,6 +33,11 @@
             "glob": "**/*",
             "input": "assets",
             "output": "/assets"
+          },
+          {
+            "glob": "**/*",
+            "input": "sqlite",
+            "output": ""
           }
         ],
         "styles": ["apps/servicebus-browser-web-frontend/src/styles.scss", "node_modules/monaco-editor/min/vs/editor/editor.main.css"]

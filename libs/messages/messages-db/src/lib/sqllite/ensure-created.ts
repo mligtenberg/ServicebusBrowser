@@ -32,7 +32,8 @@ async function createMessages(database: Database) {
                          messageState TEXT,
                          subject TEXT,
                          timeToLive TEXT,
-                         messageTo TEXT
+                         messageTo TEXT,
+                         message TEXT
                        )`);
 }
 
