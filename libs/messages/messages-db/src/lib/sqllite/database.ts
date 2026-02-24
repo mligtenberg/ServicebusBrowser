@@ -3,6 +3,7 @@ import {
 } from '@sqlite.org/sqlite-wasm';
 import { initializeWorker } from './init-sqllite';
 
+let counter = 0;
 export class Database {
   private database?: SqliteDatabase;
   private promiser?: Awaited<ReturnType<typeof initializeWorker>>;
@@ -14,11 +15,16 @@ export class Database {
       throw new Error('Database not initialized');
     }
 
+    const timerLabel = `SQLITE_QUERY_${counter++}: ${sql.replace(/\s+/g, ' ')}`;
+    console.time(timerLabel);
+
     const result = await this.promiser('exec', {
       sql,
       bind: args.length > 0 ? args : undefined,
       rowMode: 'array',
     });
+
+    console.timeEnd(timerLabel);
 
     return result;
   }

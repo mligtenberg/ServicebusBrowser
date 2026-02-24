@@ -471,15 +471,15 @@ export class MessagesPageComponent {
   }
 
   onFiltersUpdated(filter: MessageFilter) {
+    this.virtualMessages.set([]);
+    this.selection.set([]);
+
     this.store.dispatch(
       MessagesActions.setPageFilter({
         pageId: this.currentPage()!.id,
         filter: filter,
       }),
     );
-
-    this.selection.set([]);
-    this.messagesViewer().reset();
   }
 
   protected filterOnSystemProperty(
@@ -534,6 +534,7 @@ export class MessagesPageComponent {
   }
 
   protected async loadMessages($event: TableLazyLoadEvent) {
+    console.log('Lazy loading', $event);
     const first = $event.first ?? 0;
     const rows = $event.rows ?? 0;
 
