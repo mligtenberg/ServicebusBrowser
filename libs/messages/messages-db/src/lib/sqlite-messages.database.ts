@@ -141,7 +141,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       whereClause.args ?? [],
     );
 
-    return Number(result[0]?.count ?? 0);
+    return Number(result[0] ?? 0);
   }
 
   async deleteDatabase(): Promise<void> {
@@ -254,7 +254,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       sql += ` OFFSET ${skip}`;
     }
 
-    const rows = await this.selectRows<{message: string}>(
+    const rows = await this.selectRows<[string]>(
       sql,
       whereClause.args ?? [],
     );
@@ -263,7 +263,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return [];
     }
 
-    return rows.map((row) => JSON.parse(row.message) as ServiceBusReceivedMessage);
+    return rows.map((row) => JSON.parse(row[0]) as ServiceBusReceivedMessage);
   }
 
   private serializeBody(value: unknown): string {

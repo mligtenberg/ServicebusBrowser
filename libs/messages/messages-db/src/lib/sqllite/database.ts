@@ -13,11 +13,13 @@ export class Database {
     if (!this.database || !this.promiser) {
       throw new Error('Database not initialized');
     }
+
     const result = await this.promiser('exec', {
       sql,
       bind: args.length > 0 ? args : undefined,
-      rowMode: 'object',
+      rowMode: 'array',
     });
+
     return result;
   }
 
