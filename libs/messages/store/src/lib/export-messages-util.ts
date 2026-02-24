@@ -76,7 +76,7 @@ export class ExportMessagesUtil {
       async (message, index) => {
         messages.push({index, message});
 
-        if ((index + 1) % 500 === 0) {
+        if ((index + 1) % 100 === 0) {
           await Promise.all(messages.map(async ({index, message}) => this.addToZip(zip, index, message)));
 
           messages = [];

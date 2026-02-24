@@ -86,8 +86,6 @@ export class MessagesPageComponent {
   actions = inject(Actions);
   appRef = inject(ApplicationRef);
 
-  messagesViewer = viewChild.required('messagesViewer', { read: MessagesViewer })
-
   resendAllMessages = model<boolean>(false);
   displayBodyFullscreen = model<boolean>(false);
   displaySendMessages = model<boolean>(false);
@@ -112,6 +110,7 @@ export class MessagesPageComponent {
   );
 
   selection = signal<string[]>([]);
+  isLoading = signal(false);
 
   totalMessageCount = toSignal(
     toObservable(this.currentPage).pipe(
@@ -121,8 +120,9 @@ export class MessagesPageComponent {
         if (!pageId) {
           return of(undefined);
         }
-        return from(repository.countMessages(pageId))
-          .pipe(startWith(undefined));
+        return from(repository.countMessages(pageId)).pipe(
+          startWith(undefined),
+        );
       }),
     ),
   );
@@ -131,13 +131,17 @@ export class MessagesPageComponent {
       toObservable(this.currentPage).pipe(map((page) => page?.id)),
       toObservable(this.messageFilter),
     ]).pipe(
-      distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+      distinctUntilChanged(
+        (previous, current) =>
+          JSON.stringify(previous) === JSON.stringify(current),
+      ),
       switchMap(([pageId, filter]) => {
         if (!pageId) {
           return of(undefined);
         }
-        return from(repository.countMessages(pageId, filter))
-          .pipe(startWith(undefined));
+        return from(repository.countMessages(pageId, filter)).pipe(
+          startWith(undefined),
+        );
       }),
     ),
     {
@@ -209,7 +213,6 @@ export class MessagesPageComponent {
       { key: 'to', value: message.to },
     ];
   });
-
 
   systemPropertiesContextMenuSelection = signal<
     { key: systemPropertyKeys; value: unknown } | undefined
@@ -302,7 +305,7 @@ export class MessagesPageComponent {
         map((params) => params['pageId']),
         distinctUntilChanged(),
         switchMap((pageId) => {
-          return this.store.select(MessagesSelectors.selectPage(pageId))
+          return this.store.select(MessagesSelectors.selectPage(pageId));
         }),
         takeUntilDestroyed(),
       )
@@ -322,8 +325,9 @@ export class MessagesPageComponent {
         switchMap((pageId) => {
           // we only need to load the selection if the page first loads.
           // otherwise, this state is maintained in the component itself
-          return this.store.select(MessagesSelectors.selectPageSelection(pageId))
-            .pipe(take(1))
+          return this.store
+            .select(MessagesSelectors.selectPageSelection(pageId))
+            .pipe(take(1));
         }),
         takeUntilDestroyed(),
       )
@@ -432,12 +436,13 @@ export class MessagesPageComponent {
 
     if (
       !endpoint ||
-      !sendAllMessages && !(selection && Array.isArray(selection) && selection.length > 0)
+      (!sendAllMessages &&
+        !(selection && Array.isArray(selection) && selection.length > 0))
     ) {
       console.error('Invalid endpoint or messages', {
         selection,
         endpoint,
-        sendAllMessages
+        sendAllMessages,
       });
       return;
     }
@@ -447,7 +452,7 @@ export class MessagesPageComponent {
       endpoint,
       this.currentPage()!.id,
       this.messageFilter(),
-      sendAllMessages ? undefined : selection
+      sendAllMessages ? undefined : selection,
     );
   }
 
@@ -471,8 +476,8 @@ export class MessagesPageComponent {
   }
 
   onFiltersUpdated(filter: MessageFilter) {
-    this.virtualMessages.set([]);
     this.selection.set([]);
+    this.virtualMessages.set([]);
 
     this.store.dispatch(
       MessagesActions.setPageFilter({
@@ -534,7 +539,6 @@ export class MessagesPageComponent {
   }
 
   protected async loadMessages($event: TableLazyLoadEvent) {
-    console.log('Lazy loading', $event);
     const first = $event.first ?? 0;
     const rows = $event.rows ?? 0;
 
@@ -542,6 +546,7 @@ export class MessagesPageComponent {
   }
 
   private async loadRows(first: number, rows: number, pageId: UUID) {
+    this.isLoading.set(true);
     const messages = await repository.getMessages(
       pageId,
       this.messageFilter(),
@@ -553,11 +558,12 @@ export class MessagesPageComponent {
       const newMessages = [
         ...vm.slice(0, first),
         ...messages.slice(0, rows),
-        ...vm.slice(first + rows, vm.length)
+        ...vm.slice(first + rows, vm.length),
       ];
 
       return newMessages;
     });
+    this.isLoading.set(false);
   }
 
   protected onSelectionChange($event: string[] | string | undefined) {

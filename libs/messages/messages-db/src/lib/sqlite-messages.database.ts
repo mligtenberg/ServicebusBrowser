@@ -9,6 +9,7 @@ import { Database } from './sqllite/database';
 import { ensureCreated } from './sqllite/ensure-created';
 import { messageInFilter } from '@service-bus-browser/filtering';
 import { getWhereClause } from './filter-to-where-clause';
+import { of } from 'rxjs';
 
 export class SqliteMessagesDatabase implements MessagesDatabase {
   private readonly database: Database;
@@ -153,7 +154,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   ): Promise<ServiceBusReceivedMessage | undefined> {
     const keyCandidates = this.toKeyCandidates(sequenceNumber);
     for (const key of keyCandidates) {
-      const rows = await this.selectRows<{message: string}>(
+      const rows = await this.selectRows<[string]>(
         'SELECT message FROM messages WHERE id = ? LIMIT 1',
         [key],
       );
@@ -162,7 +163,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
         continue;
       }
 
-      return JSON.parse(row.message) as ServiceBusReceivedMessage;
+      return JSON.parse(row[0]) as ServiceBusReceivedMessage;
     }
 
     return undefined;
@@ -193,36 +194,29 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return;
     }
 
-    const effectiveAscending = ascending ?? true;
-    const allMessages = await this.loadMessages(
-      effectiveAscending,
-      filter,
-      selection,
-      skip,
-      take,
-  );
+    const maxPageSize = 300;
 
-    let walked = 0;
-    let currentIndex = 0;
-    for (const message of allMessages) {
-      if (filter && !messageInFilter(message, filter)) {
-        continue;
+    let index = 0;
+    let messages = await this.loadMessages(ascending ?? true, filter, selection, skip, maxPageSize);
+    while (messages.length > 0) {
+      // seeing that we use a callback, we can't guarantee that the message content will be reserved
+      const lastMessageKey = messages[messages.length - 1].key;
+
+      for (const message of messages) {
+        const result = callback(message, index++);
+        if (result instanceof Promise) {
+          await result;
+        }
       }
 
-      walked++;
-      if (skip && walked <= skip) {
-        continue;
-      }
-
-      if (take && walked > (skip ?? 0) + take) {
-        break;
-      }
-
-      const result = callback(message, currentIndex);
-      currentIndex++;
-      if (result instanceof Promise) {
-        await result;
-      }
+      messages = await this.loadMessages(
+        ascending ?? true,
+        filter,
+        selection,
+        undefined,
+        maxPageSize,
+        lastMessageKey,
+      );
     }
   }
 
@@ -232,6 +226,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     selection?: string[],
     skip?: number,
     take?: number,
+    fromKey?: string,
   ): Promise<ServiceBusReceivedMessage[]> {
     if (take === 0) {
       return [];
@@ -240,8 +235,20 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     const whereClause = getWhereClause(filter, selection);
     let sql = `SELECT message FROM messages`;
 
+    let args: unknown[] = [];
     if (whereClause.clause) {
       sql += ` ${whereClause.clause}`;
+      args = whereClause.args ?? [];
+    }
+
+    if (fromKey) {
+      if (whereClause.clause) {
+        sql += ` AND id > ?`;
+      }
+      else {
+        sql += ` WHERE id > ?`;
+      }
+      args = [...args, fromKey];
     }
 
     sql += ` ORDER BY id ${ascending ? 'ASC' : 'DESC'}`;
@@ -256,14 +263,21 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
     const rows = await this.selectRows<[string]>(
       sql,
-      whereClause.args ?? [],
+      args,
     );
 
     if (!rows.length) {
       return [];
     }
 
-    return rows.map((row) => JSON.parse(row[0]) as ServiceBusReceivedMessage);
+    return rows.map((row) => {
+      try {
+        return JSON.parse(row[0]) as ServiceBusReceivedMessage;
+      } catch (error) {
+        console.error('Error parsing message from database:', error);
+        return null;
+      }
+    }).filter((message) => message !== null);
   }
 
   private serializeBody(value: unknown): string {

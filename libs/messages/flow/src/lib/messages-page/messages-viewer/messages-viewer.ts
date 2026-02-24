@@ -61,6 +61,7 @@ export class MessagesViewer {
   // inputs
   lazy = input<boolean>(false);
   multiselect = input<boolean>(false);
+  isLoading = input<boolean>(false);
 
   pageId = input.required<UUID>();
   messagesContextMenu = input<MenuItem[]>([]);
@@ -272,10 +273,12 @@ export class MessagesViewer {
       first: previousPagesMessagesCount + ($event.first ?? 0),
       last: previousPagesMessagesCount + ($event.last ?? 0),
     };
+
     this.lazyLoadTriggered?.emit($event);
   }
 
   protected setPage($event: PaginatorState) {
     this.currentPageNumber.set(($event.page ?? 0) + 1);
+    this.messagesTable().scrollToVirtualIndex(0);
   }
 }

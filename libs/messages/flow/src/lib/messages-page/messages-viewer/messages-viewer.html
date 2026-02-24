@@ -17,10 +17,11 @@
       <p-table
         #messagesTable
         [columns]="cols"
-        [rows]="500"
+        [rows]="100"
         [value]="currentPageMessages()"
         [scrollable]="true"
         scrollHeight="flex"
+        [loading]="isLoading()"
         [virtualScroll]="true"
         [virtualScrollItemSize]="41"
         [selection]="selection()"
