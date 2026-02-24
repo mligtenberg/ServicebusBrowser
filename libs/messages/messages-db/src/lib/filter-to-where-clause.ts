@@ -254,13 +254,5 @@ function resolveSystemPropertyColumn(fieldName: string): string {
 export function getWhereClause(filter?: MessageFilter, selection?: string[]) {
   const filterWhereClause = filterToWhereClause(filter);
   const selectionWhereClause = selectionToWhereClause(selection);
-  const combined = combineWhereClauses([filterWhereClause, selectionWhereClause]);
-
-  console.log({
-    filterWhereClause,
-    selectionWhereClause,
-    combined
-  });
-
-  return combined;
+  return combineWhereClauses([filterWhereClause, selectionWhereClause]);
 }
