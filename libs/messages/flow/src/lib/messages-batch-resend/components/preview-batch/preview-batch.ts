@@ -54,17 +54,7 @@ export class PreviewBatch {
     return messageCount ? Array.from({ length: messageCount }) : [];
   });
 
-  constructor() {
-    effect(() => {
-      console.log({
-        messages: this.messages(),
-        messageCount: this.messageCount(),
-      });
-    });
-  }
-
   protected async loadMessages($event: TableLazyLoadEvent) {
-    console.log('loadMessages', $event);
     const first = $event.first ?? 0;
     const rows = $event.rows ?? 0;
 
