@@ -34,12 +34,21 @@ export class SystemPropertyHelpers {
     return timeSpanKeys.includes(propertyName);
   }
 
-  toFilterPropertyType(propertyName: SystemPropertyKey | ReceivedSystemPropertyKey): 'date' | 'timespan' | 'string' {
+  propertyIsNumber(propertyName: SystemPropertyKey | ReceivedSystemPropertyKey) {
+    const numberKeys = ['deliveryCount', 'enqueuedSequenceNumber', 'sequenceNumber'];
+    return numberKeys.includes(propertyName);
+  }
+
+  toFilterPropertyType(propertyName: SystemPropertyKey | ReceivedSystemPropertyKey): 'date' | 'timespan' | 'string' | 'number' {
     if (this.propertyIsDate(propertyName)) {
       return 'date';
     }
     if (this.propertyIsTimeSpan(propertyName)) {
       return 'timespan';
+    }
+
+    if (this.propertyIsNumber(propertyName)) {
+      return 'number';
     }
 
     return 'string';

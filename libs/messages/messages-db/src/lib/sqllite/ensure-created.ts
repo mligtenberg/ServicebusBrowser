@@ -27,7 +27,7 @@ async function createMessages(database: Database) {
                          replyTo TEXT,
                          replyToSessionId TEXT,
                          scheduledEnqueueTimeUtc TEXT,
-                         sequenceNumber TEXT,
+                         sequenceNumber INTEGER,
                          sessionId TEXT,
                          messageState TEXT,
                          subject TEXT,
@@ -57,48 +57,6 @@ export async function createIndexesForMessages(database: Database) {
     'CREATE INDEX IF NOT EXISTS idx_messages_contentType ON messages(contentType ASC)',
   );
   await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_correlationId ON messages(correlationId ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_deadLetterReason ON messages(deadLetterReason ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_deliveryCount ON messages(deliveryCount ASC)',
-  );
-  await database.exec(
-    'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_enqueuedSequenceNumber ON messages(enqueuedSequenceNumber ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_enqueuedTimeUtc ON messages(enqueuedTimeUtc ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_expiresAtUtc ON messages(expiresAtUtc ASC)',
-  );
-  await database.exec(
-    'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_messageId ON messages(messageId ASC)',
-  );
-  await database.exec(
     'CREATE INDEX IF NOT EXISTS idx_messages_partitionKey ON messages(partitionKey ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_scheduledEnqueueTimeUtc ON messages(scheduledEnqueueTimeUtc ASC)',
-  );
-  await database.exec(
-    'CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_sequenceNumber ON messages(sequenceNumber ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_sessionId ON messages(sessionId ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_messageState ON messages(messageState ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_subject ON messages(subject ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_timeToLive ON messages(timeToLive ASC)',
-  );
-  await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_messageTo ON messages(messageTo ASC)',
   );
 }

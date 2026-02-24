@@ -17,13 +17,11 @@ import { filterIsValid } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
 import {
   applyEach,
-  FieldTree,
   form,
   FormField,
   required,
 } from '@angular/forms/signals';
 import { SystemPropertyForm } from './system-property-form/system-property-form';
-import { bodyFilterTypes } from './options';
 import { ApplicationPropertyForm } from './application-property-form/application-property-form';
 import { BodyPropertyForm } from './body-property-form/body-property-form';
 

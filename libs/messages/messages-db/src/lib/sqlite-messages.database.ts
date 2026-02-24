@@ -135,7 +135,8 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     filter?: MessageFilter,
     selection?: string[],
   ): Promise<number> {
-    const whereClause = getWhereClause(filter, selection);
+    const keys = selection?.map(sequenceNumberToKey);
+    const whereClause = getWhereClause(filter, keys);
 
     const result = await this.selectRows<{ count: number }>(
       `SELECT COUNT(*) as count FROM messages ${whereClause.clause}`,
@@ -232,7 +233,8 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return [];
     }
 
-    const whereClause = getWhereClause(filter, selection);
+    const keys = selection?.map(sequenceNumberToKey);
+    const whereClause = getWhereClause(filter, keys);
     let sql = `SELECT message FROM messages`;
 
     let args: unknown[] = [];
@@ -289,6 +291,10 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   }
 
   private serializeDate(value?: Date): string | null {
+    if (typeof value === 'string') {
+      return value;
+    }
+
     return value ? value.toISOString() : null;
   }
 
