@@ -36,6 +36,11 @@
           },
           {
             "glob": "**/*",
+            "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
+            "output": ""
+          },
+          {
+            "glob": "**/*",
             "input": "sqlite",
             "output": ""
           }
