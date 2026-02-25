@@ -28,6 +28,7 @@ import { InputNumber } from 'primeng/inputnumber';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
+import { SelectButton } from 'primeng/selectbutton';
 
 @Component({
   selector: 'lib-sidebar',
@@ -42,6 +43,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
     ReactiveFormsModule,
     FormsModule,
     Button,
+    SelectButton,
   ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
@@ -51,31 +53,37 @@ export class SidebarComponent {
   router = inject(Router);
   namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   loadMessagesDialogVisible = computed(
-    () => this.currentEndpoint() !== undefined
+    () => this.currentEndpoint() !== undefined,
   );
   currentEndpoint = signal<
     | undefined
     | { connectionId: UUID; queueName: string; channel: MessageChannels }
     | {
-    connectionId: UUID;
-    topicName: string;
-    subscriptionName: string;
-    channel: MessageChannels;
-  }
+        connectionId: UUID;
+        topicName: string;
+        subscriptionName: string;
+        channel: MessageChannels;
+      }
   >(undefined);
   maxAmount = model<number>(10);
   fromSequenceNumber = model<number>(0);
+
+  receiveTypes = ['peek', 'receive'];
+  receiveType = model<'peek' | 'receive'>('peek');
 
   namespaceContextMenuItems: SbbMenuItem<Namespace>[] = [
     {
       label: 'Remove Namespace',
       icon: 'pi pi-trash',
       supportedMultiSelection: true,
-      onSelect: (data: Namespace | Namespace[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: Namespace | Namespace[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
         for (const namespace of data) {
           this.store.dispatch(
-            ConnectionsActions.removeConnection({ connectionId: namespace.id })
+            ConnectionsActions.removeConnection({ connectionId: namespace.id }),
           );
         }
       },
@@ -146,12 +154,12 @@ export class SidebarComponent {
 
   queueContextMenuItems: SbbMenuItem<QueueWithMetaData>[] = [
     {
-      label: 'Peek messages',
+      label: 'Load messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
@@ -161,12 +169,12 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peek deadletter messages',
+      label: 'Load deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
@@ -176,12 +184,12 @@ export class SidebarComponent {
       },
     },
     {
-      label: 'Peek transfer deadletter messages',
+      label: 'Load transfer deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
@@ -197,7 +205,10 @@ export class SidebarComponent {
       label: 'Clear messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: QueueWithMetaData | QueueWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const queue of data) {
@@ -208,17 +219,20 @@ export class SidebarComponent {
                 channel: undefined,
                 connectionId: queue.namespaceId,
               },
-              messagesToClearCount: queue.metaData.activeMessageCount
-            })
+              messagesToClearCount: queue.metaData.activeMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       label: 'Clear deadletter messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: QueueWithMetaData | QueueWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const queue of data) {
@@ -229,17 +243,20 @@ export class SidebarComponent {
                 channel: 'deadLetter',
                 connectionId: queue.namespaceId,
               },
-              messagesToClearCount: queue.metaData.deadLetterMessageCount
-            })
+              messagesToClearCount: queue.metaData.deadLetterMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       label: 'Clear transfer deadletter messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: QueueWithMetaData | QueueWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const queue of data) {
@@ -250,11 +267,12 @@ export class SidebarComponent {
                 channel: 'transferDeadLetter',
                 connectionId: queue.namespaceId,
               },
-              messagesToClearCount: queue.metaData.transferDeadLetterMessageCount
-            })
+              messagesToClearCount:
+                queue.metaData.transferDeadLetterMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       separator: true,
@@ -266,7 +284,7 @@ export class SidebarComponent {
       supportedMultiSelection: false,
       onSelect: async (
         data: QueueWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         await this.router.navigate([
           'manage-topology',
@@ -282,7 +300,10 @@ export class SidebarComponent {
       label: 'Remove Queue',
       icon: 'pi pi-trash',
       supportedMultiSelection: true,
-      onSelect: (data: QueueWithMetaData | QueueWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: QueueWithMetaData | QueueWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const queue of data) {
@@ -290,7 +311,7 @@ export class SidebarComponent {
             TopologyActions.removeQueue({
               namespaceId: queue.namespaceId,
               queueId: queue.id,
-            })
+            }),
           );
         }
       },
@@ -304,7 +325,7 @@ export class SidebarComponent {
       supportedMultiSelection: false,
       onSelect: async (
         data: TopicWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         await this.router.navigate([
           'manage-topology',
@@ -327,7 +348,7 @@ export class SidebarComponent {
       supportedMultiSelection: false,
       onSelect: async (
         data: TopicWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         await this.router.navigate([
           'manage-topology',
@@ -343,7 +364,10 @@ export class SidebarComponent {
       label: 'Remove Topic',
       icon: 'pi pi-trash',
       supportedMultiSelection: true,
-      onSelect: (data: TopicWithMetaData | TopicWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: TopicWithMetaData | TopicWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const topic of data) {
@@ -351,7 +375,7 @@ export class SidebarComponent {
             TopologyActions.removeTopic({
               namespaceId: topic.namespaceId,
               topicId: topic.id,
-            })
+            }),
           );
         }
       },
@@ -360,50 +384,50 @@ export class SidebarComponent {
 
   subscriptionContextMenuItems: SbbMenuItem<SubscriptionWithMetaData>[] = [
     {
-      label: 'Peek messages',
+      label: 'Load messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
           topicName: data.topicId,
           subscriptionName: data.name,
-          channel: undefined
+          channel: undefined,
         });
       },
     },
     {
-      label: 'Peek deadletter messages',
+      label: 'Load deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
           topicName: data.topicId,
           subscriptionName: data.name,
-          channel: 'deadLetter'
+          channel: 'deadLetter',
         });
       },
     },
     {
-      label: 'Peek transfer deadletter messages',
+      label: 'Load transfer deadletter messages',
       icon: 'pi pi-download',
       supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         this.openLoadDialog({
           connectionId: data.namespaceId,
           topicName: data.topicId,
           subscriptionName: data.name,
-          channel: 'transferDeadLetter'
+          channel: 'transferDeadLetter',
         });
       },
     },
@@ -414,7 +438,10 @@ export class SidebarComponent {
       label: 'Clear messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: SubscriptionWithMetaData | SubscriptionWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
 
         for (const subscription of data) {
@@ -426,17 +453,20 @@ export class SidebarComponent {
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
               },
-              messagesToClearCount: subscription.metaData.activeMessageCount
-            })
+              messagesToClearCount: subscription.metaData.activeMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       label: 'Clear deadletter messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: SubscriptionWithMetaData | SubscriptionWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
         for (const subscription of data) {
           this.store.dispatch(
@@ -447,17 +477,21 @@ export class SidebarComponent {
                 subscriptionName: subscription.name,
                 channel: 'deadLetter',
               },
-              messagesToClearCount: subscription.metaData.deadLetterMessageCount
-            })
+              messagesToClearCount:
+                subscription.metaData.deadLetterMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       label: 'Clear transfer deadletter messages',
       icon: 'pi pi-eraser',
       supportedMultiSelection: true,
-      onSelect: (data: SubscriptionWithMetaData | SubscriptionWithMetaData[], event: MenuItemCommandEvent) => {
+      onSelect: (
+        data: SubscriptionWithMetaData | SubscriptionWithMetaData[],
+        event: MenuItemCommandEvent,
+      ) => {
         data = Array.isArray(data) ? data : [data];
         for (const subscription of data) {
           this.store.dispatch(
@@ -468,11 +502,12 @@ export class SidebarComponent {
                 subscriptionName: subscription.name,
                 channel: 'transferDeadLetter',
               },
-              messagesToClearCount: subscription.metaData.transferDeadLetterMessageCount
-            })
+              messagesToClearCount:
+                subscription.metaData.transferDeadLetterMessageCount,
+            }),
           );
         }
-      }
+      },
     },
     {
       separator: true,
@@ -484,7 +519,7 @@ export class SidebarComponent {
       supportedMultiSelection: false,
       onSelect: async (
         data: SubscriptionWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         await this.router.navigate([
           'manage-topology',
@@ -509,7 +544,7 @@ export class SidebarComponent {
       supportedMultiSelection: false,
       onSelect: (
         data: SubscriptionWithMetaData,
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ): void => {
         this.router.navigate([
           'manage-topology',
@@ -529,7 +564,7 @@ export class SidebarComponent {
       supportedMultiSelection: true,
       onSelect: (
         data: SubscriptionWithMetaData | SubscriptionWithMetaData[],
-        event: MenuItemCommandEvent
+        event: MenuItemCommandEvent,
       ) => {
         data = Array.isArray(data) ? data : [data];
 
@@ -539,7 +574,7 @@ export class SidebarComponent {
               namespaceId: subscription.namespaceId,
               topicId: subscription.topicId,
               subscriptionId: subscription.id,
-            })
+            }),
           );
         }
       },
@@ -575,7 +610,7 @@ export class SidebarComponent {
             topicId: data.topicId,
             subscriptionId: data.subscriptionId,
             ruleName: data.name,
-          })
+          }),
         );
       },
     },
@@ -654,14 +689,15 @@ export class SidebarComponent {
     endpoint:
       | { connectionId: UUID; queueName: string; channel: MessageChannels }
       | {
-      connectionId: UUID;
-      topicName: string;
-      subscriptionName: string;
-      channel: MessageChannels;
-    }
+          connectionId: UUID;
+          topicName: string;
+          subscriptionName: string;
+          channel: MessageChannels;
+        },
   ) {
     this.maxAmount.set(100);
     this.fromSequenceNumber.set(0);
+    this.receiveType.set('peek');
     this.currentEndpoint.set(endpoint);
   }
 
@@ -672,11 +708,12 @@ export class SidebarComponent {
     }
 
     this.store.dispatch(
-      MessagesActions.peekMessages({
+      MessagesActions.loadMessages({
         endpoint: currentEndpoint,
         maxAmount: this.maxAmount(),
         fromSequenceNumber: this.fromSequenceNumber().toString(),
-      })
+        receiveType: this.receiveType(),
+      }),
     );
 
     this.currentEndpoint.set(undefined);

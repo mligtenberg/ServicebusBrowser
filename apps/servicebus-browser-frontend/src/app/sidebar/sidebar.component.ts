@@ -672,7 +672,7 @@ export class SidebarComponent {
     }
 
     this.store.dispatch(
-      MessagesActions.peekMessages({
+      MessagesActions.loadMessages({
         endpoint: currentEndpoint,
         maxAmount: this.maxAmount(),
         fromSequenceNumber: this.fromSequenceNumber().toString(),

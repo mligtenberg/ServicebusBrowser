@@ -43,7 +43,7 @@ export const messagesReducer = createReducer(
       ]
     }
   }),
-  on(actions.peekMessagesLoadingDone, (state, { pageId }): MessagesState => {
+  on(actions.loadMessagesLoadingDone, (state, { pageId }): MessagesState => {
 
     return {
       ...state,

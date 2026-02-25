@@ -3,12 +3,13 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { ReceiveEndpoint, SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { MessageFilter, ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 
-export const peekMessages = createAction(
-  '[Messages] peek messages',
+export const loadMessages = createAction(
+  '[Messages] load messages',
   props<{
     endpoint: ReceiveEndpoint,
     maxAmount: number,
-    fromSequenceNumber?: string
+    fromSequenceNumber?: string,
+    receiveType: 'peek' | 'receive'
   }>()
 )
 
@@ -19,11 +20,12 @@ export const closePage = createAction(
   }>()
 )
 
-export const peekMessagesLoadingDone = createAction(
+export const loadMessagesLoadingDone = createAction(
   '[Messages] peek messages finished loading',
   props<{
     pageId: UUID,
     endpoint: ReceiveEndpoint,
+    receiveType: 'peek' | 'receive'
   }>()
 )
 

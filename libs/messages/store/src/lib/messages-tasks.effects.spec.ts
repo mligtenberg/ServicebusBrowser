@@ -22,7 +22,7 @@ describe('MessagesTasksEffects', () => {
   it('creates task on load', async () => {
     actions$ = new ReplaySubject(1);
     actions$.next(
-      internalActions.peekMessagesLoad({
+      internalActions.loadMessagesLoad({
         pageId: '00000000-0000-0000-0000-000000000002',
         endpoint,
         maxAmount: 5,

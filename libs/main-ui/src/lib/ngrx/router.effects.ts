@@ -17,7 +17,7 @@ export class RouterEffects {
   navigateTo$ = createEffect(
     () =>
       this.actions.pipe(
-        ofType(MessagesActions.peekMessagesLoadingDone),
+        ofType(MessagesActions.loadMessagesLoadingDone),
         switchMap(({ pageId }) =>
           from(this.router.navigate(['messages', 'page', pageId])),
         ),

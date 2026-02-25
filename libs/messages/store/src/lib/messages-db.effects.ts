@@ -6,14 +6,13 @@ import { forkJoin, from, map, mergeMap, switchMap } from 'rxjs';
 import {
   loadPagesFromDb,
   pageCreated,
-  peekMessagesLoad,
-  peekMessagesPartLoaded,
+  loadMessagesLoad,
   updatePageName,
 } from './messages.internal-actions';
 import {
   closePage,
-  peekMessages,
-  peekMessagesLoadingDone,
+  loadMessages,
+  loadMessagesLoadingDone,
 } from './messages.actions';
 
 const repository = await getMessagesRepository();
@@ -49,8 +48,8 @@ export class MessagesDbEffects implements OnInitEffects {
 
   addPage$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(peekMessages),
-      mergeMap(({ endpoint, maxAmount, fromSequenceNumber }) => {
+      ofType(loadMessages),
+      mergeMap(({ endpoint, maxAmount, fromSequenceNumber, receiveType }) => {
         const pageId = crypto.randomUUID();
         let name =
           'queueName' in endpoint
@@ -73,12 +72,13 @@ export class MessagesDbEffects implements OnInitEffects {
               pageName: name,
               loadedFromDb: false,
             }),
-            peekMessagesLoad({
+            loadMessagesLoad({
               pageId: pageId,
               endpoint,
               maxAmount,
               alreadyLoadedAmount: 0,
               fromSequenceNumber: fromSequenceNumber ?? '0',
+              receiveType: receiveType
             }),
           ]),
         );
@@ -101,7 +101,7 @@ export class MessagesDbEffects implements OnInitEffects {
 
   peekMessagesLoadingDone$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(peekMessagesLoadingDone),
+      ofType(loadMessagesLoadingDone),
       switchMap(({ pageId }) => {
         return forkJoin([
           from(repository.getPage(pageId)),

@@ -34,7 +34,7 @@ describe('MessagesLogsEffects', () => {
   it('logs progress', () => {
     actions$ = new ReplaySubject(1);
     actions$.next(
-      internalActions.peekMessagesPartLoaded({
+      internalActions.loadMessagesPartLoaded({
         pageId: '00000000-0000-0000-0000-000000000002',
         endpoint,
         maxAmount: 5,

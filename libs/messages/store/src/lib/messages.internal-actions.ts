@@ -12,25 +12,27 @@ export const pageCreated = createAction(
   }>()
 )
 
-export const peekMessagesLoad = createAction(
+export const loadMessagesLoad = createAction(
   '[Messages] load peek messages',
   props<{
     pageId: UUID,
     endpoint: ReceiveEndpoint,
     maxAmount: number,
     alreadyLoadedAmount: number,
-    fromSequenceNumber: string
+    fromSequenceNumber: string,
+    receiveType: 'peek' | 'receive'
   }>()
 )
 
-export const peekMessagesPartLoaded = createAction(
-  '[Messages] peek messages partially loaded',
+export const loadMessagesPartLoaded = createAction(
+  '[Messages] load messages partially loaded',
   props<{
     pageId: UUID,
     endpoint: ReceiveEndpoint,
     maxAmount: number,
     amountLoaded: number,
-    messages: ServiceBusReceivedMessage[]
+    messages: ServiceBusReceivedMessage[],
+    receiveType: 'peek' | 'receive'
   }>()
 )
 

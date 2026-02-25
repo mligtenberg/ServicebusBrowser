@@ -30,7 +30,7 @@ export class MessagesEffects {
 
   loadPeekQueueMessagesPart$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(internalActions.peekMessagesLoad),
+      ofType(internalActions.loadMessagesLoad),
       mergeMap(
         ({
           pageId,
@@ -38,25 +38,27 @@ export class MessagesEffects {
           maxAmount,
           fromSequenceNumber,
           alreadyLoadedAmount,
+          receiveType
         }) => {
           const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
-          const messages$ = from(
+          const messages$ = receiveType === 'peek' ? from(
             this.messagesService.peekMessages(
               endpoint,
               maxAmountToLoad,
               Long.fromString(fromSequenceNumber),
             ),
-          );
+          ) : from(this.messagesService.receiveMessages(endpoint, maxAmountToLoad));
 
           return messages$.pipe(
             map((messages) =>
-              internalActions.peekMessagesPartLoaded({
+              internalActions.loadMessagesPartLoaded({
                 pageId,
                 endpoint,
                 maxAmount: maxAmount - messages.length,
                 amountLoaded: alreadyLoadedAmount + messages.length,
                 messages,
+                receiveType: receiveType
               }),
             ),
           );
@@ -67,15 +69,15 @@ export class MessagesEffects {
 
   loadMoreMessages$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(internalActions.peekMessagesPartLoaded),
+      ofType(internalActions.loadMessagesPartLoaded),
       mergeMap(action => {
         return from(repository.addMessages(action.pageId, action.messages)).pipe(
           map(() => action),
         )
       }),
-      map(({ pageId, endpoint, maxAmount, messages, amountLoaded }) => {
+      map(({ pageId, endpoint, maxAmount, messages, amountLoaded, receiveType }) => {
         if (maxAmount <= 0 || messages.length === 0) {
-          return actions.peekMessagesLoadingDone({ pageId, endpoint });
+          return actions.loadMessagesLoadingDone({ pageId, endpoint, receiveType });
         }
 
         const sequenceNumbers = messages.map((m) =>
@@ -90,12 +92,13 @@ export class MessagesEffects {
 
         const fromSequenceNumber = highestSequenceNumber.add(1).toString();
 
-        return internalActions.peekMessagesLoad({
+        return internalActions.loadMessagesLoad({
           pageId,
           endpoint,
           maxAmount,
           alreadyLoadedAmount: amountLoaded,
           fromSequenceNumber,
+          receiveType
         });
       }),
     ),
