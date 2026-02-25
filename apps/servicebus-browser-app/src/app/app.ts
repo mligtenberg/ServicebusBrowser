@@ -1,8 +1,14 @@
-import { BrowserWindow, shell, screen, Menu, nativeTheme, protocol } from 'electron';
+import {
+  BrowserWindow,
+  shell,
+  screen,
+  Menu,
+  nativeTheme,
+  protocol,
+} from 'electron';
 import { rendererAppName, rendererAppPort } from './constants';
 import { environment } from '../environments/environment';
 import path, { join } from 'path';
-import { format } from 'url';
 import { getMenu } from './menu';
 import * as fs from 'fs';
 
@@ -68,8 +74,7 @@ export default class App {
       // Custom fetch
       if (useDevServer) {
         return await this.loadFromDevServer(request);
-      }
-      else {
+      } else {
         return await this.loadFromDisk(request);
       }
     });
@@ -79,15 +84,104 @@ export default class App {
     return fetch(request);
   }
 
-  private static loadFromDisk(request: Request) {
-    const requestPath = request.url.replace('http://localhost:4200/', '');
-    const filePath = join(__dirname, '..', rendererAppName, requestPath);
+  private static async loadFromDisk(request: Request) {
+    const rendererRoot = join(__dirname, '..', rendererAppName);
+    const requestUrl = new URL(request.url);
+    const rawPath = decodeURIComponent(requestUrl.pathname);
+    const normalizedPath = path.normalize(rawPath).replace(/^([/\\])+/, '');
+    const relativePath =
+      normalizedPath.length > 0 ? normalizedPath : 'index.html';
+    const filePath = path.resolve(rendererRoot, relativePath);
 
-    return fetch(format({ pathname: filePath, protocol: 'file:' })).then((response) => {
-      response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-      response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
-      return response;
-    });
+    if (
+      !filePath.startsWith(path.resolve(rendererRoot) + path.sep) &&
+      filePath !== path.resolve(rendererRoot)
+    ) {
+      return new Response('Forbidden', {
+        status: 403,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cross-Origin-Opener-Policy': 'same-origin',
+          'Cross-Origin-Embedder-Policy': 'require-corp',
+        },
+      });
+    }
+
+    let resolvedFilePath = filePath;
+    if (
+      fs.existsSync(resolvedFilePath) &&
+      fs.statSync(resolvedFilePath).isDirectory()
+    ) {
+      resolvedFilePath = path.join(resolvedFilePath, 'index.html');
+    }
+
+    if (!fs.existsSync(resolvedFilePath)) {
+      resolvedFilePath = path.join(rendererRoot, 'index.html');
+    }
+
+    try {
+      const content = await fs.promises.readFile(resolvedFilePath);
+      const extension = path.extname(resolvedFilePath).toLowerCase();
+      const mimeType = App.getMimeType(extension);
+
+      return new Response(new Uint8Array(content), {
+        status: 200,
+        headers: {
+          'Content-Type': mimeType,
+          'Cross-Origin-Opener-Policy': 'same-origin',
+          'Cross-Origin-Embedder-Policy': 'require-corp',
+        },
+      });
+    } catch {
+      return new Response('Not Found', {
+        status: 404,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cross-Origin-Opener-Policy': 'same-origin',
+          'Cross-Origin-Embedder-Policy': 'require-corp',
+        },
+      });
+    }
+  }
+
+  private static getMimeType(extension: string) {
+    switch (extension) {
+      case '.html':
+        return 'text/html; charset=utf-8';
+      case '.js':
+        return 'application/javascript; charset=utf-8';
+      case '.mjs':
+        return 'application/javascript; charset=utf-8';
+      case '.css':
+        return 'text/css; charset=utf-8';
+      case '.json':
+        return 'application/json; charset=utf-8';
+      case '.svg':
+        return 'image/svg+xml';
+      case '.png':
+        return 'image/png';
+      case '.jpg':
+      case '.jpeg':
+        return 'image/jpeg';
+      case '.gif':
+        return 'image/gif';
+      case '.ico':
+        return 'image/x-icon';
+      case '.webp':
+        return 'image/webp';
+      case '.woff':
+        return 'font/woff';
+      case '.woff2':
+        return 'font/woff2';
+      case '.ttf':
+        return 'font/ttf';
+      case '.map':
+        return 'application/json; charset=utf-8';
+      case '.wasm':
+        return 'application/wasm';
+      default:
+        return 'application/octet-stream';
+    }
   }
 
   private static initMainWindow() {
@@ -129,7 +223,9 @@ export default class App {
 
     // if main window is ready to show, close the splash window and show the main window
     App.mainWindow.once('ready-to-show', () => {
-      const isDevMode = App.isDevelopmentMode() || this.application.getVersion().includes('beta');
+      const isDevMode =
+        App.isDevelopmentMode() ||
+        this.application.getVersion().includes('beta');
       Menu.setApplicationMenu(getMenu(isDevMode));
       App.mainWindow.show();
     });
