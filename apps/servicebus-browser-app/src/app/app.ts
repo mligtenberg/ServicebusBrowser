@@ -99,7 +99,8 @@ export default class App {
 
     // if main window is ready to show, close the splash window and show the main window
     App.mainWindow.once('ready-to-show', () => {
-      Menu.setApplicationMenu(getMenu(App.isDevelopmentMode()));
+      const isDevMode = App.isDevelopmentMode() || this.application.getVersion().includes('beta');
+      Menu.setApplicationMenu(getMenu(isDevMode));
       App.mainWindow.show();
     });
 
