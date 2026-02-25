@@ -146,17 +146,10 @@ export class MessagesViewer {
       return [];
     }
 
-    return [
-      { key: 'contentType', value: message.contentType },
-      { key: 'correlationId', value: message.correlationId },
-      { key: 'enqueueSequenceNumber', value: message.enqueuedSequenceNumber },
-      { key: 'enqueuedTimeUtc', value: message.enqueuedTimeUtc },
-      { key: 'messageId', value: message.messageId },
-      { key: 'sequenceNumber', value: message.sequenceNumber },
-      { key: 'subject', value: message.subject },
-      { key: 'timeToLive', value: message.timeToLive },
-      { key: 'to', value: message.to },
-    ];
+    return Object.entries(message ?? {})
+      .map(([key, value]) => ({key, value }))
+      .filter(({ key }) => !['key', 'body', 'applicationProperties'].includes(key));
+
   });
   applicationProperties = computed(() => {
     const applicationProperties = this.selectedMessage()?.applicationProperties;
