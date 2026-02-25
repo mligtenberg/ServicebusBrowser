@@ -52,7 +52,7 @@ import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessagesViewer } from './messages-viewer/messages-viewer';
+import { MessagesViewer } from '../messages-viewer/messages-viewer';
 import { ResendMessagesUtil } from '../resendmessages-util';
 
 const repository = await getMessagesRepository();

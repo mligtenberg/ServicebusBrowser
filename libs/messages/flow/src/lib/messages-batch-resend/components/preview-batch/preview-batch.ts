@@ -6,7 +6,7 @@ import {
   linkedSignal,
   model,
 } from '@angular/core';
-import { MessagesViewer } from '../../../messages-page/messages-viewer/messages-viewer';
+import { MessagesViewer } from '../../../messages-viewer/messages-viewer';
 import {
   MessageFilter,
   ServiceBusReceivedMessage,

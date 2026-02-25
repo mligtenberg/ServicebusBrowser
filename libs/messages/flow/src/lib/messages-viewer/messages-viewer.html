@@ -74,20 +74,9 @@
   </p-card>
   <p-card header="Body" class="body">
     @if (selectedMessage()) {
-      <div class="fullscreen-button">
-        <p-button
-          icon="pi pi-window-maximize"
-          (click)="displayBodyFullscreen.set(true)"
-          [rounded]="true"
-          [text]="true"
-        ></p-button>
-      </div>
-      <div class="editor">
-        <sbb-editor
-          [editorOptions]="editorOptions()"
-          [value]="body()"
-        ></sbb-editor>
-      </div>
+      <lib-body-viewer
+        [body]="body()"
+        [contentType]="selectedMessage()?.contentType ?? 'text/plain'" />
     }
   </p-card>
   <p-card header="Properties" class="properties">
@@ -157,20 +146,3 @@
     </div>
   </p-card>
 </div>
-
-<p-dialog
-  header="Message body"
-  appendTo="body"
-  [(visible)]="displayBodyFullscreen"
-  [modal]="true"
-  [style]="{ width: '100%', height: '100%' }"
->
-  @if (displayBodyFullscreen()) {
-    <div class="editor">
-      <sbb-editor
-        [editorOptions]="editorOptions()"
-        [value]="body()"
-      ></sbb-editor>
-    </div>
-  }
-</p-dialog>

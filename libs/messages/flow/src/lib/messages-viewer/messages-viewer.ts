@@ -12,46 +12,40 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { ContextMenu } from 'primeng/contextmenu';
 import { NgTemplateOutlet } from '@angular/common';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
-import { Dialog } from 'primeng/dialog';
-import { ColorThemeService } from '@service-bus-browser/services';
 import { FormsModule } from '@angular/forms';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
-import { Editor } from '@service-bus-browser/shared-components';
 import { Paginator, PaginatorState } from 'primeng/paginator';
+import { BodyViewer } from '../body-viewer/body-viewer';
 
 const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-messages-viewer',
   imports: [
-    Button,
     Card,
     ContextMenu,
-    Editor,
     PrimeTemplate,
     TableModule,
-    Dialog,
     FormsModule,
     NgTemplateOutlet,
     Paginator,
+    BodyViewer,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
 })
 export class MessagesViewer {
   private cdRef = inject(ChangeDetectorRef);
-  colorThemeService = inject(ColorThemeService);
 
   // template references
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
@@ -120,8 +114,7 @@ export class MessagesViewer {
     const startIndex = currentPageIndex * maxMessagesPerPage;
     const endIndex = startIndex + maxMessagesPerPage;
 
-    const messages = this.messages().slice(startIndex, endIndex);
-    return messages;
+    return this.messages().slice(startIndex, endIndex);
   });
 
   showMessageContextMenu = computed(
@@ -134,36 +127,6 @@ export class MessagesViewer {
     () => this.systemPropertiesContextMenu().length > 0,
   );
 
-  bodyLanguage = computed(() => {
-    const message = this.selectedMessage();
-    if (!message?.contentType) {
-      return '';
-    }
-
-    const contentType = message.contentType.toLowerCase();
-
-    if (contentType.includes('json')) {
-      return 'json';
-    }
-
-    if (contentType.includes('xml')) {
-      return 'xml';
-    }
-
-    if (contentType.includes('yaml') || contentType.includes('yml')) {
-      return 'yaml';
-    }
-
-    if (contentType.includes('ini')) {
-      return 'ini';
-    }
-
-    if (contentType.includes('toml')) {
-      return 'TOML';
-    }
-
-    return 'text';
-  });
   body = computed(() => {
     const message = this.selectedMessage();
     if (!message) {
@@ -176,15 +139,7 @@ export class MessagesViewer {
 
     return JSON.stringify(message.body, null, 2);
   });
-  editorOptions = computed(() => ({
-    theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',
-    readOnly: true,
-    language: this.bodyLanguage(),
-    automaticLayout: true,
-    minimap: {
-      enabled: false,
-    },
-  }));
+
   properties = computed<Array<{ key: string; value: unknown }>>(() => {
     const message = this.selectedMessage();
     if (!message) {
@@ -215,9 +170,6 @@ export class MessagesViewer {
       value,
     }));
   });
-
-  // signals
-  displayBodyFullscreen = signal(false);
 
   // statics
   cols = [
