@@ -1,4 +1,4 @@
-import { BrowserWindow, shell, screen, Menu, nativeTheme } from 'electron';
+import { BrowserWindow, shell, screen, Menu, nativeTheme, protocol } from 'electron';
 import { rendererAppName, rendererAppPort } from './constants';
 import { environment } from '../environments/environment';
 import path, { join } from 'path';
@@ -47,6 +47,7 @@ export default class App {
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     if (rendererAppName) {
+      App.loadNetworkStack();
       App.initMainWindow();
       App.loadMainWindow();
     }
@@ -58,6 +59,35 @@ export default class App {
     if (App.mainWindow === null) {
       App.onReady();
     }
+  }
+
+  private static loadNetworkStack() {
+    const useDevServer = !App.application.isPackaged;
+
+    protocol.handle('http', async (request) => {
+      // Custom fetch
+      if (useDevServer) {
+        return await this.loadFromDevServer(request);
+      }
+      else {
+        return await this.loadFromDisk(request);
+      }
+    });
+  }
+
+  private static loadFromDevServer(request: Request) {
+    return fetch(request);
+  }
+
+  private static loadFromDisk(request: Request) {
+    const requestPath = request.url.replace('http://localhost:4200/', '');
+    const filePath = join(__dirname, '..', rendererAppName, requestPath);
+
+    return fetch(format({ pathname: filePath, protocol: 'file:' })).then((response) => {
+      response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+      response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+      return response;
+    });
   }
 
   private static initMainWindow() {
@@ -126,18 +156,7 @@ export default class App {
   }
 
   private static loadMainWindow() {
-    // load the index.html of the app.
-    if (!App.application.isPackaged) {
-      App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
-    } else {
-      App.mainWindow.loadURL(
-        format({
-          pathname: join(__dirname, '..', rendererAppName, 'index.html'),
-          protocol: 'file:',
-          slashes: true,
-        })
-      );
-    }
+    App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
   }
 
   private static saveSetting<T>(key: string, value: T) {

@@ -62,7 +62,7 @@ export function getMenu(isDev: boolean) {
         },
         {
           label: 'Toggle Developer Tools',
-          role: 'toggleDevTools'
+          role: 'toggleDevTools',
         }
       ]
     });
