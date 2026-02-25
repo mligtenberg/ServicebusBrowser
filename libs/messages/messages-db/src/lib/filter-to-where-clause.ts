@@ -194,7 +194,7 @@ function appendPropertyClause(
   }
 
   if (filter.fieldType === 'date') {
-    const value = filter.value.toISOString();
+    const value = (filter.value).toISOString();
     switch (filter.filterType) {
       case 'before':
         clauses.push(`${columnName} < ?`);

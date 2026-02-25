@@ -164,7 +164,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
         continue;
       }
 
-      return JSON.parse(row[0]) as ServiceBusReceivedMessage;
+      return this.deserializeMessage(row[0]) as ServiceBusReceivedMessage;
     }
 
     return undefined;
@@ -274,7 +274,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
     return rows.map((row) => {
       try {
-        return JSON.parse(row[0]) as ServiceBusReceivedMessage;
+        return this.deserializeMessage(row[0]) as ServiceBusReceivedMessage;
       } catch (error) {
         console.error('Error parsing message from database:', error);
         return null;
@@ -288,6 +288,18 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     }
 
     return JSON.stringify(value);
+  }
+
+  private deserializeMessage(messageJson: string): ServiceBusReceivedMessage {
+    const message = JSON.parse(messageJson);
+
+    message.enqueuedTimeUtc = message.enqueuedTimeUtc ? new Date(message.enqueuedTimeUtc) : undefined;
+    message.scheduledEnqueueTimeUtc = message.scheduledEnqueueTimeUtc ? new Date(message.scheduledEnqueueTimeUtc) : undefined;
+    message.expiresAtUtc = message.expiresAtUtc ? new Date(message.expiresAtUtc) : undefined;
+    message.lockedUntilUtc = message.lockedUntilUtc ? new Date(message.lockedUntilUtc) : undefined;
+
+
+    return message as ServiceBusReceivedMessage;
   }
 
   private serializeDate(value?: Date): string | null {
