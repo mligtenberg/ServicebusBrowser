@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Copy backend package files and install only production dependencies
 COPY dist/apps/servicebus-browser-web-backend ./backend/
-RUN cd backend && npm i --only=production
+RUN corepack enable && cd backend && pnpm install --prod --frozen-lockfile
 
 # Copy compiled Angular build into Nginx's web root
 # Assumes your compiled SPA is in frontend/dist
