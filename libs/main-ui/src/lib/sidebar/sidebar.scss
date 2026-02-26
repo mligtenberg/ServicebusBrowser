@@ -39,6 +39,13 @@ sbb-task-tasks {
   gap: 1rem;
   flex-direction: column;
   margin: 1rem 0;
+
+  ::ng-deep p-select-button {
+    display: flex;
+    > * {
+      flex: 1;
+    }
+  }
 }
 
 .actions {
