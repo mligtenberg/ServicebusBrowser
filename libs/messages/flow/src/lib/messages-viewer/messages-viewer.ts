@@ -168,7 +168,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
           .split(/(?=[A-Z])/)
           .map((part) => part.toLowerCase());
         const humanReadableKey = keyParts.join(' ');
-        return { key: humanReadableKey, value };
+        return { key, label: humanReadableKey, value };
       });
   });
   applicationProperties = computed(() => {
@@ -180,6 +180,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
     return Object.entries(applicationProperties).map(([key, value]) => ({
       key,
+      label: key,
       value,
     }));
   });
@@ -191,7 +192,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     { field: 'subject', header: 'Subject' },
   ];
   propertiesCols = [
-    { field: 'key', header: 'Key' },
+    { field: 'label', header: 'Key' },
     { field: 'value', header: 'Value' },
   ];
 
