@@ -4,6 +4,11 @@
   width: 100%;
 }
 
+.container {
+  height: 100%;
+  min-width: 100%;
+}
+
 .wide {
   height: 100%;
   width: 100%;
@@ -11,6 +16,8 @@
 
 .narrow {
   width: 100%;
+  padding-bottom: 3em;
+
   .messages {
     height: 25em;
   }
@@ -22,17 +29,9 @@
   > :not(:last-child) {
     border-bottom: 2px solid var(--p-splitter-gutter-background);
   }
-}
 
-@container (width < 550px) {
-  .wide {
-    display: none;
-  }
-}
-
-@container (width >= 550px) {
-  .narrow {
-    display: none;
+  .system-properties, .application-properties {
+    min-height: 10em;
   }
 }
 
@@ -76,7 +75,7 @@ td {
 }
 
 .header {
-  border-bottom: 1px solid var(--p-splitter-gutter-background);
+  border-bottom: 2px solid var(--p-splitter-gutter-background);
 }
 
 .header-actions {

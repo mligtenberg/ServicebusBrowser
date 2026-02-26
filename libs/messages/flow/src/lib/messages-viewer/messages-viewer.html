@@ -1,49 +1,58 @@
-<div class="wide">
-  <p-splitter [panelSizes]="[75, 25]"
-              (onResizeStart)="isResizing.set(true)"
-              (onResizeEnd)="isResizing.set(false)">
-    <ng-template #panel>
-      <p-splitter [panelSizes]="[40, 60]" layout="vertical">
-        <ng-template pTemplate>
-          <div class="card messages">
-            <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
-          </div>
+<div class="container" #container>
+
+  @if (containerWidth() >= 600) {
+    <div class="wide">
+      <p-splitter [panelSizes]="[75, 25]"
+                  (onResizeStart)="isResizing.set(true)"
+                  (onResizeEnd)="isResizing.set(false); cdRef.detectChanges()"
+                  (resize)="onResize()"
+      >
+        <ng-template #panel>
+          <p-splitter [panelSizes]="[40, 60]" layout="vertical">
+            <ng-template pTemplate>
+              <div class="card messages">
+                <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
+              </div>
+            </ng-template>
+            <ng-template pTemplate>
+              <div class="card body">
+                <ng-template *ngTemplateOutlet="bodyTemplate" />
+              </div>
+            </ng-template>
+          </p-splitter>
         </ng-template>
-        <ng-template pTemplate>
-          <div class="card body">
-            <ng-template *ngTemplateOutlet="bodyTemplate" />
-          </div>
+        <ng-template #panel>
+          <p-scroll-panel style="width: 100%; height: 100%;" [ngClass]="{'hide-scrollbar': isResizing()}">
+            <div class="properties">
+              <div class="system-properties">
+                <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
+              </div>
+              <div class="application-properties">
+                <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+              </div>
+            </div>
+          </p-scroll-panel>
         </ng-template>
       </p-splitter>
-    </ng-template>
-    <ng-template #panel>
-      <p-scroll-panel style="width: 100%; height: 100%;" [ngClass]="{'hide-scrollbar': isResizing()}">
-        <div class="properties">
-          <div class="system-properties">
-            <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
-          </div>
-          <div class="application-properties">
-            <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-          </div>
-        </div>
-      </p-scroll-panel>
-    </ng-template>
-  </p-splitter>
-</div>
+    </div>
+  }
+  @else {
+    <div class="narrow">
+      <div class="card messages">
+        <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
+      </div>
+      <div class="card body">
+        <ng-template *ngTemplateOutlet="bodyTemplate" />
+      </div>
+      <div class="system-properties">
+        <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
+      </div>
+      <div class="application-properties">
+        <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+      </div>
+    </div>
+  }
 
-<div class="narrow">
-  <div class="card messages">
-    <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
-  </div>
-  <div class="card body">
-    <ng-template *ngTemplateOutlet="bodyTemplate" />
-  </div>
-  <div class="system-properties">
-    <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
-  </div>
-  <div class="application-properties">
-    <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-  </div>
 </div>
 
 <ng-template #messageSelectorTemplate>

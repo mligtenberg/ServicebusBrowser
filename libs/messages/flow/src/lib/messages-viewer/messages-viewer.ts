@@ -1,12 +1,15 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   computed,
   contentChild,
   effect,
+  ElementRef,
   inject,
   input,
   model,
+  OnDestroy,
   output,
   signal,
   TemplateRef,
@@ -48,13 +51,15 @@ const repository = await getMessagesRepository();
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
 })
-class MessagesViewer {
-  private cdRef = inject(ChangeDetectorRef);
+class MessagesViewer implements AfterViewInit, OnDestroy {
+  protected cdRef = inject(ChangeDetectorRef);
+  protected resizeObserver?: ResizeObserver;
 
   // template references
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
   messagesTable = viewChild.required('messagesTable', { read: Table });
   messagesPaginator = viewChild('messagesPaginator', { read: Paginator });
+  container = viewChild.required('container', { read: ElementRef });
 
   // inputs
   lazy = input<boolean>(false);
@@ -68,6 +73,7 @@ class MessagesViewer {
 
   messages = input.required<ServiceBusReceivedMessage[]>();
   maxMessagesPerPage = input<number>(100000);
+  containerWidth = signal<number>(0);
 
   selection = model<string | string[]>();
   systemPropertiesContextMenuSelection = model<
@@ -194,6 +200,22 @@ class MessagesViewer {
       this.currentPageNumber();
       this.messagesTable().reset();
     });
+  }
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+  }
+
+  ngAfterViewInit(): void {
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) {
+        return;
+      }
+
+      const { width: containerWidth } = entry.contentRect;
+      this.containerWidth.set(containerWidth);
+    });
+    this.resizeObserver.observe(this.container().nativeElement);
   }
 
   reset() {
