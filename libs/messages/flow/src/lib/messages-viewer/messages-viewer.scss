@@ -1,122 +1,95 @@
 :host {
-  ::ng-deep .p-card.p-component {
-    height: 100%;
-  }
-
-  ::ng-deep .p-card-body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .p-card-content {
-      height: 100%;
-    }
-  }
-}
-
-.messages-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  grid-template-rows: minmax(400px, auto) 1fr;
-  grid-template-areas:
-    'messages properties'
-    'body custom-properties';
-  gap: 1rem;
-  padding: 1rem;
+  font-size: 0.875rem;
+  height: 100%;
   width: 100%;
-  max-width: 100qcw;
+}
+
+.wide {
   height: 100%;
-  box-sizing: border-box;
-
-  @container mainContent (width < 900px) {
-    grid-template-areas:
-      'messages'
-      'body'
-      'properties'
-      'custom-properties';
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(400px, auto) repeat(3, minmax(20rem, 1fr));
-  }
-}
-
-pre {
-  margin: 0;
-
-  code {
-    padding: 0.5rem;
-    padding-right: 2rem;
-  }
-}
-
-.messages {
-  grid-area: messages;
-}
-
-.messages-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-
-    .header-buttons {
-      display: flex;
-    }
-  }
-}
-
-.body {
-  grid-area: body;
-  position: relative;
-}
-
-.fullscreen-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 1;
-}
-
-.properties {
-  grid-area: properties;
-}
-
-.custom-properties {
-  grid-area: custom-properties;
-}
-
-p-card {
-  height: 100%;
-  overflow: hidden;
-}
-
-.table-container {
-  height: 100%;
-  container: table / size;
-}
-
-.fullscreen-code {
   width: 100%;
+}
+
+.narrow {
+  width: 100%;
+  .messages {
+    height: 25em;
+  }
+
+  .body {
+    height: 30em;
+  }
+
+  > :not(:last-child) {
+    border-bottom: 2px solid var(--p-splitter-gutter-background);
+  }
+}
+
+@container (width < 550px) {
+  .wide {
+    display: none;
+  }
+}
+
+@container (width >= 550px) {
+  .narrow {
+    display: none;
+  }
+}
+
+p-splitter {
   height: 100%;
+}
+
+::ng-deep h2 {
+  padding: 0 0 0 .5rem;
+  margin: 0.25rem;
+  font-size: 1rem;
+}
+
+.card {
+  height: 100%;
+  width: 100%;
 }
 
 .messages-container {
-  height: 100%;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+
+  td {
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
 }
 
 td {
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  padding: 9px 16px;
+}
+
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid var(--p-splitter-gutter-background);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.properties > * {
+  min-height: 5em;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--p-splitter-gutter-background);
+  }
+}
+
+::ng-deep .hide-scrollbar .p-scrollpanel-bar {
+  display: none;
 }

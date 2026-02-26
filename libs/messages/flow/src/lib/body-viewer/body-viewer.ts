@@ -27,7 +27,8 @@ import { Tooltip } from 'primeng/tooltip';
 export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
 
-  body = input.required<string>();
+  header = input<string>('');
+  body = input.required<string | undefined>();
   contentType = input.required<string>();
   showPrettyBody = model(false);
   displayBodyFullscreen = model(false);
@@ -63,11 +64,11 @@ export class BodyViewer {
   });
 
   shownBody = computed(() => {
-    if (!this.showPrettyBody()) {
+    if (!this.body() || !this.showPrettyBody()) {
       return this.body();
     }
 
-    return this.prettyPrint(this.body(), this.bodyLanguage());
+    return this.prettyPrint(this.body() ?? '', this.bodyLanguage());
   });
 
   isCsvTableVisible = computed(
@@ -79,7 +80,7 @@ export class BodyViewer {
       return [];
     }
 
-    const [headers = []] = this.parseCsvRows(this.body());
+    const [headers = []] = this.parseCsvRows(this.body() ?? '');
     return headers;
   });
 
@@ -88,7 +89,7 @@ export class BodyViewer {
       return [] as Array<Record<string, string>>;
     }
 
-    const rows = this.parseCsvRows(this.body());
+    const rows = this.parseCsvRows(this.body() ?? '');
     if (rows.length <= 1) {
       return [] as Array<Record<string, string>>;
     }

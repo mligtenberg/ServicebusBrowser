@@ -1,148 +1,202 @@
-<div class="container">
-  <p-card class="messages">
-    <div class="messages-container">
-      <div class="messages-header">
-        <div class="p-card-title">Messages</div>
-        <div class="header-actions">
-          @if (messagesHeader(); as ref) {
-            <ng-container *ngTemplateOutlet="ref"></ng-container>
-          }
+<div class="wide">
+  <p-splitter [panelSizes]="[75, 25]"
+              (onResizeStart)="isResizing.set(true)"
+              (onResizeEnd)="isResizing.set(false)">
+    <ng-template #panel>
+      <p-splitter [panelSizes]="[40, 60]" layout="vertical">
+        <ng-template pTemplate>
+          <div class="card messages">
+            <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
+          </div>
+        </ng-template>
+        <ng-template pTemplate>
+          <div class="card body">
+            <ng-template *ngTemplateOutlet="bodyTemplate" />
+          </div>
+        </ng-template>
+      </p-splitter>
+    </ng-template>
+    <ng-template #panel>
+      <p-scroll-panel style="width: 100%; height: 100%;" [ngClass]="{'hide-scrollbar': isResizing()}">
+        <div class="properties">
+          <div class="system-properties">
+            <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
+          </div>
+          <div class="application-properties">
+            <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+          </div>
         </div>
-      </div>
-      <p-context-menu
-        #cm
-        appendTo="body"
-        [model]="messagesContextMenu()"
-      />
-      <p-table
-        #messagesTable
-        [columns]="cols"
-        [rows]="100"
-        [value]="currentPageMessages()"
-        [scrollable]="true"
-        scrollHeight="flex"
-        [loading]="isLoading()"
-        [virtualScroll]="true"
-        [virtualScrollItemSize]="41"
-        [selection]="selection()"
-        (selectionChange)="onSelectionChange($event)"
-        [selectionMode]="this.multiselect() ? 'multiple' : 'single'"
-        contextMenuSelectionMode="joint"
-        [metaKeySelection]="this.multiselect()"
-        [contextMenu]="showMessageContextMenu() ? cm : undefined"
-        [lazy]="this.lazy()"
-        (onLazyLoad)="onLazyLoad($event)"
-      >
-        <ng-template pTemplate="header" let-columns>
-          <tr>
-            @for (col of columns; track col) {
-              <th style="width: 20%">
-                {{ col.header }}
-              </th>
-            }
-          </tr>
-        </ng-template>
-        <ng-template
-          pTemplate="body"
-          let-rowData
-          let-rowIndex="rowIndex"
-          let-columns="columns"
-        >
-          <tr
-            [pContextMenuRow]="rowData.sequenceNumber"
-            [pSelectableRow]="rowData.sequenceNumber"
-            [pContextMenuRowIndex]="rowIndex"
-            [pSelectableRowIndex]="rowIndex"
-          >
-            @for (col of columns; track col) {
-              <td>
-                {{ rowData[col.field] }}
-              </td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-      @if (usePagination()) {
-        <p-paginator
-          [rows]="maxMessagesPerPage()"
-          [totalRecords]="messages().length"
-          (onPageChange)="setPage($event)"
-          #messagesPaginator
-        />
-      }
-    </div>
-  </p-card>
-  <p-card header="Body" class="body">
-    @if (selectedMessage()) {
-      <lib-body-viewer
-        [body]="body()"
-        [contentType]="selectedMessage()?.contentType ?? 'text/plain'" />
-    }
-  </p-card>
-  <p-card header="Properties" class="properties">
-    <div class="table-container">
-      <p-context-menu
-        #propertyMenu
-        [model]="systemPropertiesContextMenu()"
-        appendTo="body"/>
-      <p-table
-        [columns]="propertiesCols"
-        [value]="properties()"
-        [scrollable]="true"
-        scrollHeight="100cqh"
-        [virtualScroll]="false"
-        dataKey="key"
-        [contextMenu]="showSystemPropertiesContextMenu() ? propertyMenu : undefined"
-        [(contextMenuSelection)]="systemPropertiesContextMenuSelection"
-      >
-        <ng-template
-          pTemplate="body"
-          let-rowData
-          let-rowIndex="rowIndex"
-          let-columns="columns"
-        >
-          <tr style="height: 30px" [pContextMenuRow]="rowData">
-            @for (col of columns; track col) {
-              <td class="user-selectable">
-                {{ rowData[col.field] }}
-              </td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  </p-card>
-  <p-card header="Application properties" class="application-properties">
-    <div class="table-container">
-      <p-context-menu
-        #customPropertyMenu
-        [model]="applicationPropertiesContextMenu()"
-        appendTo="body"/>
-      <p-table
-        [columns]="propertiesCols"
-        [value]="applicationProperties()"
-        [scrollable]="true"
-        scrollHeight="100cqh"
-        [virtualScroll]="false"
-        dataKey="key"
-        [contextMenu]="showApplicationPropertiesContextMenu() ? customPropertyMenu : undefined"
-        [(contextMenuSelection)]="applicationPropertiesContextMenuSelection"
-      >
-        <ng-template
-          pTemplate="body"
-          let-rowData
-          let-rowIndex="rowIndex"
-          let-columns="columns"
-        >
-          <tr style="height: 30px" [pContextMenuRow]="rowData">
-            @for (col of columns; track col) {
-              <td class="user-selectable">
-                {{ rowData[col.field] }}
-              </td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  </p-card>
+      </p-scroll-panel>
+    </ng-template>
+  </p-splitter>
 </div>
+
+<div class="narrow">
+  <div class="card messages">
+    <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
+  </div>
+  <div class="card body">
+    <ng-template *ngTemplateOutlet="bodyTemplate" />
+  </div>
+  <div class="system-properties">
+    <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
+  </div>
+  <div class="application-properties">
+    <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+  </div>
+</div>
+
+<ng-template #messageSelectorTemplate>
+  <div class="messages-container">
+    <div class="messages-header">
+      <h2>Messages</h2>
+      <div class="header-actions">
+        @if (messagesHeader(); as ref) {
+          <ng-container *ngTemplateOutlet="ref"></ng-container>
+        }
+      </div>
+    </div>
+    <p-context-menu
+      #cm
+      appendTo="body"
+      [model]="messagesContextMenu()"
+    />
+    <p-table
+      #messagesTable
+      [columns]="cols"
+      [rows]="100"
+      [value]="currentPageMessages()"
+      [scrollable]="true"
+      scrollHeight="flex"
+      [loading]="isLoading()"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="36"
+      stripedRows
+      [selection]="selection()"
+      (selectionChange)="onSelectionChange($event)"
+      [selectionMode]="this.multiselect() ? 'multiple' : 'single'"
+      contextMenuSelectionMode="joint"
+      [metaKeySelection]="this.multiselect()"
+      [contextMenu]="showMessageContextMenu() ? cm : undefined"
+      [lazy]="this.lazy()"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          @for (col of columns; track col) {
+            <th style="width: 20%">
+              {{ col.header }}
+            </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr
+          [pContextMenuRow]="rowData.sequenceNumber"
+          [pSelectableRow]="rowData.sequenceNumber"
+          [pContextMenuRowIndex]="rowIndex"
+          [pSelectableRowIndex]="rowIndex"
+        >
+          @for (col of columns; track col) {
+            <td>
+              {{ rowData[col.field] }}
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+    @if (usePagination()) {
+      <p-paginator
+        [rows]="maxMessagesPerPage()"
+        [totalRecords]="messages().length"
+        (onPageChange)="setPage($event)"
+        style="--p-paginator-padding: 3px"
+        #messagesPaginator
+      />
+    }
+  </div>
+</ng-template>
+
+<ng-template #bodyTemplate>
+  <lib-body-viewer
+    header="Body"
+    [body]="body()"
+    [contentType]="selectedMessage()?.contentType ?? 'text/plain'" />
+</ng-template>
+
+<ng-template #systemPropertiesTemplate>
+  <h2>System properties</h2>
+  <div class="table-container">
+    <p-context-menu
+      #propertyMenu
+      [model]="systemPropertiesContextMenu()"
+      appendTo="body" />
+    <p-table
+      [columns]="propertiesCols"
+      [value]="properties()"
+      [virtualScroll]="false"
+      dataKey="key"
+      [contextMenu]="showSystemPropertiesContextMenu() ? propertyMenu : undefined"
+      [(contextMenuSelection)]="systemPropertiesContextMenuSelection"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height: 30px" [pContextMenuRow]="rowData">
+          @for (col of columns; track col) {
+            @if (dateGuard(rowData[col.field])) {
+              <td class="user-selectable">
+                {{ rowData[col.field] | date: 'medium' }}
+              </td>
+            } @else {
+              <td class="user-selectable">
+                {{ rowData[col.field] }}
+              </td>
+            }
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<ng-template #applicationPropertiesTemplate>
+  <h2>Application properties</h2>
+  <div class="table-container">
+    <p-context-menu
+      #customPropertyMenu
+      [model]="applicationPropertiesContextMenu()"
+      appendTo="body" />
+    <p-table
+      [columns]="propertiesCols"
+      [value]="applicationProperties()"
+      [virtualScroll]="false"
+      dataKey="key"
+      [contextMenu]="showApplicationPropertiesContextMenu() ? customPropertyMenu : undefined"
+      [(contextMenuSelection)]="applicationPropertiesContextMenuSelection"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height: 30px" [pContextMenuRow]="rowData">
+          @for (col of columns; track col) {
+            <td class="user-selectable">
+              {{ rowData[col.field] }}
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>

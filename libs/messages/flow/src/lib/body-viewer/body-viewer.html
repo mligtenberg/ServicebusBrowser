@@ -1,5 +1,6 @@
 <div class="editor-container">
   <div class="actions">
+    <h2 class="title">{{header()}}</h2>
     <p-toggle-switch
       [(ngModel)]="showPrettyBody"
       pTooltip="Show pretty body"
@@ -64,9 +65,12 @@
       </p-table>
     </div>
   } @else {
-    <sbb-editor
-      [editorOptions]="editorOptions()"
-      [value]="shownBody()"
-    ></sbb-editor>
+    @let body = shownBody();
+    @if (body !== undefined) {
+      <sbb-editor
+        [editorOptions]="editorOptions()"
+        [value]="body"
+      ></sbb-editor>
+    }
   }
 </ng-template>

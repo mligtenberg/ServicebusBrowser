@@ -12,9 +12,8 @@ import {
   TemplateRef,
   viewChild,
 } from '@angular/core';
-import { Card } from 'primeng/card';
 import { ContextMenu } from 'primeng/contextmenu';
-import { NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
@@ -26,13 +25,14 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
+import { Splitter } from 'primeng/splitter';
+import { ScrollPanel } from 'primeng/scrollpanel';
 
 const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-messages-viewer',
   imports: [
-    Card,
     ContextMenu,
     PrimeTemplate,
     TableModule,
@@ -40,11 +40,15 @@ const repository = await getMessagesRepository();
     NgTemplateOutlet,
     Paginator,
     BodyViewer,
+    DatePipe,
+    Splitter,
+    ScrollPanel,
+    NgClass,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
 })
-export class MessagesViewer {
+class MessagesViewer {
   private cdRef = inject(ChangeDetectorRef);
 
   // template references
@@ -72,6 +76,7 @@ export class MessagesViewer {
   applicationPropertiesContextMenuSelection = model<
     { key: string; value: unknown } | undefined
   >(undefined);
+  isResizing = signal(false);
 
   lazyLoadTriggered = output<TableLazyLoadEvent>();
 
@@ -147,9 +152,18 @@ export class MessagesViewer {
     }
 
     return Object.entries(message ?? {})
-      .map(([key, value]) => ({key, value }))
-      .filter(({ key }) => !['key', 'body', 'applicationProperties'].includes(key));
-
+      .map(([key, value]) => ({ key, value }))
+      .filter(
+        ({ key }) => !['key', 'body', 'applicationProperties'].includes(key),
+      )
+      .map(({ key, value }) => {
+        // key should become a human readable string, not camel case
+        const keyParts = key
+          .split(/(?=[A-Z])/)
+          .map((part) => part.toLowerCase());
+        const humanReadableKey = keyParts.join(' ');
+        return { key: humanReadableKey, value };
+      });
   });
   applicationProperties = computed(() => {
     const applicationProperties = this.selectedMessage()?.applicationProperties;
@@ -207,7 +221,7 @@ export class MessagesViewer {
       .filter((e, i, arr) => arr.indexOf(e) === i);
 
     this.selection.set(selection);
-    setTimeout(() => this.cdRef.detectChanges());
+    setTimeout(() => this.cdRef.detectChanges(), 100);
   }
 
   protected onLazyLoad($event: TableLazyLoadEvent) {
@@ -226,4 +240,16 @@ export class MessagesViewer {
     this.currentPageNumber.set(($event.page ?? 0) + 1);
     this.messagesTable().scrollToVirtualIndex(0);
   }
+
+  protected dateGuard(value: unknown): value is Date {
+    return value instanceof Date;
+  }
+
+  protected onResize() {
+    this.cdRef.detectChanges();
+  }
+
+  protected readonly Date = Date;
 }
+
+export default MessagesViewer;

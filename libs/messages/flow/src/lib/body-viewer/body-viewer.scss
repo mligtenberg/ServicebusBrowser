@@ -21,6 +21,10 @@
   position: relative;
 }
 
+.title {
+  flex: 1;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
