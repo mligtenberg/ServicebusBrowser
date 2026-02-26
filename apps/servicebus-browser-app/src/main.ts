@@ -1,13 +1,23 @@
 import SquirrelEvents from './app/events/squirrel.events';
 import ElectronEvents from './app/events/electron.events';
-import { app, BrowserWindow, session } from 'electron';
+import { app, BrowserWindow, protocol, session } from 'electron';
 import App from './app/app';
 import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import ServiceBusEvents from './app/events/service-bus.events';
 import UpdateEvents from './app/events/update.events';
 import * as fs from 'node:fs';
 
-
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      stream: true,
+    },
+  },
+]);
 
 export default class Main {
   static initialize() {
@@ -49,7 +59,7 @@ if (App.isDevelopmentMode()) {
 
         console.log(`Installing extensions: ${contents}`);
         for (const extension of contents) {
-          await session.defaultSession.loadExtension(extension);
+          await session.defaultSession.extensions.loadExtension(extension);
         }
       })
       .then(() => {

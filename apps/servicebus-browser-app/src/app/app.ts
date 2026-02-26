@@ -54,6 +54,12 @@ export default class App {
     // Some APIs can only be used after this event occurs.
     if (rendererAppName) {
       App.loadNetworkStack();
+      App.initWindow();
+    }
+  }
+
+  private static initWindow() {
+    if (rendererAppName) {
       App.initMainWindow();
       App.loadMainWindow();
     }
@@ -63,17 +69,21 @@ export default class App {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (App.mainWindow === null) {
-      App.onReady();
+      App.initWindow();
     }
   }
 
   private static loadNetworkStack() {
     const useDevServer = !App.application.isPackaged;
 
-    protocol.handle('http', async (request) => {
+    protocol.handle('app', async (request) => {
       // Custom fetch
       if (useDevServer) {
-        return await this.loadFromDevServer(request);
+        const externalRequest = new Request(
+          request.url.replace('app://localhost', `http://localhost:${rendererAppPort}`),
+          request
+        );
+        return await this.loadFromDevServer(externalRequest);
       } else {
         return await this.loadFromDisk(request);
       }
@@ -252,7 +262,7 @@ export default class App {
   }
 
   private static loadMainWindow() {
-    App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
+    App.mainWindow.loadURL(`app://localhost`);
   }
 
   private static saveSetting<T>(key: string, value: T) {
