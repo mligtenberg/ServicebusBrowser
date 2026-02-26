@@ -73,6 +73,9 @@ td {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.header {
   border-bottom: 1px solid var(--p-splitter-gutter-background);
 }
 
@@ -82,8 +85,14 @@ td {
   align-items: center;
 }
 
+.properties {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
 .properties > * {
-  min-height: 5em;
+  flex: 1;
 
   &:not(:last-child) {
     border-bottom: 1px solid var(--p-splitter-gutter-background);

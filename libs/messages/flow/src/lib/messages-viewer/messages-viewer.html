@@ -48,7 +48,7 @@
 
 <ng-template #messageSelectorTemplate>
   <div class="messages-container">
-    <div class="messages-header">
+    <div class="messages-header header">
       <h2>Messages</h2>
       <div class="header-actions">
         @if (messagesHeader(); as ref) {
@@ -130,7 +130,9 @@
 </ng-template>
 
 <ng-template #systemPropertiesTemplate>
-  <h2>System properties</h2>
+  <div class="header">
+    <h2>System properties</h2>
+  </div>
   <div class="table-container">
     <p-context-menu
       #propertyMenu
@@ -169,7 +171,9 @@
 </ng-template>
 
 <ng-template #applicationPropertiesTemplate>
-  <h2>Application properties</h2>
+  <div class="header">
+    <h2>Application properties</h2>
+  </div>
   <div class="table-container">
     <p-context-menu
       #customPropertyMenu
