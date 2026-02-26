@@ -1,19 +1,22 @@
-<div class="actions">
-  <p-toggle-switch
-    [(ngModel)]="showPrettyBody"
-    pTooltip="Show pretty body"
-    tooltipPosition="bottom"
-    [disabled]="!prettyPrintAvailable()"
-  />
-  <p-button
-    icon="pi pi-window-maximize"
-    (click)="displayBodyFullscreen.set(true)"
-    [rounded]="true"
-    [text]="true"
-  ></p-button>
+<div class="editor-container">
+  <div class="actions">
+    <p-toggle-switch
+      [(ngModel)]="showPrettyBody"
+      pTooltip="Show pretty body"
+      tooltipPosition="bottom"
+      [disabled]="!prettyPrintAvailable()"
+    />
+    <p-button
+      icon="pi pi-window-maximize"
+      (click)="displayBodyFullscreen.set(true)"
+      [rounded]="true"
+      [text]="true"
+    ></p-button>
+  </div>
+  <div class="editor">
+    <ng-container *ngTemplateOutlet="bodyView"/>
+  </div>
 </div>
-
-<ng-container *ngTemplateOutlet="bodyView"/>
 
 <p-dialog
   header="Message body"
@@ -22,19 +25,21 @@
   [modal]="true"
   [style]="{ width: '100%', height: '100%' }"
 >
-  <div class="actions">
-    <p-toggle-switch
-      [(ngModel)]="showPrettyBody"
-      pTooltip="Show pretty body"
-      tooltipPosition="bottom"
-      [disabled]="!prettyPrintAvailable()"
-    />
-  </div>
-  @if (displayBodyFullscreen()) {
-    <div class="editor">
-      <ng-container *ngTemplateOutlet="bodyView"/>
+  <div class="editor-container">
+    <div class="actions">
+      <p-toggle-switch
+        [(ngModel)]="showPrettyBody"
+        pTooltip="Show pretty body"
+        tooltipPosition="bottom"
+        [disabled]="!prettyPrintAvailable()"
+      />
     </div>
-  }
+    @if (displayBodyFullscreen()) {
+      <div class="editor">
+        <ng-container *ngTemplateOutlet="bodyView"/>
+      </div>
+    }
+  </div>
 </p-dialog>
 
 <ng-template #bodyView>
