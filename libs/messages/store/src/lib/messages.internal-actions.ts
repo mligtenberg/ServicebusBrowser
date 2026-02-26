@@ -130,5 +130,6 @@ export const batchSendCompleted = createAction(
   '[Messages] batch messages send completed',
   props<{
     transactionId: UUID,
+    endpoint: SendEndpoint,
   }>()
 )

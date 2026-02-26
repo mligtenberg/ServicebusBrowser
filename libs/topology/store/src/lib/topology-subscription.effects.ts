@@ -6,7 +6,6 @@ import * as internalActions from './topology.internal-actions';
 import { catchError, filter, from, map, mergeMap, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectNamespaceById, selectTopicById } from './topology.selectors';
-import { MessagesActions } from '@service-bus-browser/messages-store';
 import { SubscriptionReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 @Injectable()
@@ -339,27 +338,6 @@ export class TopologySubscriptionEffects {
             namespaceId: namespace!.id,
             topicId: topic!.id,
             subscriptionId: subscription!.id,
-          }),
-        ])
-      )
-    )
-  );
-
-  reloadQueueOnClearSubscription$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(MessagesActions.clearedEndpoint),
-      map(({ endpoint }) =>
-        'subjectName' in endpoint
-          ? (endpoint as SubscriptionReceiveEndpoint)
-          : undefined
-      ),
-      filter((endpoint) => endpoint !== undefined),
-      mergeMap((endpoint) =>
-        from([
-          actions.loadSubscription({
-            namespaceId: endpoint.connectionId,
-            topicId: endpoint.topicName,
-            subscriptionId: endpoint.subscriptionName,
           }),
         ])
       )

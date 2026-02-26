@@ -1,20 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
-import { catchError, from, map, mergeMap } from 'rxjs';
+import { catchError, filter, from, map, mergeMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import * as actions from './messages.actions';
 import * as internalActions from './messages.internal-actions';
 import Long from 'long';
-import {
-  clearedEndpoint,
-  importMessages,
-} from './messages.actions';
+import { clearedEndpoint, importMessages } from './messages.actions';
 import { ServiceBusMessage } from '@service-bus-browser/messages-contracts';
 import { batchSendCompleted } from './messages.internal-actions';
 import { ExportMessagesUtil } from './export-messages-util';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { TopologyActions } from '@service-bus-browser/topology-store';
 
 const repository = await getMessagesRepository();
 
@@ -38,17 +36,25 @@ export class MessagesEffects {
           maxAmount,
           fromSequenceNumber,
           alreadyLoadedAmount,
-          receiveType
+          receiveType,
         }) => {
           const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
-          const messages$ = receiveType === 'peek' ? from(
-            this.messagesService.peekMessages(
-              endpoint,
-              maxAmountToLoad,
-              Long.fromString(fromSequenceNumber),
-            ),
-          ) : from(this.messagesService.receiveMessages(endpoint, maxAmountToLoad));
+          const messages$ =
+            receiveType === 'peek'
+              ? from(
+                  this.messagesService.peekMessages(
+                    endpoint,
+                    maxAmountToLoad,
+                    Long.fromString(fromSequenceNumber),
+                  ),
+                )
+              : from(
+                  this.messagesService.receiveMessages(
+                    endpoint,
+                    maxAmountToLoad,
+                  ),
+                );
 
           return messages$.pipe(
             map((messages) =>
@@ -58,7 +64,7 @@ export class MessagesEffects {
                 maxAmount: maxAmount - messages.length,
                 amountLoaded: alreadyLoadedAmount + messages.length,
                 messages,
-                receiveType: receiveType
+                receiveType: receiveType,
               }),
             ),
           );
@@ -70,37 +76,50 @@ export class MessagesEffects {
   loadMoreMessages$ = createEffect(() =>
     this.actions$.pipe(
       ofType(internalActions.loadMessagesPartLoaded),
-      mergeMap(action => {
-        return from(repository.addMessages(action.pageId, action.messages)).pipe(
-          map(() => action),
-        )
+      mergeMap((action) => {
+        return from(
+          repository.addMessages(action.pageId, action.messages),
+        ).pipe(map(() => action));
       }),
-      map(({ pageId, endpoint, maxAmount, messages, amountLoaded, receiveType }) => {
-        if (maxAmount <= 0 || messages.length === 0) {
-          return actions.loadMessagesLoadingDone({ pageId, endpoint, receiveType });
-        }
-
-        const sequenceNumbers = messages.map((m) =>
-          Long.fromString(m.sequenceNumber ?? '0'),
-        );
-        const highestSequenceNumber =
-          sequenceNumbers.length === 0
-            ? Long.fromNumber(0)
-            : sequenceNumbers.reduce((max, current) => {
-                return current.compare(max) > 0 ? current : max;
-              }, sequenceNumbers[0]);
-
-        const fromSequenceNumber = highestSequenceNumber.add(1).toString();
-
-        return internalActions.loadMessagesLoad({
+      map(
+        ({
           pageId,
           endpoint,
           maxAmount,
-          alreadyLoadedAmount: amountLoaded,
-          fromSequenceNumber,
-          receiveType
-        });
-      }),
+          messages,
+          amountLoaded,
+          receiveType,
+        }) => {
+          if (maxAmount <= 0 || messages.length === 0) {
+            return actions.loadMessagesLoadingDone({
+              pageId,
+              endpoint,
+              receiveType,
+            });
+          }
+
+          const sequenceNumbers = messages.map((m) =>
+            Long.fromString(m.sequenceNumber ?? '0'),
+          );
+          const highestSequenceNumber =
+            sequenceNumbers.length === 0
+              ? Long.fromNumber(0)
+              : sequenceNumbers.reduce((max, current) => {
+                  return current.compare(max) > 0 ? current : max;
+                }, sequenceNumbers[0]);
+
+          const fromSequenceNumber = highestSequenceNumber.add(1).toString();
+
+          return internalActions.loadMessagesLoad({
+            pageId,
+            endpoint,
+            maxAmount,
+            alreadyLoadedAmount: amountLoaded,
+            fromSequenceNumber,
+            receiveType,
+          });
+        },
+      ),
     ),
   );
 
@@ -234,7 +253,10 @@ export class MessagesEffects {
               await this.messagesService.sendMessages(endpoint, set);
             }
           })(),
-        ).pipe(map(() => batchSendCompleted({ transactionId })));
+        ).pipe(map(() => batchSendCompleted({
+          transactionId,
+          endpoint
+        })));
       }),
     ),
   );
@@ -269,5 +291,38 @@ export class MessagesEffects {
         mergeMap(() => this.exportMessagesUtil.importMessages()),
       ),
     { dispatch: false },
+  );
+
+  reloadOnMessagedReceived$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.loadMessagesLoadingDone),
+      filter(({ receiveType }) => receiveType === 'receive'),
+      map(({ endpoint }) => {
+        return TopologyActions.reloadReceiveEndpoint({ endpoint });
+      }),
+    ),
+  );
+
+  reloadEndpointAfterSent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(internalActions.sentMessage),
+      map(({ endpoint }) => TopologyActions.reloadSendEndpoint({ endpoint })),
+    ),
+  );
+
+  reloadEndpointAfterBatchSent$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(batchSendCompleted),
+      map(({ endpoint }) =>
+        TopologyActions.reloadSendEndpoint({ endpoint }),
+      ),
+    ),
+  );
+
+  reloadEndpointAfterClear$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(clearedEndpoint),
+      map(({ endpoint }) => TopologyActions.reloadReceiveEndpoint({ endpoint })),
+    ),
   );
 }

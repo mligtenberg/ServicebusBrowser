@@ -1,6 +1,10 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Queue, Subscription, SubscriptionRule, Topic } from '@service-bus-browser/topology-contracts';
+import {
+  ReceiveEndpoint,
+  SendEndpoint,
+} from '@service-bus-browser/service-bus-contracts';
 
 // NAMESPACES
 
@@ -103,4 +107,15 @@ export const editSubscriptionRule = createAction(
 export const removeSubscriptionRule = createAction(
   '[Topology] Remove Subscription Rule',
   props<{ namespaceId: UUID; topicId: string; subscriptionId: string; ruleName: string }>()
+);
+
+// external reloads
+export const reloadReceiveEndpoint = createAction(
+  '[Topology] Reload receive Endpoints',
+  props <{ endpoint: ReceiveEndpoint }>(),
+);
+
+export const reloadSendEndpoint = createAction(
+  '[Topology] Reload send Endpoints',
+  props<{ endpoint: SendEndpoint }>(),
 );

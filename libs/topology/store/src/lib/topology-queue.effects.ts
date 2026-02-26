@@ -6,7 +6,6 @@ import * as internalActions from './topology.internal-actions';
 import { catchError, filter, from, map, mergeMap, switchMap, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectNamespaceById } from './topology.selectors';
-import { MessagesActions } from '@service-bus-browser/messages-store';
 
 @Injectable()
 export class TopologyQueueEffects {
@@ -212,22 +211,6 @@ export class TopologyQueueEffects {
       mergeMap(({ queue, namespace }) =>
         from([
           actions.loadQueue({ namespaceId: namespace.id, queueId: queue.id }),
-        ])
-      )
-    )
-  );
-
-  reloadQueueOnClearQueue$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(MessagesActions.clearedEndpoint),
-      map(({ endpoint }) => ('queueName' in endpoint ? endpoint : undefined)),
-      filter((endpoint) => endpoint !== undefined),
-      mergeMap((endpoint) =>
-        from([
-          actions.loadQueue({
-            namespaceId: endpoint.connectionId,
-            queueId: endpoint.queueName,
-          }),
         ])
       )
     )

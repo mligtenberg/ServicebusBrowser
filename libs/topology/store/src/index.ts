@@ -12,6 +12,7 @@ import { TopologySubscriptionRuleEffects } from './lib/topology-subscription-rul
 
 import * as actions from './lib/topology.actions'
 import * as selectors from './lib/topology.selectors'
+import { TopologyEffects } from './lib/topology.effects';
 
 // some IDEs do not understand the export * as x from 'y' syntax
 export const TopologyActions = actions;
@@ -24,6 +25,7 @@ export function provideTopologyState(): (
   return [
     provideState(topologyFeature),
     provideEffects([
+      TopologyEffects,
       TopologyNamespacesEffects,
       TopologyQueueEffects,
       TopologyTopicEffects,
