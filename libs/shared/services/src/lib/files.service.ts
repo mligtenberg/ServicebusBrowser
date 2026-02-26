@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
-import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root',
@@ -10,23 +9,55 @@ export class FilesService {
 
   async saveFile(
     fileName: string,
-    content: Blob,
-    fileTypes: Array<{ extensions: string[]; name: string }>
+    content: Blob | File,
+    fileTypes: Array<{ extensions: string[]; name: string }>,
   ) {
-    saveAs(content, fileName);
+    const filePickerSupported =
+      'showSaveFilePicker' in window &&
+      typeof window.showSaveFilePicker === 'function';
+    if (filePickerSupported) {
+      return await this.saveViaFilePickerApi(fileName, content, fileTypes);
+    }
+
+    // implement a synthentic save file
+    return await this.storeViaSyntaticFile(fileName, content);
+  }
+
+  async saveViaFilePickerApi(
+    fileName: string,
+    content: Blob | File,
+    fileTypes: Array<{ extensions: string[]; name: string }>,
+  ) {
+    const handle = (await (window as any).showSaveFilePicker({
+      suggestedName: fileName,
+      types: fileTypes,
+    })) as FileSystemFileHandle;
+    const ufsHandle = await handle.createWritable();
+
+    await ufsHandle.write(content);
+    await ufsHandle.close();
+  }
+
+  async storeViaSyntaticFile(fileName: string, content: File | Blob) {
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   openFile(
     fileTypes: Array<{ extensions: string[]; name: string }>,
-    type: 'binary'
+    type: 'binary',
   ): Promise<{ fileName: string; contents: ArrayBuffer }>;
   openFile(
     fileTypes: Array<{ extensions: string[]; name: string }>,
-    type: 'text'
+    type: 'text',
   ): Promise<{ fileName: string; contents: string }>;
   openFile(
     fileTypes: Array<{ extensions: string[]; name: string }>,
-    type: 'text' | 'binary'
+    type: 'text' | 'binary',
   ): Promise<{ fileName: string; contents: string | ArrayBuffer }> {
     return new Promise<{ fileName: string; contents: string | ArrayBuffer }>(
       (resolve, reject) => {
@@ -71,7 +102,7 @@ export class FilesService {
 
         document.body.appendChild(input);
         input.click();
-      }
+      },
     );
   }
 }

@@ -41,43 +41,23 @@ export class ExportMessagesUtil {
       }),
     );
 
-    const filePickerSupported =
-      ('showSaveFilePicker' in window) &&
-      typeof window.showSaveFilePicker === 'function';
-
-    let writableStream: WritableStream;
-    let blobPromise: Promise<Blob> | undefined = undefined;
-
-    if (filePickerSupported)  {
-      const handle = (await (window as any).showSaveFilePicker({
-        suggestedName: `${page.name}.zip`,
-        types: [
-          {
-            description: 'Messages archive',
-            accept: { 'application/zip': ['.zip'] },
-          },
-        ],
-      })) as FileSystemFileHandle;
-      writableStream = await handle.createWritable();
-    } else {
-      const transformStream = new TransformStream();
-      writableStream = transformStream.writable;
-      const response = new Response(transformStream.readable);
-      blobPromise = response.blob();
-
-    }
-
+    const handle = await this.getFileHandle(`${page.name}.zip`);
+    const writableStream = await handle.createWritable();
     const zip = new ZipWriter(writableStream);
 
-    let messages: {index: number, message: ServiceBusReceivedMessage}[] = [];
+    let messages: { index: number; message: ServiceBusReceivedMessage }[] = [];
 
     await repository.walkMessagesWithCallback(
       pageId,
       async (message, index) => {
-        messages.push({index, message});
+        messages.push({ index, message });
 
         if ((index + 1) % 100 === 0) {
-          await Promise.all(messages.map(async ({index, message}) => this.addToZip(zip, index, message)));
+          await Promise.all(
+            messages.map(async ({ index, message }) =>
+              this.addToZip(zip, index, message),
+            ),
+          );
 
           messages = [];
           this.store.dispatch(
@@ -114,15 +94,13 @@ export class ExportMessagesUtil {
 
     await zip.close();
 
-    if (blobPromise) {
-      const blob = await blobPromise;
-      await this.fileService.saveFile(`${page.name}.zip`, blob, [
-        {
-          name: 'application/zip',
-          extensions: ['.zip'],
-        }
-      ]);
-    }
+    const file = await handle.getFile();
+    await this.fileService.saveFile(`${page.name}.zip`, file, [
+      {
+        name: 'application/zip',
+        extensions: ['.zip'],
+      },
+    ]);
 
     this.store.dispatch(TasksActions.completeTask({ id: taskId }));
   }
@@ -297,5 +275,15 @@ export class ExportMessagesUtil {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  private async getFileHandle(name: string) {
+    const opfsRoot = await navigator.storage.getDirectory();
+    const sqliteRoot = await opfsRoot.getDirectoryHandle('exports', { create: true });
+    const fileHandle = await sqliteRoot.getFileHandle(
+      name,
+      { create: true },
+    );
+    return fileHandle;
   }
 }
