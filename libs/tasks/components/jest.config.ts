@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-browser/tasks-components',
+  displayName: '@service-bus-browser/tasks-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/tasks/components',
+  coverageDirectory: '../../../coverage/libs/tasks/form',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

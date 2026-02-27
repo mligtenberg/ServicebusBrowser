@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-browser/logs-components',
+  displayName: '@service-bus-browser/logs-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/logs/components',
+  coverageDirectory: '../../../coverage/libs/logs/form',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

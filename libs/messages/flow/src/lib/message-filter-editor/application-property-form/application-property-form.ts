@@ -5,7 +5,6 @@ import {
   form,
   FormField,
   FormValueControl,
-  FieldTree,
 } from '@angular/forms/signals';
 import { PropertyFilter } from '@service-bus-browser/messages-contracts';
 import { InputGroup } from 'primeng/inputgroup';
@@ -19,8 +18,9 @@ import {
 } from '../options';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
-import { SelectSignalFormInput } from '../select-signal-form-input/select-signal-form-input';
-import { DatePickerSignalFormInput } from '../date-picker-signal-form-input/date-picker-signal-form-input';
+import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
+import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
+import { formHelpers } from '../../form-helpers';
 
 @Component({
   selector: 'lib-application-property-form',
@@ -40,6 +40,7 @@ import { DatePickerSignalFormInput } from '../date-picker-signal-form-input/date
 export class ApplicationPropertyForm
   implements FormValueControl<PropertyFilter>
 {
+  formHelpers = formHelpers;
   value = model<PropertyFilter>({
     value: '',
     fieldType: 'string',
@@ -73,30 +74,6 @@ export class ApplicationPropertyForm
   protected readonly stringFilterTypes = stringFilterTypes;
   protected readonly dateFilterTypes = dateFilterTypes;
   protected readonly numberFilterTypes = numberFilterTypes;
-
-  protected asStringValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<string, string> {
-    return value as FieldTree<string, string>;
-  }
-
-  protected asDateValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<Date, string> {
-    return value as FieldTree<Date, string>;
-  }
-
-  protected asNumberValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<number, string> {
-    return value as FieldTree<number, string>;
-  }
-
-  protected asBooleanValueTree(
-    value: FieldTree<unknown, string>,
-  ): FieldTree<boolean, string> {
-    return value as FieldTree<boolean, string>;
-  }
 
   protected remove() {
     this.removedPressed.emit();

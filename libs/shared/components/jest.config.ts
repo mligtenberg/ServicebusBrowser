@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-browser/shared-components',
+  displayName: '@service-bus-browser/shared-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/shared/components',
+  coverageDirectory: '../../../coverage/libs/shared/form',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-browser/topology-components',
+  displayName: '@service-bus-browser/topology-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/topology/components',
+  coverageDirectory: '../../../coverage/libs/topology/form',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

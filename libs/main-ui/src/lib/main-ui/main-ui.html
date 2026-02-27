@@ -26,9 +26,11 @@
     <div class="main-content">
       <lib-page-navigator/>
       <div class="router-outlet">
-        <p-scroll-panel>
-          <router-outlet></router-outlet>
-        </p-scroll-panel>
+        <div class="main-content-container">
+          <p-scroll-panel>
+            <router-outlet></router-outlet>
+          </p-scroll-panel>
+        </div>
       </div>
       <div class="logs">
         <button class="logs-header" (click)="toggleLogs()">

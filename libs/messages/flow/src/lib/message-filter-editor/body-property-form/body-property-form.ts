@@ -4,7 +4,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
-import { SelectSignalFormInput } from '../select-signal-form-input/select-signal-form-input';
+import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { bodyFilterTypes } from '../options';
 import {
   disabled as formDisabled,

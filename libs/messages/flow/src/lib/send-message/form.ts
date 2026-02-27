@@ -1,4 +1,3 @@
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 
 type SystemStringPropertyKeys = 'correlationId'
@@ -32,19 +31,22 @@ export const SystemPropertyKeys: SystemPropertyKeys[] = [
 ]
 
 
-export type SystemPropertyGroup = { key: FormControl<SystemPropertyKeys | null>; value: FormControl<string | Date>};
+export type SystemPropertyGroup = {
+  key: SystemPropertyKeys | '';
+  value: string | Date
+};
 
 export type CustomPropertyType = 'string' | 'number' | 'datetime' | 'boolean';
-export type CustomPropertyGroup = {
-  key: FormControl<string>;
-  type: FormControl<CustomPropertyType | null>;
-  value: FormControl<string | number | Date | boolean>
+export type ApplicationPropertyGroup = {
+  key: string;
+  type: CustomPropertyType | null;
+  value: string | number | Date | boolean
 };
 
 export interface SendMessagesForm {
-  body: FormControl<string>;
-  contentType: FormControl<string | null>;
-  properties: FormArray<FormGroup<SystemPropertyGroup>>;
-  customProperties: FormArray<FormGroup<CustomPropertyGroup>>;
-  endpoint: FormControl<SendEndpoint | null>;
+  body: string;
+  contentType: string;
+  systemProperties: SystemPropertyGroup[];
+  applicationProperties: ApplicationPropertyGroup[];
+  endpoint: SendEndpoint | null;
 }

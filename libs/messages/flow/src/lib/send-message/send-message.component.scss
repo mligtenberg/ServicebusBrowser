@@ -1,121 +1,66 @@
 :host {
+  font-size: 0.875rem;
   height: 100%;
 
   ::ng-deep {
-    .p-card {
-      height: 100%;
-      width: 100%;
-    }
-
-    .p-card-body {
-      height: 100%;
-      width: 100%;
-    }
-
-    .p-card-content {
-      height: 100%;
-      width: 100%;
-    }
-
     .p-autocomplete {
       width: 100%;
     }
   }
 }
 
-p-card {
-  overflow: hidden;
-  width: 100%;
-}
-
-.send-message-container {
-  width: 100cqw;
-  min-height: 100cqh;
-
-  display: grid;
-  grid-template-areas:
-    'body properties'
-    'body custom-properties'
-    'actions actions';
-
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: 1fr 1fr auto;
-  padding: 1rem;
-  gap: 1rem;
-
-  @container (width < 1100px) {
-    grid-template-areas:
-    'properties custom-properties'
-    'body body'
-    'actions actions';
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: minmax(20rem, 1fr) minmax(30rem, calc(100cqh - 4rem));
-
-    @container (width < 800px) {
-      grid-template-areas:
-      'properties'
-      'custom-properties'
-      'body'
-      'actions';
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(2, minmax(20rem, 1fr)) minmax(30rem, calc(100cqh - 4rem));
-    }
-  }
-
-  .editor {
-    grid-area: body;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .properties {
-    grid-area: properties;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .custom-properties {
-    grid-area: custom-properties;
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-p-card {
-  flex: 1;
-}
-
 .body-title h2 {
   margin: 0.4rem 0;
 }
 
-.editor-container {
-  width: 100%;
-  height: 100%;
+.send-message-container {
+  display: flex;
+  flex-direction: column;
+  height: 100cqh;
+  width: 100cqw;
   overflow: hidden;
-  position: relative;
 }
 
-ngx-monaco-editor {
-  width: 100%;
+.edit-area {
+  flex: 1;
+  overflow: hidden;
+  border-bottom: 1px solid var(--p-splitter-gutter-background)
+}
+
+.all-properties-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   height: 100%;
-  position: absolute;
+  width: 100%;
 }
 
-.properties-container,
-.custom-properties-container
-{
-  width: 100%;
-  padding-right: 0.6rem;
-  & > * {
-    margin-top: 0.5rem;
-  }
+.properties-container {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message-actions {
+  min-height: 3.5rem;
+  padding: .5rem;
+}
+
+
+.header {
+  border-bottom: 2px solid var(--p-splitter-gutter-background);
+}
+
+::ng-deep h2 {
+  padding: 0 0 0 .5rem;
+  margin: 0.25rem;
+  font-size: 1rem;
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1rem;
 }
 
 .message-actions {
@@ -139,4 +84,26 @@ p-auto-complete {
 p-virtual-scroller {
   width: 100%;
   height: 100%;
+}
+
+p-input-group {
+  lib-select-signal-form-input:first-child {
+    border-radius: var(--p-select-border-radius) 0 0 var(--p-select-border-radius);
+  }
+
+  lib-select-signal-form-input, lib-date-picker-signal-form-input {
+    color: var(--p-inputtext-color);
+    background: var(--p-inputtext-background);
+    border: 1px solid var(--p-inputtext-border-color);
+
+    ::ng-deep {
+      p-select {
+        border: none;
+      }
+
+      p-date-picker > input {
+        border: none;
+      }
+    }
+  }
 }

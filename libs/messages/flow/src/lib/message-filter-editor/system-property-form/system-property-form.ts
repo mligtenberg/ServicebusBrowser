@@ -1,13 +1,13 @@
 import { Component, inject, input, model, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
-import { DatePickerSignalFormInput } from '../date-picker-signal-form-input/date-picker-signal-form-input';
+import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
-import { SelectSignalFormInput } from '../select-signal-form-input/select-signal-form-input';
+import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
 import {
   PropertyFilter,

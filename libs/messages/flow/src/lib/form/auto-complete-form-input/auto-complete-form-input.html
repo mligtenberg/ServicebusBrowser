@@ -1,0 +1,13 @@
+<p-auto-complete
+  [dropdown]="true"
+  [suggestions]="suggestions() ?? []"
+  (completeMethod)="completeMethod.emit($event)"
+  (onHide)="hide.emit()"
+  appendTo="body"
+  inputId="contentType"
+  [disabled]="disabled()"
+  [readonly]="readonly()"
+  [hidden]="hidden()"
+  [required]="required()"
+  [(ngModel)]="value"
+/>

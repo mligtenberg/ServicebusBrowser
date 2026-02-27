@@ -59,7 +59,7 @@
   @if (propertyForm.fieldType().value()  === 'string') {
     <input
       pInputText
-      [formField]="asStringValueTree(propertyForm.value)"
+      [formField]="formHelpers.asStringValueTree(propertyForm.value)"
       placeholder="Value"
       class="value"
     />
@@ -67,21 +67,21 @@
 
   @if (propertyForm.fieldType().value() === 'date') {
     <lib-date-picker-signal-form-input
-      [formField]="asDateValueTree(propertyForm.value)"
+      [formField]="formHelpers.asDateValueTree(propertyForm.value)"
       class="value"
     />
   }
 
   @if (propertyForm.fieldType().value() === 'number') {
     <input type="number" pInputText
-           [formField]="asNumberValueTree(propertyForm.value)"
+           [formField]="formHelpers.asNumberValueTree(propertyForm.value)"
            class="value"
     />
   }
 
   @if (propertyForm.fieldType().value() === 'boolean') {
     <p-checkbox
-      [formField]="asBooleanValueTree(propertyForm.value)"
+      [formField]="formHelpers.asBooleanValueTree(propertyForm.value)"
       [binary]="true"
       class="value"
     />

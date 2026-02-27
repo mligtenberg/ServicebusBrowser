@@ -31,3 +31,8 @@
   align-items: center;
   margin-bottom: .5rem;
 }
+
+.csv-table-wrapper {
+  user-select: text;
+  -webkit-user-select: text;
+}

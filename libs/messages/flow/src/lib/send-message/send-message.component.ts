@@ -1,75 +1,94 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  model,
+  signal,
+} from '@angular/core';
 
 import { ColorThemeService } from '@service-bus-browser/services';
-import { Card } from 'primeng/card';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  CustomPropertyGroup,
   CustomPropertyType,
   SendMessagesForm,
-  SystemPropertyGroup,
   SystemPropertyKeys
 } from './form';
-import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { startWith, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { Button, ButtonDirective } from 'primeng/button';
 import { InputGroup } from 'primeng/inputgroup';
-import { Select } from 'primeng/select';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
-import { DatePicker } from 'primeng/datepicker';
 import { Popover } from 'primeng/popover';
 import { DurationInputComponent, FormEditor } from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import { Store } from '@ngrx/store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
 import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { NgTemplateOutlet } from '@angular/common';
+import { Splitter } from 'primeng/splitter';
+import { applyEach, form, FormField, required } from '@angular/forms/signals';
+import { formHelpers } from '../form-helpers';
+import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
+import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
+import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
 
 const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-send-message',
   imports: [
-    Card,
-    ReactiveFormsModule,
     AutoCompleteModule,
     FloatLabel,
     ScrollPanel,
     ButtonDirective,
     InputGroup,
-    Select,
     Button,
     InputGroupAddon,
     InputText,
-    DatePicker,
     Popover,
     DurationInputComponent,
     EndpointSelectorInputComponent,
     FormEditor,
+    NgTemplateOutlet,
+    Splitter,
+    FormField,
+    SelectSignalFormInput,
+    DatePickerSignalFormInput,
+    AutoCompleteFormInput,
   ],
   templateUrl: './send-message.component.html',
   styleUrl: './send-message.component.scss',
 })
 export class SendMessageComponent {
+  formHelpers = formHelpers;
+  value = model<SendMessagesForm>(this.getEmptyForm());
+  form = form(this.value, (s) => {
+    required(s.endpoint);
+    applyEach(s.systemProperties, (group) => {
+      required(group.key);
+    });
+    applyEach(s.applicationProperties, (group) => {
+      required(group.key);
+    });
+  });
+
   colorThemeService = inject(ColorThemeService);
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
-  form = signal(this.createForm());
-
-  typeOptions: CustomPropertyType[] = [
-    'string',
-    'datetime',
-    'number',
-    'boolean',
+  typeOptions: Record<string, CustomPropertyType | string>[] = [
+    { label: 'String', value: 'string'},
+    { label: 'Datetime', value: 'datetime' },
+    { label: 'Number', value: 'number' },
+    { label: 'Boolean', value: 'boolean' },
   ];
 
   contentTypeSuggestions = computed(() => {
@@ -83,6 +102,7 @@ export class SendMessageComponent {
       'application/yaml',
       'application/ini',
       'application/toml',
+      'text/csv',
       'text/plain',
     ];
 
@@ -92,15 +112,13 @@ export class SendMessageComponent {
   });
 
   contentTypeSearch = signal<string | null>(null);
-  contentType = toSignal(
-    toObservable(this.form).pipe(
-      switchMap((form) =>
-        form.controls.contentType.valueChanges.pipe(
-          startWith(form.controls.contentType.value),
-        ),
-      ),
-    ),
-  );
+  contentType = computed(() => {
+    const contentType = this.value().contentType;
+    if (contentType) {
+      return contentType;
+    }
+    return undefined;
+  });
   bodyLanguage = computed(() => {
     const contentType = this.contentType() ?? '';
 
@@ -138,35 +156,39 @@ export class SendMessageComponent {
   });
 
   addProperty() {
-    const group = new FormGroup<SystemPropertyGroup>({
-      key: new FormControl<SystemPropertyKeys | null>(null, [
-        Validators.required,
-      ]),
-      value: new FormControl<string | Date>('', {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-    });
-
-    this.form().controls.properties.push(group);
-    return group;
+    this.value.update((v) => ({
+      ...v,
+      systemProperties: [
+        ...v.systemProperties,
+        {
+          key: '',
+          value: '',
+        },
+      ],
+    }));
   }
 
   removeProperty(index: number) {
-    this.form().controls.properties.removeAt(index);
+    this.value.update((v) => ({
+      ...v,
+      systemProperties: v.systemProperties.filter((_, i) => i !== index),
+    }));
   }
 
   getAvailablePropertyKeys(index: number) {
     return SystemKeyProperties.filter(
       (key) =>
-        !this.form().controls.properties.value.some(
+        !this.value().systemProperties.some(
           (p, i) => p.key === key && i !== index,
         ),
-    );
+    ).map((key) => ({
+      label: key,
+      value: key,
+    }));
   }
 
   propertyIsText(index: number) {
-    const key = this.form().controls.properties.value[index].key;
+    const key = this.value().systemProperties[index].key;
     if (!key) {
       return false;
     }
@@ -175,7 +197,7 @@ export class SendMessageComponent {
   }
 
   propertyIsDate(index: number) {
-    const key = this.form().controls.properties.value[index].key;
+    const key = this.value().systemProperties[index].key;
     if (!key) {
       return false;
     }
@@ -184,7 +206,7 @@ export class SendMessageComponent {
   }
 
   propertyIsTimeSpan(index: number) {
-    const key = this.form().controls.properties.value[index].key;
+    const key = this.value().systemProperties[index].key;
     if (!key) {
       return false;
     }
@@ -200,29 +222,27 @@ export class SendMessageComponent {
     );
   }
 
-  addCustomProperty() {
-    const group = new FormGroup<CustomPropertyGroup>({
-      key: new FormControl<string>('', {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      type: new FormControl<CustomPropertyType | null>(null, {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      value: new FormControl<string | number | Date | boolean>('', {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-    });
-
-    this.form().controls.customProperties.push(group);
-
-    return group;
+  addApplicationProperty() {
+    this.value.update((v) => ({
+      ...v,
+      applicationProperties: [
+        ...v.applicationProperties,
+        {
+          key: '',
+          type: 'string',
+          value: '',
+        },
+      ],
+    }));
   }
 
-  removeCustomProperty(index: number) {
-    this.form().controls.customProperties.removeAt(index);
+  removeApplicationProperty(index: number) {
+    this.value.update((v) => ({
+      ...v,
+      applicationProperties: v.applicationProperties.filter(
+        (_, i) => i !== index,
+      ),
+    }));
   }
 
   send() {
@@ -231,7 +251,7 @@ export class SendMessageComponent {
     }
 
     // send message
-    const formValue = this.form().getRawValue();
+    const formValue = this.value();
 
     this.store.dispatch(
       MessagesActions.sendMessage({
@@ -239,31 +259,34 @@ export class SendMessageComponent {
         message: {
           body: formValue.body,
           contentType: formValue.contentType ?? undefined,
-          timeToLive: (formValue.properties.find((x) => x.key === 'timeToLive')
-            ?.value ?? undefined) as string | undefined,
-          messageId: (formValue.properties.find((x) => x.key === 'messageId')
-            ?.value ?? undefined) as string | undefined,
-          correlationId: (formValue.properties.find(
+          timeToLive: (formValue.systemProperties.find(
+            (x) => x.key === 'timeToLive',
+          )?.value ?? undefined) as string | undefined,
+          messageId: (formValue.systemProperties.find(
+            (x) => x.key === 'messageId',
+          )?.value ?? undefined) as string | undefined,
+          correlationId: (formValue.systemProperties.find(
             (x) => x.key === 'correlationId',
           )?.value ?? undefined) as string | undefined,
-          to: (formValue.properties.find((x) => x.key === 'to')?.value ??
+          to: (formValue.systemProperties.find((x) => x.key === 'to')?.value ??
             undefined) as string | undefined,
-          replyTo: (formValue.properties.find((x) => x.key === 'replyTo')
+          replyTo: (formValue.systemProperties.find((x) => x.key === 'replyTo')
             ?.value ?? undefined) as string | undefined,
-          replyToSessionId: (formValue.properties.find(
+          replyToSessionId: (formValue.systemProperties.find(
             (x) => x.key === 'replyToSessionId',
           )?.value ?? undefined) as string | undefined,
-          sessionId: (formValue.properties.find((x) => x.key === 'sessionId')
+          sessionId: (formValue.systemProperties.find(
+            (x) => x.key === 'sessionId',
+          )?.value ?? undefined) as string | undefined,
+          subject: (formValue.systemProperties.find((x) => x.key === 'subject')
             ?.value ?? undefined) as string | undefined,
-          subject: (formValue.properties.find((x) => x.key === 'subject')
-            ?.value ?? undefined) as string | undefined,
-          partitionKey: (formValue.properties.find(
+          partitionKey: (formValue.systemProperties.find(
             (x) => x.key === 'partitionKey',
           )?.value ?? undefined) as string | undefined,
-          scheduledEnqueueTimeUtc: (formValue.properties.find(
+          scheduledEnqueueTimeUtc: (formValue.systemProperties.find(
             (x) => x.key === 'scheduledEnqueueTimeUtc',
           )?.value ?? undefined) as Date | undefined,
-          applicationProperties: formValue.customProperties.reduce(
+          applicationProperties: formValue.applicationProperties.reduce(
             (acc, x) => {
               acc[x.key] = x.value;
               return acc;
@@ -288,18 +311,29 @@ export class SendMessageComponent {
         }),
       )
       .subscribe((message) => {
-        this.form.set(this.createForm());
-
         if (!message) {
+          this.value.set(this.getEmptyForm());
           return;
         }
 
-        const form = this.form();
+        const systemProperties = Object.entries(message)
+          .filter(
+            ([key]) =>
+              key !== 'body' &&
+              key !== 'contentType' &&
+              key !== 'applicationProperties',
+          )
+          .map(([key, value]) => ({
+            key: key as SystemPropertyKeys,
+            value: (value ?? '') as string | Date,
+          }))
+          .filter((x) => !x.value || !SystemPropertyKeys.includes(x.key));
 
-        const newValue = {
+        this.value.set({
           body: message.body,
-          contentType: message.contentType,
-          customProperties: message.applicationProperties
+          contentType: message.contentType ?? '',
+          systemProperties: systemProperties,
+          applicationProperties: message.applicationProperties
             ? Object.entries(message.applicationProperties).map(
                 ([key, value]) => {
                   return {
@@ -317,66 +351,18 @@ export class SendMessageComponent {
                 },
               )
             : [],
-        };
-
-        form.patchValue(newValue);
-
-        const systemProperties = Object.entries(message)
-          .filter(
-            ([key]) =>
-              key !== 'body' &&
-              key !== 'contentType' &&
-              key !== 'applicationProperties',
-          )
-          .map(([key, value]) => ({
-            key: key as SystemPropertyKeys,
-            value: value ?? '',
-          }));
-
-        for (const property of systemProperties) {
-          if (!property.value || !SystemPropertyKeys.includes(property.key)) {
-            continue;
-          }
-
-          const group = this.addProperty();
-          group.patchValue({
-            key: property.key,
-            value: property.value,
-          });
-        }
-
-        if (message.applicationProperties) {
-          for (const property in message.applicationProperties) {
-            const group = this.addCustomProperty();
-            const value = message.applicationProperties[property];
-            group.patchValue({
-              key: property,
-              type:
-                typeof value === 'string'
-                  ? 'string'
-                  : typeof value === 'number'
-                    ? 'number'
-                    : typeof value === 'boolean'
-                      ? 'boolean'
-                      : ('datetime' as CustomPropertyType),
-              value: value ?? '',
-            });
-          }
-        }
+          endpoint: null,
+        });
       });
   }
 
-  private createForm() {
-    return new FormGroup<SendMessagesForm>({
-      body: new FormControl<string>('', {
-        nonNullable: true,
-      }),
-      contentType: new FormControl(''),
-      properties: new FormArray<FormGroup<SystemPropertyGroup>>([]),
-      customProperties: new FormArray<FormGroup<CustomPropertyGroup>>([]),
-      endpoint: new FormControl<SendEndpoint | null>(null, {
-        validators: [Validators.required],
-      }),
-    });
+  getEmptyForm(): SendMessagesForm {
+    return {
+      body: '',
+      contentType: '',
+      systemProperties: [],
+      applicationProperties: [],
+      endpoint: null,
+    };
   }
 }
