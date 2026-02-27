@@ -323,11 +323,11 @@ export class SendMessageComponent {
               key !== 'contentType' &&
               key !== 'applicationProperties',
           )
+          .filter(([key, value]) => value && SystemPropertyKeys.includes(key as SystemPropertyKeys))
           .map(([key, value]) => ({
             key: key as SystemPropertyKeys,
             value: (value ?? '') as string | Date,
-          }))
-          .filter((x) => !x.value || !SystemPropertyKeys.includes(x.key));
+          }));
 
         this.value.set({
           body: message.body,
