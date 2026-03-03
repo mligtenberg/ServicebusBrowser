@@ -1,10 +1,13 @@
 import {
+  AfterViewInit,
   Component,
   computed,
-  effect,
+  ElementRef,
   inject,
   model,
+  OnDestroy,
   signal,
+  viewChild,
 } from '@angular/core';
 
 import { ColorThemeService } from '@service-bus-browser/services';
@@ -66,7 +69,12 @@ const repository = await getMessagesRepository();
   templateUrl: './send-message.component.html',
   styleUrl: './send-message.component.scss',
 })
-export class SendMessageComponent {
+export class SendMessageComponent implements AfterViewInit, OnDestroy {
+  ResizeObserver: ResizeObserver | null = null;
+  formContainer = viewChild.required('formContainer', {
+    read: ElementRef
+  })
+
   formHelpers = formHelpers;
   value = model<SendMessagesForm>(this.getEmptyForm());
   form = form(this.value, (s) => {
@@ -78,6 +86,7 @@ export class SendMessageComponent {
       required(group.key);
     });
   });
+  containerWidth = signal(0);
 
   colorThemeService = inject(ColorThemeService);
   store = inject(Store);
@@ -364,5 +373,16 @@ export class SendMessageComponent {
       applicationProperties: [],
       endpoint: null,
     };
+  }
+
+  ngAfterViewInit() {
+    this.ResizeObserver = new ResizeObserver((entries) => {
+      this.containerWidth.set(entries[0].contentRect.width);
+    });
+    this.ResizeObserver.observe(this.formContainer().nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.ResizeObserver?.disconnect();
   }
 }

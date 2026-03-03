@@ -1,6 +1,6 @@
-<form class="send-message-container">
+<form class="send-message-container" #formContainer>
   <div class="edit-area">
-    <p-splitter [panelSizes]="[70, 30]">
+    <p-splitter [panelSizes]="[70, 30]" [layout]="containerWidth() < 600 ? 'vertical' : 'horizontal'">
       <ng-template #panel>
         <div class="header">
           <h2>Message body</h2>
