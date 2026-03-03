@@ -1,6 +1,7 @@
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
 
-type SystemStringPropertyKeys = 'correlationId'
+type SystemStringPropertyKeys =
+  | 'correlationId'
   | 'partitionKey'
   | 'sessionId'
   | 'replyToSessionId'
@@ -13,7 +14,8 @@ type SystemDatePropertyKeys = 'scheduledEnqueueTimeUtc';
 
 type SystemTimeSpanPropertyKeys = 'timeToLive';
 
-export type SystemPropertyKeys = SystemStringPropertyKeys
+export type SystemPropertyKeys =
+  | SystemStringPropertyKeys
   | SystemDatePropertyKeys
   | SystemTimeSpanPropertyKeys;
 
@@ -27,20 +29,19 @@ export const SystemPropertyKeys: SystemPropertyKeys[] = [
   'to',
   'replyTo',
   'scheduledEnqueueTimeUtc',
-  'timeToLive'
-]
-
+  'timeToLive',
+];
 
 export type SystemPropertyGroup = {
   key: SystemPropertyKeys | '';
-  value: string | Date
+  value: string | Date;
 };
 
 export type CustomPropertyType = 'string' | 'number' | 'datetime' | 'boolean';
 export type ApplicationPropertyGroup = {
   key: string;
   type: CustomPropertyType | null;
-  value: string | number | Date | boolean
+  value: string | number | Date | boolean;
 };
 
 export interface SendMessagesForm {

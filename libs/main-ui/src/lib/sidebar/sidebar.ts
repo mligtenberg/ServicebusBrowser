@@ -8,7 +8,7 @@ import {
   QueueWithMetaData,
   SubscriptionRule,
   SubscriptionWithMetaData,
-  TopicWithMetaData
+  TopicWithMetaData,
 } from '@service-bus-browser/topology-contracts';
 import { MenuItemCommandEvent } from 'primeng/api';
 import { Store } from '@ngrx/store';
@@ -22,7 +22,7 @@ import { TasksComponent } from '@service-bus-browser/tasks-components';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Dialog } from 'primeng/dialog';
-import { MessageChannels } from '@service-bus-browser/service-bus-contracts';
+import { MessageChannels } from '@service-bus-browser/message-queue-contracts';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  inject,
-  signal,
-  viewChild,
-  model,
-} from '@angular/core';
+import { Component, inject, signal, viewChild, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Action,
@@ -17,9 +11,7 @@ import {
 } from '@service-bus-browser/messages-contracts';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
-import {
-  MessagesActions,
-} from '@service-bus-browser/messages-store';
+import { MessagesActions } from '@service-bus-browser/messages-store';
 import { ButtonModule } from 'primeng/button';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DrawerModule } from 'primeng/drawer';
@@ -27,7 +19,7 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';

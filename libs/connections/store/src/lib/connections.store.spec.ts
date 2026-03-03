@@ -1,7 +1,7 @@
 import { connectionsFeature, initialState } from './connections.store';
 import * as Actions from './connections.actions';
 import * as InternalActions from './connections.internal-actions';
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection } from '@service-bus-browser/message-queue-contracts';
 describe('connections reducer', () => {
   const connection: Connection = {
     id: '00000000-0000-0000-0000-000000000001',
@@ -12,7 +12,7 @@ describe('connections reducer', () => {
   it('marks connection under test', () => {
     const state = connectionsFeature.reducer(
       initialState,
-      Actions.checkConnection({ connection })
+      Actions.checkConnection({ connection }),
     );
     expect(state.connectionUnderTest).toEqual(connection);
     expect(state.connectionTestStatus).toBe('none');
@@ -20,22 +20,22 @@ describe('connections reducer', () => {
   it('sets success status', () => {
     let state = connectionsFeature.reducer(
       initialState,
-      Actions.checkConnection({ connection })
+      Actions.checkConnection({ connection }),
     );
     state = connectionsFeature.reducer(
       state,
-      InternalActions.connectionCheckedSuccessfully({ connection })
+      InternalActions.connectionCheckedSuccessfully({ connection }),
     );
     expect(state.connectionTestStatus).toBe('success');
   });
   it('sets error status', () => {
     let state = connectionsFeature.reducer(
       initialState,
-      Actions.checkConnection({ connection })
+      Actions.checkConnection({ connection }),
     );
     state = connectionsFeature.reducer(
       state,
-      InternalActions.connectionCheckFailed({ connection })
+      InternalActions.connectionCheckFailed({ connection }),
     );
     expect(state.connectionTestStatus).toBe('error');
   });

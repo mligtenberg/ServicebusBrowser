@@ -6,7 +6,7 @@ import * as internalActions from './topology.internal-actions';
 import { catchError, filter, from, map, mergeMap, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectNamespaceById, selectTopicById } from './topology.selectors';
-import { SubscriptionReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ServiceBusSubscriptionReceiveEndpoint } from '@service-bus-browser/message-queue-contracts';
 
 @Injectable()
 export class TopologySubscriptionEffects {
@@ -19,7 +19,7 @@ export class TopologySubscriptionEffects {
       ofType(actions.loadSubscriptions),
       mergeMap(({ namespaceId, topicId }) =>
         from(
-          this.serviceBusClient.listSubscriptions(namespaceId, topicId)
+          this.serviceBusClient.listSubscriptions(namespaceId, topicId),
         ).pipe(
           catchError((error) => [
             {
@@ -32,14 +32,14 @@ export class TopologySubscriptionEffects {
           mergeMap((subscriptions) =>
             this.store.select(selectNamespaceById(namespaceId)).pipe(
               map((namespace) => ({ namespace, subscriptions })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           mergeMap(({ subscriptions, namespace }) =>
             this.store.select(selectTopicById(namespaceId, topicId)).pipe(
               map((topic) => ({ namespace, subscriptions, topic })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           map(({ subscriptions, namespace, topic }) => {
             if (subscriptions instanceof Array) {
@@ -54,10 +54,10 @@ export class TopologySubscriptionEffects {
               topic: topic!,
               error: subscriptions.problem,
             });
-          })
-        )
-      )
-    )
+          }),
+        ),
+      ),
+    ),
   );
 
   loadSubscription$ = createEffect(() =>
@@ -68,8 +68,8 @@ export class TopologySubscriptionEffects {
           this.serviceBusClient.getSubscription(
             namespaceId,
             topicId,
-            subscriptionId
-          )
+            subscriptionId,
+          ),
         ).pipe(
           catchError((error) => [
             {
@@ -82,8 +82,8 @@ export class TopologySubscriptionEffects {
           mergeMap((subscription) =>
             this.store.select(selectNamespaceById(namespaceId)).pipe(
               map((namespace) => ({ namespace, subscription, subscriptionId })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           mergeMap(({ subscription, namespace, subscriptionId }) =>
             this.store.select(selectTopicById(namespaceId, topicId)).pipe(
@@ -93,8 +93,8 @@ export class TopologySubscriptionEffects {
                 topic,
                 subscriptionId,
               })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           map(({ subscription, namespace, topic, subscriptionId }) => {
             if ('problem' in subscription) {
@@ -110,10 +110,10 @@ export class TopologySubscriptionEffects {
               topic: topic!,
               subscription: subscription,
             });
-          })
-        )
-      )
-    )
+          }),
+        ),
+      ),
+    ),
   );
 
   addSubscription$ = createEffect(() =>
@@ -124,8 +124,8 @@ export class TopologySubscriptionEffects {
           this.serviceBusClient.createSubscription(
             namespaceId,
             topicId,
-            subscription
-          )
+            subscription,
+          ),
         ).pipe(
           map(() => subscription),
           catchError((error) => [
@@ -139,14 +139,14 @@ export class TopologySubscriptionEffects {
           mergeMap((subscription) =>
             this.store.select(selectNamespaceById(namespaceId)).pipe(
               map((namespace) => ({ namespace, subscription })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           mergeMap(({ namespace, subscription }) =>
             this.store.select(selectTopicById(namespaceId, topicId)).pipe(
               map((topic) => ({ namespace, subscription, topic })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           map(({ namespace, subscription, topic }) => {
             if ('problem' in subscription) {
@@ -161,10 +161,10 @@ export class TopologySubscriptionEffects {
               topic: topic!,
               subscription: subscription,
             });
-          })
-        )
-      )
-    )
+          }),
+        ),
+      ),
+    ),
   );
 
   editSubscription$ = createEffect(() =>
@@ -175,8 +175,8 @@ export class TopologySubscriptionEffects {
           this.serviceBusClient.editSubscription(
             namespaceId,
             topicId,
-            subscription
-          )
+            subscription,
+          ),
         ).pipe(
           map(() => subscription),
           catchError((error) => [
@@ -190,14 +190,14 @@ export class TopologySubscriptionEffects {
           mergeMap((subscription) =>
             this.store.select(selectNamespaceById(namespaceId)).pipe(
               map((namespace) => ({ namespace, subscription })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           mergeMap(({ namespace, subscription }) =>
             this.store.select(selectTopicById(namespaceId, topicId)).pipe(
               map((topic) => ({ namespace, subscription, topic })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           map(({ namespace, subscription, topic }) => {
             if ('problem' in subscription) {
@@ -212,10 +212,10 @@ export class TopologySubscriptionEffects {
               topic: topic!,
               subscription: subscription,
             });
-          })
-        )
-      )
-    )
+          }),
+        ),
+      ),
+    ),
   );
 
   removeSubscription$ = createEffect(() =>
@@ -226,8 +226,8 @@ export class TopologySubscriptionEffects {
           this.serviceBusClient.removeSubscription(
             namespaceId,
             topicId,
-            subscriptionId
-          )
+            subscriptionId,
+          ),
         ).pipe(
           map(() => subscriptionId),
           catchError((error) => [
@@ -241,14 +241,14 @@ export class TopologySubscriptionEffects {
           mergeMap((subscriptionId) =>
             this.store.select(selectNamespaceById(namespaceId)).pipe(
               map((namespace) => ({ namespace, subscriptionId })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           mergeMap(({ namespace, subscriptionId }) =>
             this.store.select(selectTopicById(namespaceId, topicId)).pipe(
               map((topic) => ({ namespace, subscriptionId, topic })),
-              take(1)
-            )
+              take(1),
+            ),
           ),
           map(({ namespace, subscriptionId, topic }) => {
             if (typeof subscriptionId === 'object') {
@@ -263,10 +263,10 @@ export class TopologySubscriptionEffects {
               topic: topic!,
               subscriptionId: subscriptionId,
             });
-          })
-        )
-      )
-    )
+          }),
+        ),
+      ),
+    ),
   );
 
   loadSubscriptionsOnTopicsLoaded$ = createEffect(() =>
@@ -278,11 +278,11 @@ export class TopologySubscriptionEffects {
             actions.loadSubscriptions({
               namespaceId: namespace.id,
               topicId: topic.id,
-            })
-          )
-        )
-      )
-    )
+            }),
+          ),
+        ),
+      ),
+    ),
   );
 
   loadSubscriptionsOnTopicLoaded$ = createEffect(() =>
@@ -294,9 +294,9 @@ export class TopologySubscriptionEffects {
             namespaceId: namespace.id,
             topicId: topic.id,
           }),
-        ])
-      )
-    )
+        ]),
+      ),
+    ),
   );
 
   loadSubscriptionOnSubscriptionAdded$ = createEffect(() =>
@@ -309,9 +309,9 @@ export class TopologySubscriptionEffects {
             topicId: topic.id,
             subscriptionId: subscription.id,
           }),
-        ])
-      )
-    )
+        ]),
+      ),
+    ),
   );
 
   loadSubscriptionOnRuleAdded$ = createEffect(() =>
@@ -324,9 +324,9 @@ export class TopologySubscriptionEffects {
             topicId: topic!.id,
             subscriptionId: subscription!.id,
           }),
-        ])
-      )
-    )
+        ]),
+      ),
+    ),
   );
 
   loadSubscriptionOnRuleRemoved$ = createEffect(() =>
@@ -339,8 +339,8 @@ export class TopologySubscriptionEffects {
             topicId: topic!.id,
             subscriptionId: subscription!.id,
           }),
-        ])
-      )
-    )
+        ]),
+      ),
+    ),
   );
 }

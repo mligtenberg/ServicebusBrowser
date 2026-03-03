@@ -1,13 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import {
-  Action, MessageFilter,
+  Action,
+  MessageFilter,
   ServiceBusMessage,
 } from '@service-bus-browser/messages-contracts';
 import {
   MessagesActions,
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { MessageService } from 'primeng/api';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -37,7 +38,11 @@ export class ResendMessagesUtil {
 
       const transactionId = crypto.randomUUID();
       let count = 0;
-      const messageCount = await repository.countMessages(pageId, messageFilter, selection);
+      const messageCount = await repository.countMessages(
+        pageId,
+        messageFilter,
+        selection,
+      );
 
       await repository.walkMessagesWithCallback(
         pageId,
@@ -65,10 +70,16 @@ export class ResendMessagesUtil {
             messagesToSend = [];
 
             // Wait until the transaction is finished before continuing to the next batch
-            await lastValueFrom(this.store.select(MessagesSelectors.selectIsTransactionRunning(transactionId)).pipe(
-              filter(isRunning => !isRunning),
-              take(1)
-            ));
+            await lastValueFrom(
+              this.store
+                .select(
+                  MessagesSelectors.selectIsTransactionRunning(transactionId),
+                )
+                .pipe(
+                  filter((isRunning) => !isRunning),
+                  take(1),
+                ),
+            );
           }
         },
         messageFilter,

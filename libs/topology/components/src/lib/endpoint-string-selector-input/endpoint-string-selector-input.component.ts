@@ -1,8 +1,12 @@
 import { Component, forwardRef, input, model } from '@angular/core';
 
 import { EndpointSelectorInputComponent } from '../endpoint-selector-input/endpoint-selector-input.component';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
 
 @Component({
   selector: 'sbb-tpl-endpoint-string-selector-input',
@@ -32,7 +36,7 @@ export class EndpointStringSelectorInputComponent
       endpoint: obj,
       queueName: '',
       connectionId: '0-0-0-0-0',
-      endpointDisplay: obj
+      endpointDisplay: obj,
     });
   }
   registerOnChange(fn: (_: string | null) => void): void {

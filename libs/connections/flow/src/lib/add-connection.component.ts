@@ -5,9 +5,12 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { ConnectionsActions, ConnectionsSelectors } from '@service-bus-browser/connections-store';
+import {
+  ConnectionsActions,
+  ConnectionsSelectors,
+} from '@service-bus-browser/connections-store';
 import { ButtonDirective } from 'primeng/button';
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection } from '@service-bus-browser/message-queue-contracts';
 
 @Component({
   selector: 'lib-add-connection',
@@ -26,8 +29,12 @@ export class AddConnectionComponent {
   store = inject(Store);
 
   // Select connection test status from store
-  connectionTestStatus$ = this.store.select(ConnectionsSelectors.selectConnectionTestStatus);
-  connectionTested$ = this.store.select(ConnectionsSelectors.selectConnectionTested);
+  connectionTestStatus$ = this.store.select(
+    ConnectionsSelectors.selectConnectionTestStatus,
+  );
+  connectionTested$ = this.store.select(
+    ConnectionsSelectors.selectConnectionTested,
+  );
 
   connectionName = model<string>();
   connectionType = model<'connectionString' | 'azureAD'>('connectionString');
@@ -35,7 +42,12 @@ export class AddConnectionComponent {
 
   // Azure AD connection properties
   fullyQualifiedNamespace = model<string>();
-  authMethod = model<'azureCli' | 'ServicePrincipalClientSecret' | 'systemAssignedManagedIdentity' | 'userAssignedManagedIdentity'>('azureCli');
+  authMethod = model<
+    | 'azureCli'
+    | 'ServicePrincipalClientSecret'
+    | 'systemAssignedManagedIdentity'
+    | 'userAssignedManagedIdentity'
+  >('azureCli');
 
   // Service Principal properties
   clientId = model<string>();
@@ -53,12 +65,14 @@ export class AddConnectionComponent {
     if (connectionType === 'connectionString') {
       const connectionString = this.connectionString();
 
-      return !connectionString ? undefined : {
-        id: crypto.randomUUID(),
-        name: name,
-        connectionString: connectionString,
-        type: 'connectionString',
-      };
+      return !connectionString
+        ? undefined
+        : {
+            id: crypto.randomUUID(),
+            name: name,
+            connectionString: connectionString,
+            type: 'connectionString',
+          };
     }
 
     if (connectionType === 'azureAD') {
@@ -85,17 +99,19 @@ export class AddConnectionComponent {
         const tenantId = this.tenantId();
         const authority = this.authority();
 
-        return !clientId || !clientSecret || !tenantId || !authority ? undefined : {
-          id: crypto.randomUUID(),
-          name: name,
-          type: 'azureAD',
-          fullyQualifiedNamespace: fullyQualifiedNamespace,
-          authMethod: 'ServicePrincipalClientSecret',
-          clientId: clientId,
-          clientSecret: clientSecret,
-          tenantId: tenantId,
-          authority: authority,
-        };
+        return !clientId || !clientSecret || !tenantId || !authority
+          ? undefined
+          : {
+              id: crypto.randomUUID(),
+              name: name,
+              type: 'azureAD',
+              fullyQualifiedNamespace: fullyQualifiedNamespace,
+              authMethod: 'ServicePrincipalClientSecret',
+              clientId: clientId,
+              clientSecret: clientSecret,
+              tenantId: tenantId,
+              authority: authority,
+            };
       }
 
       if (authMethod === 'systemAssignedManagedIdentity') {
@@ -111,14 +127,16 @@ export class AddConnectionComponent {
       if (authMethod === 'userAssignedManagedIdentity') {
         const clientId = this.clientId();
 
-        return !clientId ? undefined : {
-          id: crypto.randomUUID(),
-          name: name,
-          type: 'azureAD',
-          fullyQualifiedNamespace: fullyQualifiedNamespace,
-          authMethod: 'userAssignedManagedIdentity',
-          clientId: clientId,
-        };
+        return !clientId
+          ? undefined
+          : {
+              id: crypto.randomUUID(),
+              name: name,
+              type: 'azureAD',
+              fullyQualifiedNamespace: fullyQualifiedNamespace,
+              authMethod: 'userAssignedManagedIdentity',
+              clientId: clientId,
+            };
       }
     }
 
@@ -141,7 +159,7 @@ export class AddConnectionComponent {
 
   constructor() {
     // Subscribe to connection tested state from store
-    this.connectionTested$.subscribe(tested => {
+    this.connectionTested$.subscribe((tested) => {
       this._connectionTested = tested;
     });
 
@@ -173,7 +191,9 @@ export class AddConnectionComponent {
       if (connectionType === 'connectionString') {
         const connectionString = this.connectionString();
         if (!this.connectionName() && !!connectionString) {
-          const capture = /.*Endpoint=sb:\/\/([a-z1-9-.]*)\/?;.*/i.exec(connectionString);
+          const capture = /.*Endpoint=sb:\/\/([a-z1-9-.]*)\/?;.*/i.exec(
+            connectionString,
+          );
           if (capture?.[1]) {
             this.connectionName.set(capture[1]);
           }
@@ -183,7 +203,11 @@ export class AddConnectionComponent {
       // Auto-fill connection name from namespace if possible
       if (connectionType === 'azureAD') {
         const namespace = this.fullyQualifiedNamespace();
-        if (!!namespace && (!this.connectionName() || this.connectionName() === namespace.slice(0, namespace.length - 1))) {
+        if (
+          !!namespace &&
+          (!this.connectionName() ||
+            this.connectionName() === namespace.slice(0, namespace.length - 1))
+        ) {
           this.connectionName.set(namespace.split('.')[0]);
         }
       }
@@ -196,9 +220,11 @@ export class AddConnectionComponent {
       return;
     }
 
-    this.store.dispatch(ConnectionsActions.checkConnection({
-      connection
-    }))
+    this.store.dispatch(
+      ConnectionsActions.checkConnection({
+        connection,
+      }),
+    );
   }
 
   save() {
@@ -209,8 +235,8 @@ export class AddConnectionComponent {
 
     this.store.dispatch(
       ConnectionsActions.addConnection({
-        connection: connection
-      })
+        connection: connection,
+      }),
     );
   }
 }

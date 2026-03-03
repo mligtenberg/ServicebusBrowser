@@ -1,9 +1,20 @@
-import { Component, effect, forwardRef, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 import { Store } from '@ngrx/store';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
-import { QueueWithMetaData, TopicWithMetaData } from '@service-bus-browser/topology-contracts';
+import {
+  QueueWithMetaData,
+  TopicWithMetaData,
+} from '@service-bus-browser/topology-contracts';
 import { TopologyTreeComponent } from '../topology-tree/topology-tree.component';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -20,7 +31,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class EndpointSelectorTreeInputComponent implements ControlValueAccessor {
+export class EndpointSelectorTreeInputComponent
+  implements ControlValueAccessor
+{
   private onChange?: (_: SendEndpoint | null) => void;
   private onTouched?: () => void;
 
@@ -49,7 +62,7 @@ export class EndpointSelectorTreeInputComponent implements ControlValueAccessor 
       endpoint: $event.queue.metaData.endpoint,
       queueName: $event.queue.name,
       connectionId: $event.queue.namespaceId,
-      endpointDisplay: $event.queue.metaData.endpointDisplay
+      endpointDisplay: $event.queue.metaData.endpointDisplay,
     });
   }
 
@@ -58,7 +71,7 @@ export class EndpointSelectorTreeInputComponent implements ControlValueAccessor 
       endpoint: $event.topic.metadata.endpoint,
       topicName: $event.topic.name,
       connectionId: $event.topic.namespaceId,
-      endpointDisplay: $event.topic.metadata.endpointDisplay
+      endpointDisplay: $event.topic.metadata.endpointDisplay,
     });
   }
 

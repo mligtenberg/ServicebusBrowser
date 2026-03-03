@@ -45,20 +45,15 @@
         "libs/messages/store/src/index.ts"
       ],
       "@service-bus-browser/service-bus-angular-providers": [
-        "libs/service-bus/angular-providers/src/index.ts"
+        "libs/angular-providers/src/index.ts"
       ],
       "@service-bus-browser/service-bus-clients": [
-        "libs/service-bus/clients/src/index.ts"
-      ],
-      "@service-bus-browser/service-bus-contracts": [
-        "libs/service-bus/contracts/src/index.ts"
+        "libs/message-queues/service-bus/clients/src/index.ts"
       ],
       "@service-bus-browser/service-bus-frontend-clients": [
-        "libs/service-bus/frontend-clients/src/index.ts"
+        "libs/frontend-clients/src/index.ts"
       ],
-      "@service-bus-browser/service-bus-server": [
-        "libs/service-bus/server/src/index.ts"
-      ],
+      "@service-bus-browser/service-bus-server": ["libs/server/src/index.ts"],
       "@service-bus-browser/services": ["libs/shared/services/src/index.ts"],
       "@service-bus-browser/shared-components": [
         "libs/shared/components/src/index.ts"
@@ -85,6 +80,9 @@
       "@service-bus-browser/actions": ["libs/shared/actions/src/index.ts"],
       "@service-bus-browser/messages-db": [
         "libs/messages/messages-db/src/index.ts"
+      ],
+      "@service-bus-browser/message-queue-contracts": [
+        "libs/message-queues/contracts/src/index.ts"
       ]
     }
   },

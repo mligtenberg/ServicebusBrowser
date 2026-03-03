@@ -1,4 +1,12 @@
-import { Component, effect, forwardRef, inject, input, model, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  model,
+  signal,
+} from '@angular/core';
 
 import { InputGroup } from 'primeng/inputgroup';
 import { Dialog } from 'primeng/dialog';
@@ -8,11 +16,13 @@ import { Store } from '@ngrx/store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { SendEndpoint } from '@service-bus-browser/service-bus-contracts';
 import {
-  EndpointSelectorTreeInputComponent
-} from '../endpoint-selector-tree-input/endpoint-selector-tree-input.component';
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { EndpointSelectorTreeInputComponent } from '../endpoint-selector-tree-input/endpoint-selector-tree-input.component';
 
 @Component({
   selector: 'sbb-tpl-endpoint-selector-input',
@@ -24,8 +34,8 @@ import {
     ScrollPanel,
     InputGroupAddon,
     EndpointSelectorTreeInputComponent,
-    FormsModule
-],
+    FormsModule,
+  ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

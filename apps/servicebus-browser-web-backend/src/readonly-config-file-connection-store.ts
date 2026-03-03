@@ -1,5 +1,5 @@
 import { ConnectionStore } from '@service-bus-browser/service-bus-clients';
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection } from '@service-bus-browser/message-queue-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import * as fs from 'fs';
 

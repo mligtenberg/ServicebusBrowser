@@ -3,7 +3,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { MessagesTasksEffects } from './messages-tasks.effects';
 import * as internalActions from './messages.internal-actions';
-import { ReceiveEndpoint } from '@service-bus-browser/service-bus-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/message-queue-contracts';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 const endpoint: ReceiveEndpoint = {
   connectionId: '00000000-0000-0000-0000-000000000001',
@@ -28,7 +28,7 @@ describe('MessagesTasksEffects', () => {
         maxAmount: 5,
         alreadyLoadedAmount: 0,
         fromSequenceNumber: '0',
-      })
+      }),
     );
     const result = await firstValueFrom(effects.createTask$);
     expect(result).toEqual(
@@ -38,7 +38,7 @@ describe('MessagesTasksEffects', () => {
         description: 'loading messages from q',
         hasProgress: true,
         initialProgress: 0,
-      })
+      }),
     );
   });
 });

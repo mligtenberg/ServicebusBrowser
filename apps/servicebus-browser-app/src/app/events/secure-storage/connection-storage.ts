@@ -1,5 +1,5 @@
 import { ConnectionStore } from '@service-bus-browser/service-bus-clients';
-import { Connection } from '@service-bus-browser/service-bus-contracts';
+import { Connection } from '@service-bus-browser/message-queue-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { safeStorage } from 'electron';
 import path from 'path';
@@ -9,7 +9,10 @@ export class SecureConnectionStorage implements ConnectionStore {
   connectionsPath: string;
 
   constructor(userDataMainFolder: string) {
-    this.connectionsPath = path.join(userDataMainFolder, 'sbb-connections.json');
+    this.connectionsPath = path.join(
+      userDataMainFolder,
+      'sbb-connections.json',
+    );
   }
 
   addConnection(connection: Connection): void {
