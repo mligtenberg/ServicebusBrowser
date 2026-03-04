@@ -1,7 +1,4 @@
-<!--<sbb-tpl-topology-tree-->
-<!--  [namespaces]="namespaces()"-->
-<!--  [displaySubscriptions]="false"-->
-<!--  [connectionsFilter]="connectionsFilter()"-->
-<!--  [multiSelectEnabled]="false"-->
-<!--  [contextMenuEnabled]="false"-->
-<!--&gt;</sbb-tpl-topology-tree>-->
+<sbb-tpl-topology-tree
+  selectionMode="send"
+  (sendEndpointSelected)="onSendEndpointSelected($event)"
+></sbb-tpl-topology-tree>

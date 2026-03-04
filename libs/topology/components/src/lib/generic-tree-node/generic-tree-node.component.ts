@@ -1,4 +1,10 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
@@ -29,7 +35,8 @@ export class GenericTreeNodeComponent {
   store = inject(Store);
 
   node = input.required<TopologyNode>();
-  selectionMode = input<'actions' | 'send'>('actions');
+  selectionMode = input.required<'actions' | 'send' | 'none'>();
+
   actionSelected = output<TopologyAction>();
   sendEndpointSelected = output<SendEndpoint>();
   receiveEndpointSelected = output<ReceiveEndpoint>();
@@ -56,6 +63,8 @@ export class GenericTreeNodeComponent {
     ),
     { initialValue: true },
   );
+
+  disableRefresh = computed(() => this.selectionMode() === 'none' || this.isLoading());
 
   showMessageCounts = computed(() => {
     const node = this.node();
@@ -183,13 +192,11 @@ export class GenericTreeNodeComponent {
     return contextMenu;
   });
 
-  showContextMenu = computed(() => {
-    return (
-      this.contextMenuItems().length > 0 && this.selectionMode() === 'actions'
-    );
-  });
+  showContextMenu = computed(() => this.contextMenuItems().length > 0 && this.selectionMode() === 'actions');
 
-  refresh() {
+  refresh($event?: MouseEvent) {
+    $event?.stopPropagation();
+
     this.store.dispatch(
       TopologyActions.refreshTopology({
         path: this.node().path,

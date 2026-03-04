@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   model,
@@ -16,8 +17,8 @@ import {
   SendMessagesForm,
   SystemPropertyKeys
 } from './form';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
@@ -41,6 +42,9 @@ import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
+import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { Actions, ofType } from '@ngrx/effects';
+import { routerNavigatedAction } from '@ngrx/router-store';
 
 const repository = await getMessagesRepository();
 
@@ -92,6 +96,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
   systemPropertyHelpers = inject(SystemPropertyHelpers);
+  actions$ = inject(Actions);
 
   typeOptions: Record<string, CustomPropertyType | string>[] = [
     { label: 'String', value: 'string'},
@@ -308,9 +313,13 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   }
 
   constructor() {
-    this.activatedRoute.params
+    combineLatest([
+      this.activatedRoute.params,
+      this.actions$.pipe(ofType(routerNavigatedAction)),
+    ])
       .pipe(
         takeUntilDestroyed(),
+        map((params) => params[0]),
         switchMap((params) => {
           if (params['pageId'] && params['messageId']) {
             return repository.getMessage(params['pageId'], params['messageId']);
@@ -322,6 +331,14 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       .subscribe((message) => {
         if (!message) {
           this.value.set(this.getEmptyForm());
+          const endpoint = window.history.state.sendEndpoint as
+            | SendEndpoint
+            | undefined;
+          this.value.update((v) => ({
+            ...v,
+            endpoint: endpoint ?? null,
+          }));
+          console.log(endpoint);
           return;
         }
 
@@ -332,7 +349,10 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
               key !== 'contentType' &&
               key !== 'applicationProperties',
           )
-          .filter(([key, value]) => value && SystemPropertyKeys.includes(key as SystemPropertyKeys))
+          .filter(
+            ([key, value]) =>
+              value && SystemPropertyKeys.includes(key as SystemPropertyKeys),
+          )
           .map(([key, value]) => ({
             key: key as SystemPropertyKeys,
             value: (value ?? '') as string | Date,

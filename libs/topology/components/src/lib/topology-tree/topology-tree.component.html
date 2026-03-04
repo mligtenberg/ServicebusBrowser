@@ -1,31 +1,39 @@
 <div class="main-container">
   <div class="search-container">
-     <input
-       pInputText
-       [(ngModel)]="searchTerm"
-       placeholder="Search"
-       class="search-input"
-       [pTooltip]="searchTooltip"
-       [tooltipOptions]="{
+    <input
+      pInputText
+      [(ngModel)]="searchTerm"
+      placeholder="Search"
+      class="search-input"
+      [pTooltip]="searchTooltip"
+      [tooltipOptions]="{
        tooltipEvent: 'focus',
        appendTo: 'body',
        disabled: searchTerm() !== ''
        }"
-     />
+    />
   </div>
   <div class="tree-wrapper">
-  <p-tree
-  [value]="treeNodes()"
-  (onNodeExpand)="onNodeExpand($event)"
-  (onNodeCollapse)="onNodeCollapse($event)"
-  >
-  <ng-template let-node pTemplate="default">
-    <sbb-tpl-generic-tree-node
-      [node]="node.data"
-    />
-  </ng-template>
-</p-tree>
-</div>
+    <p-tree
+      [value]="treeNodes()"
+      (onNodeExpand)="onNodeExpand($event)"
+      (onNodeCollapse)="onNodeCollapse($event)"
+      [selectionMode]="treeSelectionMode()"
+      [selection]="treeSelection()"
+      (selectionChange)="onSelectionChange($event)"
+    >
+      <ng-template let-node pTemplate="default">
+        <sbb-tpl-generic-tree-node
+          [node]="node.data"
+          (actionSelected)="onActionSelected($event)"
+          (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
+          (sendEndpointSelected)="onSendEndpointSelected($event)"
+          (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
+          [selectionMode]="nodeSelectionMode()"
+        />
+      </ng-template>
+    </p-tree>
+  </div>
 </div>
 
 <ng-template #searchTooltip>

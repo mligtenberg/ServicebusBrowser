@@ -1,17 +1,15 @@
 import {
   ApplicationConfig,
-  importProvidersFrom,
   isDevMode,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
   provideRouter,
   withPreloading,
-  PreloadAllModules,
+  PreloadAllModules, withRouterConfig,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
 import { provideStore } from '@ngrx/store';
@@ -55,14 +53,16 @@ export const appConfig: ApplicationConfig = {
       provide: MessageService,
       useClass: MessageService,
     },
-    provideMonacoConfig({
-      urlPrefix: '/assets/monaco',
-    }),
 
     // config
     provideZonelessChangeDetection(),
     provideHttpClient(),
-    provideRouter(appRoutes, withPreloading(PreloadAllModules)),
+    provideRouter(appRoutes,
+      withPreloading(PreloadAllModules),
+      withRouterConfig({
+        onSameUrlNavigation: 'reload',
+      })
+    ),
     provideLogsState(),
     provideTasksState(),
     provideMessagesState(),

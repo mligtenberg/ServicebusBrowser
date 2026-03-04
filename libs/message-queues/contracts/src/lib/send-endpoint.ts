@@ -10,7 +10,8 @@ export interface ServiceBusQueueSendEndpoint extends SendEndpointBase {
   queueName: string;
   endpoint: string;
   endpointDisplay: string;
-  target: MessageQueueTargetType;
+  target: 'serviceBus';
+  type: 'queue';
 }
 
 export interface ServiceBusTopicSendEndpoint extends SendEndpointBase {
@@ -18,7 +19,8 @@ export interface ServiceBusTopicSendEndpoint extends SendEndpointBase {
   topicName: string;
   endpoint: string;
   endpointDisplay: string;
-  target: MessageQueueTargetType;
+  target: 'serviceBus';
+  type: 'topic';
 }
 
 export type SendEndpoint = ServiceBusQueueSendEndpoint | ServiceBusTopicSendEndpoint;

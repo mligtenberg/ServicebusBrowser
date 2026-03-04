@@ -10,7 +10,8 @@ export interface ServiceBusQueueReceiveEndpoint extends ReceiveEndpointBase {
   connectionId: UUID;
   queueName: string;
   channel: ServiceBusMessageChannels;
-  target: MessageQueueTargetType;
+  target: 'serviceBus';
+  type: 'queue';
 }
 
 export interface ServiceBusSubscriptionReceiveEndpoint extends ReceiveEndpointBase {
@@ -18,7 +19,8 @@ export interface ServiceBusSubscriptionReceiveEndpoint extends ReceiveEndpointBa
   topicName: string;
   subscriptionName: string;
   channel: ServiceBusMessageChannels;
-  target: MessageQueueTargetType;
+  target: 'serviceBus';
+  type: 'subscription';
 }
 
 export type ReceiveEndpoint =

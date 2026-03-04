@@ -39,7 +39,6 @@ export const clearEndpoint = createAction(
   '[Messages] clear endpoint',
   props<{
     endpoint: ReceiveEndpoint;
-    messagesToClearCount: number;
   }>(),
 );
 

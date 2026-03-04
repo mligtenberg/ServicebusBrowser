@@ -31,9 +31,9 @@
         icon="pi pi-refresh"
         [rounded]="true"
         [text]="true"
-        (click)="refresh()"
+        (click)="refresh($event)"
         [ngClass]="{ 'spin': isLoading() }"
-        [disabled]="isLoading()"
+        [disabled]="disableRefresh()"
       />
     </div>
   }

@@ -123,21 +123,21 @@ export class MessagesEffects {
     ),
   );
 
-  initClearEndpoint$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(actions.clearEndpoint),
-      map(({ endpoint, messagesToClearCount }) => {
-        if (messagesToClearCount === 0) {
-          return actions.clearedEndpoint({ endpoint });
-        }
-
-        return internalActions.continueClearingEndpoint({
-          endpoint,
-          messagesToClearCount: messagesToClearCount,
-        });
-      }),
-    ),
-  );
+  // initClearEndpoint$ = createEffect(() =>
+  //   this.actions$.pipe(
+  //     ofType(actions.clearEndpoint),
+  //     map(({ endpoint }) => {
+  //       if (messagesToClearCount === 0) {
+  //         return actions.clearedEndpoint({ endpoint });
+  //       }
+  //
+  //       return internalActions.continueClearingEndpoint({
+  //         endpoint,
+  //         messagesToClearCount: messagesToClearCount,
+  //       });
+  //     }),
+  //   ),
+  // );
 
   clearEndpoint$ = createEffect(() =>
     this.actions$.pipe(

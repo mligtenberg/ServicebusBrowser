@@ -7,7 +7,7 @@ import {
   provideRouter,
   withHashLocation,
   withPreloading,
-  PreloadAllModules,
+  PreloadAllModules, withRouterConfig,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -50,7 +50,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       appRoutes,
       withHashLocation(),
-      withPreloading(PreloadAllModules)
+      withPreloading(PreloadAllModules),
+      withRouterConfig({
+        onSameUrlNavigation: 'reload',
+      })
     ),
     provideLogsState(),
     provideTasksState(),

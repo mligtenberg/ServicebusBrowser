@@ -4,6 +4,8 @@ import { TopologyAction } from './topology-action';
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 
 export type TopologyNode = {
+  type: 'connection' | 'operational-grouping' | string;
+  selectable: boolean;
   path: string;
   icon?: IconDefinition;
   name: string;

@@ -10,7 +10,6 @@ import {
 
 import { Store } from '@ngrx/store';
 import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
-import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { TopologyTreeComponent } from '../topology-tree/topology-tree.component';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -66,5 +65,9 @@ export class EndpointSelectorTreeInputComponent
   }
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
+  }
+
+  protected onSendEndpointSelected($event: SendEndpoint) {
+    this.value.set($event);
   }
 }

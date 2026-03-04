@@ -1,9 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import {
-  loadQueue,
-  loadSubscription,
-  loadTopic,
   loadTopologyRootNodes,
   refreshTopology,
   reloadReceiveEndpoint,
@@ -56,4 +53,42 @@ export class TopologyEffects implements OnInitEffects {
       }),
     ),
   );
+
+  refreshSendEndpoint$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(reloadSendEndpoint),
+      map(({ endpoint }) => {
+        if (endpoint.target === 'serviceBus' && endpoint.type === 'queue') {
+          return `/${endpoint.connectionId}/queues/${endpoint.queueName}`;
+        }
+        if (endpoint.target === 'serviceBus' && endpoint.type === 'topic') {
+          return `/${endpoint.connectionId}/topics/${endpoint.topicName}`;
+        }
+        return `/${endpoint['connectionId']}`
+      }),
+      map((path) => refreshTopology({ path })),
+    )
+  )
+
+  refreshReceiveEndpoint$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(reloadReceiveEndpoint),
+      map(({ endpoint }) => {
+        if (
+          endpoint.target === 'serviceBus' &&
+          endpoint.type === 'queue'
+        ) {
+          return `/${endpoint.connectionId}/queues/${endpoint.queueName}`;
+        }
+        if (
+          endpoint.target === 'serviceBus' &&
+          endpoint.type === 'subscription'
+        ) {
+          return `/${endpoint.connectionId}/topics/${endpoint.topicName}/subscriptions/${endpoint.subscriptionName}`;
+        }
+        return `/${endpoint['connectionId']}`
+      }),
+      map((path) => refreshTopology({ path })),
+    )
+  )
 }

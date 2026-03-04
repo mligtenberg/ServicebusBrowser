@@ -19,7 +19,7 @@ import {
 } from '@service-bus-browser/topology-contracts';
 
 export class ServiceBusTopologyProvider implements TopologyProvider {
-  target: MessageQueueTargetType = 'serviceBus';
+  readonly target: MessageQueueTargetType = 'serviceBus';
   private administrationClient;
 
   constructor(private connection: Connection) {
@@ -37,6 +37,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       name: this.connection.name,
       icon: faServer,
       refreshable: true,
+      selectable: true,
+      type: 'connection',
       actions: [
         {
           icon: 'pi pi-plus',
@@ -56,38 +58,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         },
       ],
       children: [
-        {
-          path: `/${this.connection.id}/queues`,
-          name: 'Queues',
-          refreshable: true,
-          children: queues,
-          actions: [
-            {
-              icon: 'pi pi-plus',
-              displayName: 'Add queue',
-              actionType: 'add-queue',
-              parameters: {
-                connectionId: this.connection.id,
-              },
-            },
-          ],
-        },
-        {
-          path: `/${this.connection.id}/topics`,
-          name: 'Topics',
-          refreshable: true,
-          children: topics,
-          actions: [
-            {
-              icon: 'pi pi-plus',
-              displayName: 'Add topic',
-              actionType: 'add-topic',
-              parameters: {
-                connectionId: this.connection.id,
-              },
-            },
-          ],
-        },
+        queues,
+        topics,
       ],
     };
   }
@@ -115,12 +87,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
   private async refreshQueues(segements: string[]): Promise<TopologyNode> {
     const queueName = segements[3];
     if (!queueName) {
-      return {
-        path: `/${this.connection.id}/queues`,
-        name: 'Queues',
-        refreshable: true,
-        children: await this.loadQueues(),
-      }
+      return await this.loadQueues();
     }
 
     const queue = await this.administrationClient.getQueue(queueName);
@@ -130,12 +97,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
   private async refreshTopics(segements: string[]): Promise<TopologyNode> {
     const topicName = segements[3];
     if (!topicName) {
-      return {
-        path: `/${this.connection.id}/topics`,
-        name: 'Topics',
-        refreshable: true,
-        children: await this.loadTopics(),
-      }
+      return await this.loadTopics();
     }
 
     const subscriptionName = segements[4];
@@ -154,7 +116,26 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
 
   private async loadQueues() {
     const queues = await this.administrationClient.getQueues();
-    return queues.map((queue): TopologyNode => this.mapQueue(queue));
+    const childNodes = queues.map((queue): TopologyNode => this.mapQueue(queue));
+
+    return {
+      path: `/${this.connection.id}/queues`,
+      name: 'Queues',
+      selectable: false,
+      type: 'operational-grouping',
+      refreshable: true,
+      children: childNodes,
+      actions: [
+        {
+          icon: 'pi pi-plus',
+          displayName: 'Add queue',
+          actionType: 'add-queue',
+          parameters: {
+            connectionId: this.connection.id,
+          },
+        },
+      ],
+    };
   }
 
   private async loadTopics() {
@@ -165,10 +146,29 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       ),
     );
 
-    return topics.map(
+    const childNodes = topics.map(
       (topic, index): TopologyNode =>
         this.mapTopic(topic, subscriptions[index]),
     );
+
+    return {
+      path: `/${this.connection.id}/topics`,
+      name: 'Topics',
+      selectable: false,
+      type: 'operational-grouping',
+      refreshable: true,
+      children: childNodes,
+      actions: [
+        {
+          icon: 'pi pi-plus',
+          displayName: 'Add topic',
+          actionType: 'add-topic',
+          parameters: {
+            connectionId: this.connection.id,
+          },
+        },
+      ],
+    };
   }
 
   private async loadSubscriptions(topicName: string) {
@@ -186,6 +186,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       path: `/${this.connection.id}/queues/${queue.name}`,
       name: queue.name,
       refreshable: true,
+      selectable: true,
+      type: 'queue',
       availableMessageCounts: {
         'Active messages': queue.metaData.activeMessageCount,
         'Dead letters': queue.metaData.deadLetterMessageCount,
@@ -205,30 +207,34 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         displayName: queue.name,
         connectionId: this.connection.id,
         queueName: queue.name,
-        endpoint: queue.name,
-        endpointDisplay: queue.name,
-        target: this.target,
+        endpoint: queue.metaData.endpoint,
+        endpointDisplay: queue.metaData.endpointDisplay,
+        target: 'serviceBus',
+        type: 'queue'
       },
       receiveEndpoints: [
         {
           displayName: '',
           connectionId: this.connection.id,
           queueName: queue.name,
-          target: this.target,
+          target: 'serviceBus',
+          type: 'queue',
           channel: undefined,
         },
         {
           displayName: 'dead letters',
           connectionId: this.connection.id,
           queueName: `${queue.name}-deadletter`,
-          target: this.target,
+          target: 'serviceBus',
+          type: 'queue',
           channel: 'deadLetter',
         },
         {
           displayName: 'transfer dead letters',
           connectionId: this.connection.id,
           queueName: `${queue.name}-transfer`,
-          target: this.target,
+          target: 'serviceBus',
+          type: 'queue',
           channel: 'transferDeadLetter',
         },
       ],
@@ -263,13 +269,16 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       name: topic.name,
       icon: faFolderTree,
       refreshable: true,
+      selectable: true,
+      type: 'topic',
       sendEndpoint: {
         displayName: topic.name,
         connectionId: this.connection.id,
         topicName: topic.name,
-        endpoint: topic.name,
-        endpointDisplay: topic.name,
-        target: this.target,
+        endpoint: topic.metadata.endpoint,
+        endpointDisplay: topic.metadata.endpointDisplay,
+        target: 'serviceBus',
+        type: 'topic'
       },
       defaultAction: {
         icon: 'pi pi-pencil',
@@ -326,6 +335,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       path: `/${this.connection.id}/topics/${topicName}/${subscription.name}`,
       name: subscription.name,
       refreshable: true,
+      selectable: true,
+      type: 'subscription',
       availableMessageCounts: {
         'Active messages': subscription.metaData.activeMessageCount,
         'Dead letters': subscription.metaData.deadLetterMessageCount,
@@ -339,10 +350,12 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           topicName: topicName,
           subscriptionName: subscription.name,
           channel: undefined,
-          target: this.target,
+          target: 'serviceBus',
+          type: 'subscription',
         },
         {
-          target: this.target,
+          target: 'serviceBus',
+          type: 'subscription',
           displayName: 'dead letters',
           connectionId: this.connection.id,
           topicName: topicName,
@@ -350,7 +363,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           channel: 'deadLetter',
         },
         {
-          target: this.target,
+          target: 'serviceBus',
+          type: 'subscription',
           displayName: 'transfer dead letters',
           connectionId: this.connection.id,
           topicName: topicName,
@@ -410,6 +424,8 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           name: rule.name,
           path: `/${this.connection.id}/topics/${topicName}/${subscription.name}/${rule.name}`,
           refreshable: false,
+          selectable: true,
+          type: 'rule',
           defaultAction: {
             icon: 'pi pi-pencil',
             displayName: 'edit rule',
