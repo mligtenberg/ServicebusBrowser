@@ -24,6 +24,7 @@ import { switchMap } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
 import { TopologyAction } from '@service-bus-browser/message-queue-contracts';
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'sbb-tpl-generic-tree-node',
@@ -203,4 +204,6 @@ export class GenericTreeNodeComponent {
       }),
     );
   }
+
+  protected readonly faRotateRight = faRotateRight;
 }

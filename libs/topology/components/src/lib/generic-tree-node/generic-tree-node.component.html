@@ -28,13 +28,16 @@
     <div class="refresh-button">
       <p-button
         [severity]="hasError() ? 'danger' : 'primary'"
-        icon="pi pi-refresh"
         [rounded]="true"
         [text]="true"
         (click)="refresh($event)"
-        [ngClass]="{ 'spin': isLoading() }"
         [disabled]="disableRefresh()"
-      />
+      >
+        <fa-icon
+          [icon]="faRotateRight"
+          [ngClass]="{ 'spin': isLoading() }"
+        />
+      </p-button>
     </div>
   }
 </div>
