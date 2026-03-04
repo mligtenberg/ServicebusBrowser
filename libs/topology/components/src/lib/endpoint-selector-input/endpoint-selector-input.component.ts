@@ -66,7 +66,6 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   }
 
   writeValue(obj: SendEndpoint | null): void {
-    console.log(obj);
     this.value.set(obj);
   }
 

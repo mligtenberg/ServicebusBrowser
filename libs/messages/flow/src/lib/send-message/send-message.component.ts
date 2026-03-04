@@ -338,7 +338,6 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
             ...v,
             endpoint: endpoint ?? null,
           }));
-          console.log(endpoint);
           return;
         }
 
