@@ -18,7 +18,7 @@
       [value]="treeNodes()"
       (onNodeExpand)="onNodeExpand($event)"
       (onNodeCollapse)="onNodeCollapse($event)"
-      [selectionMode]="treeSelectionMode()"
+      selectionMode="multiple"
       [selection]="treeSelection()"
       (selectionChange)="onSelectionChange($event)"
     >
@@ -46,3 +46,7 @@
     <p>e.g. <b>subscription:my-subscription</b></p>
   </div>
 </ng-template>
+
+<lib-receive-messages-dialog
+  [(receiveEndpoint)]="selectedReceiveEndpoint"
+/>

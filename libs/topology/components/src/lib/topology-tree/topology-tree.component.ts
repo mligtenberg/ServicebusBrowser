@@ -8,11 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  Tree,
-  TreeNodeCollapseEvent,
-  TreeNodeExpandEvent,
-} from 'primeng/tree';
+import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
 import { InputText } from 'primeng/inputtext';
 import { Tooltip } from 'primeng/tooltip';
@@ -25,10 +21,9 @@ import {
   TopologyAction,
   TopologyNode,
 } from '@service-bus-browser/message-queue-contracts';
-import {
-  MessagesActions,
-} from '@service-bus-browser/messages-store';
+import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Router } from '@angular/router';
+import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -40,6 +35,7 @@ import { Router } from '@angular/router';
     InputText,
     Tooltip,
     GenericTreeNodeComponent,
+    ReceiveMessagesDialog,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
@@ -55,11 +51,10 @@ export class TopologyTreeComponent {
   selectionMode = input<'actions' | 'send'>('actions');
   sendEndpointSelected = output<SendEndpoint>();
 
-  treeSelection = signal<
-    TreeNode<TopologyNode>[]
-  >([]);
+  treeSelection = signal<TreeNode<TopologyNode>[]>([]);
   shiftSelected = signal<boolean>(false);
 
+  selectedReceiveEndpoint = signal<ReceiveEndpoint | undefined>(undefined);
 
   multiSelectEnabled = computed(() => this.selectionMode() === 'actions');
   treeSelectionMode = computed<'single' | 'multiple'>(() => {
@@ -69,7 +64,7 @@ export class TopologyTreeComponent {
 
     return this.shiftSelected() ? 'multiple' : 'single';
   });
-  nodeSelectionMode = computed<'actions' | 'send'  | 'none'>(() => {
+  nodeSelectionMode = computed<'actions' | 'send' | 'none'>(() => {
     if (this.treeSelection().length > 1) {
       return 'none';
     }
@@ -133,25 +128,27 @@ export class TopologyTreeComponent {
   }
 
   protected onActionSelected(event: TopologyAction) {
-    //console.log($event);
+    console.log(event);
   }
 
   protected onReceiveEndpointSelected(event: ReceiveEndpoint) {
-    //console.log($event);
+    this.selectedReceiveEndpoint.set(event);
   }
 
   protected async onSendEndpointSelected(event: SendEndpoint) {
     await this.router.navigate(['/messages/send'], {
       state: {
         sendEndpoint: event,
-      }
-    })
+      },
+    });
   }
 
   protected onClearReceiveEndpointSelected($event: ReceiveEndpoint) {
-    this.store.dispatch(MessagesActions.clearEndpoint({
-      endpoint: $event,
-    }));
+    this.store.dispatch(
+      MessagesActions.clearEndpoint({
+        endpoint: $event,
+      }),
+    );
   }
 
   protected onSelectionChange(
@@ -193,8 +190,18 @@ export class TopologyTreeComponent {
           ...inbetweenNodes,
         ].filter((node) => node.data?.selectable ?? false);
       }
-    } else if (this.selectionMode() === 'send' && event[0]?.data?.sendEndpoint) {
-      this.sendEndpointSelected.emit(event[0].data.sendEndpoint);
+    }
+
+    if (this.treeSelectionMode() === 'single') {
+      // last item
+      event = event.slice(-1);
+
+      if (this.selectionMode() === 'send' && event[0]?.data?.sendEndpoint) {
+        this.sendEndpointSelected.emit(event[0].data.sendEndpoint);
+      }
+      if (this.selectionMode() === 'actions' && event[0]?.data?.defaultAction) {
+        this.onActionSelected(event[0].data.defaultAction);
+      }
     }
 
     this.treeSelection.set(event);

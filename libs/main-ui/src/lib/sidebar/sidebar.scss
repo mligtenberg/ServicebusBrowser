@@ -32,22 +32,6 @@ sbb-task-tasks {
   }
 }
 
-.load-form {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  gap: 1rem;
-  flex-direction: column;
-  margin: 1rem 0;
-
-  ::ng-deep p-select-button {
-    display: flex;
-    > * {
-      flex: 1;
-    }
-  }
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;

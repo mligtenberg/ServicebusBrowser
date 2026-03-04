@@ -51,9 +51,6 @@ import { ServiceBusMessageChannels } from '@service-bus-browser/message-queue-co
 export class SidebarComponent {
   store = inject(Store);
   router = inject(Router);
-  loadMessagesDialogVisible = computed(
-    () => this.currentEndpoint() !== undefined,
-  );
   currentEndpoint = signal<
     | undefined
     | {

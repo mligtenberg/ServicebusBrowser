@@ -1,0 +1,28 @@
+<p-dialog
+  [modal]="true"
+  [visible]="loadMessagesDialogVisible()"
+  [closable]="true"
+  (close)="cancelLoadMessages()"
+  appendTo="body"
+  header="Load messages"
+>
+  <div class="load-form">
+    <p-float-label variant="on">
+      <p-input-number [(ngModel)]="maxAmount" inputId="maxAmountOfMessages"></p-input-number>
+      <!--suppress XmlInvalidId -->
+      <label for="maxAmountOfMessages">Max amount of messages</label>
+    </p-float-label>
+    <p-select-button [options]="receiveTypes" [(ngModel)]="receiveType"/>
+    @if (receiveType() === 'peek') {
+      <p-float-label variant="on">
+        <p-input-number [(ngModel)]="fromSequenceNumber" inputId="fromSequenceNumber"></p-input-number>
+        <!--suppress XmlInvalidId -->
+        <label for="fromSequenceNumber">From sequence number</label>
+      </p-float-label>
+    }
+    <div class="actions">
+      <p-button text label="Cancel" (click)="cancelLoadMessages()" class="cancel-button"></p-button>
+      <p-button label="Load" (click)="loadMessages()" class="load-button"></p-button>
+    </div>
+  </div>
+</p-dialog>

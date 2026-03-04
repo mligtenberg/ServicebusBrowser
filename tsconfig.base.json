@@ -83,6 +83,9 @@
       ],
       "@service-bus-browser/message-queue-contracts": [
         "libs/message-queues/contracts/src/index.ts"
+      ],
+      "@servicebus-browser/messages-components": [
+        "libs/messages/components/src/index.ts"
       ]
     }
   },
