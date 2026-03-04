@@ -1,17 +1,24 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { MessageQueueTargetType } from './message-queue-types';
 
-export interface ServiceBusQueueSendEndpoint {
+interface SendEndpointBase {
+  displayName: string;
+}
+
+export interface ServiceBusQueueSendEndpoint extends SendEndpointBase {
   connectionId: UUID;
   queueName: string;
   endpoint: string;
   endpointDisplay: string;
+  target: MessageQueueTargetType;
 }
 
-export interface ServiceBusTopicSendEndpoint {
+export interface ServiceBusTopicSendEndpoint extends SendEndpointBase {
   connectionId: UUID;
   topicName: string;
   endpoint: string;
   endpointDisplay: string;
+  target: MessageQueueTargetType;
 }
 
 export type SendEndpoint = ServiceBusQueueSendEndpoint | ServiceBusTopicSendEndpoint;

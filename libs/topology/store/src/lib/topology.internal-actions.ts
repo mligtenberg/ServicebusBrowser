@@ -8,6 +8,17 @@ import {
   TopicWithMetaData
 } from '@service-bus-browser/topology-contracts';
 import { Problem } from '@service-bus-browser/shared-contracts';
+import { TopologyNode } from '@service-bus-browser/message-queue-contracts';
+
+export const topologyRootNodesLoaded = createAction(
+  '[Topology] Topology Root Nodes Loaded',
+  props<{ nodes: TopologyNode[] }>()
+)
+
+export const topologyRefreshed = createAction(
+  '[Topology] Topology Refreshed',
+  props<{ path: string, node: TopologyNode }>()
+)
 
 // NAMESPACES
 

@@ -11,6 +11,10 @@ import {
   SendEndpoint,
 } from '@service-bus-browser/message-queue-contracts';
 
+
+export const loadTopologyRootNodes = createAction('[Topology] Load topology root nodes');
+export const refreshTopology = createAction('[Topology] Refresh topology', props<{ path: string }>());
+
 // NAMESPACES
 
 export const loadNamespaces = createAction('[Topology] Load Namespaces');

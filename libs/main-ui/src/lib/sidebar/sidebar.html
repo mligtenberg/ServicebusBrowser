@@ -1,19 +1,20 @@
 <p-scroll-panel>
   <div class="topology-tree">
-    <sbb-tpl-topology-tree
-      [namespaces]="namespaces()"
-      [namespaceContextMenuItems]="namespaceContextMenuItems"
-      [queuesGroupNodeContextMenu]="queuesGroupNodeContextMenu"
-      [topicsGroupNodeContextMenu]="topicsGroupNodeContextMenu"
-      [queueContextMenu]="queueContextMenuItems"
-      [topicContextMenu]="topicContextMenuItems"
-      [subscriptionContextMenu]="subscriptionContextMenuItems"
-      [subscriptionRuleContextMenu]="subscriptionRuleContextMenuItems"
-      (queueSelected)="onQueueSelected($event)"
-      (topicSelected)="onTopicSelected($event)"
-      (subscriptionSelected)="onSubscriptionSelected($event)"
-      (subscriptionRuleSelected)="onSubscriptionRuleSelected($event)"
-    />
+<!--    <sbb-tpl-topology-tree-->
+<!--      [namespaces]="namespaces()"-->
+<!--      [namespaceContextMenuItems]="namespaceContextMenuItems"-->
+<!--      [queuesGroupNodeContextMenu]="queuesGroupNodeContextMenu"-->
+<!--      [topicsGroupNodeContextMenu]="topicsGroupNodeContextMenu"-->
+<!--      [queueContextMenu]="queueContextMenuItems"-->
+<!--      [topicContextMenu]="topicContextMenuItems"-->
+<!--      [subscriptionContextMenu]="subscriptionContextMenuItems"-->
+<!--      [subscriptionRuleContextMenu]="subscriptionRuleContextMenuItems"-->
+<!--      (queueSelected)="onQueueSelected($event)"-->
+<!--      (topicSelected)="onTopicSelected($event)"-->
+<!--      (subscriptionSelected)="onSubscriptionSelected($event)"-->
+<!--      (subscriptionRuleSelected)="onSubscriptionRuleSelected($event)"-->
+<!--    />-->
+    <sbb-tpl-topology-tree />
   </div>
 </p-scroll-panel>
 <sbb-task-tasks [tasks]="openTasks()" [ngClass]="{darkMode: darkMode()}"></sbb-task-tasks>

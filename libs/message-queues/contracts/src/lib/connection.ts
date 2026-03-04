@@ -1,10 +1,11 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { MessageQueueTargetType } from './message-queue-types';
 
 interface ConnectionBase {
   id: UUID;
   type: string;
   name: string;
-  target: 'serviceBus';
+  target: MessageQueueTargetType;
 }
 
 export interface ServiceBusConnectionStringConnection extends ConnectionBase {

@@ -53,7 +53,7 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   store = inject(Store);
   disabled = signal(false);
   dialogVisible = signal(false);
-  namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
+  // namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   value = model<SendEndpoint | null>(null);
 
   connectionsFilter = input<string[]>();

@@ -6,9 +6,11 @@ import rulesActions from './subscription-rule-actions';
 import receiveMessagesActions from './receive-messages-actions';
 import sendMessagesActions from './send-messages-actions';
 import { ServiceBusServerFunc } from './types';
+import topologyActions from './topology-actions';
 
 export const management = new Map<string, ServiceBusServerFunc>([
   ...connectionActions.entries(),
+  ...topologyActions.entries(),
   ...queuesActions.entries(),
   ...topicsActions.entries(),
   ...subscriptionsActions.entries(),

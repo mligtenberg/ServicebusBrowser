@@ -1,4 +1,4 @@
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection, TopologyNode } from '@service-bus-browser/message-queue-contracts';
 import {
   Queue,
   QueueWithMetaData,
@@ -22,6 +22,20 @@ export class ServiceBusManagementFrontendClient {
     await this.serviceBusApi.managementDoRequest('removeConnection', {
       connectionId,
     });
+  }
+
+  async listTopologies(): Promise<TopologyNode[]> {
+    return (await this.serviceBusApi.managementDoRequest(
+      'listTopologies',
+      {},
+    )) as TopologyNode[];
+  }
+
+  async refreshTopology(topologyPath: string): Promise<TopologyNode> {
+    return (await this.serviceBusApi.managementDoRequest(
+      'refreshTopology',
+      { path: topologyPath },
+    )) as TopologyNode;
   }
 
   async listConnections(): Promise<

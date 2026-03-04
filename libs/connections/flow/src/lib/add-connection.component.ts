@@ -72,6 +72,7 @@ export class AddConnectionComponent {
             name: name,
             connectionString: connectionString,
             type: 'connectionString',
+            target: 'serviceBus',
           };
     }
 
@@ -90,6 +91,7 @@ export class AddConnectionComponent {
           type: 'azureAD',
           fullyQualifiedNamespace: fullyQualifiedNamespace,
           authMethod: 'azureCli',
+          target: 'serviceBus',
         };
       }
 
@@ -111,6 +113,7 @@ export class AddConnectionComponent {
               clientSecret: clientSecret,
               tenantId: tenantId,
               authority: authority,
+              target: 'serviceBus',
             };
       }
 
@@ -121,6 +124,7 @@ export class AddConnectionComponent {
           type: 'azureAD',
           fullyQualifiedNamespace: fullyQualifiedNamespace,
           authMethod: 'systemAssignedManagedIdentity',
+          target: 'serviceBus',
         };
       }
 
@@ -136,6 +140,7 @@ export class AddConnectionComponent {
               fullyQualifiedNamespace: fullyQualifiedNamespace,
               authMethod: 'userAssignedManagedIdentity',
               clientId: clientId,
+              target: 'serviceBus',
             };
       }
     }

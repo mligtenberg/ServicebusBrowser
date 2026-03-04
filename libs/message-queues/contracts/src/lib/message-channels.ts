@@ -1,1 +1,1 @@
-export type MessageChannels = undefined | 'deadLetter' | 'transferDeadLetter';
+export type ServiceBusMessageChannels = undefined | 'deadLetter' | 'transferDeadLetter';

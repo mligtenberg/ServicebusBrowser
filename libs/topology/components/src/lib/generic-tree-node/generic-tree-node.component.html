@@ -1,17 +1,32 @@
 <div class="line-container">
-  <span class="name" [pTooltip]="label()"><fa-icon [icon]="icon()"></fa-icon> {{ label() }}</span>
-  @if (quickAmounts(); as amounts) {
-    <span [pTooltip]="'Active messages: ' + amounts.activeMessageCount + '\nDead letters: ' + amounts.deadLetterMessageCount + '\nTransfered dead letters: ' + amounts.transferDeadLetterMessageCount" tooltipPosition="top">({{amounts.activeMessageCount}},{{amounts.deadLetterMessageCount}},{{amounts.transferDeadLetterMessageCount}})</span>
+  <span class="name" [pTooltip]="node().name" tooltipPosition="bottom">
+    @if (node().icon; as icon) {
+      <fa-icon [icon]="icon" [ngClass]="{ 'spin': isLoading() }"></fa-icon>
+    }
+    {{ node().name }}
+  </span>
+  @if (showMessageCounts()) {
+    <span [pTooltip]="messageCountToolTip">{{messageCountSummary()}}</span>
+    <ng-template #messageCountToolTip>
+      <div class="message-count-tooltip">
+        @for (messageCount of messageCountEntities(); track $index) {
+          <div>
+            {{messageCount[0]}}: {{messageCount[1]}}
+          </div>
+        }
+      </div>
+    </ng-template>
   }
 
   @if (showRefresh()) {
-    <div class="refresh-button" [ngClass]="{ 'spin': isRefreshing() }">
+    <div class="refresh-button">
       <p-button
-        [severity]="hasLoadingError() ? 'danger' : 'primary'"
+        [severity]="'primary'"
         icon="pi pi-refresh"
         [rounded]="true"
         [text]="true"
-        (click)="refresh($event)"/>
+        (click)="refresh()"
+      />
     </div>
   }
 </div>

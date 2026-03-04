@@ -1,6 +1,6 @@
 import { Connection } from '@service-bus-browser/message-queue-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
+import { ConnectionManager } from './clients/connection-manager';
 import { ServiceBusServerFunc } from './types';
 
 const addConnection = (

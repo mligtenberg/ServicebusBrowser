@@ -44,7 +44,14 @@ export class SecureConnectionStorage implements ConnectionStore {
     if (fs.existsSync(this.connectionsPath)) {
       const fileContentBuffer = fs.readFileSync(this.connectionsPath);
       const fileContent = safeStorage.decryptString(fileContentBuffer);
-      return JSON.parse(fileContent);
+      const connections = JSON.parse(fileContent);
+      return [...Object.values(connections).map((connection: Connection) => ({
+        ...connection,
+        target: connection.target ?? 'serviceBus'
+      }))].reduce((acc, connection) => ({
+        ...acc,
+        [connection.id]: connection
+      }), {});
     }
 
     return {};

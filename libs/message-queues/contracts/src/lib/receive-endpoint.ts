@@ -1,17 +1,24 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessageChannels } from './message-channels';
+import { ServiceBusMessageChannels } from './message-channels';
+import { MessageQueueTargetType } from './message-queue-types';
 
-export interface ServiceBusQueueReceiveEndpoint {
-  connectionId: UUID;
-  queueName: string;
-  channel: MessageChannels;
+interface ReceiveEndpointBase {
+  displayName: string;
 }
 
-export interface ServiceBusSubscriptionReceiveEndpoint {
+export interface ServiceBusQueueReceiveEndpoint extends ReceiveEndpointBase {
+  connectionId: UUID;
+  queueName: string;
+  channel: ServiceBusMessageChannels;
+  target: MessageQueueTargetType;
+}
+
+export interface ServiceBusSubscriptionReceiveEndpoint extends ReceiveEndpointBase {
   connectionId: UUID;
   topicName: string;
   subscriptionName: string;
-  channel: MessageChannels;
+  channel: ServiceBusMessageChannels;
+  target: MessageQueueTargetType;
 }
 
 export type ReceiveEndpoint =

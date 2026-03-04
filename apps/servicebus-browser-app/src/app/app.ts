@@ -262,6 +262,13 @@ export default class App {
   }
 
   private static loadMainWindow() {
+    // extensions do not work correctly with custom schemes
+    // if we run locally, we need to use the http scheme
+    if (!App.application.isPackaged) {
+      App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
+      return;
+    }
+
     App.mainWindow.loadURL(`app://localhost`);
   }
 

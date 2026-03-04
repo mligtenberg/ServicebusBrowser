@@ -32,12 +32,12 @@ export class EndpointStringSelectorInputComponent
   connectionsFilter = input<string[]>();
 
   writeValue(obj: string): void {
-    this.endpoint.set({
-      endpoint: obj,
-      queueName: '',
-      connectionId: '0-0-0-0-0',
-      endpointDisplay: obj,
-    });
+    // this.endpoint.set({
+    //   endpoint: obj,
+    //   queueName: '',
+    //   connectionId: '0-0-0-0-0',
+    //   endpointDisplay: obj,
+    // });
   }
   registerOnChange(fn: (_: string | null) => void): void {
     this.onChange = fn;

@@ -22,13 +22,13 @@ import { TasksComponent } from '@service-bus-browser/tasks-components';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Dialog } from 'primeng/dialog';
-import { MessageChannels } from '@service-bus-browser/message-queue-contracts';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { SelectButton } from 'primeng/selectbutton';
+import { ServiceBusMessageChannels } from '@service-bus-browser/message-queue-contracts';
 
 @Component({
   selector: 'lib-sidebar',
@@ -51,18 +51,21 @@ import { SelectButton } from 'primeng/selectbutton';
 export class SidebarComponent {
   store = inject(Store);
   router = inject(Router);
-  namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   loadMessagesDialogVisible = computed(
     () => this.currentEndpoint() !== undefined,
   );
   currentEndpoint = signal<
     | undefined
-    | { connectionId: UUID; queueName: string; channel: MessageChannels }
+    | {
+        connectionId: UUID;
+        queueName: string;
+        channel: ServiceBusMessageChannels;
+      }
     | {
         connectionId: UUID;
         topicName: string;
         subscriptionName: string;
-        channel: MessageChannels;
+        channel: ServiceBusMessageChannels;
       }
   >(undefined);
   maxAmount = model<number>(10);
@@ -218,6 +221,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: undefined,
                 connectionId: queue.namespaceId,
+                target: 'serviceBus',
+                displayName: '',
               },
               messagesToClearCount: queue.metaData.activeMessageCount,
             }),
@@ -242,6 +247,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: 'deadLetter',
                 connectionId: queue.namespaceId,
+                target: 'serviceBus',
+                displayName: 'dead letter',
               },
               messagesToClearCount: queue.metaData.deadLetterMessageCount,
             }),
@@ -266,6 +273,8 @@ export class SidebarComponent {
                 queueName: queue.name,
                 channel: 'transferDeadLetter',
                 connectionId: queue.namespaceId,
+                target: 'serviceBus',
+                displayName: 'transfer dead letter',
               },
               messagesToClearCount:
                 queue.metaData.transferDeadLetterMessageCount,
@@ -452,6 +461,8 @@ export class SidebarComponent {
                 connectionId: subscription.namespaceId,
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
+                target: 'serviceBus',
+                displayName: '',
               },
               messagesToClearCount: subscription.metaData.activeMessageCount,
             }),
@@ -476,6 +487,8 @@ export class SidebarComponent {
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
                 channel: 'deadLetter',
+                target: 'serviceBus',
+                displayName: 'dead letter',
               },
               messagesToClearCount:
                 subscription.metaData.deadLetterMessageCount,
@@ -501,6 +514,8 @@ export class SidebarComponent {
                 topicName: subscription.topicId,
                 subscriptionName: subscription.name,
                 channel: 'transferDeadLetter',
+                target: 'serviceBus',
+                displayName: 'transfer dead letter',
               },
               messagesToClearCount:
                 subscription.metaData.transferDeadLetterMessageCount,
@@ -687,12 +702,16 @@ export class SidebarComponent {
 
   private openLoadDialog(
     endpoint:
-      | { connectionId: UUID; queueName: string; channel: MessageChannels }
+      | {
+          connectionId: UUID;
+          queueName: string;
+          channel: ServiceBusMessageChannels;
+        }
       | {
           connectionId: UUID;
           topicName: string;
           subscriptionName: string;
-          channel: MessageChannels;
+          channel: ServiceBusMessageChannels;
         },
   ) {
     this.maxAmount.set(100);
@@ -707,14 +726,14 @@ export class SidebarComponent {
       return;
     }
 
-    this.store.dispatch(
-      MessagesActions.loadMessages({
-        endpoint: currentEndpoint,
-        maxAmount: this.maxAmount(),
-        fromSequenceNumber: this.fromSequenceNumber().toString(),
-        receiveType: this.receiveType(),
-      }),
-    );
+    // this.store.dispatch(
+    //   MessagesActions.loadMessages({
+    //     endpoint: currentEndpoint,
+    //     maxAmount: this.maxAmount(),
+    //     fromSequenceNumber: this.fromSequenceNumber().toString(),
+    //     receiveType: this.receiveType(),
+    //   }),
+    // );
 
     this.currentEndpoint.set(undefined);
   }

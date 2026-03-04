@@ -1,4 +1,7 @@
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import {
+  Connection,
+  MessageQueueTargetType,
+} from '@service-bus-browser/message-queue-contracts';
 import { ConnectionClient } from './connection-client';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ConnectionStore } from './connection-store';

@@ -3,12 +3,12 @@ import { provideState } from '@ngrx/store';
 import { topologyFeature } from './lib/topology.store';
 import { provideEffects } from '@ngrx/effects';
 import { TopologyLoggingEffects } from './lib/topology-logging.effects';
-import { TopologyNamespacesEffects } from './lib/topology-namespaces.effects';
-import { TopologyQueueEffects } from './lib/topology-queue.effects';
-import { TopologyTopicEffects } from './lib/topology-topic.effects';
-import { TopologySubscriptionEffects } from './lib/topology-subscription.effects';
+// import { TopologyNamespacesEffects } from './lib/topology-namespaces.effects';
+// import { TopologyQueueEffects } from './lib/topology-queue.effects';
+// import { TopologyTopicEffects } from './lib/topology-topic.effects';
+// import { TopologySubscriptionEffects } from './lib/topology-subscription.effects';
 import { TopologyToastsEffects } from './lib/topology-toasts.effects';
-import { TopologySubscriptionRuleEffects } from './lib/topology-subscription-rule.effects';
+// import { TopologySubscriptionRuleEffects } from './lib/topology-subscription-rule.effects';
 
 import * as actions from './lib/topology.actions'
 import * as selectors from './lib/topology.selectors'
@@ -26,11 +26,11 @@ export function provideTopologyState(): (
     provideState(topologyFeature),
     provideEffects([
       TopologyEffects,
-      TopologyNamespacesEffects,
-      TopologyQueueEffects,
-      TopologyTopicEffects,
-      TopologySubscriptionEffects,
-      TopologySubscriptionRuleEffects,
+      // TopologyNamespacesEffects,
+      // TopologyQueueEffects,
+      // TopologyTopicEffects,
+      // TopologySubscriptionEffects,
+      // TopologySubscriptionRuleEffects,
       TopologyLoggingEffects,
       TopologyToastsEffects
     ])
