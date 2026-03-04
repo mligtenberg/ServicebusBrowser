@@ -193,9 +193,9 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           queue.metaData.transferDeadLetterMessageCount,
       },
       defaultAction: {
-        icon: 'pi pi-folder-open',
-        displayName: 'open queue',
-        actionType: 'open-queue',
+        icon: 'pi pi-pencil',
+        displayName: 'Edit queue',
+        actionType: 'edit-queue',
         parameters: {
           connectionId: this.connection.id,
           queueName: queue.name,
@@ -272,13 +272,14 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         target: this.target,
       },
       defaultAction: {
-        icon: 'pi pi-folder-open',
-        displayName: 'open topic',
-        actionType: 'open-topic',
+        icon: 'pi pi-pencil',
+        displayName: 'Edit topic',
+        actionType: 'edit-topic',
         parameters: {
           connectionId: this.connection.id,
           topicName: topic.name,
         },
+        actionGroup: 'topic',
       },
       children: subscriptions,
       actions: [
@@ -290,6 +291,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
             connectionId: this.connection.id,
             topicName: topic.name,
           },
+          actionGroup: 'subscriptions',
         },
         {
           icon: 'pi pi-pencil',
@@ -299,6 +301,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
             connectionId: this.connection.id,
             topicName: topic.name,
           },
+          actionGroup: 'topic',
         },
         {
           icon: 'pi pi-trash',
@@ -308,6 +311,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
             connectionId: this.connection.id,
             topicName: topic.name,
           },
+          actionGroup: 'topic',
         },
       ],
     };
@@ -356,6 +360,17 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       ],
       actions: [
         {
+          icon: 'pi pi-plus',
+          displayName: 'Add rule',
+          actionType: 'add-rule',
+          parameters: {
+            connectionId: this.connection.id,
+            topicName: topicName,
+            subscriptionName: subscription.name,
+          },
+          actionGroup: 'rule',
+        },
+        {
           icon: 'pi pi-pencil',
           displayName: 'Edit subscription',
           actionType: 'edit-subscription',
@@ -364,6 +379,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
             topicName: topicName,
             subscriptionName: subscription.name,
           },
+          actionGroup: 'subscription',
         },
         {
           icon: 'pi pi-trash',
@@ -374,17 +390,19 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
             topicName: topicName,
             subscriptionName: subscription.name,
           },
+          actionGroup: 'subscription',
         },
       ],
       defaultAction: {
-        icon: 'pi pi-folder-open',
-        displayName: 'open subscription',
-        actionType: 'open-subscription',
+        icon: 'pi pi-pencil',
+        displayName: 'Edit subscription',
+        actionType: 'edit-subscription',
         parameters: {
           connectionId: this.connection.id,
           topicName: topicName,
           subscriptionName: subscription.name,
         },
+        actionGroup: 'subscription',
       },
       children: subscription.rules.map(
         (rule): TopologyNode => ({
@@ -393,9 +411,9 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           path: `/${this.connection.id}/topics/${topicName}/${subscription.name}/${rule.name}`,
           refreshable: false,
           defaultAction: {
-            icon: 'pi pi-folder-open',
-            displayName: 'open rule',
-            actionType: 'open-rule',
+            icon: 'pi pi-pencil',
+            displayName: 'edit rule',
+            actionType: 'edit-rule',
             parameters: {
               connectionId: this.connection.id,
               topicName: topicName,
@@ -403,6 +421,30 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
               ruleName: rule.name,
             },
           },
+          actions: [
+            {
+              icon: 'pi pi-pencil',
+              displayName: 'edit rule',
+              actionType: 'edit-rule',
+              parameters: {
+                connectionId: this.connection.id,
+                topicName: topicName,
+                subscriptionName: subscription.name,
+                ruleName: rule.name,
+              },
+            },
+            {
+              icon: 'pi pi-trash',
+              displayName: 'Remove rule',
+              actionType: 'remove-rule',
+              parameters: {
+                connectionId: this.connection.id,
+                topicName: topicName,
+                subscriptionName: subscription.name,
+                ruleName: rule.name,
+              },
+            },
+          ],
         }),
       ),
     };

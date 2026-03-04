@@ -16,6 +16,8 @@
   <div class="tree-wrapper">
   <p-tree
   [value]="treeNodes()"
+  (onNodeExpand)="onNodeExpand($event)"
+  (onNodeCollapse)="onNodeCollapse($event)"
   >
   <ng-template let-node pTemplate="default">
     <sbb-tpl-generic-tree-node

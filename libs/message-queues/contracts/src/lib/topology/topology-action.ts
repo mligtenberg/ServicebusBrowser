@@ -3,4 +3,5 @@ export type TopologyAction = {
   displayName: string;
   actionType: string;
   parameters: Record<string, unknown>;
+  actionGroup?: string;
 }

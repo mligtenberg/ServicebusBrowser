@@ -9,10 +9,11 @@ import {
   reloadReceiveEndpoint,
   reloadSendEndpoint,
 } from './topology.actions';
-import { from, map, switchMap } from 'rxjs';
+import { catchError, from, map, switchMap } from 'rxjs';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import {
   topologyRefreshed,
+  topologyRefreshFailed,
   topologyRootNodesLoaded,
 } from './topology.internal-actions';
 import { Action } from '@ngrx/store';
@@ -44,50 +45,14 @@ export class TopologyEffects implements OnInitEffects {
       ofType(refreshTopology),
       switchMap(({ path }) => {
         return from(this.serviceBusClient.refreshTopology(path)).pipe(
-          map((topology) => topologyRefreshed({
-            path: path,
-            node: topology
-          })),
-        )
-      }),
-    ),
-  );
-
-  reloadReceiveEndpoint$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(reloadReceiveEndpoint),
-      map(({ endpoint }) => {
-        if ('queueName' in endpoint) {
-          return loadQueue({
-            namespaceId: endpoint.connectionId,
-            queueId: endpoint.queueName,
-          });
-        }
-
-        return loadSubscription({
-          namespaceId: endpoint.connectionId,
-          topicId: endpoint.topicName,
-          subscriptionId: endpoint.subscriptionName,
-        });
-      }),
-    ),
-  );
-
-  reloadSendEndpoint$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(reloadSendEndpoint),
-      map(({ endpoint }) => {
-        if ('queueName' in endpoint) {
-          return loadQueue({
-            namespaceId: endpoint.connectionId,
-            queueId: endpoint.queueName,
-          });
-        }
-
-        return loadTopic({
-          namespaceId: endpoint.connectionId,
-          topicId: endpoint.topicName,
-        });
+          map((topology) =>
+            topologyRefreshed({
+              path: path,
+              node: topology,
+            }),
+          ),
+          catchError((err) => [topologyRefreshFailed({ path, error: err })]),
+        );
       }),
     ),
   );

@@ -20,6 +20,11 @@ export const topologyRefreshed = createAction(
   props<{ path: string, node: TopologyNode }>()
 )
 
+export const topologyRefreshFailed = createAction(
+  '[Topology] Topology Refresh Failed',
+  props<{ path: string, error: unknown }>()
+)
+
 // NAMESPACES
 
 export const namespacesLoaded = createAction(

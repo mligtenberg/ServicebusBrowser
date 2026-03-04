@@ -1,7 +1,13 @@
-<div class="line-container">
+<p-context-menu
+  #contextMenu
+  [model]="contextMenuItems()"
+  appendTo="body"
+/>
+
+<div class="line-container" (contextmenu)="showContextMenu() ? contextMenu.toggle($event) : undefined">
   <span class="name" [pTooltip]="node().name" tooltipPosition="bottom">
     @if (node().icon; as icon) {
-      <fa-icon [icon]="icon" [ngClass]="{ 'spin': isLoading() }"></fa-icon>
+      <fa-icon [icon]="icon"></fa-icon>
     }
     {{ node().name }}
   </span>
@@ -21,11 +27,13 @@
   @if (showRefresh()) {
     <div class="refresh-button">
       <p-button
-        [severity]="'primary'"
+        [severity]="hasError() ? 'danger' : 'primary'"
         icon="pi pi-refresh"
         [rounded]="true"
         [text]="true"
         (click)="refresh()"
+        [ngClass]="{ 'spin': isLoading() }"
+        [disabled]="isLoading()"
       />
     </div>
   }
