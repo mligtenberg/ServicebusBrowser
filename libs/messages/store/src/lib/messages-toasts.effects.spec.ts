@@ -4,7 +4,7 @@ import { ReplaySubject } from 'rxjs';
 import { MessagesToastsEffects } from './messages-toasts.effects';
 import * as internalActions from './messages.internal-actions';
 import { MessageService } from 'primeng/api';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 const endpoint: SendEndpoint = {
   connectionId: '00000000-0000-0000-0000-000000000001',
   queueName: 'q',

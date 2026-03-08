@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/topology-store',
+  displayName: '@service-bus-management-browser/topology-store',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/topology/store',

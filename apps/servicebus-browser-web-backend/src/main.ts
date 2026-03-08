@@ -6,21 +6,18 @@
 import express from 'express';
 import * as path from 'path';
 import { Server } from '@service-bus-browser/service-bus-server';
-import { ConnectionManager } from '@service-bus-browser/service-bus-clients';
 import { ReadonlyConfigFileConnectionStorage } from './readonly-config-file-connection-store';
 import bp from 'body-parser';
 import { EXPECTED_AUDIENCE, OIDC_ISSUER, validateJWT } from './validate-tokens';
 
-const serviceBusBrowserServer = new Server(
-  new ConnectionManager(new ReadonlyConfigFileConnectionStorage())
-);
+const serviceBusBrowserServer = new Server(new ReadonlyConfigFileConnectionStorage());
 
 const app = express();
 
 app.use(bp.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.get('/api/client-config', (req, res) => {
+app.get('/api/client-config', (_, res) => {
   res.status(200).json({
     clientId: EXPECTED_AUDIENCE,
     authority: OIDC_ISSUER,
@@ -67,6 +64,31 @@ app.post('/api/management/command', async (req, res) => {
     res.send(result);
   }
 });
+
+app.post('/api/service-bus-management/command', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token || !(await validateJWT(token))) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
+  const request: { requestType: string; body: unknown } = req.body;
+
+  const result = await serviceBusBrowserServer.serviceBusManagementExecute(
+    request.requestType,
+    request.body,
+  );
+  if (result instanceof Blob) {
+    result.arrayBuffer().then((buffer) => {
+      res.setHeader('Content-Type', result.type);
+      res.setHeader('Content-Length', buffer.byteLength);
+      res.send(Buffer.from(buffer));
+    });
+  } else {
+    res.send(result);
+  }
+});
+
 
 const port = 3333;
 const server = app.listen(port, () => {

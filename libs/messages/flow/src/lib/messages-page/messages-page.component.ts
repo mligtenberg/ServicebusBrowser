@@ -46,7 +46,7 @@ import { MenuItem } from 'primeng/api';
 import { BASE_ROUTE } from '../const';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { Menu } from 'primeng/menu';
 import { MessageFilterEditorComponent } from '../message-filter-editor/message-filter-editor.component';
 import { Tooltip } from 'primeng/tooltip';
@@ -62,7 +62,7 @@ import { ResendMessagesUtil } from '../resendmessages-util';
 const repository = await getMessagesRepository();
 
 @Component({
-  selector: 'lib-messages-page',
+  selector: 'lib-messages-operations-page',
   imports: [
     CommonModule,
     TableModule,
@@ -363,8 +363,8 @@ export class MessagesPageComponent {
       return [
         {
           label: allMessages
-            ? 'Quick resend all messages'
-            : 'Quick selected resend messages',
+            ? 'Quick resend all messages-operations'
+            : 'Quick selected resend messages-operations',
           icon: 'pi pi-envelope',
           command: () => {
             this.resendAllMessages.set(allMessages);
@@ -373,8 +373,8 @@ export class MessagesPageComponent {
         },
         {
           label: allMessages
-            ? 'Batch resend all messages'
-            : 'Batch resend selected messages',
+            ? 'Batch resend all messages-operations'
+            : 'Batch resend selected messages-operations',
           icon: 'pi pi-envelope',
           command: () => {
             this.router.navigate(
@@ -389,7 +389,7 @@ export class MessagesPageComponent {
           },
         },
         {
-          label: allMessages ? 'Export all messages' : 'Export selection',
+          label: allMessages ? 'Export all messages-operations' : 'Export selection',
           icon: 'pi pi-download',
           command: () => {
             this.exportMessages(allMessages);
@@ -443,7 +443,7 @@ export class MessagesPageComponent {
       (!sendAllMessages &&
         !(selection && Array.isArray(selection) && selection.length > 0))
     ) {
-      console.error('Invalid endpoint or messages', {
+      console.error('Invalid endpoint or messages-operations', {
         selection,
         endpoint,
         sendAllMessages,

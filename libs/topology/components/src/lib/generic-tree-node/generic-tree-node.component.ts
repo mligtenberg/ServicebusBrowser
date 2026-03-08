@@ -1,10 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-} from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { Tooltip } from 'primeng/tooltip';
@@ -12,7 +6,7 @@ import {
   ReceiveEndpoint,
   SendEndpoint,
   TopologyNode,
-} from '@service-bus-browser/message-queue-contracts';
+} from '@service-bus-browser/api-contracts';
 import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import {
@@ -23,7 +17,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu } from 'primeng/contextmenu';
-import { TopologyAction } from '@service-bus-browser/message-queue-contracts';
+import { TopologyAction } from '@service-bus-browser/api-contracts';
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -65,7 +59,9 @@ export class GenericTreeNodeComponent {
     { initialValue: true },
   );
 
-  disableRefresh = computed(() => this.selectionMode() === 'none' || this.isLoading());
+  disableRefresh = computed(
+    () => this.selectionMode() === 'none' || this.isLoading(),
+  );
 
   showMessageCounts = computed(() => {
     const node = this.node();
@@ -193,7 +189,10 @@ export class GenericTreeNodeComponent {
     return contextMenu;
   });
 
-  showContextMenu = computed(() => this.contextMenuItems().length > 0 && this.selectionMode() === 'actions');
+  showContextMenu = computed(
+    () =>
+      this.contextMenuItems().length > 0 && this.selectionMode() === 'actions',
+  );
 
   refresh($event?: MouseEvent) {
     $event?.stopPropagation();

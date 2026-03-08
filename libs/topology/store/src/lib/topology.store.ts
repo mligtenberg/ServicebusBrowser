@@ -2,7 +2,7 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 
 import * as internalActions from './topology.internal-actions';
 import * as actions from './topology.actions';
-import { TopologyNode } from '@service-bus-browser/message-queue-contracts';
+import { TopologyNode } from '@service-bus-browser/api-contracts';
 
 export const featureKey = 'topology';
 
@@ -66,14 +66,11 @@ export const logsReducer = createReducer(
       };
     },
   ),
-  on(
-    internalActions.topologyRefreshFailed,
-    (state, { path }) => ({
-      ...state,
-      refreshingPaths: state.refreshingPaths.filter((p) => p !== path),
-      erroredPaths: [...state.refreshingPaths, path],
-    })
-  )
+  on(internalActions.topologyRefreshFailed, (state, { path }) => ({
+    ...state,
+    refreshingPaths: state.refreshingPaths.filter((p) => p !== path),
+    erroredPaths: [...state.refreshingPaths, path],
+  })),
 );
 
 export const topologyFeature = createFeature({

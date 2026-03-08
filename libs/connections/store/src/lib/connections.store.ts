@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 import * as actions from './connections.actions';
 import * as internalActions from './connections.internal-actions';
 

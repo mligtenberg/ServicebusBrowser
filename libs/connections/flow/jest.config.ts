@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/connections-flow',
+  displayName: '@service-bus-management-browser/connections-flow',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/connections/flow',

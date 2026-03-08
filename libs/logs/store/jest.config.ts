@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/logs-store',
+  displayName: '@service-bus-management-browser/logs-store',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/logs/store',

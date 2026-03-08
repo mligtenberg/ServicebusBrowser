@@ -1,8 +1,8 @@
 module.exports = {
-  displayName: 'messages-db',
+  displayName: 'messages-operations-db',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/messages/messages-db',
+  coverageDirectory: '../../../coverage/libs/messages-operations/messages-operations-db',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

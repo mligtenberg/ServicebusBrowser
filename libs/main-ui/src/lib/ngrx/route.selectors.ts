@@ -19,7 +19,7 @@ export const selectPages = createSelector(
     const pagesBase = [...messagePages].map((page) => ({
       ...page,
       position: positions.find((p) => p.pageId === page.id)?.position,
-      route: '/messages/page/' + page.id
+      route: '/messages-operations/page/' + page.id
     }));
 
     let pages = pagesBase.filter(p => p.position === undefined);
@@ -37,7 +37,7 @@ export const selectPages = createSelector(
         ...pages.slice(page.position ?? 0),
       ];
     }
-    
+
     return pages;
   }
 );

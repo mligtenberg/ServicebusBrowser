@@ -34,7 +34,7 @@ import { ScrollPanel } from 'primeng/scrollpanel';
 const repository = await getMessagesRepository();
 
 @Component({
-  selector: 'lib-messages-viewer',
+  selector: 'lib-messages-operations-viewer',
   imports: [
     ContextMenu,
     PrimeTemplate,
@@ -240,7 +240,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     const selection = $event
       .map((e) => (typeof e === 'string' ? e : (e.sequenceNumber ?? '')))
       .filter((e) => e !== '')
-      // Distinct messages by sequence number
+      // Distinct messages-operations by sequence number
       .filter((e, i, arr) => arr.indexOf(e) === i);
 
     this.selection.set(selection);

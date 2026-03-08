@@ -51,12 +51,12 @@ async function createApplicationProperties(database: Database) {
 
 export async function createIndexesForMessages(database: Database) {
   await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_id ON messages(id ASC)',
+    'CREATE INDEX IF NOT EXISTS idx_messages_id ON messages-operations(id ASC)',
   )
   await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_contentType ON messages(contentType ASC)',
+    'CREATE INDEX IF NOT EXISTS idx_messages_contentType ON messages-operations(contentType ASC)',
   );
   await database.exec(
-    'CREATE INDEX IF NOT EXISTS idx_messages_partitionKey ON messages(partitionKey ASC)',
+    'CREATE INDEX IF NOT EXISTS idx_messages_partitionKey ON messages-operations(partitionKey ASC)',
   );
 }

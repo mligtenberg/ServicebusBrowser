@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { ManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { Store } from '@ngrx/store';
 
 import * as actions from './topology.actions';
@@ -12,7 +12,7 @@ import { selectNamespaceById } from './topology.selectors';
 export class TopologySubscriptionRuleEffects {
   store = inject(Store);
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusManagementFrontendClient);
+  serviceBusClient = inject(ManagementFrontendClient);
 
   addSubscriptionRule$ = createEffect(() =>
     this.actions$.pipe(

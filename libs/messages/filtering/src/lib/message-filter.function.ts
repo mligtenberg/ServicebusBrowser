@@ -11,7 +11,7 @@ import {
 import { Duration } from 'luxon';
 
 /**
- * Service for filtering messages based on various criteria
+ * Service for filtering messages-operations based on various criteria
  */
 
 export function filterMessages<T extends ServiceBusMessage>(

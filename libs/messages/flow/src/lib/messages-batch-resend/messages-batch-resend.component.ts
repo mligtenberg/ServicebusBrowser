@@ -19,7 +19,7 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
@@ -32,7 +32,7 @@ import { ResendMessagesUtil } from '../resendmessages-util';
 const repository = await getMessagesRepository();
 
 @Component({
-  selector: 'lib-messages-batch-resend',
+  selector: 'lib-messages-operations-batch-resend',
   standalone: true,
   imports: [
     CommonModule,
@@ -220,7 +220,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'No Messages',
-        detail: 'No messages to resend',
+        detail: 'No messages-operations to resend',
       });
       return;
     }
@@ -228,7 +228,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing Endpoint',
-        detail: 'Please select a destination endpoint for resending messages',
+        detail: 'Please select a destination endpoint for resending messages-operations',
       });
       return;
     }
@@ -263,7 +263,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing Endpoint',
-        detail: 'Please select a destination endpoint for resending messages',
+        detail: 'Please select a destination endpoint for resending messages-operations',
       });
       return;
     }
@@ -281,7 +281,7 @@ export class MessagesBatchResendComponent {
     // Close the preview drawer if it's open
     this.previewDrawerVisible.set(false);
 
-    // Navigate back to messages page
+    // Navigate back to messages-operations page
     this.router.navigate(['/']);
   }
 

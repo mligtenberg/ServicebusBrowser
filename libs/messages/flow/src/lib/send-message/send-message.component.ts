@@ -15,7 +15,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
 import {
   CustomPropertyType,
   SendMessagesForm,
-  SystemPropertyKeys
+  SystemPropertyKeys,
 } from './form';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
@@ -27,7 +27,10 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
-import { DurationInputComponent, FormEditor } from '@service-bus-browser/shared-components';
+import {
+  DurationInputComponent,
+  FormEditor,
+} from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { Store } from '@ngrx/store';
 import { MessagesActions } from '@service-bus-browser/messages-store';
@@ -42,7 +45,7 @@ import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { Actions, ofType } from '@ngrx/effects';
 import { routerNavigatedAction } from '@ngrx/router-store';
 
@@ -76,8 +79,8 @@ const repository = await getMessagesRepository();
 export class SendMessageComponent implements AfterViewInit, OnDestroy {
   ResizeObserver: ResizeObserver | null = null;
   formContainer = viewChild.required('formContainer', {
-    read: ElementRef
-  })
+    read: ElementRef,
+  });
 
   formHelpers = formHelpers;
   value = model<SendMessagesForm>(this.getEmptyForm());
@@ -99,7 +102,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   actions$ = inject(Actions);
 
   typeOptions: Record<string, CustomPropertyType | string>[] = [
-    { label: 'String', value: 'string'},
+    { label: 'String', value: 'string' },
     { label: 'Datetime', value: 'datetime' },
     { label: 'Number', value: 'number' },
     { label: 'Boolean', value: 'boolean' },

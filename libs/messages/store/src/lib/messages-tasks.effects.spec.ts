@@ -3,7 +3,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { ReplaySubject, firstValueFrom } from 'rxjs';
 import { MessagesTasksEffects } from './messages-tasks.effects';
 import * as internalActions from './messages.internal-actions';
-import { ReceiveEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/api-contracts';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 const endpoint: ReceiveEndpoint = {
   connectionId: '00000000-0000-0000-0000-000000000001',
@@ -35,7 +35,7 @@ describe('MessagesTasksEffects', () => {
       TasksActions.createTask({
         id: '00000000-0000-0000-0000-000000000002',
         statusDescription: '0/5',
-        description: 'loading messages from q',
+        description: 'loading messages-operations from q',
         hasProgress: true,
         initialProgress: 0,
       }),

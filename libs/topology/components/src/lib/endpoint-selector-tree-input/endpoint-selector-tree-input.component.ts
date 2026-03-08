@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 
 import { Store } from '@ngrx/store';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { TopologyTreeComponent } from '../topology-tree/topology-tree.component';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 

@@ -20,7 +20,7 @@ import {
   SendEndpoint,
   TopologyAction,
   TopologyNode,
-} from '@service-bus-browser/message-queue-contracts';
+} from '@service-bus-browser/api-contracts';
 import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Router } from '@angular/router';
 import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';

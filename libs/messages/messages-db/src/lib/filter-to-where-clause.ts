@@ -56,27 +56,27 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
 
     switch (bodyFilter.filterType) {
       case 'contains':
-        clauses.push('messages.body LIKE ?');
+        clauses.push('messages-operations.body LIKE ?');
         args.push(`%${bodyFilter.value}%`);
         break;
       case 'equals':
-        clauses.push('messages.body = ?');
+        clauses.push('messages-operations.body = ?');
         args.push(bodyFilter.value);
         break;
       case 'notcontains':
-        clauses.push('messages.body NOT LIKE ?');
+        clauses.push('messages-operations.body NOT LIKE ?');
         args.push(`%${bodyFilter.value}%`);
         break;
       case 'notequals':
-        clauses.push('messages.body != ?');
+        clauses.push('messages-operations.body != ?');
         args.push(bodyFilter.value);
         break;
       case 'regex':
-        clauses.push('regexp(?, messages.body)');
+        clauses.push('regexp(?, messages-operations.body)');
         args.push(bodyFilter.value);
         break;
       case 'notregex':
-        clauses.push('NOT regexp(?, messages.body)');
+        clauses.push('NOT regexp(?, messages-operations.body)');
         args.push(bodyFilter.value);
         break;
       default:
@@ -99,7 +99,7 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
     }
 
     const appClauses: string[] = [
-      'messageId = messages.id',
+      'messageId = messages-operations.id',
       'propertyName = ?',
     ];
     const appArgs: Array<string | number | boolean | null> = [

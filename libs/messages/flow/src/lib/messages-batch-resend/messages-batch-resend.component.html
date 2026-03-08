@@ -144,7 +144,7 @@
     position="right"
   >
     <div class="preview-layout" [ngClass]="{ darkMode: darkMode() }">
-      <!-- the if statement forces the messages to be retrieved from the indexeddb -->
+      <!-- the if statement forces the messages-operations to be retrieved from the indexeddb -->
       @if (previewDrawerVisible()) {
         <lib-preview-batch
           [pageId]="pageId()"

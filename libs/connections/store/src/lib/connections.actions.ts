@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const addConnection = createAction(

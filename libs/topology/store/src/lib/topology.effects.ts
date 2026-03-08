@@ -7,7 +7,7 @@ import {
   reloadSendEndpoint,
 } from './topology.actions';
 import { catchError, from, map, switchMap } from 'rxjs';
-import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { ManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import {
   topologyRefreshed,
   topologyRefreshFailed,
@@ -24,7 +24,7 @@ export class TopologyEffects implements OnInitEffects {
   }
 
   actions$ = inject(Actions);
-  serviceBusClient = inject(ServiceBusManagementFrontendClient);
+  serviceBusClient = inject(ManagementFrontendClient);
 
   loadTopology$ = createEffect(() =>
     this.actions$.pipe(

@@ -9,12 +9,15 @@ import {
 import {
   ReceiveEndpoint,
   SendEndpoint,
-} from '@service-bus-browser/message-queue-contracts';
+} from '@service-bus-browser/api-contracts';
 
-
-export const loadTopologyRootNodes = createAction('[Topology] Load topology root nodes');
-export const refreshTopology = createAction('[Topology] Refresh topology', props<{ path: string }>());
-
+export const loadTopologyRootNodes = createAction(
+  '[Topology] Load topology root nodes',
+);
+export const refreshTopology = createAction(
+  '[Topology] Refresh topology',
+  props<{ path: string }>(),
+);
 
 // NAMESPACES
 

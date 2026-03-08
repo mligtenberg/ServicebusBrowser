@@ -38,7 +38,7 @@ export class MainApp {
         {
           label: 'Send',
           icon: 'pi pi-send',
-          routerLink: '/messages/send',
+          routerLink: '/messages-operations/send',
         },
         {
           label: 'Import',

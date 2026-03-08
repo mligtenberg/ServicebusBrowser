@@ -1,7 +1,7 @@
 import { connectionsFeature, initialState } from './connections.store';
 import * as Actions from './connections.actions';
 import * as InternalActions from './connections.internal-actions';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 describe('connections reducer', () => {
   const connection: Connection = {
     id: '00000000-0000-0000-0000-000000000001',

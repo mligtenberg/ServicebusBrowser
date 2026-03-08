@@ -8,7 +8,7 @@ import {
   MessagesActions,
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { MessageService } from 'primeng/api';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -54,7 +54,7 @@ export class ResendMessagesUtil {
             );
           }
           messagesToSend.push(message);
-          // Send partial batches of 50 messages at a time
+          // Send partial batches of 50 messages-operations at a time
           if (messagesToSend.length >= 50) {
             this.store.dispatch(
               MessagesActions.sendPartialBatch({
@@ -112,7 +112,7 @@ export class ResendMessagesUtil {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to send messages. Check the logs for details.',
+        detail: 'Failed to send messages-operations. Check the logs for details.',
       });
     }
   }

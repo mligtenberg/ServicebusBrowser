@@ -7,7 +7,7 @@ import {
 import {
   ReceiveEndpoint,
   SendEndpoint,
-} from '@service-bus-browser/message-queue-contracts';
+} from '@service-bus-browser/api-contracts';
 
 export const pageCreated = createAction(
   '[Messages] page created',
@@ -19,7 +19,7 @@ export const pageCreated = createAction(
 );
 
 export const loadMessagesLoad = createAction(
-  '[Messages] load peek messages',
+  '[Messages] load peek messages-operations',
   props<{
     pageId: UUID;
     endpoint: ReceiveEndpoint;
@@ -31,7 +31,7 @@ export const loadMessagesLoad = createAction(
 );
 
 export const loadMessagesPartLoaded = createAction(
-  '[Messages] load messages partially loaded',
+  '[Messages] load messages-operations partially loaded',
   props<{
     pageId: UUID;
     endpoint: ReceiveEndpoint;
@@ -95,21 +95,21 @@ export const messagesSendFailed = createAction(
 );
 
 export const messagesExported = createAction(
-  '[Messages] messages exported',
+  '[Messages] messages-operations exported',
   props<{
     pageId: UUID;
   }>(),
 );
 
 export const messagesExportFailed = createAction(
-  '[Messages] messages export failed',
+  '[Messages] messages-operations export failed',
   props<{
     error: Error;
   }>(),
 );
 
 export const messagesImported = createAction(
-  '[Messages] messages imported',
+  '[Messages] messages-operations imported',
   props<{
     pageId: UUID;
     pageName: string;
@@ -117,7 +117,7 @@ export const messagesImported = createAction(
 );
 
 export const messagesImportFailed = createAction(
-  '[Messages] messages import failed',
+  '[Messages] messages-operations import failed',
 );
 
 export const loadPagesFromDb = createAction('[Messages] load pages from db');
@@ -131,7 +131,7 @@ export const updatePageName = createAction(
 );
 
 export const batchSendCompleted = createAction(
-  '[Messages] batch messages send completed',
+  '[Messages] batch messages-operations send completed',
   props<{
     transactionId: UUID;
     endpoint: SendEndpoint;

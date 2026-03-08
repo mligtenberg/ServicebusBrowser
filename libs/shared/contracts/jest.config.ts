@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/shared-contracts',
+  displayName: '@service-bus-management-browser/shared-contracts',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

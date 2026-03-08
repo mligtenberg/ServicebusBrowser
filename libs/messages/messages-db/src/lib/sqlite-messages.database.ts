@@ -156,7 +156,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     const keyCandidates = this.toKeyCandidates(sequenceNumber);
     for (const key of keyCandidates) {
       const rows = await this.selectRows<[string]>(
-        'SELECT message FROM messages WHERE id = ? LIMIT 1',
+        'SELECT message FROM messages-operations WHERE id = ? LIMIT 1',
         [key],
       );
       const row = rows[0];

@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/manage-topology-flow',
+  displayName: '@service-bus-management-browser/manage-topology-flow',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/topology/manage-flow',

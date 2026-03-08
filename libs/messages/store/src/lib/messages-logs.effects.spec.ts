@@ -6,7 +6,7 @@ import { MessagesLogsEffects } from './messages-logs.effects';
 import { Logger } from '@service-bus-browser/logs-services';
 import * as internalActions from './messages.internal-actions';
 import * as actions from './messages.actions';
-import { ReceiveEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { ReceiveEndpoint } from '@service-bus-browser/api-contracts';
 const endpoint: ReceiveEndpoint = {
   connectionId: '00000000-0000-0000-0000-000000000001',
   queueName: 'q',

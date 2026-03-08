@@ -3,14 +3,14 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import {
   ReceiveEndpoint,
   SendEndpoint,
-} from '@service-bus-browser/message-queue-contracts';
+} from '@service-bus-browser/api-contracts';
 import {
   MessageFilter,
   ServiceBusMessage,
 } from '@service-bus-browser/messages-contracts';
 
 export const loadMessages = createAction(
-  '[Messages] load messages',
+  '[Messages] load messages-operations',
   props<{
     endpoint: ReceiveEndpoint;
     maxAmount: number;
@@ -27,7 +27,7 @@ export const closePage = createAction(
 );
 
 export const loadMessagesLoadingDone = createAction(
-  '[Messages] peek messages finished loading',
+  '[Messages] peek messages-operations finished loading',
   props<{
     pageId: UUID;
     endpoint: ReceiveEndpoint;
@@ -58,7 +58,7 @@ export const sendMessage = createAction(
 );
 
 export const sendMessages = createAction(
-  '[Messages] send messages',
+  '[Messages] send messages-operations',
   props<{
     endpoint: SendEndpoint;
     messages: ServiceBusMessage[];
@@ -78,7 +78,7 @@ export const sendPartialBatch = createAction(
 );
 
 export const exportMessages = createAction(
-  '[Messages] export messages',
+  '[Messages] export messages-operations',
   props<{
     pageId: UUID;
     filter?: MessageFilter;
@@ -86,7 +86,7 @@ export const exportMessages = createAction(
   }>(),
 );
 
-export const importMessages = createAction('[Messages] import messages');
+export const importMessages = createAction('[Messages] import messages-operations');
 
 export const setPageFilter = createAction(
   '[Messages] set page filter',

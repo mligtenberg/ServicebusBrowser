@@ -1,8 +1,8 @@
 module.exports = {
-  displayName: '@servicebus-browser/messages-components',
+  displayName: '@servicebus-browser/messages-operations-components',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/messages/components',
+  coverageDirectory: '../../../coverage/libs/messages-operations/components',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

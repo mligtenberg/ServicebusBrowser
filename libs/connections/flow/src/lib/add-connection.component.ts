@@ -10,7 +10,7 @@ import {
   ConnectionsSelectors,
 } from '@service-bus-browser/connections-store';
 import { ButtonDirective } from 'primeng/button';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'lib-add-connection',

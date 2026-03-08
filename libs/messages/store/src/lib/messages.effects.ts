@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { catchError, filter, from, map, mergeMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
@@ -23,7 +23,7 @@ export class MessagesEffects {
   MAX_PAGE_SIZE = 500;
   store = inject(Store);
   actions$ = inject(Actions);
-  messagesService = inject(ServiceBusMessagesFrontendClient);
+  messagesService = inject(MessagesFrontendClient);
   exportMessagesUtil = inject(ExportMessagesUtil);
 
   loadPeekQueueMessagesPart$ = createEffect(() =>

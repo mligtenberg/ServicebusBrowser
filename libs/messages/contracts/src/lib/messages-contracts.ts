@@ -34,7 +34,7 @@ export interface ServiceBusMessage {
   /**
    * The partition key for sending a message to a partitioned entity.
    * Maximum length is 128 characters. For {@link https://docs.microsoft.com/azure/service-bus-messaging/service-bus-partitioning | partitioned entities},
-   * setting this value enables assigning related messages to the same internal partition,
+   * setting this value enables assigning related messages-operations to the same internal partition,
    * so that submission sequence order is correctly recorded. The partition is chosen by a hash
    * function over this value and cannot be chosen directly.
    * - For session-aware entities, the `sessionId` property overrides this value.
@@ -46,7 +46,7 @@ export interface ServiceBusMessage {
    * The partition key for sending a message into an entity
    * via a partitioned transfer queue. Maximum length is 128 characters. If a message is sent via a
    * transfer queue in the scope of a transaction, this value selects the transfer queue partition:
-   * This is functionally equivalent to `partitionKey` property and ensures that messages are kept
+   * This is functionally equivalent to `partitionKey` property and ensures that messages-operations are kept
    * together and in order as they are transferred.
    * See {@link https://docs.microsoft.com/azure/service-bus-messaging/service-bus-transactions#transfers-and-send-via | Transfers and Send Via}.
    */
@@ -101,7 +101,7 @@ export interface ServiceBusMessage {
    * The date and time in UTC at which the message will
    * be enqueued. This property returns the time in UTC; when setting the property, the
    * supplied DateTime value must also be in UTC. This value is for delayed message sending.
-   * It is utilized to delay messages sending to a specific time in the future. Message enqueuing
+   * It is utilized to delay messages-operations sending to a specific time in the future. Message enqueuing
    * time does not mean that the message will be sent at the same time. It will get enqueued,
    * but the actual sending time depends on the queue's workload and its state.
    */
@@ -137,7 +137,7 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   readonly deadLetterErrorDescription?: string;
   /**
    * The lock token is a reference to the lock that is being held by the broker in
-   * `peekLock` receive mode. Locks are used internally settle messages as explained in the
+   * `peekLock` receive mode. Locks are used internally settle messages-operations as explained in the
    * {@link https://docs.microsoft.com/azure/service-bus-messaging/message-transfers-locks-settlement | product documentation in more detail}
    * - Not applicable when the message is received in `receiveAndDelete` receive mode.
    * mode.
@@ -172,7 +172,7 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   lockedUntilUtc?: Date;
   /**
    * The original sequence number of the message. For
-   * messages that have been auto-forwarded, this property reflects the sequence number that had
+   * messages-operations that have been auto-forwarded, this property reflects the sequence number that had
    * first been assigned to the message at its original point of submission.
    * @readonly
    */
@@ -193,15 +193,15 @@ export declare interface ServiceBusReceivedMessage extends ServiceBusMessage {
   readonly sequenceNumber?: string;
   /**
    * The name of the queue or subscription that this message
-   * was enqueued on, before it was deadlettered. Only set in messages that have been dead-lettered
+   * was enqueued on, before it was deadlettered. Only set in messages-operations that have been dead-lettered
    * and subsequently auto-forwarded from the dead-letter sub-queue to another entity. Indicates the
    * entity in which the message was dead-lettered.
    * @readonly
    */
   readonly deadLetterSource?: string;
   /**
-   * State of the message can be active, deferred or scheduled. Deferred messages have deferred state,
-   * scheduled messages have scheduled state, all other messages have active state.
+   * State of the message can be active, deferred or scheduled. Deferred messages-operations have deferred state,
+   * scheduled messages-operations have scheduled state, all other messages-operations have active state.
    */
   readonly state: 'active' | 'deferred' | 'scheduled';
 }
@@ -222,14 +222,3 @@ export const SystemKeyProperties: SystemPropertyKey[] = [
   'timeToLive',
 ];
 
-export function sequenceNumberToKey(sequenceNumber: string): string {
-  // the max sequenc number of a long is 19 digits long
-  const prefixAmount = 20 - sequenceNumber.length;
-  let key = '';
-  for (let i = 0; i < prefixAmount; i++) {
-    key += '0';
-  }
-  key += sequenceNumber;
-
-  return key;
-}

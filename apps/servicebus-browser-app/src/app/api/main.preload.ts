@@ -11,11 +11,21 @@ contextBridge.exposeInMainWorld('electron', {
 contextBridge.exposeInMainWorld('serviceBusApi', {
   managementDoRequest: (requestType: string, request) =>
     ipcRenderer.invoke(
-      'service-bus:management-do-request',
+      'management:do-request',
       requestType,
-      request
+      request,
+    ),
+  serviceBusManagementDoRequest: (requestType: string, request) =>
+    ipcRenderer.invoke(
+      'service-bus-management:do-request',
+      requestType,
+      request,
     ),
   messagesDoRequest: (requestType: string, request) => {
-    return ipcRenderer.invoke('service-bus:messages-do-request', requestType, request);
-  }
+    return ipcRenderer.invoke(
+      'messages:do-request',
+      requestType,
+      request,
+    );
+  },
 });
