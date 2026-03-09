@@ -1,10 +1,8 @@
 import { createAction, props } from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import {
-  ServiceBusMessage,
-  ServiceBusReceivedMessage,
-} from '@service-bus-browser/messages-contracts';
-import {
+  Message,
+  ReceivedMessage,
   ReceiveEndpoint,
   SendEndpoint,
 } from '@service-bus-browser/api-contracts';
@@ -37,7 +35,7 @@ export const loadMessagesPartLoaded = createAction(
     endpoint: ReceiveEndpoint;
     maxAmount: number;
     amountLoaded: number;
-    messages: ServiceBusReceivedMessage[];
+    messages: ReceivedMessage[];
     receiveType: 'peek' | 'receive';
   }>(),
 );
@@ -55,7 +53,7 @@ export const sentMessage = createAction(
   '[Messages] message sended',
   props<{
     endpoint: SendEndpoint;
-    message: ServiceBusMessage;
+    message: Message;
   }>(),
 );
 
@@ -63,7 +61,7 @@ export const messageSendFailed = createAction(
   '[Messages] message send failed',
   props<{
     endpoint: SendEndpoint;
-    message: ServiceBusMessage;
+    message: Message;
   }>(),
 );
 
@@ -79,7 +77,7 @@ export const messagesSending = createAction(
   props<{
     taskId: UUID;
     endpoint: SendEndpoint;
-    messagesToSend: ServiceBusMessage[];
+    messagesToSend: Message[];
     sendAmount: number;
   }>(),
 );
@@ -89,7 +87,7 @@ export const messagesSendFailed = createAction(
   props<{
     taskId: UUID;
     endpoint: SendEndpoint;
-    messagesToSend: ServiceBusMessage[];
+    messagesToSend: Message[];
     sendAmount: number;
   }>(),
 );

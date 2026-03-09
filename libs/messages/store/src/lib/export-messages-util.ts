@@ -1,6 +1,5 @@
 import {
   MessageFilter,
-  sequenceNumberToKey,
   ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -227,7 +226,8 @@ export class ExportMessagesUtil {
 
         const bodyContent = await bodyBlob.text();
         const properties = JSON.parse(await propertiesBlob.text());
-        const key = sequenceNumberToKey(properties.sequenceNumber);
+        // TODO
+        const key = "";
 
         const message: ServiceBusReceivedMessage = {
           key: key,

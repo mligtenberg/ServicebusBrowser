@@ -8,11 +8,6 @@ export type WhereClause = {
   args: Array<string | number | boolean | null>;
 };
 
-const SYSTEM_PROPERTY_COLUMN_MAP: Record<string, string> = {
-  state: 'messageState',
-  to: 'messageTo',
-};
-
 export function combineWhereClauses(clauses: WhereClause[]): WhereClause {
   clauses = clauses.filter((clause) => clause.clause.trim() !== '');
 
@@ -56,27 +51,27 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
 
     switch (bodyFilter.filterType) {
       case 'contains':
-        clauses.push('messages-operations.body LIKE ?');
+        clauses.push('messages.body LIKE ?');
         args.push(`%${bodyFilter.value}%`);
         break;
       case 'equals':
-        clauses.push('messages-operations.body = ?');
+        clauses.push('messages.body = ?');
         args.push(bodyFilter.value);
         break;
       case 'notcontains':
-        clauses.push('messages-operations.body NOT LIKE ?');
+        clauses.push('messages.body NOT LIKE ?');
         args.push(`%${bodyFilter.value}%`);
         break;
       case 'notequals':
-        clauses.push('messages-operations.body != ?');
+        clauses.push('messages.body != ?');
         args.push(bodyFilter.value);
         break;
       case 'regex':
-        clauses.push('regexp(?, messages-operations.body)');
+        clauses.push('regexp(?, messages.body)');
         args.push(bodyFilter.value);
         break;
       case 'notregex':
-        clauses.push('NOT regexp(?, messages-operations.body)');
+        clauses.push('NOT regexp(?, messages.body)');
         args.push(bodyFilter.value);
         break;
       default:
@@ -85,12 +80,29 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
   }
 
   for (const systemPropertyFilter of filter.systemProperties) {
+    if (!systemPropertyFilter.isActive) {
+      continue;
+    }
+
+    const appClauses: string[] = [
+      'messageId = messages.id',
+      'propertyName = ?',
+    ];
+    const appArgs: Array<string | number | boolean | null> = [
+      systemPropertyFilter.fieldName,
+    ];
+
     appendPropertyClause(
-      clauses,
-      args,
+      appClauses,
+      appArgs,
       systemPropertyFilter,
-      resolveSystemPropertyColumn(systemPropertyFilter.fieldName),
+      'propertyValue',
     );
+
+    clauses.push(
+      `EXISTS (SELECT 1 FROM systemProperties WHERE ${appClauses.join(' AND ')})`,
+    );
+    args.push(...appArgs);
   }
 
   for (const applicationPropertyFilter of filter.applicationProperties) {
@@ -99,7 +111,7 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
     }
 
     const appClauses: string[] = [
-      'messageId = messages-operations.id',
+      'messageId = messages.id',
       'propertyName = ?',
     ];
     const appArgs: Array<string | number | boolean | null> = [
@@ -247,9 +259,6 @@ function appendPropertyClause(
   }
 }
 
-function resolveSystemPropertyColumn(fieldName: string): string {
-  return SYSTEM_PROPERTY_COLUMN_MAP[fieldName] ?? fieldName;
-}
 
 export function getWhereClause(filter?: MessageFilter, selection?: string[]) {
   const filterWhereClause = filterToWhereClause(filter);

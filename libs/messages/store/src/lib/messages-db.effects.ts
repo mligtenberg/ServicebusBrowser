@@ -114,7 +114,7 @@ export class MessagesDbEffects implements OnInitEffects {
           pageId: page.id,
           pageName: !firstPage.length
             ? `${page.name} (empty)`
-            : `${page.name} (${firstPage[0].sequenceNumber} - ${secondPage[0].sequenceNumber})`,
+            : `${page.name} (${firstPage[0].sequence} - ${secondPage[0].sequence})`,
         }),
       ),
     ),

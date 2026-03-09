@@ -40,23 +40,11 @@ export class MessagesEffects {
         }) => {
           const maxAmountToLoad = Math.min(maxAmount, this.MAX_PAGE_SIZE);
 
-          const messages$ =
-            receiveType === 'peek'
-              ? from(
-                  this.messagesService.peekMessages(
-                    endpoint,
-                    maxAmountToLoad,
-                    Long.fromString(fromSequenceNumber),
-                  ),
-                )
-              : from(
-                  this.messagesService.receiveMessages(
-                    endpoint,
-                    maxAmountToLoad,
-                  ),
-                );
-
-          return messages$.pipe(
+          return from(this.messagesService.retrieveMessages(endpoint, {
+            maxAmountOfMessagesToReceive: maxAmountToLoad,
+            receiveMode: receiveType,
+            fromSequenceNumber: fromSequenceNumber,
+          })).pipe(
             map((messages) =>
               internalActions.loadMessagesPartLoaded({
                 pageId,
@@ -154,7 +142,10 @@ export class MessagesEffects {
               : messagesToClearCount;
 
           return from(
-            this.messagesService.receiveMessages(endpoint, receiveCount),
+            this.messagesService.retrieveMessages(endpoint, {
+              receiveMode: 'receive',
+              maxAmountOfMessagesToReceive: receiveCount
+            }),
           ).pipe(
             map((messages) => {
               if (

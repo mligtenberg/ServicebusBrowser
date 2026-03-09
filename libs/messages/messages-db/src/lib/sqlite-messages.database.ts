@@ -1,15 +1,11 @@
 import { MessagesDatabase } from './messages-database';
-import {
-  MessageFilter,
-  sequenceNumberToKey,
-  ServiceBusReceivedMessage,
-} from '@service-bus-browser/messages-contracts';
+import { MessageFilter } from '@service-bus-browser/messages-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Database } from './sqllite/database';
-import { ensureCreated } from './sqllite/ensure-created';
-import { messageInFilter } from '@service-bus-browser/filtering';
+import { ensureMessagesDbCreated } from './sqllite/ensure-messages-db-created';
 import { getWhereClause } from './filter-to-where-clause';
-import { of } from 'rxjs';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import { BSON } from 'bson';
 
 export class SqliteMessagesDatabase implements MessagesDatabase {
   private readonly database: Database;
@@ -30,10 +26,10 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
   private async doInitialize(): Promise<void> {
     await this.database.initialize();
-    await ensureCreated(this.database);
+    await ensureMessagesDbCreated(this.database);
   }
 
-  async addMessages(messages: ServiceBusReceivedMessage[]): Promise<void> {
+  async addMessages(messages: ReceivedMessage[]): Promise<void> {
     if (!messages.length) {
       return;
     }
@@ -41,60 +37,23 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     await this.database.exec('BEGIN TRANSACTION');
     try {
       for (const message of messages) {
+        const messageBson = BSON.serialize(message);
+        const body = new TextDecoder().decode(message.body);
+
         await this.database.exec(
           `INSERT OR REPLACE INTO messages (
             id,
-            body,
             contentType,
-            correlationId,
-            deadLetterErrorDescription,
-            deadLetterReason,
-            deadLetterSource,
-            deliveryCount,
-            enqueuedSequenceNumber,
-            enqueuedTimeUtc,
-            expiresAtUtc,
-            lockToken,
-            lockedUntilUtc,
-            messageId,
-            partitionKey,
-            replyTo,
-            replyToSessionId,
-            scheduledEnqueueTimeUtc,
-            sequenceNumber,
-            sessionId,
-            messageState,
-            subject,
-            timeToLive,
-            messageTo,
+            sequence,
+            body,
             message
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          ) VALUES (?, ?, ? ,?, ?)`,
           [
             message.key,
-            this.serializeBody(message.body),
-            message.contentType ?? null,
-            message.correlationId ?? null,
-            message.deadLetterErrorDescription ?? null,
-            message.deadLetterReason ?? null,
-            message.deadLetterSource ?? null,
-            message.deliveryCount ?? null,
-            message.enqueuedSequenceNumber ?? null,
-            this.serializeDate(message.enqueuedTimeUtc),
-            this.serializeDate(message.expiresAtUtc),
-            message.lockToken ?? null,
-            this.serializeDate(message.lockedUntilUtc),
-            message.messageId ?? null,
-            message.partitionKey ?? null,
-            message.replyTo ?? null,
-            message.replyToSessionId ?? null,
-            this.serializeDate(message.scheduledEnqueueTimeUtc),
-            message.sequenceNumber ?? null,
-            message.sessionId ?? null,
-            message.state ?? 'active',
-            message.subject ?? null,
-            message.timeToLive ?? null,
-            message.to ?? null,
-            JSON.stringify(message),
+            message.contentType,
+            message.sequence,
+            body,
+            messageBson
           ],
         );
 
@@ -133,10 +92,9 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
   async countMessages(
     filter?: MessageFilter,
-    selection?: string[],
+    selectionKeys?: string[],
   ): Promise<number> {
-    const keys = selection?.map(sequenceNumberToKey);
-    const whereClause = getWhereClause(filter, keys);
+    const whereClause = getWhereClause(filter, selectionKeys);
 
     const result = await this.selectRows<{ count: number }>(
       `SELECT COUNT(*) as count FROM messages ${whereClause.clause}`,
@@ -151,23 +109,18 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   }
 
   async getMessage(
-    sequenceNumber: string,
-  ): Promise<ServiceBusReceivedMessage | undefined> {
-    const keyCandidates = this.toKeyCandidates(sequenceNumber);
-    for (const key of keyCandidates) {
-      const rows = await this.selectRows<[string]>(
-        'SELECT message FROM messages-operations WHERE id = ? LIMIT 1',
-        [key],
-      );
-      const row = rows[0];
-      if (!row) {
-        continue;
-      }
-
-      return this.deserializeMessage(row[0]) as ServiceBusReceivedMessage;
+    key: string,
+  ): Promise<ReceivedMessage | undefined> {
+    const rows = await this.selectRows<[Uint8Array]>(
+      'SELECT message FROM messages WHERE id = ? LIMIT 1',
+      [key],
+    );
+    const row = rows[0];
+    if (!row) {
+      return undefined;
     }
 
-    return undefined;
+    return BSON.deserialize(row[0]) as ReceivedMessage;
   }
 
   async getMessages(
@@ -175,21 +128,21 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     skip?: number,
     take?: number,
     ascending?: boolean,
-    selection?: string[],
-  ): Promise<ServiceBusReceivedMessage[]> {
-    return await this.loadMessages(ascending ?? true, filter, selection, skip, take);
+    selectionKeys?: string[],
+  ): Promise<ReceivedMessage[]> {
+    return await this.loadMessages(ascending ?? true, filter, selectionKeys, skip, take);
   }
 
   async walkMessagesWithCallback(
     callback: (
-      message: ServiceBusReceivedMessage,
+      message: ReceivedMessage,
       index: number,
     ) => void | Promise<void>,
     filter?: MessageFilter,
     skip?: number,
     take?: number,
     ascending?: boolean,
-    selection: string[] = [],
+    selectionKeys: string[] = [],
   ): Promise<void> {
     if (take === 0) {
       return;
@@ -198,7 +151,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     const maxPageSize = 300;
 
     let index = 0;
-    let messages = await this.loadMessages(ascending ?? true, filter, selection, skip, maxPageSize);
+    let messages = await this.loadMessages(ascending ?? true, filter, selectionKeys, skip, maxPageSize);
     while (messages.length > 0) {
       // seeing that we use a callback, we can't guarantee that the message content will be reserved
       const lastMessageKey = messages[messages.length - 1].key;
@@ -213,7 +166,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       messages = await this.loadMessages(
         ascending ?? true,
         filter,
-        selection,
+        selectionKeys,
         undefined,
         maxPageSize,
         lastMessageKey,
@@ -224,17 +177,16 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   private async loadMessages(
     ascending: boolean,
     filter?: MessageFilter,
-    selection?: string[],
+    selectionKeys?: string[],
     skip?: number,
     take?: number,
     fromKey?: string,
-  ): Promise<ServiceBusReceivedMessage[]> {
+  ): Promise<ReceivedMessage[]> {
     if (take === 0) {
       return [];
     }
 
-    const keys = selection?.map(sequenceNumberToKey);
-    const whereClause = getWhereClause(filter, keys);
+    const whereClause = getWhereClause(filter, selectionKeys);
     let sql = `SELECT message FROM messages`;
 
     let args: unknown[] = [];
@@ -263,7 +215,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       sql += ` OFFSET ${skip}`;
     }
 
-    const rows = await this.selectRows<[string]>(
+    const rows = await this.selectRows<[Uint8Array]>(
       sql,
       args,
     );
@@ -274,40 +226,12 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
     return rows.map((row) => {
       try {
-        return this.deserializeMessage(row[0]) as ServiceBusReceivedMessage;
+        return BSON.deserialize(row[0]) as ReceivedMessage;
       } catch (error) {
         console.error('Error parsing message from database:', error);
         return null;
       }
     }).filter((message) => message !== null);
-  }
-
-  private serializeBody(value: unknown): string {
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    return JSON.stringify(value);
-  }
-
-  private deserializeMessage(messageJson: string): ServiceBusReceivedMessage {
-    const message = JSON.parse(messageJson);
-
-    message.enqueuedTimeUtc = message.enqueuedTimeUtc ? new Date(message.enqueuedTimeUtc) : undefined;
-    message.scheduledEnqueueTimeUtc = message.scheduledEnqueueTimeUtc ? new Date(message.scheduledEnqueueTimeUtc) : undefined;
-    message.expiresAtUtc = message.expiresAtUtc ? new Date(message.expiresAtUtc) : undefined;
-    message.lockedUntilUtc = message.lockedUntilUtc ? new Date(message.lockedUntilUtc) : undefined;
-
-
-    return message as ServiceBusReceivedMessage;
-  }
-
-  private serializeDate(value?: Date): string | null {
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    return value ? value.toISOString() : null;
   }
 
   private getPropertyType(value: unknown): string {
@@ -343,14 +267,5 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     const rows =
       responseAsRecord.result?.resultRows ?? responseAsRecord.resultRows;
     return (rows ?? []) as T[];
-  }
-
-  private toKeyCandidates(value: string): string[] {
-    const normalized = value.trim();
-    if (/^\d+$/.test(normalized)) {
-      return [sequenceNumberToKey(normalized), normalized];
-    }
-
-    return [normalized];
   }
 }

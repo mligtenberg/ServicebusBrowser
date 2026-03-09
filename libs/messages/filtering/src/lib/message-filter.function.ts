@@ -4,17 +4,17 @@ import {
   MessageFilter,
   NumberFilter,
   PropertyFilter,
-  ServiceBusMessage,
   StringFilter,
   TimespanFilter,
 } from '@service-bus-browser/messages-contracts';
 import { Duration } from 'luxon';
+import { Message } from '@service-bus-browser/api-contracts';
 
 /**
  * Service for filtering messages-operations based on various criteria
  */
 
-export function filterMessages<T extends ServiceBusMessage>(
+export function filterMessages<T extends Message>(
   messages: T[],
   filter: MessageFilter,
 ): T[] {
@@ -39,7 +39,7 @@ export function filterMessages<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-export function messageInFilter<T extends ServiceBusMessage>(
+export function messageInFilter<T extends Message>(
   message: T,
   filter: MessageFilter,
 ): boolean {
@@ -74,7 +74,7 @@ export function messageInFilter<T extends ServiceBusMessage>(
   return true;
 }
 
-function filterBySystemProperty<T extends ServiceBusMessage>(
+function filterBySystemProperty<T extends Message>(
   messages: T[],
   filter: MessageFilter,
 ): T[] {
@@ -87,21 +87,21 @@ function filterBySystemProperty<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInSystemPropertyFilter<T extends ServiceBusMessage>(
+function messageInSystemPropertyFilter<T extends Message>(
   message: T,
   filter: PropertyFilter,
 ): boolean {
   if (!filter.isActive) {
     return true;
   }
-  const propValue = message[filter.fieldName as keyof T];
+  const propValue = message.systemProperties?.[filter.fieldName];
   if (propValue === undefined) {
     return false;
   }
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByApplicationProperty<T extends ServiceBusMessage>(
+function filterByApplicationProperty<T extends Message>(
   messages: T[],
   filter: MessageFilter,
 ): T[] {
@@ -114,7 +114,7 @@ function filterByApplicationProperty<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(
+function messageInApplicationPropertyFilter<T extends Message>(
   message: T,
   filter: PropertyFilter,
 ): boolean {
@@ -128,7 +128,7 @@ function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByBody<T extends ServiceBusMessage>(
+function filterByBody<T extends Message>(
   messages: T[],
   filter: MessageFilter,
 ): T[] {
@@ -141,7 +141,7 @@ function filterByBody<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInBodyFilter<T extends ServiceBusMessage>(
+function messageInBodyFilter<T extends Message>(
   message: T,
   filter: BodyFilter,
 ): boolean {
@@ -149,35 +149,37 @@ function messageInBodyFilter<T extends ServiceBusMessage>(
     return true;
   }
 
+  const body = new TextDecoder().decode(message.body);
+
   if (filter.filterType === 'contains') {
-    return message.body.includes(filter.value);
+    return body.includes(filter.value);
   }
 
   if (filter.filterType === 'regex') {
     try {
       const regex = new RegExp(filter.value);
-      return regex.test(message.body);
+      return regex.test(body);
     } catch (e) {
       return false;
     }
   }
 
   if (filter.filterType === 'equals') {
-    return message.body === filter.value;
+    return body === filter.value;
   }
 
   if (filter.filterType === 'notcontains') {
-    return !message.body.includes(filter.value);
+    return !body.includes(filter.value);
   }
 
   if (filter.filterType === 'notequals') {
-    return message.body !== filter.value;
+    return body !== filter.value;
   }
 
   if (filter.filterType === 'notregex') {
     try {
       const regex = new RegExp(filter.value);
-      return !regex.test(message.body);
+      return !regex.test(body);
     } catch (e) {
       return false;
     }
