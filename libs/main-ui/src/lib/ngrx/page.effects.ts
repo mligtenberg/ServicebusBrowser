@@ -4,7 +4,9 @@ import { pagesActions } from './route.actions';
 import { Action, Store } from '@ngrx/store';
 import { featureSelector, selectPages } from './route.selectors';
 import { switchMap, tap } from 'rxjs';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import {
+  messagePagesActions,
+} from '@service-bus-browser/messages-store';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +36,7 @@ export class PageEffects implements OnInitEffects {
         const page = this.pages().find((page) => page.id === id);
         switch (page?.type) {
           case 'messages':
-            return [MessagesActions.closePage({ pageId: id })];
+            return [messagePagesActions.closePage({ pageId: id })];
         }
 
         return [];

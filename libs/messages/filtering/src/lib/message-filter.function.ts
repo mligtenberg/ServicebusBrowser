@@ -6,18 +6,18 @@ import {
   PropertyFilter,
   StringFilter,
   TimespanFilter,
-} from '@service-bus-browser/messages-contracts';
+} from './message-filter.model';
 import { Duration } from 'luxon';
 import { Message } from '@service-bus-browser/api-contracts';
 
 /**
- * Service for filtering messages-operations based on various criteria
+ * Service for filtering messages based on various criteria
  */
 
-export function filterMessages<T extends Message>(
-  messages: T[],
+export function filterMessages(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   if (!hasActiveFilters(filter)) {
     return messages;
   }
@@ -39,8 +39,8 @@ export function filterMessages<T extends Message>(
   return filteredMessages;
 }
 
-export function messageInFilter<T extends Message>(
-  message: T,
+export function messageInFilter(
+  message: Message,
   filter: MessageFilter,
 ): boolean {
   if (!hasActiveFilters(filter)) {
@@ -74,10 +74,10 @@ export function messageInFilter<T extends Message>(
   return true;
 }
 
-function filterBySystemProperty<T extends Message>(
-  messages: T[],
+function filterBySystemProperty(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.systemProperties) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -87,8 +87,8 @@ function filterBySystemProperty<T extends Message>(
   return filteredMessages;
 }
 
-function messageInSystemPropertyFilter<T extends Message>(
-  message: T,
+function messageInSystemPropertyFilter(
+  message: Message,
   filter: PropertyFilter,
 ): boolean {
   if (!filter.isActive) {
@@ -101,10 +101,10 @@ function messageInSystemPropertyFilter<T extends Message>(
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByApplicationProperty<T extends Message>(
-  messages: T[],
+function filterByApplicationProperty(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.applicationProperties) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -114,8 +114,8 @@ function filterByApplicationProperty<T extends Message>(
   return filteredMessages;
 }
 
-function messageInApplicationPropertyFilter<T extends Message>(
-  message: T,
+function messageInApplicationPropertyFilter(
+  message: Message,
   filter: PropertyFilter,
 ): boolean {
   if (!filter.isActive) {
@@ -128,10 +128,10 @@ function messageInApplicationPropertyFilter<T extends Message>(
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByBody<T extends Message>(
-  messages: T[],
+function filterByBody(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.body) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -141,8 +141,8 @@ function filterByBody<T extends Message>(
   return filteredMessages;
 }
 
-function messageInBodyFilter<T extends Message>(
-  message: T,
+function messageInBodyFilter(
+  message: Message,
   filter: BodyFilter,
 ): boolean {
   if (!filter.isActive) {

@@ -1,11 +1,10 @@
 import { Component, computed, effect, model } from '@angular/core';
 
 import {
-  Action,
+  MessageModificationAction,
   BatchActionTarget,
   BatchActionType,
-  MessageFilter,
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/message-modification-engine';
 import { InputGroup } from 'primeng/inputgroup';
 import { Select } from 'primeng/select';
 import { Button } from 'primeng/button';
@@ -13,7 +12,10 @@ import { FormsModule } from '@angular/forms';
 import { AddActionBodyComponent } from '../add-action-body/add-action-body.component';
 import { AlterActionBodyComponent } from '../alter-action-body/alter-action-body.component';
 import { RemoveActionBodyComponent } from '../remove-action-body/remove-action-body.component';
-import { hasActiveFilters } from '@service-bus-browser/filtering';
+import {
+  hasActiveFilters,
+  MessageFilter,
+} from '@service-bus-browser/filtering';
 import { MessageFilterEditorComponent } from '../../../message-filter-editor/message-filter-editor.component';
 
 @Component({
@@ -69,7 +71,7 @@ export class ActionComponent {
 
   currentActionType = model<BatchActionType>();
   target = model<BatchActionTarget>();
-  action = model<Action>();
+  action = model<MessageModificationAction>();
   protected filterMenuVisable = model<boolean>(false);
   protected messageFilter = model<MessageFilter>({
     body: [],
@@ -97,7 +99,7 @@ export class ActionComponent {
     });
 
     effect(() => {
-      const action = this.action() as Partial<Action> | undefined;
+      const action = this.action() as Partial<MessageModificationAction> | undefined;
 
       if (!action) {
         return;

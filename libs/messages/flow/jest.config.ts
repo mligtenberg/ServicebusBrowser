@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-management-browser/messages-operations-flow',
+  displayName: '@service-bus-management-browser/messages-flow',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/messages-operations/flow',
+  coverageDirectory: '../../../coverage/libs/messages/flow',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

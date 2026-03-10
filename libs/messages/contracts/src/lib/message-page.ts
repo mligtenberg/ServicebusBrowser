@@ -1,5 +1,5 @@
 import { Page } from '@service-bus-browser/shared-contracts';
-import { MessageFilter } from './message-filter.model';
+import { MessageFilter } from '../../../filtering/src/lib/message-filter.model';
 
 export type MessagePage = {
   retrievedAt: Date;

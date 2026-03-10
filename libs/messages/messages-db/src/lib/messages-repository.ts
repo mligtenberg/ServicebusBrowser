@@ -1,6 +1,4 @@
-import {
-  MessageFilter,
-} from '@service-bus-browser/messages-contracts';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import { Page } from './models/page';
 import { getMessagesDb } from './get-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
@@ -16,6 +14,7 @@ export class MessagesRepository {
 
   async addMessages(pageId: UUID, messages: ReceivedMessage[]) {
     const page = await this.getPage(pageId);
+    console.log('Adding messages to page', page);
     const messagesDb = await this.getMessagesDb(page);
     return await messagesDb.addMessages(messages);
   }

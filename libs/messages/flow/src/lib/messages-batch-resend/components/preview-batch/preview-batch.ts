@@ -1,24 +1,26 @@
 import {
   Component,
-  effect,
   inject,
   input,
   linkedSignal,
   model,
 } from '@angular/core';
 import MessagesViewer from '../../../messages-viewer/messages-viewer';
-import {
-  MessageFilter,
-  ServiceBusReceivedMessage,
-} from '@service-bus-browser/messages-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { Action } from '@service-bus-browser/messages-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { BatchActionsService } from '../../../batch-actions/batch-actions.service';
-import { log } from 'electron-builder';
+import { MessageFilter } from '@service-bus-browser/filtering';
+import {
+  MessageModificationAction,
+  MessageModificationEngine,
+} from '@service-bus-browser/message-modification-engine';
+import {
+  Message,
+  ReceivedMessage,
+  ToMessageToSend,
+} from '@service-bus-browser/api-contracts';
 
 const repository = await getMessagesRepository();
 
@@ -29,12 +31,12 @@ const repository = await getMessagesRepository();
   styleUrl: './preview-batch.scss',
 })
 export class PreviewBatch {
-  private batchActionsService = inject(BatchActionsService);
+  private messageModificationEngine = inject(MessageModificationEngine);
 
   pageId = input.required<UUID>();
   messageFilter = input<MessageFilter>();
   selection = input<string[]>();
-  batchModificationActions = input<Action[]>();
+  batchModificationActions = input<MessageModificationAction[]>();
   selectedMessageSequence = model<string>();
 
   messageCount = toSignal(
@@ -49,7 +51,7 @@ export class PreviewBatch {
     ),
   );
 
-  messages = linkedSignal<ServiceBusReceivedMessage[]>(() => {
+  messages = linkedSignal<ReceivedMessage[]>(() => {
     const messageCount = this.messageCount();
     return messageCount ? Array.from({ length: messageCount }) : [];
   });
@@ -65,14 +67,10 @@ export class PreviewBatch {
   }
 
   private async loadRows(first: number, rows: number, pageId: UUID) {
-    let messages = await repository.getMessages(
-      pageId,
-      this.messageFilter(),
-      first,
-      rows,
-    );
+    let messages = await repository.getMessages(pageId, this.messageFilter(), first, rows);
 
-    messages = this.batchActionsService.applyBatchActions(messages, this.batchModificationActions() ?? []);
+
+    messages = this.messageModificationEngine.applyBatchActions(messages, this.batchModificationActions() ?? []);
 
       //populate page of virtual cars
     this.messages.update((vm) => {

@@ -1,7 +1,6 @@
 import {
   MessageFilter,
-  ServiceBusReceivedMessage,
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/filtering';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ZipReader, ZipWriter } from '@zip.js/zip.js';
@@ -9,7 +8,8 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 import { FilesService } from '@service-bus-browser/services';
-import { messagesImported } from './messages.internal-actions';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import { messagePagesEffectActions } from './messages.effect-actions';
 
 const repository = await getMessagesRepository();
 
@@ -44,7 +44,8 @@ export class ExportMessagesUtil {
     const writableStream = await handle.createWritable();
     const zip = new ZipWriter(writableStream);
 
-    let messages: { index: number; message: ServiceBusReceivedMessage }[] = [];
+    let messages: { index: number; message: ReceivedMessage }[] = [];
+    await zip.add('VERSION', new Blob(['2.0.0']).stream());
 
     await repository.walkMessagesWithCallback(
       pageId,
@@ -104,36 +105,35 @@ export class ExportMessagesUtil {
     this.store.dispatch(TasksActions.completeTask({ id: taskId }));
   }
 
-  private async addToZip(zip: ZipWriter<unknown>, index: number, message: ServiceBusReceivedMessage) {
+  private uint8ArrayToStream(uint8: Uint8Array) {
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(uint8);
+        controller.close();
+      },
+    });
+  }
+
+  private async addToZip(
+    zip: ZipWriter<unknown>,
+    index: number,
+    message: ReceivedMessage,
+  ) {
     const messageFolder = `message${index}_${message.messageId}`;
     await zip.add(`${messageFolder}`, undefined, {
       directory: true,
     });
 
-    let body = '';
-    if (typeof message.body === 'string') {
-      body = message.body;
-    } else if (message.body) {
-      try {
-        body = JSON.stringify(message.body, null, 2);
-      } catch {
-        body = String(message.body);
-      }
-    }
-
-    const bodyStream = new Blob([body]).stream();
-    await zip.add(`${messageFolder}/body.txt`, bodyStream);
-
+    await zip.add(
+      `${messageFolder}/body.txt`,
+      this.uint8ArrayToStream(message.body),
+    );
     const properties = {
+      key: message.key,
       messageId: message.messageId,
-      sequenceNumber: message.sequenceNumber,
-      subject: message.subject,
-      correlationId: message.correlationId,
+      sequence: message.sequence,
       contentType: message.contentType,
-      enqueuedTimeUtc: message.enqueuedTimeUtc,
-      timeToLive: message.timeToLive,
-      to: message.to,
-      enqueuedSequenceNumber: message.enqueuedSequenceNumber,
+      systemProperties: message.systemProperties || {},
       applicationProperties: message.applicationProperties || {},
     };
 
@@ -178,7 +178,7 @@ export class ExportMessagesUtil {
         readStream = new Blob([contents]).stream();
       }
 
-      const pageName = "imported: " + fileName.replace(/\.zip$/i, '');
+      const pageName = 'imported: ' + fileName.replace(/\.zip$/i, '');
       const pageId = crypto.randomUUID();
 
       await repository.addPage({
@@ -187,13 +187,24 @@ export class ExportMessagesUtil {
         retrievedAt: new Date(),
       });
 
+      this.store.dispatch(messagePagesEffectActions.pageCreated({
+        pageId,
+        pageName,
+        disabled: true,
+      }))
+
       const zip = new ZipReader(readStream);
       const entries = await zip.getEntries();
+      const versionEntry = entries.find((entry) => entry.filename === 'VERSION');
+
+      // we currently only have 2 versions of the archive, version 1.0.0 does not have a VERSION file, and version 2.0.0 has a VERSION file
+      const version = versionEntry && !versionEntry.directory ? '2.0.0' : '1.0.0';
+
       const dirs = entries.filter((entry) => entry.directory);
       const totalItemCount = dirs.length;
 
       let processedItemCount = 0;
-      let messages: ServiceBusReceivedMessage[] = [];
+      let messages: ReceivedMessage[] = [];
 
       this.store.dispatch(
         TasksActions.createTask({
@@ -205,10 +216,19 @@ export class ExportMessagesUtil {
         }),
       );
       for (const dir of dirs) {
-        const bodyEntry = entries.find((entry) => entry.filename === `${dir.filename}body.txt`);
-        const propertiesEntry = entries.find((entry) => entry.filename === `${dir.filename}properties.json`);
+        const bodyEntry = entries.find(
+          (entry) => entry.filename === `${dir.filename}body.txt`,
+        );
+        const propertiesEntry = entries.find(
+          (entry) => entry.filename === `${dir.filename}properties.json`,
+        );
 
-        if (!bodyEntry || !propertiesEntry || bodyEntry.directory || propertiesEntry.directory) {
+        if (
+          !bodyEntry ||
+          !propertiesEntry ||
+          bodyEntry.directory ||
+          propertiesEntry.directory
+        ) {
           continue;
         }
 
@@ -216,7 +236,9 @@ export class ExportMessagesUtil {
         const propertiesTransform = new TransformStream();
 
         const bodyBlobPromise = new Response(bodyTransform.readable).blob();
-        const propertiesBlobPromise = new Response(propertiesTransform.readable).blob();
+        const propertiesBlobPromise = new Response(
+          propertiesTransform.readable,
+        ).blob();
 
         await bodyEntry.getData(bodyTransform.writable);
         await propertiesEntry.getData(propertiesTransform.writable);
@@ -224,26 +246,9 @@ export class ExportMessagesUtil {
         const bodyBlob = await bodyBlobPromise;
         const propertiesBlob = await propertiesBlobPromise;
 
-        const bodyContent = await bodyBlob.text();
-        const properties = JSON.parse(await propertiesBlob.text());
-        // TODO
-        const key = "";
-
-        const message: ServiceBusReceivedMessage = {
-          key: key,
-          body: bodyContent,
-          messageId: properties.messageId,
-          sequenceNumber: properties.sequenceNumber,
-          subject: properties.subject,
-          correlationId: properties.correlationId,
-          contentType: properties.contentType,
-          enqueuedTimeUtc: properties.enqueuedTimeUtc,
-          timeToLive: properties.timeToLive,
-          to: properties.to,
-          enqueuedSequenceNumber: properties.enqueuedSequenceNumber,
-          applicationProperties: properties.applicationProperties || {},
-          state: 'active',
-        };
+        const message = version === '1.0.0'
+          ? await this.parseV1Message(bodyBlob, propertiesBlob)
+          : await this.parseV2Message(bodyBlob, propertiesBlob);
 
         messages.push(message);
 
@@ -251,11 +256,13 @@ export class ExportMessagesUtil {
           await repository.addMessages(pageId, messages);
 
           processedItemCount += messages.length;
-          this.store.dispatch(TasksActions.setProgress({
-            id: taskId,
-            statusDescription: `${processedItemCount}/${totalItemCount}`,
-            progress: ((processedItemCount / totalItemCount) * 100),
-          }))
+          this.store.dispatch(
+            TasksActions.setProgress({
+              id: taskId,
+              statusDescription: `${processedItemCount}/${totalItemCount}`,
+              progress: (processedItemCount / totalItemCount) * 100,
+            }),
+          );
 
           messages = [];
         }
@@ -267,23 +274,66 @@ export class ExportMessagesUtil {
 
       this.store.dispatch(TasksActions.completeTask({ id: taskId }));
       this.store.dispatch(
-        messagesImported({
+        messagePagesEffectActions.pageLoaded({
           pageId,
-          pageName,
-        }),
+          endpoint: null
+        })
       );
     } catch (e) {
       console.error(e);
     }
   }
 
+  private async parseV1Message(bodyBlob: Blob, propertiesBlob: Blob) {
+    const bodyContent = await bodyBlob
+      .arrayBuffer()
+      .then((buffer) => new Uint8Array(buffer));
+
+    const properties = JSON.parse(await propertiesBlob.text());
+    const key = Array.from({ length: 20 - properties.sequenceNumber.length })
+      .map(() => "0").join() + properties.sequenceNumber;
+
+    return {
+      key: key,
+      body: bodyContent,
+      messageId: properties.messageId,
+      sequence: properties.sequenceNumber,
+      systemProperties: {
+        subject: properties.subject,
+        correlationId: properties.correlationId,
+        contentType: properties.contentType,
+        enqueuedTimeUtc: properties.enqueuedTimeUtc,
+        timeToLive: properties.timeToLive,
+        to: properties.to,
+        enqueuedSequenceNumber: properties.enqueuedSequenceNumber,
+        state: 'active',
+      },
+      applicationProperties: properties.applicationProperties || {},
+    } as ReceivedMessage;
+  }
+
+  private async parseV2Message(bodyBlob: Blob, propertiesBlob: Blob) {
+    const bodyContent = await bodyBlob
+      .arrayBuffer()
+      .then((buffer) => new Uint8Array(buffer));
+
+    const properties = JSON.parse(await propertiesBlob.text());
+
+    return {
+      key: properties.key,
+      body: bodyContent,
+      messageId: properties.messageId,
+      sequence: properties.sequence,
+      systemProperties: properties.systemProperties || {},
+      applicationProperties: properties.applicationProperties || {},
+    } as ReceivedMessage;
+  }
+
   private async getFileHandle(name: string) {
     const opfsRoot = await navigator.storage.getDirectory();
-    const sqliteRoot = await opfsRoot.getDirectoryHandle('exports', { create: true });
-    const fileHandle = await sqliteRoot.getFileHandle(
-      name,
-      { create: true },
-    );
-    return fileHandle;
+    const sqliteRoot = await opfsRoot.getDirectoryHandle('exports', {
+      create: true,
+    });
+    return await sqliteRoot.getFileHandle(name, { create: true });
   }
 }

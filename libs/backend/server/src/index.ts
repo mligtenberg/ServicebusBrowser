@@ -1,8 +1,8 @@
 import { ConnectionManager } from './lib/clients/connection-manager';
-import messagesOperations from './lib/messages-operations';
-
-import { managementOperations } from './lib/server-operations';
+import messagesOperations from './lib/messages';
+import managementOperations from './lib/management';
 import serviceBusManagementOperations from './lib/service-bus-management';
+
 import { ConnectionStore as _connectionStore } from './lib/clients/connection-store';
 export type ConnectionStore = _connectionStore;
 

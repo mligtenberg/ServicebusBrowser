@@ -17,7 +17,7 @@ import {
   SendMessagesForm,
   SystemPropertyKeys,
 } from './form';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -33,7 +33,7 @@ import {
 } from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { Store } from '@ngrx/store';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
 import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
@@ -269,40 +269,24 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
 
     // send message
     const formValue = this.value();
+    const body = new TextEncoder().encode(formValue.body);
 
     this.store.dispatch(
-      MessagesActions.sendMessage({
+      messagesActions.sendMessage({
         endpoint: formValue.endpoint!,
         message: {
-          body: formValue.body,
+          body: body,
           contentType: formValue.contentType ?? undefined,
-          timeToLive: (formValue.systemProperties.find(
-            (x) => x.key === 'timeToLive',
-          )?.value ?? undefined) as string | undefined,
           messageId: (formValue.systemProperties.find(
             (x) => x.key === 'messageId',
           )?.value ?? undefined) as string | undefined,
-          correlationId: (formValue.systemProperties.find(
-            (x) => x.key === 'correlationId',
-          )?.value ?? undefined) as string | undefined,
-          to: (formValue.systemProperties.find((x) => x.key === 'to')?.value ??
-            undefined) as string | undefined,
-          replyTo: (formValue.systemProperties.find((x) => x.key === 'replyTo')
-            ?.value ?? undefined) as string | undefined,
-          replyToSessionId: (formValue.systemProperties.find(
-            (x) => x.key === 'replyToSessionId',
-          )?.value ?? undefined) as string | undefined,
-          sessionId: (formValue.systemProperties.find(
-            (x) => x.key === 'sessionId',
-          )?.value ?? undefined) as string | undefined,
-          subject: (formValue.systemProperties.find((x) => x.key === 'subject')
-            ?.value ?? undefined) as string | undefined,
-          partitionKey: (formValue.systemProperties.find(
-            (x) => x.key === 'partitionKey',
-          )?.value ?? undefined) as string | undefined,
-          scheduledEnqueueTimeUtc: (formValue.systemProperties.find(
-            (x) => x.key === 'scheduledEnqueueTimeUtc',
-          )?.value ?? undefined) as Date | undefined,
+          systemProperties: formValue.systemProperties.reduce(
+            (acc, x) => {
+              acc[x.key] = x.value;
+              return acc;
+            },
+            {} as Record<string, string | number | Date | boolean>,
+          ),
           applicationProperties: formValue.applicationProperties.reduce(
             (acc, x) => {
               acc[x.key] = x.value;
@@ -360,8 +344,9 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
             value: (value ?? '') as string | Date,
           }));
 
+        const body = new TextDecoder().decode(message.body);
         this.value.set({
-          body: message.body,
+          body: body,
           contentType: message.contentType ?? '',
           systemProperties: systemProperties,
           applicationProperties: message.applicationProperties

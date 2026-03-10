@@ -1,11 +1,11 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 
 import {
-  Action,
+  MessageModificationAction,
   AlterAction,
   AlterBodyAction, AlterBodyPartialReplaceAction,
   AlterType
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
@@ -37,7 +37,7 @@ import { Editor } from '@service-bus-browser/shared-components';
 export class AlterBodyComponent {
   alterActionUpdated = output<AlterAction | undefined>();
 
-  action = input<Action>();
+  action = input<MessageModificationAction>();
   protected alterType = model<AlterType>('fullReplace');
   protected value = model<string>('');
   protected searchValue = model<string>('');

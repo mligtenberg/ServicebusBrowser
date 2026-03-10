@@ -41,19 +41,19 @@ export type SubscriptionWithMetaData = Subscription & {
      */
     totalMessageCount: number;
     /**
-     * The number of active messages-operations in the queue.
+     * The number of active messages in the queue.
      */
     activeMessageCount: number;
     /**
-     * The number of messages-operations that have been dead lettered.
+     * The number of messages that have been dead lettered.
      */
     deadLetterMessageCount: number;
     /**
-     * The number of messages-operations transferred to another queue, topic, or subscription
+     * The number of messages transferred to another queue, topic, or subscription
      */
     transferMessageCount: number;
     /**
-     * The number of messages-operations transferred to the dead letter queue.
+     * The number of messages transferred to the dead letter queue.
      */
     transferDeadLetterMessageCount: number;
     /**

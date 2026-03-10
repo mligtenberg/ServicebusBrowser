@@ -1,5 +1,5 @@
 import { Message } from './message';
-import { SendEndpoint } from '../send-endpoint';
+import { SendEndpoint } from '../endpoints/send-endpoint';
 
 export type MessagesSender = {
   send(endpoint: SendEndpoint, message: Message): Promise<void>;

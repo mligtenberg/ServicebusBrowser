@@ -16,3 +16,13 @@ export interface ReceivedMessage extends Message {
   key: string;
   sequence: string;
 }
+
+export function ToMessageToSend(message: ReceivedMessage): Message {
+  return {
+    body: message.body,
+    messageId: message.messageId,
+    contentType: message.contentType,
+    systemProperties: message.systemProperties,
+    applicationProperties: message.applicationProperties,
+  };
+}

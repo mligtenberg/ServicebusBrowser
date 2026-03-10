@@ -5,7 +5,7 @@ export async function ensurePagesDbCreated(database: Database) {
   await database.exec(`CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,
     name TEXT,
-    retrievedAt DATETIME,
+    retrievedAt DATETIME
   )`);
 }
 
@@ -22,7 +22,7 @@ async function createMessages(database: Database) {
                          contentType TEXT,
                          body string,
                          sequence INTEGER,
-                         message BLOB
+                         message TEXT
                        )`);
 }
 

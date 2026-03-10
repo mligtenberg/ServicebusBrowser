@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions, } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 
@@ -52,7 +52,7 @@ export class AppComponent {
         {
           label: 'Send',
           icon: 'pi pi-send',
-          routerLink: '/messages-operations/send',
+          routerLink: '/messages/send',
         },
         {
           label: 'Import',
@@ -111,7 +111,7 @@ export class AppComponent {
   }
 
   importMessages(): void {
-    this.store.dispatch(MessagesActions.importMessages());
+    this.store.dispatch(messagesActions.startImportMessages());
   }
 
   setDarkMode(darkMode: boolean) {

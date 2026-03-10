@@ -1,10 +1,13 @@
 import { MessagesRepository } from './lib/messages-repository';
 import { getPagesDb } from './lib/get-database';
 
-const repository = getPagesDb()
-.then(db => new MessagesRepository(db));
+let repositoryPromise: Promise<MessagesRepository> | undefined;
 
 export async function getMessagesRepository() {
-  return await repository;
+  if (!repositoryPromise) {
+    repositoryPromise = getPagesDb().then((db) => new MessagesRepository(db));
+  }
+
+  return await repositoryPromise;
 }
 

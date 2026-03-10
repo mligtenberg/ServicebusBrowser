@@ -1,10 +1,6 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 
 import {
-  Action,
-  AlterAction,
-  AlterSystemPropertyActions, AlterSystemPropertyPartialReplaceAction,
-  AlterType,
   PropertyValue,
   SystemPropertyKey
 } from '@service-bus-browser/messages-contracts';
@@ -18,6 +14,13 @@ import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { SystemPropertyHelpers } from '../../../../../systemproperty-helpers';
 import { SystemPropertyKeys } from '../../../../../send-message/form';
 import { Tooltip } from 'primeng/tooltip';
+import {
+  AlterAction,
+  AlterSystemPropertyActions,
+  AlterSystemPropertyPartialReplaceAction,
+  AlterType,
+  MessageModificationAction,
+} from '@service-bus-browser/message-modification-engine';
 
 @Component({
   selector: 'lib-alter-system-properties',
@@ -39,7 +42,7 @@ export class AlterSystemPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
-  action = input<Action>();
+  action = input<MessageModificationAction>();
   protected alterType = model<AlterType>('fullReplace');
   protected fieldName = model<SystemPropertyKey | ''>('');
   protected value = model<PropertyValue | undefined>();

@@ -1,11 +1,10 @@
 import { Component, computed, effect, inject, input, model, output } from '@angular/core';
 
 import {
-  Action,
-  AddAction, BatchActionTarget, MessageFilter,
-  PropertyValue,
-  SystemPropertyKey
-} from '@service-bus-browser/messages-contracts';
+  MessageModificationAction,
+  AddAction,
+  BatchActionTarget,
+} from '@service-bus-browser/message-modification-engine';
 import { SystemPropertyKeys } from '../../../send-message/form';
 import { DatePicker } from 'primeng/datepicker';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
@@ -16,6 +15,9 @@ import { Popover } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { SystemPropertyHelpers } from '../../../systemproperty-helpers';
 import { Checkbox } from 'primeng/checkbox';
+import { MessageFilter } from '@service-bus-browser/filtering';
+import { PropertyValue } from '@service-bus-browser/api-contracts';
+import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
 
 @Component({
   selector: 'lib-add-action-body',
@@ -39,7 +41,7 @@ export class AddActionBodyComponent {
   addActionUpdated = output<AddAction | undefined>();
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
-  action = input<Action>();
+  action = input<MessageModificationAction>();
 
   protected applicationPropertyName = model<string>('');
   protected systemPropertyName = model<SystemPropertyKeys | ''>('');

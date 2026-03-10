@@ -1,4 +1,4 @@
-import { MessageFilter } from '@service-bus-browser/messages-contracts';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 
 export type MessagesDatabase = {

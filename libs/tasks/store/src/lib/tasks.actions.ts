@@ -8,6 +8,7 @@ export const createTask = createAction(
     statusDescription?: string,
     hasProgress?: boolean,
     initialProgress?: number,
+    cancelable?: boolean,
   }>()
 )
 

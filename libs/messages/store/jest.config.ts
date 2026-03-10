@@ -1,8 +1,8 @@
 export default {
-  displayName: '@service-bus-management-browser/messages-operations-store',
+  displayName: '@service-bus-management-browser/messages-store',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/messages-operations/store',
+  coverageDirectory: '../../../coverage/libs/messages/store',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

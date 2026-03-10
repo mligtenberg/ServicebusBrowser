@@ -9,10 +9,7 @@ import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
-import {
-  PropertyFilter,
-  SystemPropertyKey,
-} from '@service-bus-browser/messages-contracts';
+import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../../systemproperty-helpers';
 import {
   dateFilterTypes,
@@ -21,6 +18,7 @@ import {
   systemPropertyOptions,
   timespanFilterTypes,
 } from '../options';
+import { PropertyFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-system-property-form',

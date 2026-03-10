@@ -1,7 +1,7 @@
 import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { ConnectionManager } from './clients/connection-manager';
-import { ServiceBusServerFunc } from './types';
+import { ConnectionManager } from '../clients/connection-manager';
+import { ServiceBusServerFunc } from '../types';
 
 const addConnection = (
   connection: Connection,

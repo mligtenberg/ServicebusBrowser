@@ -1,6 +1,6 @@
-import { ConnectionManager } from './clients/connection-manager';
-import { ServiceBusServerFunc } from './types';
-import { UUID } from 'libs/shared/contracts/src';
+import { ConnectionManager } from '../clients/connection-manager';
+import { ServiceBusServerFunc } from '../types';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 const listTopologies = async (
   body: unknown,

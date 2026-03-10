@@ -1,16 +1,18 @@
 import { Component, computed, effect, input, model, output } from '@angular/core';
 
 import {
-  Action,
-  BatchActionTarget,
-  MessageFilter,
-  RemoveAction,
   SystemPropertyKey
 } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { SystemPropertyKeys } from '../../../send-message/form';
+import {
+  BatchActionTarget,
+  MessageModificationAction,
+  RemoveAction,
+} from '@service-bus-browser/message-modification-engine';
+import { MessageFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-remove-action-body',
@@ -23,7 +25,7 @@ import { SystemPropertyKeys } from '../../../send-message/form';
   styleUrl: './remove-action-body.component.scss',
 })
 export class RemoveActionBodyComponent {
-  action = input<Action>();
+  action = input<MessageModificationAction>();
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
   removeActionUpdated = output<RemoveAction | undefined>();

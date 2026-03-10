@@ -1,11 +1,13 @@
 import { MessagesDatabase } from './messages-database';
-import { MessageFilter } from '@service-bus-browser/messages-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Database } from './sqllite/database';
-import { ensureMessagesDbCreated } from './sqllite/ensure-messages-db-created';
+import {
+  ensureMessagesDbCreated,
+} from './sqllite/ensure-db-created';
 import { getWhereClause } from './filter-to-where-clause';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 import { BSON } from 'bson';
+import { MessageFilter } from '@service-bus-browser/filtering';
 
 export class SqliteMessagesDatabase implements MessagesDatabase {
   private readonly database: Database;
@@ -53,7 +55,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
             message.contentType,
             message.sequence,
             body,
-            messageBson
+            this.toBase64(messageBson),
           ],
         );
 
@@ -120,7 +122,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return undefined;
     }
 
-    return BSON.deserialize(row[0]) as ReceivedMessage;
+    return BSON.deserialize(this.fromBase64(row[0] as any)) as ReceivedMessage;
   }
 
   async getMessages(
@@ -226,7 +228,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
 
     return rows.map((row) => {
       try {
-        return BSON.deserialize(row[0]) as ReceivedMessage;
+        return BSON.deserialize(this.fromBase64(row[0] as any)) as ReceivedMessage;
       } catch (error) {
         console.error('Error parsing message from database:', error);
         return null;
@@ -267,5 +269,13 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     const rows =
       responseAsRecord.result?.resultRows ?? responseAsRecord.resultRows;
     return (rows ?? []) as T[];
+  }
+
+  private toBase64(value: Uint8Array): string {
+    return (value as any).toBase64();
+  }
+
+  private fromBase64(value: string): Uint8Array {
+    return (Uint8Array as any).fromBase64(value);
   }
 }

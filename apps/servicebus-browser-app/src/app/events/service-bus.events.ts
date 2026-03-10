@@ -18,7 +18,7 @@ ipcMain.handle(
       throw new Error('Server not initialized');
     }
 
-    return await server.serviceBusManagementExecute(requestType, request);
+    return await server.managementExecute(requestType, request);
   },
 );
 

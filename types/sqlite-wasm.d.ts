@@ -118,7 +118,7 @@ declare module '@sqlite.org/sqlite-wasm' {
          * At the end of the result set, the same event is fired with
          * (row=undefined, rowNumber=null) to indicate that the end of the
          * result set has been reached. Note that the rows arrive via
-         * worker-posted messages-operations, with all the implications of that.
+         * worker-posted messages, with all the implications of that.
          */
         callback?: (result: {
           /**

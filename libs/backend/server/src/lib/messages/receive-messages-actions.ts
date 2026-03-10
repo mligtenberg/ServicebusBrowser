@@ -1,5 +1,6 @@
 import {
   ReceiveEndpoint,
+  ReceiveOptions,
 } from '@service-bus-browser/api-contracts';
 import { ConnectionManager } from '../clients/connection-manager';
 import { ServiceBusServerFunc } from '../types';
@@ -8,11 +9,8 @@ import { ServiceBusServerFunc } from '../types';
 const retrieveMessages: ServiceBusServerFunc = async (
   body: {
     endpoint: ReceiveEndpoint;
-    options: {
-      receiveMode: string;
-      maxAmountOfMessagesToReceive?: number;
-      [key: string]: string | number | undefined;
-    };
+    options: ReceiveOptions;
+    continuationToken?: string;
   },
   connectionManager: ConnectionManager,
 ) => {
@@ -24,7 +22,7 @@ const retrieveMessages: ServiceBusServerFunc = async (
     return [];
   }
 
-  return await client.receiveMessages(body.endpoint, body.options);
+  return await client.receiveMessages(body.endpoint, body.options, body.continuationToken);
 };
 
 export default new Map<string, ServiceBusServerFunc>([

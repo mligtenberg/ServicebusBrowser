@@ -1,8 +1,10 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
+  model,
   output,
   signal,
 } from '@angular/core';
@@ -21,7 +23,7 @@ import {
   TopologyAction,
   TopologyNode,
 } from '@service-bus-browser/api-contracts';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions } from '@service-bus-browser/messages-store';
 import { Router } from '@angular/router';
 import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 
@@ -54,7 +56,7 @@ export class TopologyTreeComponent {
   treeSelection = signal<TreeNode<TopologyNode>[]>([]);
   shiftSelected = signal<boolean>(false);
 
-  selectedReceiveEndpoint = signal<ReceiveEndpoint | undefined>(undefined);
+  selectedReceiveEndpoint = model<ReceiveEndpoint | undefined>(undefined);
 
   multiSelectEnabled = computed(() => this.selectionMode() === 'actions');
   treeSelectionMode = computed<'single' | 'multiple'>(() => {
@@ -145,7 +147,7 @@ export class TopologyTreeComponent {
 
   protected onClearReceiveEndpointSelected($event: ReceiveEndpoint) {
     this.store.dispatch(
-      MessagesActions.clearEndpoint({
+      messagesActions.clearEndpoint({
         endpoint: $event,
       }),
     );

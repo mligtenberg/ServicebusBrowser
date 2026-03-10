@@ -38,7 +38,7 @@ export type TopicWithMetaData = Topic & {
      */
     subscriptionCount?: number;
     /**
-     * The number of scheduled messages-operations.
+     * The number of scheduled messages.
      */
     scheduledMessageCount: number;
     /**

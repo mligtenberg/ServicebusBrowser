@@ -137,11 +137,11 @@ export const removeSubscriptionRule = createAction(
 
 // external reloads
 export const reloadReceiveEndpoint = createAction(
-  '[Topology] Reload receive Endpoints',
+  '[Topology] Reload receive endpoints',
   props<{ endpoint: ReceiveEndpoint }>(),
 );
 
 export const reloadSendEndpoint = createAction(
-  '[Topology] Reload send Endpoints',
+  '[Topology] Reload send endpoints',
   props<{ endpoint: SendEndpoint }>(),
 );

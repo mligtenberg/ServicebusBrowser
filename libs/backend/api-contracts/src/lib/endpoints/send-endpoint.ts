@@ -1,5 +1,4 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessageQueueTargetType } from './message-queue-types';
 
 interface SendEndpointBase {
   displayName: string;

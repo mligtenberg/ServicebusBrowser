@@ -1,7 +1,4 @@
-import {
-  MessageFilter,
-  PropertyFilter,
-} from '@service-bus-browser/messages-contracts';
+import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 
 export type WhereClause = {
   clause: string;

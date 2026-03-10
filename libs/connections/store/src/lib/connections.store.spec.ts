@@ -7,7 +7,7 @@ describe('connections reducer', () => {
     id: '00000000-0000-0000-0000-000000000001',
     type: 'connectionString',
     name: 'conn',
-    connectionString: 'Endpoint=sb://test/',
+    connectionString: 'endpoints=sb://test/',
   };
   it('marks connection under test', () => {
     const state = connectionsFeature.reducer(

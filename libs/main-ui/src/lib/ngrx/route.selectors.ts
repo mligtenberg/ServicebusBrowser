@@ -19,7 +19,7 @@ export const selectPages = createSelector(
     const pagesBase = [...messagePages].map((page) => ({
       ...page,
       position: positions.find((p) => p.pageId === page.id)?.position,
-      route: '/messages-operations/page/' + page.id
+      route: '/messages/page/' + page.id
     }));
 
     let pages = pagesBase.filter(p => p.position === undefined);

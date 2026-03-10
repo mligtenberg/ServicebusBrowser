@@ -1,6 +1,7 @@
 import {
   Connection,
   MessageQueueTargetType,
+  ReceiveOptionsDescription,
   TopologyNode,
   TopologyProvider,
 } from '@service-bus-browser/api-contracts';
@@ -21,6 +22,24 @@ import {
 export class ServiceBusTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'serviceBus';
   private administrationClient;
+  private readonly availableOptions: ReceiveOptionsDescription = {
+    genericOptions: {
+      maxAmountOfMessagesToReceive: {
+        type: 'number',
+        label: 'Max amount of messages to receive',
+      },
+    },
+    modes: {
+      peek: {
+        fromSequenceNumber: {
+          type: 'string',
+          label: 'From sequence number',
+          pattern: '^[0-9]+$',
+        },
+      },
+      receive: {},
+    },
+  };
 
   constructor(private connection: Connection) {
     this.administrationClient = new ServiceBusManagementClient(this.connection);
@@ -212,27 +231,33 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       receiveEndpoints: [
         {
           displayName: '',
+          longDisplayName: queue.name,
           connectionId: this.connection.id,
           queueName: queue.name,
           target: 'serviceBus',
           type: 'queue',
           channel: undefined,
+          receiveOptionsDescription: this.availableOptions,
         },
         {
           displayName: 'dead letters',
+          longDisplayName: `${queue.name}: dead letters`,
           connectionId: this.connection.id,
           queueName: `${queue.name}-deadletter`,
           target: 'serviceBus',
           type: 'queue',
           channel: 'deadLetter',
+          receiveOptionsDescription: this.availableOptions,
         },
         {
           displayName: 'transfer dead letters',
+          longDisplayName: `${queue.name}: transfer dead letters`,
           connectionId: this.connection.id,
           queueName: `${queue.name}-transfer`,
           target: 'serviceBus',
           type: 'queue',
           channel: 'transferDeadLetter',
+          receiveOptionsDescription: this.availableOptions,
         },
       ],
       actions: [
@@ -343,30 +368,36 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       receiveEndpoints: [
         {
           displayName: subscription.name,
+          longDisplayName: `${topicName}/${subscription.name}`,
           connectionId: this.connection.id,
           topicName: topicName,
           subscriptionName: subscription.name,
           channel: undefined,
           target: 'serviceBus',
           type: 'subscription',
+          receiveOptionsDescription: this.availableOptions,
         },
         {
           target: 'serviceBus',
           type: 'subscription',
           displayName: 'dead letters',
+          longDisplayName: `${topicName}/${subscription.name}: dead letters`,
           connectionId: this.connection.id,
           topicName: topicName,
           subscriptionName: subscription.name,
           channel: 'deadLetter',
+          receiveOptionsDescription: this.availableOptions,
         },
         {
           target: 'serviceBus',
           type: 'subscription',
           displayName: 'transfer dead letters',
+          longDisplayName: `${topicName}/${subscription.name}: transfer dead letters`,
           connectionId: this.connection.id,
           topicName: topicName,
           subscriptionName: subscription.name,
           channel: 'transferDeadLetter',
+          receiveOptionsDescription: this.availableOptions,
         },
       ],
       actions: [

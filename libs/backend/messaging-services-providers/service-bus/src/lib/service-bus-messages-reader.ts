@@ -4,7 +4,6 @@ import {
   PropertyValue,
   ReceivedMessage,
   ReceiveEndpoint,
-  ReceiveOptions,
 } from '@service-bus-browser/api-contracts';
 import Long from 'long';
 import {
@@ -15,57 +14,70 @@ import {
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 import { getCredential } from './internal/credential-helper';
 
+type ContinuationTokenBody = {
+  lastLoadedSequenceNumber: string;
+  alreadyLoadedAmountOfMessages: number;
+}
+
 export class ServiceBusMessagesReader implements MessagesReader {
   constructor(private connection: Connection) {}
-
-  readonly availableOptions: ReceiveOptions = {
-    genericOptions: {
-      maxAmountOfMessagesToReceive: {
-        type: 'number',
-        label: 'Max amount of messages-operations to receive',
-      },
-    },
-    modes: {
-      peek: {
-        fromSequenceNumber: {
-          type: 'number',
-          label: 'From sequence number',
-        },
-      },
-      receive: {},
-    },
-  };
 
   async receiveMessages(
     receiveEndpoint: ReceiveEndpoint,
     options: {
       receiveMode: 'peek' | 'receive';
       maxAmountOfMessagesToReceive?: number;
-      fromSequenceNumber?: number | undefined;
+      fromSequenceNumber?: string | undefined;
     } = { receiveMode: 'peek' },
-  ): Promise<ReceivedMessage[]> {
+    continuationToken?: string
+  ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
     const receiveClient = this.getReceiver(
       receiveEndpoint,
       options.receiveMode === 'peek' ? 'peekLock' : 'receiveAndDelete',
     );
+    const maxAmountOfMessagesToReceive = options.maxAmountOfMessagesToReceive ?? 1;
+    const tokenBody = continuationToken
+      ? this.decodeContinuationToken(continuationToken)
+      : { alreadyLoadedAmountOfMessages: 0, lastLoadedSequenceNumber: options.fromSequenceNumber ?? '0' } as ContinuationTokenBody;
+    console.log('tokenBody', tokenBody);
+
     const messages =
       options.receiveMode === 'peek'
         ? await receiveClient.peekMessages(
-            options.maxAmountOfMessagesToReceive ?? 1,
+            maxAmountOfMessagesToReceive,
             {
               fromSequenceNumber: options.fromSequenceNumber
-                ? Long.fromNumber(options.fromSequenceNumber)
+                ? Long.fromString(options.fromSequenceNumber, true)
                 : undefined,
             },
           )
         : await receiveClient.receiveMessages(
-            options.maxAmountOfMessagesToReceive ?? 1,
+            maxAmountOfMessagesToReceive,
             { maxWaitTimeInMs: 300 },
           );
 
     await receiveClient.close();
 
-    return messages.map((message) => this.mapReceivedMessage(message));
+    const mappedMessages = messages.map((message) => this.mapReceivedMessage(message));
+    const alreadyLoadedAmountOfMessages = tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
+    const lastLoadedSequenceNumber = messages[messages.length - 1].sequenceNumber?.toString() ?? tokenBody.lastLoadedSequenceNumber;
+
+    const newContinuationToken = alreadyLoadedAmountOfMessages < maxAmountOfMessagesToReceive ? this.makeContinuationToken({
+      alreadyLoadedAmountOfMessages: alreadyLoadedAmountOfMessages,
+      lastLoadedSequenceNumber: lastLoadedSequenceNumber,
+    }) : undefined;
+
+    return { messages: mappedMessages, continuationToken: newContinuationToken };
+  }
+
+  private makeContinuationToken(tokenBody: ContinuationTokenBody): string {
+    const buf = Buffer.from(JSON.stringify(tokenBody), 'utf-8');
+    return btoa(buf.toString('base64'));
+  }
+
+  private decodeContinuationToken(continuationToken: string): ContinuationTokenBody {
+    const buf = Buffer.from(atob(continuationToken), 'base64');
+    return JSON.parse(buf.toString('utf-8'));
   }
 
   private mapReceivedMessage(
@@ -78,14 +90,17 @@ export class ServiceBusMessagesReader implements MessagesReader {
       contentType: message.contentType,
       sequence: message.sequenceNumber?.toString() ?? '0',
       systemProperties: Object.entries(message)
-        .filter(
-          ([key]) =>
-            !['messageId', 'body', 'contentType', 'sequenceNumber'].includes(
-              key,
-            ),
-        )
+        .filter(([key]) => ![
+          'body',
+          'applicationProperties',
+          '_rawAmqpMessage',
+        ].includes(key))
+        .filter(([_, value]) => value !== undefined && value !== null)
         .reduce(
           (acc, [key, value]) => {
+            if (value instanceof Long) {
+              value = value.toString();
+            }
             acc[key] = value;
             return acc;
           },
@@ -93,6 +108,19 @@ export class ServiceBusMessagesReader implements MessagesReader {
         ),
       applicationProperties: message.applicationProperties,
     };
+  }
+
+  async clear(endpoint: ReceiveEndpoint): Promise<void> {
+    if (!endpoint) {
+      throw new Error('endpoints is required for clearing messages');
+    }
+
+    const receiver = this.getReceiver(endpoint, 'receiveAndDelete');
+
+    await receiver.purgeMessages({
+      beforeEnqueueTime: new Date(),
+    });
+    await receiver.close();
   }
 
   private getReceiver(

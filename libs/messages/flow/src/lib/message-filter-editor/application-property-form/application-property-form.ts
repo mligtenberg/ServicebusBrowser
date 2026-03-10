@@ -6,7 +6,6 @@ import {
   FormField,
   FormValueControl,
 } from '@angular/forms/signals';
-import { PropertyFilter } from '@service-bus-browser/messages-contracts';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { Checkbox } from 'primeng/checkbox';
@@ -21,6 +20,7 @@ import { Button } from 'primeng/button';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { formHelpers } from '../../form-helpers';
+import { PropertyFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-application-property-form',

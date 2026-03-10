@@ -10,10 +10,7 @@ import { Drawer } from 'primeng/drawer';
 import { Button } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 
-import {
-  MessageFilter,
-} from '@service-bus-browser/messages-contracts';
-import { filterIsValid } from '@service-bus-browser/filtering';
+import { filterIsValid, MessageFilter } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
 import {
   applyEach,

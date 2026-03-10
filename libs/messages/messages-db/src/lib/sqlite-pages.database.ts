@@ -2,7 +2,7 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { Page } from './models/page';
 import { PagesDatabase } from './pages-database';
 import { Database } from './sqllite/database';
-import { ensurePagesDbCreated } from './sqllite/ensure-messages-db-created';
+import { ensurePagesDbCreated } from './sqllite/ensure-db-created';
 
 export class SqlitePagesDatabase implements PagesDatabase {
   database: Database = new Database('pages');
@@ -13,25 +13,33 @@ export class SqlitePagesDatabase implements PagesDatabase {
   }
 
   async addPage(page: Page): Promise<void> {
+    console.log('Adding page', page);
     await this.database.exec(
       `INSERT INTO pages (id, name, retrievedAt) VALUES (?, ?, ?)`,
-      [page.id, page.name, page.retrievedAt],
+      [page.id, page.name, page.retrievedAt.toISOString()],
     );
   }
 
   async getPages(): Promise<Page[]> {
-    const rows = await this.selectRows<Page>(
-      'SELECT * FROM pages ORDER BY retrievedAt ASC',
+    const rows = await this.selectRows<[UUID, string, string]>(
+      'SELECT id, name, retrievedAt FROM pages ORDER BY retrievedAt ASC',
     );
-    return rows;
+    return rows
+      .map(([id, name, retrievedAt]) => ({ id, name, retrievedAt: new Date(retrievedAt) }));
   }
 
   async getPage(id: UUID): Promise<Page | undefined> {
-    const rows = await this.selectRows<Page>(
+    const rows = await this.selectRows<[UUID, string, string]>(
       'SELECT * FROM pages WHERE id = ? LIMIT 1',
       [id],
     );
-    return rows[0];
+    if (!rows.length) {
+      return undefined;
+    }
+
+    const [_, name, retrievedAt] = rows[0];
+
+    return { id, name, retrievedAt: new Date(retrievedAt) };
   }
 
   async updatePageName(id: UUID, name: string): Promise<void> {
