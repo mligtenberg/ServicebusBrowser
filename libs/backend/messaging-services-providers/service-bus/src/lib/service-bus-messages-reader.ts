@@ -41,14 +41,22 @@ export class ServiceBusMessagesReader implements MessagesReader {
       : { alreadyLoadedAmountOfMessages: 0, lastLoadedSequenceNumber: options.fromSequenceNumber ?? '0' } as ContinuationTokenBody;
     console.log('tokenBody', tokenBody);
 
+    const fromSequenceNumber = options.fromSequenceNumber
+      ? Long.fromString(options.fromSequenceNumber, true)
+      : undefined;
+
+    const currentFromSequenceNumber =
+      tokenBody.alreadyLoadedAmountOfMessages > 0
+        ? Long.fromString(tokenBody.lastLoadedSequenceNumber, true)
+          .add(Long.fromNumber(1))
+        : fromSequenceNumber;
+
     const messages =
       options.receiveMode === 'peek'
         ? await receiveClient.peekMessages(
             maxAmountOfMessagesToReceive,
             {
-              fromSequenceNumber: options.fromSequenceNumber
-                ? Long.fromString(options.fromSequenceNumber, true)
-                : undefined,
+              fromSequenceNumber: currentFromSequenceNumber,
             },
           )
         : await receiveClient.receiveMessages(

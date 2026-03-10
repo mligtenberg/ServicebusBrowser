@@ -49,7 +49,7 @@ importers:
         version: 4.29.0
       '@azure/service-bus':
         specifier: ^7.10.0-beta.2
-        version: 7.10.0-beta.3
+        version: 7.10.0-beta.4
       '@fortawesome/angular-fontawesome':
         specifier: ^4.0.0
         version: 4.0.0(@angular/core@21.2.0(@angular/compiler@21.2.0)(rxjs@7.8.2)(zone.js@0.16.1))
@@ -683,8 +683,8 @@ packages:
     resolution: {integrity: sha512-+f1VrJH1iI517t4zgmuhqORja0bL6LDQXfBqkjuMmfTYXTQQnh1EvwwxO3UbKLT05N0obF72SRHFrC1RBDv5Gg==}
     engines: {node: '>=16'}
 
-  '@azure/service-bus@7.10.0-beta.3':
-    resolution: {integrity: sha512-oRMO6CwFaGaxZShTyjlxf2wChbMIcEPS4hB3+1+QtKTQNEj5RoSLRJEg3mcl/v6r7U8BWIxKMHCxsdxdauBM9w==}
+  '@azure/service-bus@7.10.0-beta.4':
+    resolution: {integrity: sha512-/Qd4jxWiqNiEzC0TJb3Ci7r8HdCRgVd43G87jSDrbeiMtF5c3lyWTkA7TviP0O4MuMdRfqQ5Ovwl0IPEsZ1Ddw==}
     engines: {node: '>=20.0.0'}
 
   '@babel/code-frame@7.29.0':
@@ -9736,7 +9736,7 @@ snapshots:
       jsonwebtoken: 9.0.3
       uuid: 8.3.2
 
-  '@azure/service-bus@7.10.0-beta.3':
+  '@azure/service-bus@7.10.0-beta.4':
     dependencies:
       '@azure/abort-controller': 2.1.2
       '@azure/core-amqp': 4.4.1
