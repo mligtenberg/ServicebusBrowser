@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { filter, map, switchMap } from 'rxjs';
+import { catchError, filter, from, map, of, switchMap } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import { TopologyActions } from '@service-bus-browser/topology-store';
@@ -8,16 +8,17 @@ import { messagePagesActions, messagesActions } from './messages.actions';
 import { LoadMessagesUtil } from './load-messages-util';
 import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
 import { ResendMessagesUtil } from './resend-messages-util';
+import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessagesEffects {
-  MAX_PAGE_SIZE = 500;
   store = inject(Store);
   actions$ = inject(Actions);
   loadMessagesUtil = inject(LoadMessagesUtil);
   resendMessageUtil = inject(ResendMessagesUtil);
+  messagesClient = inject(MessagesFrontendClient);
 
   loadActions$ = createEffect(() => this.actions$.pipe(
     ofType(messagesActions.loadMessagesFromEndpoint),
@@ -25,6 +26,39 @@ export class MessagesEffects {
       return this.loadMessagesUtil.loadMessages(endpoint, options);
     })
   ), { dispatch: false });
+
+  sendMessage$ = createEffect(() => this.actions$.pipe(
+    ofType(messagesActions.sendMessage),
+    switchMap(({ endpoint, message }) => {
+      const { bodyBase64, ...rest } = message;
+
+      const body = Uint8Array.fromBase64(bodyBase64);
+
+      const messageToSend = { ...rest, body: body };
+      return from(this.messagesClient.sendMessage(endpoint, messageToSend))
+        .pipe(
+          map(() => messagesEffectActions.messageSent({ endpoint })),
+          catchError((err) => of(messagesEffectActions.failedToSendMessage({
+            endpoint,
+            error: err instanceof Error ? err : new Error(err?.toString())
+          })))
+        )
+    })
+  ))
+
+  clearMessages$ = createEffect(() => this.actions$.pipe(
+    ofType(messagesActions.clearEndpoint),
+    switchMap(({ endpoint }) => {
+      return from(this.messagesClient.clearMessages(endpoint))
+        .pipe(
+          map(() => messagesEffectActions.clearedEndpoint({ endpoint })),
+          catchError((err) => of(messagesEffectActions.failedToClearMessages({
+            endpoint,
+            error: err instanceof Error ? err : new Error(err?.toString())
+          })))
+        )
+    })
+  ))
 
   resendMessages$ = createEffect(() => this.actions$.pipe(
     ofType(messagePagesActions.resendMessages),

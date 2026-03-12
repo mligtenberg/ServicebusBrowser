@@ -14,7 +14,7 @@ const sendMessage = async (
     .getMessagesSender();
 
   if (sender === undefined) {
-    return;
+    throw new Error(`No messages sender found for connection: ${body.endpoint.connectionId}`);
   }
 
   return await sender.send(body.endpoint, body.message);

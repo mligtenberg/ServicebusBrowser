@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   computed,
-  effect,
   ElementRef,
   inject,
   model,
@@ -45,7 +44,7 @@ import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
-import { SendEndpoint } from '@service-bus-browser/api-contracts';
+import { SendEndpoint, ToMessageToSend } from '@service-bus-browser/api-contracts';
 import { Actions, ofType } from '@ngrx/effects';
 import { routerNavigatedAction } from '@ngrx/router-store';
 
@@ -275,7 +274,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       messagesActions.sendMessage({
         endpoint: formValue.endpoint!,
         message: {
-          body: body,
+          bodyBase64: body.toBase64(),
           contentType: formValue.contentType ?? undefined,
           messageId: (formValue.systemProperties.find(
             (x) => x.key === 'messageId',
@@ -315,8 +314,8 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
           return [undefined];
         }),
       )
-      .subscribe((message) => {
-        if (!message) {
+      .subscribe((receivedMessage) => {
+        if (!receivedMessage) {
           this.value.set(this.getEmptyForm());
           const endpoint = window.history.state.sendEndpoint as
             | SendEndpoint
@@ -328,13 +327,9 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
-        const systemProperties = Object.entries(message)
-          .filter(
-            ([key]) =>
-              key !== 'body' &&
-              key !== 'contentType' &&
-              key !== 'applicationProperties',
-          )
+        const message = ToMessageToSend(receivedMessage);
+
+        const systemProperties = Object.entries(message.systemProperties ?? {})
           .filter(
             ([key, value]) =>
               value && SystemPropertyKeys.includes(key as SystemPropertyKeys),
@@ -344,7 +339,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
             value: (value ?? '') as string | Date,
           }));
 
-        const body = new TextDecoder().decode(message.body);
+        const body = new TextDecoder().decode(message.body.buffer);
         this.value.set({
           body: body,
           contentType: message.contentType ?? '',

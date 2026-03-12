@@ -28,8 +28,7 @@ export class ServiceBusMessagesSender implements MessagesSender {
     while (messages.length > 0) {
       const message = messages.shift();
       if (!message) {
-        await sender.sendMessages(batch);
-        break;
+        continue;
       }
 
       if (!batch.tryAddMessage(this.mapMessage(message))) {
@@ -38,6 +37,8 @@ export class ServiceBusMessagesSender implements MessagesSender {
         batch.tryAddMessage(this.mapMessage(message));
       }
     }
+
+    await sender.sendMessages(batch);
 
     await sender.close();
   }

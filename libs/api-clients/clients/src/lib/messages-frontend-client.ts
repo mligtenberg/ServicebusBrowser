@@ -2,7 +2,6 @@ import {
   Message,
   ReceivedMessage,
   ReceiveEndpoint,
-  ReceiveOptionsDescription,
   SendEndpoint,
 } from '@service-bus-browser/api-contracts';
 import { ApiHandler } from './api-handler';
@@ -26,10 +25,10 @@ export class MessagesFrontendClient {
     })) as {messages: ReceivedMessage[], continuationToken: string};
   }
 
-  async getReceiveEndpointOptionsModel(endpoint: ReceiveEndpoint) {
-    return (await this.serviceBusApi.messagesDoRequest('getReceiveEndpointOptionsModel', {
+  async clearMessages(endpoint: ReceiveEndpoint) {
+    await this.serviceBusApi.messagesDoRequest('clearMessages', {
       endpoint,
-    })) as ReceiveOptionsDescription;
+    });
   }
 
   async sendMessage(endpoint: SendEndpoint, message: Message) {

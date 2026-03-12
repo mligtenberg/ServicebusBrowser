@@ -60,7 +60,7 @@ export const logsReducer = createReducer(
 
       return {
         ...state,
-        rootNodes: state.rootNodes.map(patch),
+        rootNodes: state.rootNodes.map((oldNode) => patch(oldNode)),
         refreshingPaths: state.refreshingPaths.filter((p) => p !== path),
         erroredPaths: state.erroredPaths.filter((p) => p !== path),
       };

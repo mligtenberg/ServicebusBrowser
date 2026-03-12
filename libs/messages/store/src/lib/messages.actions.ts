@@ -26,7 +26,7 @@ export const messagesActions = createActionGroup({
     }>(),
     'send message': props<{
       endpoint: SendEndpoint;
-      message: Message;
+      message: Omit<Message, 'body'> & { bodyBase64: string };
     }>(),
   },
 });

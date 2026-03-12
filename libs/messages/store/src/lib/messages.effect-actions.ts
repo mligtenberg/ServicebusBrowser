@@ -11,8 +11,16 @@ export const messagesEffectActions = createActionGroup({
     'message sent': props<{
       endpoint: SendEndpoint;
     }>(),
+    'failed to send message': props<{
+      endpoint: SendEndpoint;
+      error: Error;
+    }>(),
     'cleared endpoint': props<{
       endpoint: ReceiveEndpoint;
+    }>(),
+    'failed to clear messages': props<{
+      endpoint: ReceiveEndpoint;
+      error: Error;
     }>(),
   },
 });

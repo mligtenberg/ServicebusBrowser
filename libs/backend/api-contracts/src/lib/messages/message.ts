@@ -22,7 +22,21 @@ export function ToMessageToSend(message: ReceivedMessage): Message {
     body: message.body,
     messageId: message.messageId,
     contentType: message.contentType,
-    systemProperties: message.systemProperties,
+    systemProperties: Object.entries(message.systemProperties ?? {})
+      .filter(
+        ([key]) =>
+          ![
+            'messageId',
+            'deadLetterReason',
+            'deadLetterErrorDescription',
+            'enqueuedTimeUtc',
+            'expiresAtUtc',
+            'sequenceNumber',
+            'state',
+            'deliveryCount',
+          ].includes(key),
+      )
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
     applicationProperties: message.applicationProperties,
   };
 }

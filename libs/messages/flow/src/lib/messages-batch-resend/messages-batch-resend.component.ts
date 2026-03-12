@@ -14,7 +14,10 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { SendEndpoint } from '@service-bus-browser/api-contracts';
+import {
+  SendEndpoint,
+  ToMessageToSend,
+} from '@service-bus-browser/api-contracts';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
@@ -235,11 +238,19 @@ export class MessagesBatchResendComponent {
       return;
     }
 
+    const sendMessage = ToMessageToSend(selectedMessage);
+
     try {
       this.store.dispatch(
         messagesActions.sendMessage({
           endpoint: selectedEndpoint,
-          message: selectedMessage,
+          message: {
+            bodyBase64: sendMessage.body.toBase64(),
+            messageId: sendMessage.messageId,
+            systemProperties: sendMessage.systemProperties,
+            contentType: sendMessage.contentType,
+            applicationProperties: sendMessage.applicationProperties,
+          },
         }),
       );
 

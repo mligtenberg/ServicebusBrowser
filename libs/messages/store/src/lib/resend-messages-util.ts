@@ -63,14 +63,14 @@ export class ResendMessagesUtil {
           }
           messagesToSend.push(messageToSend);
 
-          if (messagesToSend.length >= 250) {
+          if (messagesToSend.length >= 500) {
             await this.messageClient.sendMessages(endpoint, messagesToSend);
             messagesToSend = [];
             this.store.dispatch(
               TasksActions.setProgress({
                 id: taskId,
                 statusDescription: `${index + 1}/${messageCount}`,
-                progress: (index + 1 / messageCount) * 100,
+                progress: ((index + 1) / messageCount) * 100,
               }),
             );
           }
