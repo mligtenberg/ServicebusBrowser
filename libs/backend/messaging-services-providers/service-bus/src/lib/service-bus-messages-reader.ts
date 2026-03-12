@@ -39,7 +39,6 @@ export class ServiceBusMessagesReader implements MessagesReader {
     const tokenBody = continuationToken
       ? this.decodeContinuationToken(continuationToken)
       : { alreadyLoadedAmountOfMessages: 0, lastLoadedSequenceNumber: options.fromSequenceNumber ?? '0' } as ContinuationTokenBody;
-    console.log('tokenBody', tokenBody);
 
     const fromSequenceNumber = options.fromSequenceNumber
       ? Long.fromString(options.fromSequenceNumber, true)
@@ -51,7 +50,10 @@ export class ServiceBusMessagesReader implements MessagesReader {
           .add(Long.fromNumber(1))
         : fromSequenceNumber;
 
-    const messages =
+    const currentMaxAmountOfMessagesToReceive = maxAmountOfMessagesToReceive
+      - tokenBody.alreadyLoadedAmountOfMessages;
+
+    let messages =
       options.receiveMode === 'peek'
         ? await receiveClient.peekMessages(
             maxAmountOfMessagesToReceive,
@@ -60,17 +62,19 @@ export class ServiceBusMessagesReader implements MessagesReader {
             },
           )
         : await receiveClient.receiveMessages(
-            maxAmountOfMessagesToReceive,
+            currentMaxAmountOfMessagesToReceive,
             { maxWaitTimeInMs: 300 },
           );
 
+    messages = messages.filter((message) => message.body !== undefined);
     await receiveClient.close();
 
-    const mappedMessages = messages.map((message) => this.mapReceivedMessage(message));
-    const alreadyLoadedAmountOfMessages = tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
-    const lastLoadedSequenceNumber = messages[messages.length - 1].sequenceNumber?.toString() ?? tokenBody.lastLoadedSequenceNumber;
+    const mappedMessages = messages
+      .map((message) => this.mapReceivedMessage(message));
+    const alreadyLoadedAmountOfMessages = tokenBody.alreadyLoadedAmountOfMessages + messages.length;
+    const lastLoadedSequenceNumber = messages[messages.length - 1]?.sequenceNumber?.toString() ?? tokenBody.lastLoadedSequenceNumber;
 
-    const newContinuationToken = alreadyLoadedAmountOfMessages < maxAmountOfMessagesToReceive ? this.makeContinuationToken({
+    const newContinuationToken = alreadyLoadedAmountOfMessages < currentMaxAmountOfMessagesToReceive ? this.makeContinuationToken({
       alreadyLoadedAmountOfMessages: alreadyLoadedAmountOfMessages,
       lastLoadedSequenceNumber: lastLoadedSequenceNumber,
     }) : undefined;
