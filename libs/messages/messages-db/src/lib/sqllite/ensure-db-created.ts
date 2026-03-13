@@ -27,7 +27,7 @@ async function createMessages(database: Database) {
 }
 
 async function createSystemProperties(database: Database) {
-  await database.exec(`CREATE TABLE IF NOT EXISTS SystemProperties (
+  await database.exec(`CREATE TABLE IF NOT EXISTS systemProperties (
     messageId TEXT,
     propertyName TEXT,
     propertyType TEXT,

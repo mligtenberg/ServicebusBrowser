@@ -72,6 +72,7 @@ export class LoadMessagesUtil {
         options,
         continuationToken,
       );
+
       continuationToken = result.continuationToken;
 
       if (await this.isTaskCanceled(taskId)) {
@@ -79,7 +80,7 @@ export class LoadMessagesUtil {
         return;
       }
 
-        await repository.addMessages(pageId, result.messages);
+      await repository.addMessages(pageId, result.messages);
       loadedAmount += result.messages.length;
 
       this.store.dispatch(

@@ -81,7 +81,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
       tokenBody.lastLoadedSequenceNumber;
 
     const newContinuationToken =
-      alreadyLoadedAmountOfMessages < currentMaxAmountOfMessagesToReceive
+       currentMaxAmountOfMessagesToReceive > mappedMessages.length
         ? this.makeContinuationToken({
             alreadyLoadedAmountOfMessages: alreadyLoadedAmountOfMessages,
             lastLoadedSequenceNumber: lastLoadedSequenceNumber,

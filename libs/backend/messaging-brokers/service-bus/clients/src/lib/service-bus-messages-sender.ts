@@ -53,7 +53,7 @@ export class ServiceBusMessagesSender implements MessagesSender {
     const parsedTimeToLive = duration ? duration.as('milliseconds') : undefined;
 
     return {
-      body: message.body,
+      body: message.body.buffer,
       messageId: message.messageId,
       correlationId:
         (message.systemProperties?.['correlationId'] as string) ?? undefined,

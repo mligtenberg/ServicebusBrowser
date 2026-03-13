@@ -140,7 +140,7 @@ export class MessageModificationEngine {
   ): T {
     return {
       ...message,
-      body: action.value,
+      body: new TextEncoder().encode(action.value),
     };
   }
 
@@ -152,13 +152,13 @@ export class MessageModificationEngine {
     if (action.alterType === 'searchAndReplace') {
       return {
         ...message,
-        body: this.searchAndReplace(value, action.searchValue, action.value),
+        body: new TextEncoder().encode(this.searchAndReplace(value, action.searchValue, action.value)),
       };
     }
     if (action.alterType === 'regexReplace') {
       return {
         ...message,
-        body: this.replaceByRegex(value, action.searchValue, action.value),
+        body: new TextEncoder().encode(this.replaceByRegex(value, action.searchValue, action.value)),
       };
     }
 

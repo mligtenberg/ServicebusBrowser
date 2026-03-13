@@ -29,7 +29,14 @@
       }
     },
     "serve": {
+      "continuous": true,
       "executor": "nx-electron:execute",
+      "dependsOn": [
+        {
+          "projects": ["servicebus-browser-frontend"],
+          "target": "serve"
+        }
+      ],
       "options": {
         "buildTarget": "servicebus-browser-app:build"
       }

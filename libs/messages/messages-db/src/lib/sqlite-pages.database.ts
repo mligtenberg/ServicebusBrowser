@@ -13,7 +13,6 @@ export class SqlitePagesDatabase implements PagesDatabase {
   }
 
   async addPage(page: Page): Promise<void> {
-    console.log('Adding page', page);
     await this.database.exec(
       `INSERT INTO pages (id, name, retrievedAt) VALUES (?, ?, ?)`,
       [page.id, page.name, page.retrievedAt.toISOString()],

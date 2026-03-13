@@ -14,7 +14,6 @@ export class MessagesRepository {
 
   async addMessages(pageId: UUID, messages: ReceivedMessage[]) {
     const page = await this.getPage(pageId);
-    console.log('Adding messages to page', page);
     const messagesDb = await this.getMessagesDb(page);
     return await messagesDb.addMessages(messages);
   }

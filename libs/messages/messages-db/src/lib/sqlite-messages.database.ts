@@ -64,6 +64,26 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
           [message.key],
         );
 
+        const systemProperties = message.systemProperties ?? {};
+        for (const [propertyName, propertyValue] of Object.entries(
+          systemProperties,
+        )) {
+          await this.database.exec(
+            `INSERT OR REPLACE INTO systemProperties (
+              messageId,
+              propertyName,
+              propertyType,
+              propertyValue
+            ) VALUES (?, ?, ?, ?)`,
+            [
+              message.key,
+              propertyName,
+              this.getPropertyType(propertyValue),
+              this.serializePropertyValue(propertyValue),
+            ],
+          );
+        }
+
         const applicationProperties = message.applicationProperties ?? {};
         for (const [propertyName, propertyValue] of Object.entries(
           applicationProperties,
