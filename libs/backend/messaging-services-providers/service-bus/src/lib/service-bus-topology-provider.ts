@@ -130,61 +130,92 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
     return this.mapSubscription(subscription, topicName);
   }
 
-  private async loadQueues() {
-    const queues = await this.administrationClient.getQueues();
-    const childNodes = queues.map(
-      (queue): TopologyNode => this.mapQueue(queue),
-    );
+  private async loadQueues(): Promise<TopologyNode> {
+    try {
+      const queues = await this.administrationClient.getQueues();
+      const childNodes = queues.map(
+        (queue): TopologyNode => this.mapQueue(queue),
+      );
 
-    return {
-      path: `/${this.connection.id}/queues`,
-      name: 'Queues',
-      selectable: false,
-      type: 'operational-grouping',
-      refreshable: true,
-      children: childNodes,
-      actions: [
-        {
-          icon: 'pi pi-plus',
-          displayName: 'Add queue',
-          actionType: 'add-queue',
-          parameters: {
-            connectionId: this.connection.id,
+      return {
+        path: `/${this.connection.id}/queues`,
+        name: 'Queues',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: childNodes,
+        actions: [
+          {
+            icon: 'pi pi-plus',
+            displayName: 'Add queue',
+            actionType: 'add-queue',
+            parameters: {
+              connectionId: this.connection.id,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error((err as any)?.toString() ?? 'Unknown error');
+      return {
+        path: `/${this.connection.id}/queues`,
+        name: 'Queues',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: [],
+        actions: [],
+        errored: true,
+        errorMessage: error.message,
+      }
+    }
   }
 
-  private async loadTopics() {
-    const topics = await this.administrationClient.getTopics();
-    const subscriptions = await Promise.all(
-      topics.map((topic) => this.loadSubscriptions(topic.name)),
-    );
+  private async loadTopics(): Promise<TopologyNode> {
+    try {
+      const topics = await this.administrationClient.getTopics();
+      const subscriptions = await Promise.all(
+        topics.map((topic) => this.loadSubscriptions(topic.name)),
+      );
 
-    const childNodes = topics.map(
-      (topic, index): TopologyNode =>
-        this.mapTopic(topic, subscriptions[index]),
-    );
+      const childNodes = topics.map(
+        (topic, index): TopologyNode =>
+          this.mapTopic(topic, subscriptions[index]),
+      );
 
-    return {
-      path: `/${this.connection.id}/topics`,
-      name: 'Topics',
-      selectable: false,
-      type: 'operational-grouping',
-      refreshable: true,
-      children: childNodes,
-      actions: [
-        {
-          icon: 'pi pi-plus',
-          displayName: 'Add topic',
-          actionType: 'add-topic',
-          parameters: {
-            connectionId: this.connection.id,
+      return {
+        path: `/${this.connection.id}/topics`,
+        name: 'Topics',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: childNodes,
+        actions: [
+          {
+            icon: 'pi pi-plus',
+            displayName: 'Add topic',
+            actionType: 'add-topic',
+            parameters: {
+              connectionId: this.connection.id,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
+    catch (err) {
+      const error = err instanceof Error ? err : new Error((err as any)?.toString() ?? 'Unknown error');
+      return {
+        path: `/${this.connection.id}/topics`,
+        name: 'Topics',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: [],
+        actions: [],
+        errored: true,
+        errorMessage: error.message,
+      }
+    }
   }
 
   private async loadSubscriptions(topicName: string) {

@@ -16,4 +16,6 @@ export type TopologyNode = {
   receiveEndpoints?: ReceiveEndpoint[];
   children?: TopologyNode[];
   actions?: TopologyAction[];
+  errored?: boolean;
+  errorMessage?: string;
 };
