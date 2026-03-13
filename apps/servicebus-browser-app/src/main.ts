@@ -77,7 +77,7 @@ if (App.isDevelopmentMode()) {
     .whenReady()
     .then(() => initExtensions())
     .then(() => {
-      App.mainWindow.webContents.openDevTools();
+      App.mainWindow?.webContents.openDevTools();
     })
     .catch((err) => console.log('An error occurred: ', err));
 }

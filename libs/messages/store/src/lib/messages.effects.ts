@@ -32,7 +32,7 @@ export class MessagesEffects {
     switchMap(({ endpoint, message }) => {
       const { bodyBase64, ...rest } = message;
 
-      const body = Uint8Array.fromBase64(bodyBase64);
+      const body = (Uint8Array as any).fromBase64(bodyBase64);
 
       const messageToSend = { ...rest, body: body };
       return from(this.messagesClient.sendMessage(endpoint, messageToSend))

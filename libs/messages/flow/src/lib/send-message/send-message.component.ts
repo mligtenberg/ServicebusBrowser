@@ -274,7 +274,8 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       messagesActions.sendMessage({
         endpoint: formValue.endpoint!,
         message: {
-          bodyBase64: body.toBase64(),
+          // toBase64 is supported by all browsers, but not in typescript yet
+          bodyBase64: (body as any).toBase64(),
           contentType: formValue.contentType ?? undefined,
           messageId: (formValue.systemProperties.find(
             (x) => x.key === 'messageId',

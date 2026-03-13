@@ -15,14 +15,14 @@ import * as fs from 'fs';
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
-  static mainWindow: Electron.BrowserWindow;
+  static mainWindow: Electron.BrowserWindow | null = null;
   static application: Electron.App;
-  static BrowserWindow;
+  static BrowserWindow: typeof BrowserWindow | null = null;
 
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
     const getFromEnvironment: boolean =
-      parseInt(process.env.ELECTRON_IS_DEV, 10) === 1;
+      parseInt(process.env.ELECTRON_IS_DEV ?? '0', 10) === 1;
 
     return isEnvironmentSet ? getFromEnvironment : !environment.production;
   }
@@ -41,7 +41,7 @@ export default class App {
   }
 
   private static onRedirect(event: any, url: string) {
-    if (url !== App.mainWindow.webContents.getURL()) {
+    if (url !== App.mainWindow?.webContents.getURL()) {
       // this is a normal external redirect, open it in a new browser window
       event.preventDefault();
       shell.openExternal(url);
@@ -224,11 +224,11 @@ export default class App {
     App.mainWindow.center();
 
     App.mainWindow.on('enter-full-screen', () => {
-      App.mainWindow.webContents.send('fullscreen-changed', true);
+      App.mainWindow?.webContents.send('fullscreen-changed', true);
     });
 
     App.mainWindow.on('leave-full-screen', () => {
-      App.mainWindow.webContents.send('fullscreen-changed', false);
+      App.mainWindow?.webContents.send('fullscreen-changed', false);
     });
 
     // if main window is ready to show, close the splash window and show the main window
@@ -237,7 +237,7 @@ export default class App {
         App.isDevelopmentMode() ||
         this.application.getVersion().includes('beta');
       Menu.setApplicationMenu(getMenu(isDevMode));
-      App.mainWindow.show();
+      App.mainWindow?.show();
     });
 
     // handle all external redirects in a new browser window
@@ -265,18 +265,18 @@ export default class App {
     // extensions do not work correctly with custom schemes
     // if we run locally, we need to use the http scheme
     if (!App.application.isPackaged) {
-      App.mainWindow.loadURL(`http://localhost:${rendererAppPort}`);
+      App.mainWindow?.loadURL(`http://localhost:${rendererAppPort}`);
       return;
     }
 
-    App.mainWindow.loadURL(`app://localhost`);
+    App.mainWindow?.loadURL(`app://localhost`);
   }
 
   private static saveSetting<T>(key: string, value: T) {
     const userData = App.application.getPath('userData');
     const settingsPath = path.join(userData, 'settings.json');
 
-    let settings = {};
+    let settings: Record<string, T> = {};
     if (fs.existsSync(settingsPath)) {
       settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
     }
@@ -290,7 +290,7 @@ export default class App {
     const userData = App.application.getPath('userData');
     const settingsPath = path.join(userData, 'settings.json');
 
-    let settings = {};
+    let settings: Record<string, T> = {};
     if (fs.existsSync(settingsPath)) {
       settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
     }

@@ -46,10 +46,15 @@ export class SecureConnectionStorage implements ConnectionStore {
       const fileContent = safeStorage.decryptString(fileContentBuffer);
       const connections = JSON.parse(fileContent);
       return [
-        ...Object.values(connections).map((connection: Connection) => ({
-          ...connection,
-          target: connection.target ?? 'serviceBus',
-        })),
+        ...Object.values(connections)
+          .map((c) => c as Connection)
+          .map(
+            (connection: Connection) =>
+              ({
+                ...connection,
+                target: connection.target ?? 'serviceBus',
+              }) as Connection,
+          ),
       ].reduce(
         (acc, connection) => ({
           ...acc,

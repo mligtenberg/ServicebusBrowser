@@ -9,19 +9,19 @@ contextBridge.exposeInMainWorld('electron', {
 });
 
 contextBridge.exposeInMainWorld('serviceBusApi', {
-  managementDoRequest: (requestType: string, request) =>
+  managementDoRequest: (requestType: string, request: unknown) =>
     ipcRenderer.invoke(
       'management:do-request',
       requestType,
       request,
     ),
-  serviceBusManagementDoRequest: (requestType: string, request) =>
+  serviceBusManagementDoRequest: (requestType: string, request: unknown) =>
     ipcRenderer.invoke(
       'service-bus-management:do-request',
       requestType,
       request,
     ),
-  messagesDoRequest: (requestType: string, request) => {
+  messagesDoRequest: (requestType: string, request: unknown) => {
     return ipcRenderer.invoke(
       'messages:do-request',
       requestType,

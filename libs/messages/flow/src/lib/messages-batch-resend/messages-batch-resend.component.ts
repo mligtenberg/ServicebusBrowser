@@ -245,7 +245,7 @@ export class MessagesBatchResendComponent {
         messagesActions.sendMessage({
           endpoint: selectedEndpoint,
           message: {
-            bodyBase64: sendMessage.body.toBase64(),
+            bodyBase64: (sendMessage.body as any).toBase64(),
             messageId: sendMessage.messageId,
             systemProperties: sendMessage.systemProperties,
             contentType: sendMessage.contentType,
