@@ -46,9 +46,6 @@
       "@service-bus-browser/service-bus-angular-providers": [
         "libs/api-clients/angular-bindings/src/index.ts"
       ],
-      "@service-bus-browser/service-bus-clients": [
-        "libs/backend/messaging-services-providers/service-bus/src/index.ts"
-      ],
       "@service-bus-browser/service-bus-frontend-clients": [
         "libs/api-clients/clients/src/index.ts"
       ],
@@ -72,9 +69,6 @@
       "@service-bus-browser/topology-components": [
         "libs/topology/components/src/index.ts"
       ],
-      "@service-bus-browser/topology-contracts": [
-        "libs/topology/contracts/src/index.ts"
-      ],
       "@service-bus-browser/topology-store": [
         "libs/topology/store/src/index.ts"
       ],
@@ -90,6 +84,18 @@
       ],
       "@service-bus-browser/message-modification-engine": [
         "libs/messages/modification-engine/src/index.ts"
+      ],
+      "@service-bus-browser/actions-framework": [
+        "libs/actions-framework/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-management-flow": [
+        "libs/message-brokers/service-bus/management-flow/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-backend-clients": [
+        "libs/backend/messaging-brokers/service-bus/clients/src/index.ts"
+      ],
+      "@service-bus-browser/service-bus-api-contracts": [
+        "libs/backend/messaging-brokers/service-bus/contracts/src/index.ts"
       ]
     }
   },

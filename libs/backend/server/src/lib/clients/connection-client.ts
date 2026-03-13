@@ -11,7 +11,7 @@ import {
   ServiceBusMessagesReader,
   ServiceBusMessagesSender,
   ServiceBusTopologyProvider,
-} from '@service-bus-browser/service-bus-clients';
+} from '@service-bus-browser/service-bus-backend-clients';
 
 export class ConnectionClient {
   constructor(private connection: Connection) {}

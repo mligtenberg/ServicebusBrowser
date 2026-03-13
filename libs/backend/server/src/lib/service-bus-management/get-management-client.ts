@@ -1,8 +1,11 @@
-import { ServiceBusManagementClient } from '@service-bus-browser/service-bus-clients';
+import { ServiceBusManagementClient } from '@service-bus-browser/service-bus-backend-clients';
 import { ConnectionManager } from '../clients/connection-manager';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
-export function getManagementClient(connectionId: UUID, connectionManager: ConnectionManager) {
+export function getManagementClient(
+  connectionId: UUID,
+  connectionManager: ConnectionManager,
+) {
   const connection = connectionManager.getConnection({
     id: connectionId,
   });

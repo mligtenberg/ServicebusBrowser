@@ -55,16 +55,6 @@ export class ConnectionsEffects {
     )
   );
 
-  reloadOnConnectionChanged$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(
-        internalActions.connectionAdded,
-        internalActions.connectionRemoved
-      ),
-      map(() => TopologyActions.loadNamespaces())
-    )
-  );
-
   testConnection$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.checkConnection),

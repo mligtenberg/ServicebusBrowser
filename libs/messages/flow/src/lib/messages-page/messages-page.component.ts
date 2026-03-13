@@ -54,7 +54,7 @@ import { MessageFilterEditorComponent } from '../message-filter-editor/message-f
 import { Tooltip } from 'primeng/tooltip';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
-import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';

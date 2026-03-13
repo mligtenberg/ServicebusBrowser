@@ -24,7 +24,7 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
 import { Splitter } from 'primeng/splitter';

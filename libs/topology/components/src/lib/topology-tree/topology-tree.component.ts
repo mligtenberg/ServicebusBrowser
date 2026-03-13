@@ -1,7 +1,6 @@
 import {
   Component,
   computed,
-  effect,
   inject,
   input,
   model,
@@ -26,6 +25,7 @@ import {
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { Router } from '@angular/router';
 import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
+import { ActionManager } from '@service-bus-browser/actions-framework';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -49,6 +49,7 @@ import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 export class TopologyTreeComponent {
   store = inject(Store);
   router = inject(Router);
+  actionManager = inject(ActionManager);
 
   selectionMode = input<'actions' | 'send'>('actions');
   sendEndpointSelected = output<SendEndpoint>();
@@ -130,7 +131,7 @@ export class TopologyTreeComponent {
   }
 
   protected onActionSelected(event: TopologyAction) {
-    console.log(event);
+    return this.actionManager.handleAction(event);
   }
 
   protected onReceiveEndpointSelected(event: ReceiveEndpoint) {

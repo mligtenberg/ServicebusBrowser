@@ -1,5 +1,5 @@
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { QueueWithMetaData } from '@service-bus-browser/topology-contracts';
+import { QueueWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
 import { ConnectionManager } from '../clients/connection-manager';
 import { ServiceBusServerFunc } from '../types';
 import { getManagementClient } from './get-management-client';

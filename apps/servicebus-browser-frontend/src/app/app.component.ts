@@ -4,7 +4,6 @@ import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
 import { messagesActions, } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
-import { TopologyActions } from '@service-bus-browser/topology-store';
 
 interface ElectronWindow {
   electron?: {
@@ -107,7 +106,6 @@ export class AppComponent {
     this.electron?.onFullScreenChanged?.((full) => {
       this.fullscreen.set(full);
     });
-    this.store.dispatch(TopologyActions.loadNamespaces());
   }
 
   importMessages(): void {

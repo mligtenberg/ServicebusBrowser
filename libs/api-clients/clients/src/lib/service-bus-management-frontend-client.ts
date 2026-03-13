@@ -1,4 +1,3 @@
-import { Connection, TopologyNode } from '@service-bus-browser/api-contracts';
 import {
   Queue,
   QueueWithMetaData,
@@ -7,8 +6,7 @@ import {
   SubscriptionWithMetaData,
   Topic,
   TopicWithMetaData,
-} from '@service-bus-browser/topology-contracts';
-import { UUID } from '@service-bus-browser/shared-contracts';
+} from '@service-bus-browser/service-bus-api-contracts';
 import { ApiHandler } from './api-handler';
 
 export class ServiceBusManagementFrontendClient {
