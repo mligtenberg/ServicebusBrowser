@@ -1,4 +1,4 @@
-import { Component, input, model, output, } from '@angular/core';
+import { Component, computed, input, model, output, } from '@angular/core';
 import {
   required,
   disabled as formDisabled,
@@ -56,6 +56,31 @@ export class ApplicationPropertyForm
   touched = model<boolean>(false);
   required = input<boolean>(false);
   removable = input<boolean>(false);
+
+  availableApplicationProperties = input.required<
+    {
+      label: string;
+      type: string;
+    }[]
+  >();
+  systemApplicationOptions = computed(() => {
+    return this.availableApplicationProperties().map((prop) => {
+      return {
+        label: prop.label,
+        value: prop.label,
+      };
+    });
+  });
+
+  suggestions = computed(() => {
+    return this.availableApplicationProperties().map((prop) => {
+      return {
+        label: prop.label,
+        value: prop.label,
+      };
+    });
+  });
+
   removedPressed = output<void>();
   protected readonly propertyTypes = propertyTypes;
 
@@ -70,6 +95,35 @@ export class ApplicationPropertyForm
       formDisabled(v);
     }
   });
+
+  protected onApplicationPropertyChange($event: string | undefined) {
+    console.log('onApplicationPropertyChange', $event);
+    const availableSystemProperties = this.availableApplicationProperties();
+    const item = availableSystemProperties.find(
+      (option) => option.label === $event,
+    );
+    this.setApplicationPropertyType(
+      (item?.type as
+        | 'string'
+        | 'date'
+        | 'number'
+        | 'boolean'
+        | 'timespan'
+        | undefined) ?? 'string',
+    );
+  }
+
+  private setApplicationPropertyType(
+    type: 'string' | 'date' | 'number' | 'boolean' | 'timespan',
+  ) {
+    this.value.update(
+      (filter) =>
+        ({
+          ...filter,
+          fieldType: type,
+        }) as PropertyFilter,
+    );
+  }
 
   protected readonly stringFilterTypes = stringFilterTypes;
   protected readonly dateFilterTypes = dateFilterTypes;

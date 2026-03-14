@@ -18,6 +18,18 @@ export class MessagesRepository {
     return await messagesDb.addMessages(messages);
   }
 
+  async getSystemPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getSystemPropertyLabels();
+  }
+
+  async getApplicationPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getApplicationPropertyLabels();
+  }
+
   async countMessages(
     pageId: UUID,
     filter?: MessageFilter,

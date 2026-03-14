@@ -2,7 +2,7 @@ import {
   ApplicationRef,
   Component,
   computed,
-  inject,
+  inject, input,
   linkedSignal,
   model,
   signal,
@@ -115,6 +115,25 @@ export class MessagesPageComponent {
 
   selection = signal<string[]>([]);
   isLoading = signal(false);
+
+  knownSystemProperties = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getSystemPropertyLabels(pageId));
+      }),
+    ), { initialValue: [] }
+  )
+  knownApplicationProperties = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getApplicationPropertyLabels(pageId));
+      }),
+    ), { initialValue: [] }
+  );
 
   totalMessageCount = toSignal(
     toObservable(this.currentPage).pipe(
@@ -381,9 +400,7 @@ export class MessagesPageComponent {
           },
         },
         {
-          label: allMessages
-            ? 'Export all messages'
-            : 'Export selection',
+          label: allMessages ? 'Export all messages' : 'Export selection',
           icon: 'pi pi-download',
           command: () => {
             this.exportMessages(allMessages);

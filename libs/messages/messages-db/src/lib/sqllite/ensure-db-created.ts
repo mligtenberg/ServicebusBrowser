@@ -1,6 +1,5 @@
 import { Database } from './database';
 
-
 export async function ensurePagesDbCreated(database: Database) {
   await database.exec(`CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,
@@ -11,6 +10,7 @@ export async function ensurePagesDbCreated(database: Database) {
 
 export async function ensureMessagesDbCreated(database: Database) {
   await createMessages(database);
+  await createPropertyLabelTable(database);
   await createSystemProperties(database);
   await createApplicationProperties(database);
 }
@@ -24,6 +24,16 @@ async function createMessages(database: Database) {
                          sequence INTEGER,
                          message TEXT
                        )`);
+}
+
+async function createPropertyLabelTable(database: Database) {
+  await database.exec(
+    `CREATE TABLE IF NOT EXISTS propertyLabels (
+      propertyName TEXT PRIMARY KEY,
+      propertyType TEXT,
+      propertyLocation TEXT
+    )`,
+  );
 }
 
 async function createSystemProperties(database: Database) {

@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   effect,
+  input,
   model,
   signal,
 } from '@angular/core';
@@ -41,6 +42,9 @@ import { BodyPropertyForm } from './body-property-form/body-property-form';
 export class MessageFilterEditorComponent {
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
+  knownSystemProperties = input<{ label: string; type: string }[]>([]);
+  knownApplicationProperties = input<{ label: string; type: string }[]>([]);
+
   shadowFilter = signal<MessageFilter>({
     systemProperties: [],
     applicationProperties: [],
