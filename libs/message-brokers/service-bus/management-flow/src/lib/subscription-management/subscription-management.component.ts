@@ -21,6 +21,7 @@ import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { RefreshUtil } from '../refresh-util';
 
 @Component({
   selector: 'lib-subscription-management',
@@ -45,6 +46,7 @@ import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service
 })
 export class SubscriptionManagementComponent {
   activeRoute = inject(ActivatedRoute);
+  refreshUtil = inject(RefreshUtil);
   managementClient = inject(ServiceBusManagementFrontendClient);
   form = this.createForm();
   action = signal<'create' | 'modify'>('create');
@@ -99,8 +101,13 @@ export class SubscriptionManagementComponent {
             throw new Error('Subscription ID is required for modify action');
           }
 
-          return from(this.managementClient.getSubscription(connectionId, topicId, subscriptionId))
-            .pipe(map((subscription) => ({ action, subscription })));
+          return from(
+            this.managementClient.getSubscription(
+              connectionId,
+              topicId,
+              subscriptionId,
+            ),
+          ).pipe(map((subscription) => ({ action, subscription })));
         }),
         takeUntilDestroyed(),
       )
@@ -180,8 +187,9 @@ export class SubscriptionManagementComponent {
       await this.managementClient.createSubscription(
         this.activeRoute.snapshot.params['connectionId'],
         this.activeRoute.snapshot.params['topicId'],
-        subscription
+        subscription,
       );
+      this.refreshUtil.refreshSubscriptions(this.activeRoute.snapshot.params['connectionId'] as UUID, this.activeRoute.snapshot.params['topicId'] as string);
       return;
     }
 
@@ -189,8 +197,9 @@ export class SubscriptionManagementComponent {
     await this.managementClient.editSubscription(
       this.activeRoute.snapshot.params['connectionId'],
       this.activeRoute.snapshot.params['topicId'],
-      subscription
+      subscription,
     );
+    this.refreshUtil.refreshSubscriptions(this.activeRoute.snapshot.params['connectionId'] as UUID, this.activeRoute.snapshot.params['topicId'] as string);
   }
 
   private createForm() {

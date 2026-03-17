@@ -17,6 +17,7 @@ import { InputNumber } from 'primeng/inputnumber';
 import { Textarea } from 'primeng/textarea';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { RefreshUtil } from '../refresh-util';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -40,6 +41,7 @@ import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service
 export class SubscriptionRuleManagementComponent implements OnDestroy {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
+  refreshUtil = inject(RefreshUtil);
   form = this.createForm();
 
   destroy$ = new Subject<void>();
@@ -98,11 +100,19 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
 
         this.configureFormAsEdit();
 
-        from(this.managementClient.getSubscription(connectionId, topicId, subscriptionId))
+        from(
+          this.managementClient.getSubscription(
+            connectionId,
+            topicId,
+            subscriptionId,
+          ),
+        )
           .pipe(
-            map((subscription) => subscription.rules.find((r) => r.name === ruleName)),
+            map((subscription) =>
+              subscription.rules.find((r) => r.name === ruleName),
+            ),
             takeUntil(this.newParams$),
-            takeUntil(this.destroy$)
+            takeUntil(this.destroy$),
           )
           .subscribe((rule) => {
             if (!rule) {
@@ -235,6 +245,11 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
         this.activeRoute.snapshot.params['topicId'],
         this.activeRoute.snapshot.params['subscriptionId'],
         subscriptionRule,
+      );
+      this.refreshUtil.refreshSubscriptionRules(
+        this.activeRoute.snapshot.params['connectionId'],
+        this.activeRoute.snapshot.params['topicId'],
+        this.activeRoute.snapshot.params['subscriptionId'],
       )
       return;
     }
@@ -244,6 +259,11 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
       this.activeRoute.snapshot.params['topicId'],
       this.activeRoute.snapshot.params['subscriptionId'],
       subscriptionRule,
+    );
+    this.refreshUtil.refreshSubscriptionRules(
+      this.activeRoute.snapshot.params['connectionId'],
+      this.activeRoute.snapshot.params['topicId'],
+      this.activeRoute.snapshot.params['subscriptionId'],
     )
   }
 

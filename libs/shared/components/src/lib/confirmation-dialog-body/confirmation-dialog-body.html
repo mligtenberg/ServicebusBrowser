@@ -1,0 +1,12 @@
+<div class="message">
+  <p>{{message()}}</p>
+</div>
+<div class="buttons">
+  <p-button
+    [label]="cancelLabel()"
+    severity="secondary"
+    (click)="cancel()"/>
+  <p-button
+    [label]="okLabel()"
+    (click)="confirm()"/>
+</div>

@@ -20,6 +20,7 @@ import { Queue, QueueWithMetaData } from '@service-bus-browser/service-bus-api-c
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { RefreshUtil } from '../refresh-util';
 
 @Component({
   selector: 'lib-queue-management',
@@ -43,6 +44,7 @@ import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service
 export class QueueManagementComponent {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
+  refreshUtil = inject(RefreshUtil);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -189,11 +191,13 @@ export class QueueManagementComponent {
     // save queue
     if (this.action() === 'create') {
       await this.managementClient.createQueue(this.activeRoute.snapshot.params['connectionId'], queue);
+      this.refreshUtil.refreshQueues(this.activeRoute.snapshot.params['connectionId'] as UUID);
       return;
     }
 
     // update queue
     await this.managementClient.editQueue(this.activeRoute.snapshot.params['connectionId'], queue);
+    this.refreshUtil.refreshQueues(this.activeRoute.snapshot.params['connectionId'] as UUID);
   }
 
   isDate(value: unknown): boolean {
