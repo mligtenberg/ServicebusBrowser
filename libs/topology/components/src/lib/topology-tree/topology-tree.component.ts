@@ -26,6 +26,7 @@ import { messagesActions } from '@service-bus-browser/messages-store';
 import { Router } from '@angular/router';
 import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 import { ActionManager } from '@service-bus-browser/actions-framework';
+import { ConfirmationService } from '@service-bus-browser/shared-components';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -50,6 +51,7 @@ export class TopologyTreeComponent {
   store = inject(Store);
   router = inject(Router);
   actionManager = inject(ActionManager);
+  confirmationService = inject(ConfirmationService);
 
   selectionMode = input<'actions' | 'send'>('actions');
   sendEndpointSelected = output<SendEndpoint>();
@@ -146,7 +148,15 @@ export class TopologyTreeComponent {
     });
   }
 
-  protected onClearReceiveEndpointSelected($event: ReceiveEndpoint) {
+  protected async onClearReceiveEndpointSelected($event: ReceiveEndpoint) {
+    const confirmed = await this.confirmationService.confirm(
+      'Clear messages',
+      `Are you sure you want to clear all messages from ${$event.longDisplayName}?`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
     this.store.dispatch(
       messagesActions.clearEndpoint({
         endpoint: $event,
