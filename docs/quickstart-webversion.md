@@ -17,13 +17,15 @@ create a file called `sbb-connections.json`, this file contains a array with the
 the different connections types are:
 
 connection string:
+
 ```json
 [
   {
     "id": "<GUID>",
     "type": "connectionString",
     "name": "<NAME>",
-    "connectionString": "<CONNECTION_STRING>"
+    "connectionString": "<CONNECTION_STRING>",
+    "target": "serviceBus"
   }
 ]
 ```
@@ -41,7 +43,8 @@ Service principal client secret:
     "clientId": "<CLIENT_ID>",
     "clientSecret": "<CLIENT_SECRET>",
     "tenantId": "<TENANT_ID>",
-    "authority": "<AUTHORITY>"
+    "authority": "<AUTHORITY>",
+    "target": "serviceBus"
   }
 ]
 ```
@@ -55,7 +58,8 @@ System assigned managed identity:
     "id": "<GUID>",
     "type": "systemAssignedManagedIdentity",
     "name": "<NAME>",
-    "fullyQualifiedNamespace": "<NAMESPACE>"
+    "fullyQualifiedNamespace": "<NAMESPACE>",
+    "target": "serviceBus"
   }
 ]
 ```
@@ -68,7 +72,8 @@ User assigned managed identity:
     "type": "userAssignedManagedIdentity",
     "name": "<NAME>",
     "fullyQualifiedNamespace": "<NAMESPACE>",
-    "clientId": "<CLIENT_ID>"
+    "clientId": "<CLIENT_ID>",
+    "target": "serviceBus"
   }
 ]
 ```

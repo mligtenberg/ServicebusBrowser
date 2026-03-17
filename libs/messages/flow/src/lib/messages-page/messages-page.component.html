@@ -93,4 +93,6 @@
     [(visible)]="displayFilterEditor"
     [filters]="messageFilter()"
     (filtersChange)="onFiltersUpdated($event)"
+    [knownApplicationProperties]="knownApplicationProperties()"
+    [knownSystemProperties]="knownSystemProperties()"
   ></lib-message-filter-editor>

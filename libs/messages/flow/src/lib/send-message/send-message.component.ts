@@ -14,10 +14,10 @@ import { ColorThemeService } from '@service-bus-browser/services';
 import {
   CustomPropertyType,
   SendMessagesForm,
-  SystemPropertyKeys
+  SystemPropertyKeys,
 } from './form';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { combineLatest, map, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ScrollPanel } from 'primeng/scrollpanel';
@@ -26,10 +26,13 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
-import { DurationInputComponent, FormEditor } from '@service-bus-browser/shared-components';
+import {
+  DurationInputComponent,
+  FormEditor,
+} from '@service-bus-browser/shared-components';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { Store } from '@ngrx/store';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
 import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
@@ -41,6 +44,9 @@ import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
+import { SendEndpoint, ToMessageToSend } from '@service-bus-browser/api-contracts';
+import { Actions, ofType } from '@ngrx/effects';
+import { routerNavigatedAction } from '@ngrx/router-store';
 
 const repository = await getMessagesRepository();
 
@@ -72,8 +78,8 @@ const repository = await getMessagesRepository();
 export class SendMessageComponent implements AfterViewInit, OnDestroy {
   ResizeObserver: ResizeObserver | null = null;
   formContainer = viewChild.required('formContainer', {
-    read: ElementRef
-  })
+    read: ElementRef,
+  });
 
   formHelpers = formHelpers;
   value = model<SendMessagesForm>(this.getEmptyForm());
@@ -92,9 +98,10 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
   systemPropertyHelpers = inject(SystemPropertyHelpers);
+  actions$ = inject(Actions);
 
   typeOptions: Record<string, CustomPropertyType | string>[] = [
-    { label: 'String', value: 'string'},
+    { label: 'String', value: 'string' },
     { label: 'Datetime', value: 'datetime' },
     { label: 'Number', value: 'number' },
     { label: 'Boolean', value: 'boolean' },
@@ -261,40 +268,25 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
 
     // send message
     const formValue = this.value();
+    const body = new TextEncoder().encode(formValue.body);
 
     this.store.dispatch(
-      MessagesActions.sendMessage({
+      messagesActions.sendMessage({
         endpoint: formValue.endpoint!,
         message: {
-          body: formValue.body,
+          // toBase64 is supported by all browsers, but not in typescript yet
+          bodyBase64: (body as any).toBase64(),
           contentType: formValue.contentType ?? undefined,
-          timeToLive: (formValue.systemProperties.find(
-            (x) => x.key === 'timeToLive',
-          )?.value ?? undefined) as string | undefined,
           messageId: (formValue.systemProperties.find(
             (x) => x.key === 'messageId',
           )?.value ?? undefined) as string | undefined,
-          correlationId: (formValue.systemProperties.find(
-            (x) => x.key === 'correlationId',
-          )?.value ?? undefined) as string | undefined,
-          to: (formValue.systemProperties.find((x) => x.key === 'to')?.value ??
-            undefined) as string | undefined,
-          replyTo: (formValue.systemProperties.find((x) => x.key === 'replyTo')
-            ?.value ?? undefined) as string | undefined,
-          replyToSessionId: (formValue.systemProperties.find(
-            (x) => x.key === 'replyToSessionId',
-          )?.value ?? undefined) as string | undefined,
-          sessionId: (formValue.systemProperties.find(
-            (x) => x.key === 'sessionId',
-          )?.value ?? undefined) as string | undefined,
-          subject: (formValue.systemProperties.find((x) => x.key === 'subject')
-            ?.value ?? undefined) as string | undefined,
-          partitionKey: (formValue.systemProperties.find(
-            (x) => x.key === 'partitionKey',
-          )?.value ?? undefined) as string | undefined,
-          scheduledEnqueueTimeUtc: (formValue.systemProperties.find(
-            (x) => x.key === 'scheduledEnqueueTimeUtc',
-          )?.value ?? undefined) as Date | undefined,
+          systemProperties: formValue.systemProperties.reduce(
+            (acc, x) => {
+              acc[x.key] = x.value;
+              return acc;
+            },
+            {} as Record<string, string | number | Date | boolean>,
+          ),
           applicationProperties: formValue.applicationProperties.reduce(
             (acc, x) => {
               acc[x.key] = x.value;
@@ -308,9 +300,13 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   }
 
   constructor() {
-    this.activatedRoute.params
+    combineLatest([
+      this.activatedRoute.params,
+      this.actions$.pipe(ofType(routerNavigatedAction)),
+    ])
       .pipe(
         takeUntilDestroyed(),
+        map((params) => params[0]),
         switchMap((params) => {
           if (params['pageId'] && params['messageId']) {
             return repository.getMessage(params['pageId'], params['messageId']);
@@ -319,27 +315,34 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
           return [undefined];
         }),
       )
-      .subscribe((message) => {
-        if (!message) {
+      .subscribe((receivedMessage) => {
+        if (!receivedMessage) {
           this.value.set(this.getEmptyForm());
+          const endpoint = window.history.state.sendEndpoint as
+            | SendEndpoint
+            | undefined;
+          this.value.update((v) => ({
+            ...v,
+            endpoint: endpoint ?? null,
+          }));
           return;
         }
 
-        const systemProperties = Object.entries(message)
+        const message = ToMessageToSend(receivedMessage);
+
+        const systemProperties = Object.entries(message.systemProperties ?? {})
           .filter(
-            ([key]) =>
-              key !== 'body' &&
-              key !== 'contentType' &&
-              key !== 'applicationProperties',
+            ([key, value]) =>
+              value && SystemPropertyKeys.includes(key as SystemPropertyKeys),
           )
-          .filter(([key, value]) => value && SystemPropertyKeys.includes(key as SystemPropertyKeys))
           .map(([key, value]) => ({
             key: key as SystemPropertyKeys,
             value: (value ?? '') as string | Date,
           }));
 
+        const body = new TextDecoder().decode(message.body.buffer);
         this.value.set({
-          body: message.body,
+          body: body,
           contentType: message.contentType ?? '',
           systemProperties: systemProperties,
           applicationProperties: message.applicationProperties

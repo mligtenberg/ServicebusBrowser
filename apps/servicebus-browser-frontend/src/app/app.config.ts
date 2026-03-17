@@ -1,5 +1,5 @@
 import {
-  ApplicationConfig,
+  ApplicationConfig, importProvidersFrom,
   isDevMode,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -7,7 +7,7 @@ import {
   provideRouter,
   withHashLocation,
   withPreloading,
-  PreloadAllModules,
+  PreloadAllModules, withRouterConfig,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -24,6 +24,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideHttpClient } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
+import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,11 +38,15 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     {
+      provide: DialogService,
+      useClass: DialogService,
+    },
+    {
       provide: MessageService,
       useClass: MessageService,
     },
     provideMonacoConfig({
-      urlPrefix: '/assets/monaco'
+      urlPrefix: '/assets/monaco',
     }),
 
     // config
@@ -50,7 +55,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       appRoutes,
       withHashLocation(),
-      withPreloading(PreloadAllModules)
+      withPreloading(PreloadAllModules),
+      withRouterConfig({
+        onSameUrlNavigation: 'reload',
+      }),
     ),
     provideLogsState(),
     provideTasksState(),

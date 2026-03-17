@@ -1,7 +1,0 @@
-{
-  "name": "@service-bus-browser/topology-contracts",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/topology/contracts/src",
-  "projectType": "library",
-  "tags": []
-}

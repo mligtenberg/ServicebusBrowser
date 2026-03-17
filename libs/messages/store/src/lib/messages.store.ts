@@ -1,7 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { MessagePage } from '@service-bus-browser/messages-contracts';
-import * as actions from './messages.actions';
-import * as internalActions from './messages.internal-actions';
+import { messagePagesActions } from './messages.actions';
+import { messagePagesEffectActions } from './messages.effect-actions';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const featureKey = 'messages';
@@ -22,93 +22,106 @@ export const initialState: MessagesState = {
 
 export const messagesReducer = createReducer(
   initialState,
-  on(internalActions.pageCreated, (state, { pageId, pageName, loadedFromDb }): MessagesState => {
-    const page = state.receivedMessages.find(page => page.id === pageId);
-    if (page) {
-      return state;
-    }
-
-    return {
-      ...state,
-      receivedMessages: [
-        ...state.receivedMessages,
-        {
-          id: pageId,
-          name: pageName,
-          retrievedAt: new Date(),
-          loaded: loadedFromDb,
-          type: 'messages',
-          blocked: !loadedFromDb
-        }
-      ]
-    }
-  }),
-  on(actions.loadMessagesLoadingDone, (state, { pageId }): MessagesState => {
-
-    return {
-      ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? {
-        ...page,
-        loaded: true,
-        blocked: false
-      } : page)
-    }
-  }),
-  on(actions.closePage, (state, { pageId }): MessagesState => {
-    return {
-      ...state,
-      receivedMessages: state.receivedMessages.filter(page => page.id !== pageId)
-    }
-  }),
-  on(internalActions.messagesImported, (state, { pageId, pageName }): MessagesState => {
-    return {
-      ...state,
-      receivedMessages: [
-        ...state.receivedMessages,
-        {
-          id: pageId,
-          name: pageName,
-          retrievedAt: new Date(),
-          loaded: true,
-          type: 'messages',
-          blocked: false
-        }
-      ]
-    }
-  }),
-  on(actions.setPageFilter, (state, { pageId, filter }): MessagesState => {
-    return {
-      ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, filter } : page)
-    }
-  }),
-  on(actions.setPageSelection, (state, { pageId, sequenceNumbers }): MessagesState => {
-    return {
-      ...state,
-      selectionPerPage: {
-        ...state.selectionPerPage,
-        [pageId]: sequenceNumbers
+  on(
+    messagePagesEffectActions.pageCreated,
+    (state, { pageId, pageName, disabled }): MessagesState => {
+      const page = state.receivedMessages.find((page) => page.id === pageId);
+      if (page) {
+        return state;
       }
-    }
-  }),
-  on(internalActions.updatePageName, (state, { pageId, pageName }): MessagesState => {
+
+      return {
+        ...state,
+        receivedMessages: [
+          ...state.receivedMessages,
+          {
+            id: pageId,
+            name: pageName,
+            retrievedAt: new Date(),
+            loaded: !disabled,
+            type: 'messages',
+            blocked: disabled,
+          },
+        ],
+      };
+    },
+  ),
+  on(
+    messagePagesEffectActions.pageLoaded,
+    (state, { pageId }): MessagesState => {
+      return {
+        ...state,
+        receivedMessages: state.receivedMessages.map((page) =>
+          page.id === pageId
+            ? {
+                ...page,
+                loaded: true,
+                blocked: false,
+              }
+            : page,
+        ),
+      };
+    },
+  ),
+  on(
+    messagePagesEffectActions.pageLoadCancelled,
+    (state, { pageId }): MessagesState => {
+      return {
+        ...state,
+        receivedMessages: state.receivedMessages.map((page) =>
+          page.id === pageId
+            ? {
+                ...page,
+                loaded: true,
+                blocked: false,
+              }
+            : page,
+        ),
+      };
+    },
+  ),
+  on(
+    messagePagesEffectActions.pageClosed,
+    (state, { pageId }): MessagesState => {
+      return {
+        ...state,
+        receivedMessages: state.receivedMessages.filter(
+          (page) => page.id !== pageId,
+        ),
+      };
+    },
+  ),
+  on(messagePagesActions.setPageFilter, (state, { pageId, filter }): MessagesState => {
     return {
       ...state,
-      receivedMessages: state.receivedMessages.map(page => page.id === pageId ? { ...page, name: pageName } : page)
-    }
+      receivedMessages: state.receivedMessages.map((page) =>
+        page.id === pageId ? { ...page, filter } : page,
+      ),
+    };
   }),
-  on(actions.sendPartialBatch, (state, { transactionId }): MessagesState => {
-    return {
-      ...state,
-      runningBatchSendTasks: [...state.runningBatchSendTasks, transactionId]
-    }
-  }),
-  on(internalActions.batchSendCompleted, (state, { transactionId }): MessagesState => {
-    return {
-      ...state,
-      runningBatchSendTasks: state.runningBatchSendTasks.filter(taskId => taskId !== transactionId)
-    }
-  })
+  on(
+    messagePagesActions.setPageSelection,
+    (state, { pageId, selectionKeys }): MessagesState => {
+      return {
+        ...state,
+        selectionPerPage: {
+          ...state.selectionPerPage,
+          [pageId]: selectionKeys,
+        },
+      };
+    },
+  ),
+  on(
+    messagePagesActions.renamePage,
+    (state, { pageId, pageName }): MessagesState => {
+      return {
+        ...state,
+        receivedMessages: state.receivedMessages.map((page) =>
+          page.id === pageId ? { ...page, name: pageName } : page,
+        ),
+      };
+    },
+  ),
 );
 
 export const feature = createFeature({

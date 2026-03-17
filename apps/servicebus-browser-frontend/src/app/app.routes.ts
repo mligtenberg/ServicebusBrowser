@@ -7,8 +7,8 @@ export const appRoutes: Route[] = [
     loadChildren: () => import('@service-bus-browser/connections-flow').then(m => m.routes)
   },
   {
-    path: 'manage-topology',
-    loadChildren: () => import('@service-bus-browser/manage-topology-flow').then(m => m.routes)
+    path: 'manage-service-bus',
+    loadChildren: () => import('@service-bus-browser/service-bus-management-flow').then(m => m.routes)
   },
   {
     path: 'messages',

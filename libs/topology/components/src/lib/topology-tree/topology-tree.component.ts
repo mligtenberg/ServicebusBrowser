@@ -1,32 +1,32 @@
-import { Component, computed, inject, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  Namespace,
-  QueueWithMetaData,
-  SubscriptionWithMetaData,
-  TopicWithMetaData,
-  TopicWithChildren,
-  TopicWithChildrenAndLoadingState,
-  SubscriptionRule,
-  NamespaceWithChildrenAndLoadingState
-} from '@service-bus-browser/topology-contracts';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
-import { MenuItemCommandEvent, PrimeTemplate, TreeNode } from 'primeng/api';
-import { NamespaceTreeNodeComponent } from '../namespace-tree-node/namespace-tree-node.component';
-import { TopicTreeNodeComponent } from '../topic-tree-node/topic-tree-node.component';
-import { SubscriptionTreeNodeComponent } from '../subscription-tree-node/subscription-tree-node.component';
-import { QueueTreeNodeComponent } from '../queue-tree-node/queue-tree-node.component';
-import { Button } from 'primeng/button';
+import { PrimeTemplate, TreeNode } from 'primeng/api';
 import { InputText } from 'primeng/inputtext';
-import { Store } from '@ngrx/store';
-import { TopologyActions } from '@service-bus-browser/topology-store';
-import { SbbMenuItem, UUID } from '@service-bus-browser/shared-contracts';
-import {
-  SubscriptionRuleTreeNodeComponent
-} from '../subscription-rule-tree-node/subscription-rule-tree-node.component';
-import { ContextMenu } from 'primeng/contextmenu';
 import { Tooltip } from 'primeng/tooltip';
+import { Store } from '@ngrx/store';
+import { TopologySelectors } from '@service-bus-browser/topology-store';
+import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
+import {
+  ReceiveEndpoint,
+  SendEndpoint,
+  TopologyAction,
+  TopologyNode,
+} from '@service-bus-browser/api-contracts';
+import { messagesActions } from '@service-bus-browser/messages-store';
+import { Router } from '@angular/router';
+import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
+import { ActionManager } from '@service-bus-browser/actions-framework';
+import { ConfirmationService } from '@service-bus-browser/shared-components';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -34,16 +34,11 @@ import { Tooltip } from 'primeng/tooltip';
     CommonModule,
     FormsModule,
     Tree,
-    NamespaceTreeNodeComponent,
-    TopicTreeNodeComponent,
-    SubscriptionTreeNodeComponent,
-    QueueTreeNodeComponent,
     PrimeTemplate,
-    Button,
     InputText,
-    SubscriptionRuleTreeNodeComponent,
-    ContextMenu,
     Tooltip,
+    GenericTreeNodeComponent,
+    ReceiveMessagesDialog,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
@@ -53,369 +48,71 @@ import { Tooltip } from 'primeng/tooltip';
   },
 })
 export class TopologyTreeComponent {
-  namespaces = input.required<NamespaceWithChildrenAndLoadingState[]>();
-  namespaceContextMenuItems = input<SbbMenuItem<Namespace>[]>();
-  queuesGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
-  topicsGroupNodeContextMenu = input<SbbMenuItem<Namespace>[]>();
-  queueContextMenu = input<SbbMenuItem<QueueWithMetaData>[]>();
-  topicContextMenu = input<SbbMenuItem<TopicWithMetaData>[]>();
-  subscriptionContextMenu = input<SbbMenuItem<SubscriptionWithMetaData>[]>();
-  subscriptionRuleContextMenu = input<SbbMenuItem<SubscriptionRule>[]>();
-  multiSelectEnabled = input<boolean>(true);
-  contextMenuEnabled = input<boolean>(true);
+  store = inject(Store);
+  router = inject(Router);
+  actionManager = inject(ActionManager);
+  confirmationService = inject(ConfirmationService);
 
-  ctrlSelected = signal<boolean>(false);
+  selectionMode = input<'actions' | 'send'>('actions');
+  sendEndpointSelected = output<SendEndpoint>();
+
+  treeSelection = signal<TreeNode<TopologyNode>[]>([]);
   shiftSelected = signal<boolean>(false);
-  selectionMode = computed<'single' | 'multiple'>(() => {
+
+  selectedReceiveEndpoint = model<ReceiveEndpoint | undefined>(undefined);
+
+  multiSelectEnabled = computed(() => this.selectionMode() === 'actions');
+  treeSelectionMode = computed<'single' | 'multiple'>(() => {
     if (!this.multiSelectEnabled()) {
       return 'single';
     }
 
-    return this.ctrlSelected() || this.shiftSelected() ? 'multiple' : 'single';
+    return this.shiftSelected() ? 'multiple' : 'single';
+  });
+  nodeSelectionMode = computed<'actions' | 'send' | 'none'>(() => {
+    if (this.treeSelection().length > 1) {
+      return 'none';
+    }
+
+    return this.selectionMode();
   });
 
-  connectionsFilter = input<string[]>();
-
-  displayQueues = input<boolean>(true);
-  displayTopics = input<boolean>(true);
-  displaySubscriptions = input<boolean>(true);
-  displaySubscriptionRules = input<boolean>(true);
-
-  store = inject(Store);
-
-  opened = signal<string[]>([]);
-  searchTerm = model<string>('');
-  selection = model<TreeNode[] | null>(null);
-  filteredNamespaces = computed(() => {
-    const connections = this.connectionsFilter();
-    const namespaces = this.namespaces().filter(
-      (ns) => !connections || connections.includes(ns.id)
-    );
-    return this.filterNamespaces(namespaces, this.searchTerm());
-  });
-  nodes = computed<TreeNode[]>(() => {
-    return this.filteredNamespaces().map<TreeNode>((ns) => {
-      const node: TreeNode = {
-        key: ns.id,
-        label: ns.name,
-        type: 'namespace',
-        data: ns,
-        children: [],
-        expanded: this.opened().includes(ns.id),
-      };
-
-      if (this.displayQueues()) {
-        node.children?.push({
-          key: `${ns.id}-queues`,
-          label: 'Queues',
-          type: 'queues',
-          selectable: false,
-          data: ns,
-          expanded: this.opened().includes(`${ns.id}-queues`),
-          children: ns.queues.map<TreeNode>((queue) => ({
-            key: `${ns.id}-queue-${queue.id}`,
-            label: queue.name,
-            type: 'queue',
-            data: queue,
-            leaf: true,
-          })),
-        });
-      }
-
-      if (this.displayTopics()) {
-        node.children?.push({
-          key: `${ns.id}-topics`,
-          label: 'Topics',
-          type: 'topics',
-          selectable: false,
-          data: ns,
-          expanded: this.opened().includes(`${ns.id}-topics`),
-          children: ns.topics.map<TreeNode>((topic) => {
-            const topNode: TreeNode = {
-              key: `${ns.id}-topic-${topic.id}`,
-              expanded: this.opened().includes(`${ns.id}-topic-${topic.id}`),
-              label: topic.name,
-              type: 'topic',
-              data: topic,
-            };
-
-            if (this.displaySubscriptions()) {
-              topNode.children = topic.subscriptions.map<TreeNode>((sub) => {
-                const subNode: TreeNode = {
-                  key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}`,
-                  label: sub.name,
-                  type: 'subscription',
-                  expanded: this.opened().includes(
-                    `${ns.id}-topic-${topic.id}-subscription-${sub.id}`
-                  ),
-                  data: sub,
-                };
-
-                if (this.displaySubscriptionRules()) {
-                  subNode.children = sub.rules.map<TreeNode>((rule) => ({
-                    key: `${ns.id}-topic-${topic.id}-subscription-${sub.id}-rule-${rule.name}`,
-                    label: rule.name,
-                    type: 'subscription-rule',
-                    data: rule,
-                    leaf: true,
-                  }));
-                }
-
-                return subNode;
-              });
-            }
-
-            return topNode;
-          }),
-        });
-      }
-
-      return node;
-    });
-  });
-  flatNodes = computed<TreeNode[]>(() => {
-    const flatten = (nodes: TreeNode[]): TreeNode[] => {
+  topologyRootNodes = this.store.selectSignal(
+    TopologySelectors.selectRootNodes,
+  );
+  treeNodes = computed<TreeNode<TopologyNode>[]>(() =>
+    this.topologyRootNodes().map((node) => this.toTreeNode(node)),
+  );
+  flatTreeNodes = computed<TreeNode<TopologyNode>[]>(() => {
+    const flatten = (
+      nodes: TreeNode<TopologyNode>[],
+    ): TreeNode<TopologyNode>[] => {
       return nodes.flatMap((node) => {
         return [node, ...(node.children ? flatten(node.children) : [])];
       });
     };
 
-    return flatten(this.nodes());
-  });
-  contextMenu = computed(() => {
-    const selection = this.selection();
-    const nodeType = selection?.[0]?.type;
-    if (!nodeType) {
-      return undefined;
-    }
-
-    let menuItems: SbbMenuItem<unknown>[] = [];
-    if (nodeType === 'namespace') {
-      menuItems = this.namespaceContextMenuItems() ?? [];
-    }
-
-    if (nodeType === 'queues') {
-      menuItems = this.queuesGroupNodeContextMenu() ?? [];
-    }
-
-    if (nodeType === 'topics') {
-      menuItems = this.topicsGroupNodeContextMenu() ?? [];
-    }
-
-    if (nodeType === 'queue') {
-      menuItems = this.queueContextMenu() ?? [];
-    }
-
-    if (nodeType === 'topic') {
-      menuItems = this.topicContextMenu() ?? [];
-    }
-
-    if (nodeType === 'subscription') {
-      menuItems = this.subscriptionContextMenu() ?? [];
-    }
-
-    if (nodeType === 'subscription-rule') {
-      menuItems = this.subscriptionRuleContextMenu() ?? [];
-    }
-
-    if (selection.length > 1) {
-      menuItems = menuItems.filter((item) => item.supportedMultiSelection);
-    }
-
-    if (menuItems.length === 0) {
-      return undefined;
-    }
-
-    return this.patchContextMenuItems(menuItems);
+    return flatten(this.treeNodes());
   });
 
-  namespaceSelected = output<{
-    namespace: Namespace;
-  }>();
-  queueSelected = output<{
-    namespaceId: string;
-    queue: QueueWithMetaData;
-  }>();
-  topicSelected = output<{
-    namespaceId: string;
-    topic: TopicWithChildren;
-  }>();
-  subscriptionSelected = output<{
-    namespaceId: string;
-    topicId: string;
-    subscription: SubscriptionWithMetaData;
-  }>();
-  subscriptionRuleSelected = output<{
-    namespaceId: string;
-    topicId: string;
-    subscriptionId: string;
-    ruleName: string;
-  }>();
+  searchTerm = signal('');
+  opened = signal<string[]>([]);
 
-  onSelectionChange(event: TreeNode | TreeNode[] | null | undefined) {
-    // should not be an array since we have selection mode single
-    if (!event || (event instanceof Array && event.length === 0)) {
-      this.selection.set(null);
-      return;
-    }
-
-    if (this.selectionMode() === 'multiple') {
-      if (!(event instanceof Array) && event) {
-        event = [event];
-      }
-
-      if (this.shiftSelected()) {
-        const flatNodes = this.flatNodes();
-        const newestSelected = event[event.length - 1];
-        const oneBefore = event[event.length - 2];
-        const nodeType = newestSelected.type;
-
-        const newestSelectedIndex = flatNodes.findIndex(
-          (node) => node.key === newestSelected.key
-        );
-        const oneBeforeIndex = flatNodes.findIndex(
-          (node) => node.key === oneBefore.key
-        );
-
-        const inbetweenNodes = flatNodes
-          .slice(
-            Math.min(oneBeforeIndex, newestSelectedIndex),
-            Math.max(oneBeforeIndex, newestSelectedIndex) + 1
-          )
-          .filter((node) => node.type === nodeType);
-
-        event = [
-          ...event.filter((node) => !inbetweenNodes.includes(node)),
-          ...inbetweenNodes,
-        ];
-      }
-
-      this.selection.set(event as TreeNode[]);
-      this.onMultipleSelectionChange(event ?? []);
-      return;
-    }
-
-    if (event instanceof Array) {
-      event = event[event.length - 1];
-    }
-
-    this.selection.set([event]);
-
-    switch (event.type) {
-      case 'namespace':
-        this.onNamespaceSelected(event.data);
-        break;
-      case 'queue':
-        this.onQueueSelected(event.data);
-        break;
-      case 'topic':
-        this.onTopicSelected(event.data);
-        break;
-      case 'subscription':
-        this.onSubscriptionSelected(event.data);
-        break;
-      case 'subscription-rule':
-        this.onSubscriptionRuleSelected(event.data);
-        break;
-    }
-  }
-
-  onNodeExpand(event: TreeNodeExpandEvent) {
-    this.opened.update((opened) => [
-      ...new Set([...opened, event.node.key as string]),
-    ]);
-  }
-
-  onNodeCollapse(event: TreeNodeCollapseEvent) {
-    this.opened.update((opened) =>
-      opened.filter((key) => key !== event.node.key)
-    );
-  }
-
-  private onMultipleSelectionChange(event: TreeNode[]) {
-    if (event.length === 0) {
-      return;
-    }
-
-    const first = event[0];
-    this.selection.update(
-      (selection) => selection?.filter((s) => s.type === first.type) ?? null
-    );
-  }
-
-  private onNamespaceSelected(namespace: Namespace) {
-    this.namespaceSelected.emit({
-      namespace,
+  private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
+    const mapper = (node: TopologyNode): TreeNode<TopologyNode> => ({
+      key: node.path,
+      data: node,
+      expanded: this.opened().includes(node.path),
+      children: node.children?.map((node) => mapper(node)),
+      leaf: !node.children || node.children.length === 0,
+      selectable: node.selectable,
     });
-  }
-
-  private onQueueSelected(queue: QueueWithMetaData) {
-    this.queueSelected.emit({
-      namespaceId: queue.namespaceId,
-      queue,
-    });
-  }
-
-  private onTopicSelected(topic: TopicWithChildren) {
-    this.topicSelected.emit({
-      namespaceId: topic.namespaceId,
-      topic,
-    });
-  }
-
-  private onSubscriptionSelected(subscription: SubscriptionWithMetaData) {
-    this.subscriptionSelected.emit({
-      namespaceId: subscription.namespaceId,
-      topicId: subscription.topicId,
-      subscription,
-    });
-  }
-
-  private onSubscriptionRuleSelected(rule: SubscriptionRule) {
-    this.subscriptionRuleSelected.emit({
-      namespaceId: rule.namespaceId,
-      topicId: rule.topicId,
-      subscriptionId: rule.subscriptionId,
-      ruleName: rule.name,
-    });
-  }
-
-  refreshQueues($event: MouseEvent, namespace: Namespace) {
-    this.store.dispatch(
-      TopologyActions.loadQueues({ namespaceId: namespace.id })
-    );
-    $event.stopPropagation();
-  }
-
-  refreshTopics($event: MouseEvent, namespace: Namespace) {
-    this.store.dispatch(
-      TopologyActions.loadTopics({ namespaceId: namespace.id })
-    );
-    $event.stopPropagation();
-  }
-
-  refreshSubscriptions(namespaceId: UUID, topicId: string) {
-    this.store.dispatch(
-      TopologyActions.loadSubscriptions({ namespaceId, topicId })
-    );
-  }
-
-  refreshSubscription(
-    namespaceId: UUID,
-    topicId: string,
-    subscriptionId: string
-  ) {
-    this.store.dispatch(
-      TopologyActions.loadSubscription({ namespaceId, topicId, subscriptionId })
-    );
+    return mapper(node);
   }
 
   onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Shift') {
       this.shiftSelected.set(true);
-    }
-    if (event.key === 'Control') {
-      this.ctrlSelected.set(true);
     }
   }
 
@@ -423,102 +120,103 @@ export class TopologyTreeComponent {
     if (event.key === 'Shift') {
       this.shiftSelected.set(false);
     }
-    if (event.key === 'Control') {
-      this.ctrlSelected.set(false);
-    }
   }
 
-  patchContextMenuItems(menuItems: SbbMenuItem<unknown>[]) {
-    return menuItems.map((item): SbbMenuItem<unknown> => {
-      return {
-        ...item,
-        command: (event: MenuItemCommandEvent) => {
-          const selection = this.selection();
-          if (!selection) {
-            return;
-          }
+  onNodeExpand(event: TreeNodeExpandEvent) {
+    this.opened.update((opened) => [...opened, event.node.data.path]);
+  }
 
-          const data =
-            selection.length === 1
-              ? selection[0].data
-              : selection.map((node) => node.data);
+  onNodeCollapse(event: TreeNodeCollapseEvent) {
+    this.opened.update((opened) =>
+      opened.filter((key) => key !== event.node.data.path),
+    );
+  }
 
-          item.onSelect?.(data, event);
-        },
-        menuItems: item.menuItems
-          ? this.patchContextMenuItems(item.menuItems)
-          : undefined,
-      };
+  protected onActionSelected(event: TopologyAction) {
+    return this.actionManager.handleAction(event);
+  }
+
+  protected onReceiveEndpointSelected(event: ReceiveEndpoint) {
+    this.selectedReceiveEndpoint.set(event);
+  }
+
+  protected async onSendEndpointSelected(event: SendEndpoint) {
+    await this.router.navigate(['/messages/send'], {
+      state: {
+        sendEndpoint: event,
+      },
     });
   }
 
-  private filterNamespaces(
-    namespaces: NamespaceWithChildrenAndLoadingState[],
-    term: string
-  ): NamespaceWithChildrenAndLoadingState[] {
-    term = term.trim().toLowerCase();
-    if (!term) {
-      return namespaces;
+  protected async onClearReceiveEndpointSelected($event: ReceiveEndpoint) {
+    const confirmed = await this.confirmationService.confirm(
+      'Clear messages',
+      `Are you sure you want to clear all messages from ${$event.longDisplayName}?`,
+    );
+    if (!confirmed) {
+      return;
     }
 
-    return namespaces
-      .map((ns) => {
-        const nsMatch =
-          ns.name.toLowerCase().includes(term) ||
-          (term.startsWith('namespace:') &&
-            term.length > 'namespace:'.length &&
-            ns.name
-              .toLowerCase()
-              .includes(term.substring('namespace:'.length)));
+    this.store.dispatch(
+      messagesActions.clearEndpoint({
+        endpoint: $event,
+      }),
+    );
+  }
 
-        const queues = nsMatch
-          ? ns.queues
-          : ns.queues.filter(
-              (q) =>
-                q.name.toLowerCase().includes(term) ||
-                (term.startsWith('queue:') &&
-                  term.length > 'queue:'.length &&
-                  q.name
-                    .toLowerCase()
-                    .includes(term.substring('queue:'.length)))
-            );
+  protected onSelectionChange(
+    event: TreeNode<TopologyNode> | TreeNode<TopologyNode>[] | null | undefined,
+  ) {
+    // should not be an array since we have selection mode single
+    if (!event || (event instanceof Array && event.length === 0)) {
+      this.treeSelection.set([]);
+      return;
+    }
 
-        const topics = ns.topics
-          .map((topic) => {
-            const topicMatch =
-              nsMatch ||
-              topic.name.toLowerCase().includes(term) ||
-              (term.startsWith('topic:') &&
-                term.length > 'topic:'.length &&
-                topic.name
-                  .toLowerCase()
-                  .includes(term.substring('topic:'.length)));
-            const subs = topicMatch
-              ? topic.subscriptions
-              : topic.subscriptions.filter(
-                  (s) =>
-                    s.name.toLowerCase().includes(term) ||
-                    (term.startsWith('subscription:') &&
-                      term.length > 'subscription:'.length &&
-                      s.name
-                        .toLowerCase()
-                        .includes(term.substring('subscription:'.length)))
-                );
+    if (!(event instanceof Array)) {
+      event = [event];
+    }
 
-            if (topicMatch || subs.length > 0) {
-              return { ...topic, subscriptions: subs };
-            }
+    if (this.treeSelectionMode() === 'multiple') {
+      if (this.shiftSelected()) {
+        const flatNodes = this.flatTreeNodes();
+        const newestSelected = event[event.length - 1];
+        const oneBefore = event[event.length - 2];
+        const nodeType = newestSelected.type;
 
-            return null;
-          })
-          .filter((t): t is TopicWithChildrenAndLoadingState => t !== null);
+        const newestSelectedIndex = flatNodes.findIndex(
+          (node) => node.key === newestSelected.key,
+        );
+        const oneBeforeIndex = flatNodes.findIndex(
+          (node) => node.key === oneBefore.key,
+        );
 
-        if (nsMatch || queues.length > 0 || topics.length > 0) {
-          return { ...ns, queues, topics };
-        }
+        const inbetweenNodes = flatNodes
+          .slice(
+            Math.min(oneBeforeIndex, newestSelectedIndex),
+            Math.max(oneBeforeIndex, newestSelectedIndex) + 1,
+          )
+          .filter((node) => node.type === nodeType);
 
-        return null;
-      })
-      .filter((n): n is NamespaceWithChildrenAndLoadingState => n !== null);
+        event = [
+          ...event.filter((node) => !inbetweenNodes.includes(node)),
+          ...inbetweenNodes,
+        ].filter((node) => node.data?.selectable ?? false);
+      }
+    }
+
+    if (this.treeSelectionMode() === 'single') {
+      // last item
+      event = event.slice(-1);
+
+      if (this.selectionMode() === 'send' && event[0]?.data?.sendEndpoint) {
+        this.sendEndpointSelected.emit(event[0].data.sendEndpoint);
+      }
+      if (this.selectionMode() === 'actions' && event[0]?.data?.defaultAction) {
+        this.onActionSelected(event[0].data.defaultAction);
+      }
+    }
+
+    this.treeSelection.set(event);
   }
 }

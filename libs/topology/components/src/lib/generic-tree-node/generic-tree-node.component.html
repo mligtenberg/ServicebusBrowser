@@ -1,17 +1,43 @@
-<div class="line-container">
-  <span class="name" [pTooltip]="label()"><fa-icon [icon]="icon()"></fa-icon> {{ label() }}</span>
-  @if (quickAmounts(); as amounts) {
-    <span [pTooltip]="'Active messages: ' + amounts.activeMessageCount + '\nDead letters: ' + amounts.deadLetterMessageCount + '\nTransfered dead letters: ' + amounts.transferDeadLetterMessageCount" tooltipPosition="top">({{amounts.activeMessageCount}},{{amounts.deadLetterMessageCount}},{{amounts.transferDeadLetterMessageCount}})</span>
+<p-context-menu
+  #contextMenu
+  [model]="contextMenuItems()"
+  appendTo="body"
+/>
+
+<div class="line-container" (contextmenu)="showContextMenu() ? contextMenu.toggle($event) : undefined">
+  <span class="name" [pTooltip]="node().name" tooltipPosition="bottom">
+    @if (node().icon; as icon) {
+      <fa-icon [icon]="icon"></fa-icon>
+    }
+    {{ node().name }}
+  </span>
+  @if (showMessageCounts()) {
+    <span [pTooltip]="messageCountToolTip">{{messageCountSummary()}}</span>
+    <ng-template #messageCountToolTip>
+      <div class="message-count-tooltip">
+        @for (messageCount of messageCountEntities(); track $index) {
+          <div>
+            {{messageCount[0]}}: {{messageCount[1]}}
+          </div>
+        }
+      </div>
+    </ng-template>
   }
 
   @if (showRefresh()) {
-    <div class="refresh-button" [ngClass]="{ 'spin': isRefreshing() }">
+    <div class="refresh-button">
       <p-button
-        [severity]="hasLoadingError() ? 'danger' : 'primary'"
-        icon="pi pi-refresh"
+        [severity]="hasError() ? 'danger' : 'primary'"
         [rounded]="true"
         [text]="true"
-        (click)="refresh($event)"/>
+        (click)="refresh($event)"
+        [disabled]="disableRefresh()"
+      >
+        <fa-icon
+          [icon]="faRotateRight"
+          [ngClass]="{ 'spin': isLoading() }"
+        />
+      </p-button>
     </div>
   }
 </div>

@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/tasks-form',
+  displayName: '@service-bus-management-browser/tasks-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/tasks/form',

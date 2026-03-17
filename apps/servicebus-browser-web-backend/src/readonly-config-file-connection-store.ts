@@ -1,7 +1,7 @@
-import { ConnectionStore } from '@service-bus-browser/service-bus-clients';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import * as fs from 'fs';
+import { ConnectionStore } from '@service-bus-browser/service-bus-server';
 
 export class ReadonlyConfigFileConnectionStorage implements ConnectionStore {
   connectionsPath: string;

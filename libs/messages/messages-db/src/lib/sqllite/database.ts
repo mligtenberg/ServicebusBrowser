@@ -1,7 +1,8 @@
-import {
-  Database as SqliteDatabase
-} from '@sqlite.org/sqlite-wasm';
+import { Database as SqliteDatabase } from '@sqlite.org/sqlite-wasm';
 import { initializeWorker } from './init-sqllite';
+
+(window as any).enableSqliteDebugging = () => (window as any).DEBUG_SQLITE_QUERIES = true;
+(window as any).disableSqliteDebugging = () => (window as any).DEBUG_SQLITE_QUERIES = false;
 
 let counter = 0;
 export class Database {
@@ -15,18 +16,20 @@ export class Database {
       throw new Error('Database not initialized');
     }
 
-    const timerLabel = `SQLITE_QUERY_${counter++}: ${sql.replace(/\s+/g, ' ')}`;
-    console.time(timerLabel);
+    args = args.map(arg => arg instanceof Date ? arg.toISOString() : arg);
 
-    const result = await this.promiser('exec', {
+    if ((window as any).DEBUG_SQLITE_QUERIES) {
+      console.debug(
+        `SQLITE_QUERY_${counter++}: ${sql.replace(/\s+/g, ' ')}`,
+        args
+      );
+    }
+
+    return await this.promiser('exec', {
       sql,
       bind: args.length > 0 ? args : undefined,
       rowMode: 'array',
     });
-
-    console.timeEnd(timerLabel);
-
-    return result;
   }
 
   async initialize() {

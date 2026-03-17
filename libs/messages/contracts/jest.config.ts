@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/messages-contracts',
+  displayName: '@service-bus-management-browser/messages-contracts',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {

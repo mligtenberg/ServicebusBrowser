@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   effect,
+  input,
   model,
   signal,
 } from '@angular/core';
@@ -10,10 +11,7 @@ import { Drawer } from 'primeng/drawer';
 import { Button } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 
-import {
-  MessageFilter,
-} from '@service-bus-browser/messages-contracts';
-import { filterIsValid } from '@service-bus-browser/filtering';
+import { filterIsValid, MessageFilter } from '@service-bus-browser/filtering';
 import { Tag } from 'primeng/tag';
 import {
   applyEach,
@@ -44,6 +42,9 @@ import { BodyPropertyForm } from './body-property-form/body-property-form';
 export class MessageFilterEditorComponent {
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
+  knownSystemProperties = input<{ label: string; type: string }[]>([]);
+  knownApplicationProperties = input<{ label: string; type: string }[]>([]);
+
   shadowFilter = signal<MessageFilter>({
     systemProperties: [],
     applicationProperties: [],

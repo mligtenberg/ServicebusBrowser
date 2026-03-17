@@ -19,17 +19,17 @@ import { ContextMenu } from 'primeng/contextmenu';
 import { DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
 import { Splitter } from 'primeng/splitter';
 import { ScrollPanel } from 'primeng/scrollpanel';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 
 const repository = await getMessagesRepository();
 
@@ -71,7 +71,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   applicationPropertiesContextMenu = input<MenuItem[]>([]);
   systemPropertiesContextMenu = input<MenuItem[]>([]);
 
-  messages = input.required<ServiceBusReceivedMessage[]>();
+  messages = input.required<ReceivedMessage[]>();
   maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 
@@ -101,7 +101,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
           return [undefined];
         }
 
-        const message = messages.find((m) => m?.sequenceNumber === selection);
+        const message = messages.find((m) => m?.key === selection);
         if (message) {
           return [message];
         }
@@ -144,32 +144,21 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       return '';
     }
 
-    if (typeof message.body === 'string') {
-      return message.body;
-    }
-
-    return JSON.stringify(message.body, null, 2);
+    return new TextDecoder().decode(message.body.buffer);
   });
 
-  properties = computed<Array<{ key: string; value: unknown }>>(() => {
-    const message = this.selectedMessage();
-    if (!message) {
+  systemProperties = computed<Array<{ key: string; value: unknown }>>(() => {
+    const systemProperties = this.selectedMessage()?.systemProperties;
+
+    if (!systemProperties) {
       return [];
     }
 
-    return Object.entries(message ?? {})
-      .map(([key, value]) => ({ key, value }))
-      .filter(
-        ({ key }) => !['key', 'body', 'applicationProperties'].includes(key),
-      )
-      .map(({ key, value }) => {
-        // key should become a human readable string, not camel case
-        const keyParts = key
-          .split(/(?=[A-Z])/)
-          .map((part) => part.toLowerCase());
-        const humanReadableKey = keyParts.join(' ');
-        return { key, label: humanReadableKey, value };
-      });
+    return Object.entries(systemProperties).map(([key, value]) => ({
+      key,
+      label: key,
+      value,
+    }));
   });
   applicationProperties = computed(() => {
     const applicationProperties = this.selectedMessage()?.applicationProperties;
@@ -187,9 +176,9 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
   // statics
   cols = [
-    { field: 'sequenceNumber', header: 'Sequence' },
+    { field: 'sequence', header: 'Sequence' },
     { field: 'messageId', header: 'Id' },
-    { field: 'subject', header: 'Subject' },
+    { field: 'systemProperties.subject', header: 'Subject' },
   ];
   propertiesCols = [
     { field: 'label', header: 'Key' },
@@ -225,9 +214,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     this.messagesPaginator()?.changePage(0);
   }
 
-  protected onSelectionChange(
-    $event: (string | ServiceBusReceivedMessage)[] | string,
-  ) {
+  protected onSelectionChange($event: (string | ReceivedMessage)[] | string) {
     if (typeof $event === 'string') {
       this.selection.set($event);
       return;
@@ -238,7 +225,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     }
 
     const selection = $event
-      .map((e) => (typeof e === 'string' ? e : (e.sequenceNumber ?? '')))
+      .map((e) => (typeof e === 'string' ? e : (e.sequence ?? '')))
       .filter((e) => e !== '')
       // Distinct messages by sequence number
       .filter((e, i, arr) => arr.indexOf(e) === i);
@@ -270,6 +257,21 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
   protected onResize() {
     this.cdRef.detectChanges();
+  }
+
+  getField(data: unknown, field: string) {
+    const fieldParts = field.split('.');
+    let currentData = data;
+    for (const part of fieldParts) {
+      if (currentData === undefined || currentData === null) {
+        return undefined;
+      }
+      if (typeof currentData !== 'object') {
+        return undefined;
+      }
+      currentData = (currentData as Record<string, unknown>)[part];
+    }
+    return currentData;
   }
 
   protected readonly Date = Date;

@@ -4,20 +4,20 @@ import {
   MessageFilter,
   NumberFilter,
   PropertyFilter,
-  ServiceBusMessage,
   StringFilter,
   TimespanFilter,
-} from '@service-bus-browser/messages-contracts';
+} from './message-filter.model';
 import { Duration } from 'luxon';
+import { Message } from '@service-bus-browser/api-contracts';
 
 /**
  * Service for filtering messages based on various criteria
  */
 
-export function filterMessages<T extends ServiceBusMessage>(
-  messages: T[],
+export function filterMessages(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   if (!hasActiveFilters(filter)) {
     return messages;
   }
@@ -39,8 +39,8 @@ export function filterMessages<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-export function messageInFilter<T extends ServiceBusMessage>(
-  message: T,
+export function messageInFilter(
+  message: Message,
   filter: MessageFilter,
 ): boolean {
   if (!hasActiveFilters(filter)) {
@@ -74,10 +74,10 @@ export function messageInFilter<T extends ServiceBusMessage>(
   return true;
 }
 
-function filterBySystemProperty<T extends ServiceBusMessage>(
-  messages: T[],
+function filterBySystemProperty(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.systemProperties) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -87,24 +87,24 @@ function filterBySystemProperty<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInSystemPropertyFilter<T extends ServiceBusMessage>(
-  message: T,
+function messageInSystemPropertyFilter(
+  message: Message,
   filter: PropertyFilter,
 ): boolean {
   if (!filter.isActive) {
     return true;
   }
-  const propValue = message[filter.fieldName as keyof T];
+  const propValue = message.systemProperties?.[filter.fieldName];
   if (propValue === undefined) {
     return false;
   }
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByApplicationProperty<T extends ServiceBusMessage>(
-  messages: T[],
+function filterByApplicationProperty(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.applicationProperties) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -114,8 +114,8 @@ function filterByApplicationProperty<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(
-  message: T,
+function messageInApplicationPropertyFilter(
+  message: Message,
   filter: PropertyFilter,
 ): boolean {
   if (!filter.isActive) {
@@ -128,10 +128,10 @@ function messageInApplicationPropertyFilter<T extends ServiceBusMessage>(
   return matchesPropertyFilter(propValue, filter);
 }
 
-function filterByBody<T extends ServiceBusMessage>(
-  messages: T[],
+function filterByBody(
+  messages: Message[],
   filter: MessageFilter,
-): T[] {
+): Message[] {
   let filteredMessages = messages;
   for (const filterPart of filter.body) {
     filteredMessages = filteredMessages.filter((message) =>
@@ -141,43 +141,45 @@ function filterByBody<T extends ServiceBusMessage>(
   return filteredMessages;
 }
 
-function messageInBodyFilter<T extends ServiceBusMessage>(
-  message: T,
+function messageInBodyFilter(
+  message: Message,
   filter: BodyFilter,
 ): boolean {
   if (!filter.isActive) {
     return true;
   }
 
+  const body = new TextDecoder().decode(message.body);
+
   if (filter.filterType === 'contains') {
-    return message.body.includes(filter.value);
+    return body.includes(filter.value);
   }
 
   if (filter.filterType === 'regex') {
     try {
       const regex = new RegExp(filter.value);
-      return regex.test(message.body);
+      return regex.test(body);
     } catch (e) {
       return false;
     }
   }
 
   if (filter.filterType === 'equals') {
-    return message.body === filter.value;
+    return body === filter.value;
   }
 
   if (filter.filterType === 'notcontains') {
-    return !message.body.includes(filter.value);
+    return !body.includes(filter.value);
   }
 
   if (filter.filterType === 'notequals') {
-    return message.body !== filter.value;
+    return body !== filter.value;
   }
 
   if (filter.filterType === 'notregex') {
     try {
       const regex = new RegExp(filter.value);
-      return !regex.test(message.body);
+      return !regex.test(body);
     } catch (e) {
       return false;
     }

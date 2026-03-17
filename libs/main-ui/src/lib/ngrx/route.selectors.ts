@@ -37,7 +37,7 @@ export const selectPages = createSelector(
         ...pages.slice(page.position ?? 0),
       ];
     }
-    
+
     return pages;
   }
 );

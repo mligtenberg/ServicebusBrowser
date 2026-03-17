@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
 export const addConnection = createAction(
@@ -9,16 +9,6 @@ export const addConnection = createAction(
 
 export const checkConnection = createAction(
   '[Connections] Check Connection',
-  props<{ connection: Connection }>(),
-);
-
-export const removeConnection = createAction(
-  '[Connections] Remove Connection',
-  props<{ connectionId: UUID }>(),
-);
-
-export const activateConnection = createAction(
-  '[Connections] Activate Connection',
   props<{ connection: Connection }>(),
 );
 

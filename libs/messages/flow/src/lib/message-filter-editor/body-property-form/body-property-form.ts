@@ -8,19 +8,13 @@ import { SelectSignalFormInput } from '../../form/select-signal-form-input/selec
 import { bodyFilterTypes } from '../options';
 import {
   disabled as formDisabled,
-  DisabledReason,
   FieldTree,
   form,
   FormField,
   FormValueControl,
   required,
-  ValidationError,
-  WithOptionalField,
 } from '@angular/forms/signals';
-import {
-  BodyFilter,
-  PropertyFilter,
-} from '@service-bus-browser/messages-contracts';
+import { BodyFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-body-property-form',

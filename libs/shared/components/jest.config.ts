@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/shared-form',
+  displayName: '@service-bus-management-browser/shared-form',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/shared/form',

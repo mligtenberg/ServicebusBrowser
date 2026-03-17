@@ -1,15 +1,15 @@
 import { Component, effect, input, model, output } from '@angular/core';
 
 import {
-  Action,
+  MessageModificationAction,
   AlterAction,
   BatchActionTarget,
-  MessageFilter
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
 import { AlterBodyComponent } from './components/alter-body/alter-body.component';
 import { AlterSystemPropertiesComponent } from './components/alter-system-properties/alter-system-properties.component';
 import { AlterApplicationPropertiesComponent } from './components/alter-application-properties/alter-application-properties.component';
+import { MessageFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-alter-action-body',
@@ -25,7 +25,7 @@ import { AlterApplicationPropertiesComponent } from './components/alter-applicat
 export class AlterActionBodyComponent {
   target = input.required<BatchActionTarget>();
   messageFilter = input.required<MessageFilter>();
-  action = input<Action>();
+  action = input<MessageModificationAction>();
   alterActionUpdated = output<AlterAction | undefined>();
 
   protected alterAction = model<AlterAction | undefined>();

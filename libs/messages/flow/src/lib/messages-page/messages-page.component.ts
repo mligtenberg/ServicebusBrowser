@@ -2,16 +2,16 @@ import {
   ApplicationRef,
   Component,
   computed,
-  inject,
+  inject, input,
   linkedSignal,
   model,
   signal,
-  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import {
-  MessagesActions,
+  messagePagesActions,
+  messagesActions,
   MessagesSelectors,
 } from '@service-bus-browser/messages-store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,12 +31,10 @@ import {
   toSignal,
 } from '@angular/core/rxjs-interop';
 import {
-  MessageFilter,
   MessagePage,
-  PropertyFilter,
   ReceivedSystemPropertyKey,
-  ServiceBusReceivedMessage,
 } from '@service-bus-browser/messages-contracts';
+import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
@@ -46,18 +44,21 @@ import { MenuItem } from 'primeng/api';
 import { BASE_ROUTE } from '../const';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import {
+  PropertyValue,
+  ReceivedMessage,
+  SendEndpoint,
+} from '@service-bus-browser/api-contracts';
 import { Menu } from 'primeng/menu';
 import { MessageFilterEditorComponent } from '../message-filter-editor/message-filter-editor.component';
 import { Tooltip } from 'primeng/tooltip';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
-import { systemPropertyKeys } from '@service-bus-browser/topology-contracts';
+import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
 import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import MessagesViewer from '../messages-viewer/messages-viewer';
-import { ResendMessagesUtil } from '../resendmessages-util';
 
 const repository = await getMessagesRepository();
 
@@ -81,7 +82,6 @@ const repository = await getMessagesRepository();
   styleUrl: './messages-page.component.scss',
 })
 export class MessagesPageComponent {
-  resendMessagesUtil = inject(ResendMessagesUtil);
   systemPropertyHelpers = inject(SystemPropertyHelpers);
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
@@ -96,7 +96,7 @@ export class MessagesPageComponent {
   displayFilterEditor = model<boolean>(false);
   sendEndpoint = model<SendEndpoint | null>(null);
   currentPage = signal<MessagePage | null>(null);
-  menuMessagesSelection = signal<ServiceBusReceivedMessage[]>([]);
+  menuMessagesSelection = signal<ReceivedMessage[]>([]);
   messageFilter = computed(() => {
     const currentPage = this.currentPage();
     return (
@@ -108,13 +108,32 @@ export class MessagesPageComponent {
     );
   });
   virtualMessages = linkedSignal(() =>
-    Array.from<ServiceBusReceivedMessage>({
+    Array.from<ReceivedMessage>({
       length: this.filteredMessageCount() ?? 0,
     }),
   );
 
   selection = signal<string[]>([]);
   isLoading = signal(false);
+
+  knownSystemProperties = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getSystemPropertyLabels(pageId));
+      }),
+    ), { initialValue: [] }
+  )
+  knownApplicationProperties = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getApplicationPropertyLabels(pageId));
+      }),
+    ), { initialValue: [] }
+  );
 
   totalMessageCount = toSignal(
     toObservable(this.currentPage).pipe(
@@ -198,24 +217,16 @@ export class MessagesPageComponent {
     return JSON.stringify(message.body, null, 2);
   });
 
-  properties = computed<Array<{ key: string; value: unknown }>>(() => {
+  properties = computed<Array<{ key: string; value: PropertyValue }>>(() => {
     const currentPage = this.currentPage();
     const message = this.selectedMessage();
     if (!currentPage || !message) {
       return [];
     }
 
-    return [
-      { key: 'contentType', value: message.contentType },
-      { key: 'correlationId', value: message.correlationId },
-      { key: 'enqueueSequenceNumber', value: message.enqueuedSequenceNumber },
-      { key: 'enqueuedTimeUtc', value: message.enqueuedTimeUtc },
-      { key: 'messageId', value: message.messageId },
-      { key: 'sequenceNumber', value: message.sequenceNumber },
-      { key: 'subject', value: message.subject },
-      { key: 'timeToLive', value: message.timeToLive },
-      { key: 'to', value: message.to },
-    ];
+    return Object.entries(message.systemProperties ?? {}).map(
+      ([key, value]) => ({ key, value }),
+    );
   });
 
   systemPropertiesContextMenuSelection = signal<
@@ -452,11 +463,14 @@ export class MessagesPageComponent {
     }
 
     this.displaySendMessages.set(false);
-    this.resendMessagesUtil.resendMessages(
-      endpoint,
-      this.currentPage()!.id,
-      this.messageFilter(),
-      sendAllMessages ? undefined : selection,
+    this.store.dispatch(
+      messagePagesActions.resendMessages({
+        pageId: this.currentPage()!.id,
+        messageFilter: this.messageFilter(),
+        selectionKeys: sendAllMessages ? undefined : selection,
+        endpoint: endpoint,
+        modificationActions: [],
+      }),
     );
   }
 
@@ -467,10 +481,10 @@ export class MessagesPageComponent {
     }
 
     this.store.dispatch(
-      MessagesActions.exportMessages({
+      messagePagesActions.exportMessages({
         pageId: currentPage.id,
         filter: this.messageFilter(),
-        selection: allMessages ? undefined : this.selection(),
+        selectionKeys: allMessages ? undefined : this.selection(),
       }),
     );
   }
@@ -484,7 +498,7 @@ export class MessagesPageComponent {
     this.virtualMessages.set([]);
 
     this.store.dispatch(
-      MessagesActions.setPageFilter({
+      messagePagesActions.setPageFilter({
         pageId: this.currentPage()!.id,
         filter: filter,
       }),
@@ -573,18 +587,18 @@ export class MessagesPageComponent {
   protected onSelectionChange($event: string[] | string | undefined) {
     if (!$event) {
       this.store.dispatch(
-        MessagesActions.setPageSelection({
+        messagePagesActions.setPageSelection({
           pageId: this.currentPage()!.id,
-          sequenceNumbers: [],
+          selectionKeys: [],
         }),
       );
       return;
     }
 
     this.store.dispatch(
-      MessagesActions.setPageSelection({
+      messagePagesActions.setPageSelection({
         pageId: this.currentPage()!.id,
-        sequenceNumbers: typeof $event === 'string' ? [$event] : $event,
+        selectionKeys: typeof $event === 'string' ? [$event] : $event,
       }),
     );
     this.appRef.tick();

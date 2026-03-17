@@ -1,39 +1,33 @@
-import {
-  MessageFilter,
-  ServiceBusReceivedMessage,
-} from '@service-bus-browser/messages-contracts';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import { Page } from './models/page';
 import { getMessagesDb } from './get-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import { PagesDatabase } from './pages-database';
 
 export class MessagesRepository {
-  database: IDBDatabase;
+  constructor(private pagesDb: PagesDatabase) {}
 
-  constructor(database: IDBDatabase) {
-    this.database = database;
+  async addPage(page: Page) {
+    await this.pagesDb.addPage(page);
   }
 
-  async addPage(page: Omit<Page, 'messageStorage'>) {
-    await new Promise((resolve, reject) => {
-      const pagesStore = this.database
-        .transaction('pages', 'readwrite')
-        .objectStore('pages');
-      const request = pagesStore.put({
-        name: page.name,
-        retrievedAt: page.retrievedAt,
-        id: page.id,
-        messageStorage: 'sqlite'
-      } as Page);
-
-      request.onsuccess = resolve;
-      request.onerror = reject;
-    });
-  }
-
-  async addMessages(pageId: UUID, messages: ServiceBusReceivedMessage[]) {
+  async addMessages(pageId: UUID, messages: ReceivedMessage[]) {
     const page = await this.getPage(pageId);
     const messagesDb = await this.getMessagesDb(page);
     return await messagesDb.addMessages(messages);
+  }
+
+  async getSystemPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getSystemPropertyLabels();
+  }
+
+  async getApplicationPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getApplicationPropertyLabels();
   }
 
   async countMessages(
@@ -73,15 +67,12 @@ export class MessagesRepository {
 
   async walkMessagesWithCallback(
     pageId: UUID,
-    callback: (
-      message: ServiceBusReceivedMessage,
-      index: number,
-    ) => void | Promise<void>,
+    callback: (message: ReceivedMessage, index: number) => void | Promise<void>,
     filter?: MessageFilter,
     skip?: number,
     take?: number,
     ascending?: boolean,
-    selection?: string[],
+    selectionKeys?: string[],
   ) {
     const page = await this.getPage(pageId);
     const messagesDb = await this.getMessagesDb(page);
@@ -91,42 +82,25 @@ export class MessagesRepository {
       skip,
       take,
       ascending,
-      selection,
+      selectionKeys,
     );
   }
 
   async getPages() {
-    const pagesStore = this.database
-      .transaction('pages', 'readonly')
-      .objectStore('pages');
-    return await new Promise<Page[]>((resolve, reject) => {
-      const request = pagesStore.getAll();
-      request.onsuccess = (event) => resolve((event.target as any).result);
-    });
+    return await this.pagesDb.getPages();
   }
 
   async getPage(pageId: UUID) {
-    const pagesStore = this.database
-      .transaction('pages', 'readonly')
-      .objectStore('pages');
-    return await new Promise<Page>((resolve, reject) => {
-      const request = pagesStore.get(pageId);
-      request.onsuccess = (event) => resolve((event.target as any).result);
-    }).then((page) => ({
-      ...page,
-      messageStorage: page.messageStorage ?? 'indexeddb',
-    }));
+    const page = await this.pagesDb.getPage(pageId);
+    if (!page) {
+      throw new Error(`Page with id ${pageId} not found`);
+    }
+
+    return page;
   }
 
   async updatePageName(pageId: UUID, pageName: string) {
-    const page = await this.getPage(pageId);
-    const pagesStore = this.database
-      .transaction('pages', 'readwrite')
-      .objectStore('pages');
-    pagesStore.put({
-      ...page,
-      name: pageName,
-    } as Page);
+    await this.pagesDb.updatePageName(pageId, pageName);
   }
 
   async closePage(pageId: UUID) {
@@ -134,11 +108,7 @@ export class MessagesRepository {
     const messagesDb = await this.getMessagesDb(page);
     await messagesDb.deleteDatabase();
 
-    const pagesStore = this.database
-      .transaction('pages', 'readwrite')
-      .objectStore('pages');
-
-    pagesStore.delete(pageId);
+    await this.pagesDb.closePage(pageId);
   }
 
   private async getMessagesDb(page: Page) {

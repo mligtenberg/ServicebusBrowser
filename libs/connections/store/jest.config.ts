@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/connections-store',
+  displayName: '@service-bus-management-browser/connections-store',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/connections/store',

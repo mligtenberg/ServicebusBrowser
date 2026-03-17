@@ -1,9 +1,9 @@
-import { ConnectionStore } from '@service-bus-browser/service-bus-clients';
-import { Connection } from '@service-bus-browser/message-queue-contracts';
+import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { safeStorage } from 'electron';
 import path from 'path';
 import * as fs from 'fs';
+import { ConnectionStore } from '@service-bus-browser/service-bus-server';
 
 export class SecureConnectionStorage implements ConnectionStore {
   connectionsPath: string;
@@ -44,7 +44,24 @@ export class SecureConnectionStorage implements ConnectionStore {
     if (fs.existsSync(this.connectionsPath)) {
       const fileContentBuffer = fs.readFileSync(this.connectionsPath);
       const fileContent = safeStorage.decryptString(fileContentBuffer);
-      return JSON.parse(fileContent);
+      const connections = JSON.parse(fileContent);
+      return [
+        ...Object.values(connections)
+          .map((c) => c as Connection)
+          .map(
+            (connection: Connection) =>
+              ({
+                ...connection,
+                target: connection.target ?? 'serviceBus',
+              }) as Connection,
+          ),
+      ].reduce(
+        (acc, connection) => ({
+          ...acc,
+          [connection.id]: connection,
+        }),
+        {},
+      );
     }
 
     return {};

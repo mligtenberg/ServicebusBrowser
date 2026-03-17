@@ -63,6 +63,10 @@ export function getMenu(isDev: boolean) {
         {
           label: 'Toggle Developer Tools',
           role: 'toggleDevTools',
+        },
+        {
+          label: 'About',
+          role: 'about'
         }
       ]
     });

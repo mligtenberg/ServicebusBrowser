@@ -1,17 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  Action,
-  AddAction,
-  AlterAction,
-  BatchActionTarget,
-  MessageFilter,
-  RemoveAction,
-} from '@service-bus-browser/messages-contracts';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import {
+  messagePagesActions,
+  messagesActions,
+} from '@service-bus-browser/messages-store';
 import { ButtonModule } from 'primeng/button';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { DrawerModule } from 'primeng/drawer';
@@ -19,7 +14,10 @@ import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import {
+  SendEndpoint,
+  ToMessageToSend,
+} from '@service-bus-browser/api-contracts';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
@@ -27,7 +25,14 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { PreviewBatch } from './components/preview-batch/preview-batch';
-import { ResendMessagesUtil } from '../resendmessages-util';
+import { MessageFilter } from '@service-bus-browser/filtering';
+import {
+  AddAction,
+  AlterAction,
+  BatchActionTarget,
+  MessageModificationAction,
+  RemoveAction,
+} from '@service-bus-browser/message-modification-engine';
 
 const repository = await getMessagesRepository();
 
@@ -54,7 +59,6 @@ const repository = await getMessagesRepository();
 export class MessagesBatchResendComponent {
   private activatedRoute = inject(ActivatedRoute);
   protected darkMode = inject(ColorThemeService).darkMode;
-  private resendUtil = inject(ResendMessagesUtil);
 
   selection = toSignal<string[]>(
     this.activatedRoute.url.pipe(map(() => history.state.selection)),
@@ -87,13 +91,13 @@ export class MessagesBatchResendComponent {
   private router = inject(Router);
   private fileService = inject(FilesService);
 
-  protected actions = signal<Action[]>([]);
+  protected actions = signal<MessageModificationAction[]>([]);
   protected previewDrawerVisible = signal(false);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
   protected selectedEndpointForPreview = model<SendEndpoint | null>(null);
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
-  protected currentAction = model<Action | undefined>();
+  protected currentAction = model<MessageModificationAction | undefined>();
   protected selectedMessageSequence = model<string | undefined>(undefined);
 
   protected previewMessage = toSignal(
@@ -186,7 +190,7 @@ export class MessagesBatchResendComponent {
 
     const actionContainer = JSON.parse(file.contents) as {
       verion: number;
-      actions: Action[];
+      actions: MessageModificationAction[];
     };
     this.actions.set(actionContainer.actions);
   }
@@ -227,17 +231,26 @@ export class MessagesBatchResendComponent {
     if (!selectedEndpoint) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Missing Endpoint',
-        detail: 'Please select a destination endpoint for resending messages',
+        summary: 'Missing endpoints',
+        detail:
+          'Please select a destination endpoint for resending messages',
       });
       return;
     }
 
+    const sendMessage = ToMessageToSend(selectedMessage);
+
     try {
       this.store.dispatch(
-        MessagesActions.sendMessages({
+        messagesActions.sendMessage({
           endpoint: selectedEndpoint,
-          messages: [selectedMessage],
+          message: {
+            bodyBase64: (sendMessage.body as any).toBase64(),
+            messageId: sendMessage.messageId,
+            systemProperties: sendMessage.systemProperties,
+            contentType: sendMessage.contentType,
+            applicationProperties: sendMessage.applicationProperties,
+          },
         }),
       );
 
@@ -262,21 +275,23 @@ export class MessagesBatchResendComponent {
     if (!selectedEndpoint) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Missing Endpoint',
-        detail: 'Please select a destination endpoint for resending messages',
+        summary: 'Missing endpoints',
+        detail:
+          'Please select a destination endpoint for resending messages',
       });
       return;
     }
 
     const pageId = this.pageId();
     const selection = this.selection();
-    await this.resendUtil.resendMessages(
-      selectedEndpoint,
+
+    this.store.dispatch(messagePagesActions.resendMessages({
       pageId,
-      this.messageFilter(),
-      selection,
-      this.actions(),
-    );
+      endpoint: selectedEndpoint,
+      messageFilter: this.messageFilter(),
+      selectionKeys: selection,
+      modificationActions: this.actions(),
+    }))
 
     // Close the preview drawer if it's open
     this.previewDrawerVisible.set(false);
@@ -305,7 +320,7 @@ export class MessagesBatchResendComponent {
     return targetMap[target] || target;
   }
 
-  getActionDescription(action: Action): string {
+  getActionDescription(action: MessageModificationAction): string {
     switch (action.type) {
       case 'add': {
         const addAction = action as AddAction;

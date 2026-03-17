@@ -9,12 +9,7 @@ import {
 } from '@angular/core';
 
 import { Store } from '@ngrx/store';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
-import { TopologySelectors } from '@service-bus-browser/topology-store';
-import {
-  QueueWithMetaData,
-  TopicWithMetaData,
-} from '@service-bus-browser/topology-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { TopologyTreeComponent } from '../topology-tree/topology-tree.component';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -39,7 +34,7 @@ export class EndpointSelectorTreeInputComponent
 
   store = inject(Store);
   disabled = signal(false);
-  namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
+  // namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   value = signal<SendEndpoint | null>(null);
   selected = output<SendEndpoint>();
 
@@ -57,24 +52,6 @@ export class EndpointSelectorTreeInputComponent
     });
   }
 
-  onQueueSelected($event: { namespaceId: string; queue: QueueWithMetaData }) {
-    this.value.set({
-      endpoint: $event.queue.metaData.endpoint,
-      queueName: $event.queue.name,
-      connectionId: $event.queue.namespaceId,
-      endpointDisplay: $event.queue.metaData.endpointDisplay,
-    });
-  }
-
-  onTopicSelected($event: { namespaceId: string; topic: TopicWithMetaData }) {
-    this.value.set({
-      endpoint: $event.topic.metadata.endpoint,
-      topicName: $event.topic.name,
-      connectionId: $event.topic.namespaceId,
-      endpointDisplay: $event.topic.metadata.endpointDisplay,
-    });
-  }
-
   writeValue(obj: SendEndpoint | null): void {
     this.value.set(obj);
   }
@@ -88,5 +65,9 @@ export class EndpointSelectorTreeInputComponent
   }
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
+  }
+
+  protected onSendEndpointSelected($event: SendEndpoint) {
+    this.value.set($event);
   }
 }

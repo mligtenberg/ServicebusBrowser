@@ -1,16 +1,8 @@
-import {
-  MessageFilter,
-  PropertyFilter,
-} from '@service-bus-browser/messages-contracts';
+import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 
 export type WhereClause = {
   clause: string;
   args: Array<string | number | boolean | null>;
-};
-
-const SYSTEM_PROPERTY_COLUMN_MAP: Record<string, string> = {
-  state: 'messageState',
-  to: 'messageTo',
 };
 
 export function combineWhereClauses(clauses: WhereClause[]): WhereClause {
@@ -85,12 +77,29 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
   }
 
   for (const systemPropertyFilter of filter.systemProperties) {
+    if (!systemPropertyFilter.isActive) {
+      continue;
+    }
+
+    const appClauses: string[] = [
+      'messageId = messages.id',
+      'propertyName = ?',
+    ];
+    const appArgs: Array<string | number | boolean | null> = [
+      systemPropertyFilter.fieldName,
+    ];
+
     appendPropertyClause(
-      clauses,
-      args,
+      appClauses,
+      appArgs,
       systemPropertyFilter,
-      resolveSystemPropertyColumn(systemPropertyFilter.fieldName),
+      'propertyValue',
     );
+
+    clauses.push(
+      `EXISTS (SELECT 1 FROM systemProperties WHERE ${appClauses.join(' AND ')})`,
+    );
+    args.push(...appArgs);
   }
 
   for (const applicationPropertyFilter of filter.applicationProperties) {
@@ -247,9 +256,6 @@ function appendPropertyClause(
   }
 }
 
-function resolveSystemPropertyColumn(fieldName: string): string {
-  return SYSTEM_PROPERTY_COLUMN_MAP[fieldName] ?? fieldName;
-}
 
 export function getWhereClause(filter?: MessageFilter, selection?: string[]) {
   const filterWhereClause = filterToWhereClause(filter);

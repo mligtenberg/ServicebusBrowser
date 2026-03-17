@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { ServiceBusMessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilesService {
-  electronClient = inject(ServiceBusMessagesFrontendClient);
+  electronClient = inject(MessagesFrontendClient);
 
   async saveFile(
     fileName: string,

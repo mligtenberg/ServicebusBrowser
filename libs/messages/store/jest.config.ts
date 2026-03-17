@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/messages-store',
+  displayName: '@service-bus-management-browser/messages-store',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/messages/store',

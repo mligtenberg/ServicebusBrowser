@@ -1,5 +1,5 @@
 export default {
-  displayName: '@service-bus-browser/services',
+  displayName: '@service-bus-management-browser/services',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/libs/shared/services',

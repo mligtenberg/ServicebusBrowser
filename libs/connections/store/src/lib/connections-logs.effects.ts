@@ -19,26 +19,10 @@ export class ConnectionsLogsEffects {
     { dispatch: false },
   )
 
-  logConnectionRemoved$ = createEffect(
-    () => this.actions$.pipe(
-      ofType(internalActions.connectionRemoved),
-      tap(({ connectionId }) => this.logger.info(`Connection with id ${connectionId} has been removed`)),
-    ),
-    { dispatch: false },
-  )
-
   logFailedToAddConnection$ = createEffect(
     () => this.actions$.pipe(
       ofType(internalActions.failedToAddConnection),
       tap(({ connectionId, error }) => this.logger.error(`Failed to add connection with id ${connectionId}: ${error.title}`)),
-    ),
-    { dispatch: false },
-  )
-
-  logFailedToRemoveConnection$ = createEffect(
-    () => this.actions$.pipe(
-      ofType(internalActions.failedToRemoveConnection),
-      tap(({ connectionId, error }) => this.logger.error(`Failed to remove connection with id ${connectionId}: ${error.title}`)),
     ),
     { dispatch: false },
   )

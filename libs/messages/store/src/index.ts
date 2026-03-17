@@ -3,18 +3,15 @@ import { provideState } from '@ngrx/store';
 import { feature } from './lib/messages.store';
 import { provideEffects } from '@ngrx/effects';
 import { MessagesEffects } from './lib/messages.effects';
-import { MessagesTasksEffects } from './lib/messages-tasks.effects';
-import { MessagesLogsEffects } from './lib/messages-logs.effects';
-import { MessagesToastsEffects } from './lib/messages-toasts.effects';
 
-import * as actions from './lib/messages.actions';
+export * from './lib/messages.actions';
+export * from './lib/messages.effect-actions';
+
 import * as selectors from './lib/messages.selectors';
-import * as internalActions from './lib/messages.internal-actions';
+export const MessagesSelectors = selectors;
+
 import { MessagesDbEffects } from './lib/messages-db.effects';
 
-export const MessagesActions = actions;
-export const MessagesEffectActions = internalActions;
-export const MessagesSelectors = selectors;
 
 export function provideMessagesState(): (
   | Provider
@@ -24,11 +21,8 @@ export function provideMessagesState(): (
     provideState(feature),
     provideEffects([
       MessagesEffects,
-      MessagesTasksEffects,
-      MessagesLogsEffects,
-      MessagesToastsEffects,
       MessagesDbEffects
-    ]),
+    ])
   ];
 }
 

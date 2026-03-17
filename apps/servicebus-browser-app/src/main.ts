@@ -2,7 +2,6 @@ import SquirrelEvents from './app/events/squirrel.events';
 import ElectronEvents from './app/events/electron.events';
 import { app, BrowserWindow, protocol, session } from 'electron';
 import App from './app/app';
-import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import ServiceBusEvents from './app/events/service-bus.events';
 import UpdateEvents from './app/events/update.events';
 import * as fs from 'node:fs';
@@ -14,7 +13,9 @@ protocol.registerSchemesAsPrivileged([
       standard: true,
       secure: true,
       supportFetchAPI: true,
-      stream: true,
+      stream: false,
+      allowServiceWorkers: true,
+      corsEnabled: true,
     },
   },
 ]);
@@ -43,28 +44,40 @@ export default class Main {
 // handle setup events as quickly as possible
 Main.initialize();
 
-// bootstrap app
-Main.bootstrapApp();
-Main.bootstrapAppEvents();
+async function initExtensions() {
+  if (!App.isDevelopmentMode()) {
+    return;
+  }
+
+  // if a file called extensions.json exists, thread it as a string array of extensions to install
+  const extensionsJsonPath = './extensions.json';
+  // if file exists, load contents and parse as array of extensions to install
+  const contents = fs.existsSync(extensionsJsonPath)
+    ? JSON.parse(fs.readFileSync(extensionsJsonPath, 'utf8'))
+    : [];
+
+  const installedExtensions = session.defaultSession.extensions.getAllExtensions();
+  for (const extension of installedExtensions) {
+    await session.defaultSession.extensions.removeExtension(extension.name);
+  }
+
+  for (const extension of contents) {
+    console.log(`Installing extensions: ${extension}`);
+    await session.defaultSession.extensions.loadExtension(extension);
+  }
+}
+
+
+  // bootstrap app
+  Main.bootstrapApp();
+  Main.bootstrapAppEvents();
 
 if (App.isDevelopmentMode()) {
-  App.application.whenReady().then(() => {
-    installExtension(REDUX_DEVTOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .then(async () => {
-        // if a file called extensions.json exists, thread it as a string array of extensions to install
-        const extensionsJsonPath = './extensions.json';
-        // if file exists, load contents and parse as array of extensions to install
-        const contents = fs.existsSync(extensionsJsonPath) ? JSON.parse(fs.readFileSync(extensionsJsonPath, 'utf8')) : [];
-
-        console.log(`Installing extensions: ${contents}`);
-        for (const extension of contents) {
-          await session.defaultSession.extensions.loadExtension(extension);
-        }
-      })
-      .then(() => {
-        App.mainWindow.webContents.openDevTools();
-      })
-      .catch((err) => console.log('An error occurred: ', err));
-  });
+  App.application
+    .whenReady()
+    .then(() => initExtensions())
+    .then(() => {
+      App.mainWindow?.webContents.openDevTools();
+    })
+    .catch((err) => console.log('An error occurred: ', err));
 }

@@ -21,7 +21,7 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 import { EndpointSelectorTreeInputComponent } from '../endpoint-selector-tree-input/endpoint-selector-tree-input.component';
 
 @Component({
@@ -53,7 +53,6 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   store = inject(Store);
   disabled = signal(false);
   dialogVisible = signal(false);
-  namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   value = model<SendEndpoint | null>(null);
 
   connectionsFilter = input<string[]>();

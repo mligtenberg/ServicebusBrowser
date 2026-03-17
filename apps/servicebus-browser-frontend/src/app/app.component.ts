@@ -2,9 +2,8 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
-import { MessagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions, } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
-import { TopologyActions } from '@service-bus-browser/topology-store';
 
 interface ElectronWindow {
   electron?: {
@@ -107,11 +106,10 @@ export class AppComponent {
     this.electron?.onFullScreenChanged?.((full) => {
       this.fullscreen.set(full);
     });
-    this.store.dispatch(TopologyActions.loadNamespaces());
   }
 
   importMessages(): void {
-    this.store.dispatch(MessagesActions.importMessages());
+    this.store.dispatch(messagesActions.startImportMessages());
   }
 
   setDarkMode(darkMode: boolean) {

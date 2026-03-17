@@ -6,26 +6,33 @@ export const appRoutes: Route[] = [
   {
     path: '',
     canActivate: [MsalGuard],
-    loadComponent: () => import('./main-app/main-app').then(m => m.MainApp),
+    loadComponent: () => import('./main-app/main-app').then((m) => m.MainApp),
     children: [
       {
-        path: 'manage-topology',
-        loadChildren: () => import('@service-bus-browser/manage-topology-flow').then(m => m.routes)
+        path: 'manage-service-bus',
+        loadChildren: () =>
+          import('@service-bus-browser/service-bus-management-flow').then(
+            (m) => m.routes,
+          ),
       },
       {
         path: 'messages',
-        loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes({
-          baseRoute: 'messages'
-        }))
+        loadChildren: () =>
+          import('@service-bus-browser/messages-flow').then((m) =>
+            m.routes({
+              baseRoute: 'messages',
+            }),
+          ),
       },
       {
         path: 'about',
-        component: AboutComponent
-      }
-    ]
+        component: AboutComponent,
+      },
+    ],
   },
   {
     path: 'login-failed',
-    loadComponent: () => import('./login-failed/login-failed').then(m => m.LoginFailed)
-  }
+    loadComponent: () =>
+      import('./login-failed/login-failed').then((m) => m.LoginFailed),
+  },
 ];

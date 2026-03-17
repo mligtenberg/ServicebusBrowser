@@ -79,7 +79,7 @@
       scrollHeight="flex"
       [loading]="isLoading()"
       [virtualScroll]="true"
-      [virtualScrollItemSize]="36"
+      [virtualScrollItemSize]="42"
       stripedRows
       [selection]="selection()"
       (selectionChange)="onSelectionChange($event)"
@@ -106,14 +106,14 @@
         let-columns="columns"
       >
         <tr
-          [pContextMenuRow]="rowData.sequenceNumber"
-          [pSelectableRow]="rowData.sequenceNumber"
+          [pContextMenuRow]="rowData.key"
+          [pSelectableRow]="rowData.key"
           [pContextMenuRowIndex]="rowIndex"
           [pSelectableRowIndex]="rowIndex"
         >
           @for (col of columns; track col) {
             <td>
-              {{ rowData[col.field] }}
+              {{ getField(rowData, col.field) }}
             </td>
           }
         </tr>
@@ -149,7 +149,7 @@
       appendTo="body" />
     <p-table
       [columns]="propertiesCols"
-      [value]="properties()"
+      [value]="systemProperties()"
       [virtualScroll]="false"
       dataKey="key"
       [contextMenu]="showSystemPropertiesContextMenu() ? propertyMenu : undefined"

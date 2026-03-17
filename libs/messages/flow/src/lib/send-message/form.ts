@@ -1,4 +1,4 @@
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 
 type SystemStringPropertyKeys =
   | 'correlationId'

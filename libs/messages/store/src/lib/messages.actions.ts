@@ -1,106 +1,65 @@
-import { createAction, props } from '@ngrx/store';
+import {
+  createActionGroup,
+  emptyProps,
+  props,
+} from '@ngrx/store';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import {
+  Message,
   ReceiveEndpoint,
+  ReceiveOptions,
   SendEndpoint,
-} from '@service-bus-browser/message-queue-contracts';
-import {
-  MessageFilter,
-  ServiceBusMessage,
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/api-contracts';
+import { MessageModificationAction } from '@service-bus-browser/message-modification-engine';
+import { MessageFilter } from '@service-bus-browser/filtering';
 
-export const loadMessages = createAction(
-  '[Messages] load messages',
-  props<{
-    endpoint: ReceiveEndpoint;
-    maxAmount: number;
-    fromSequenceNumber?: string;
-    receiveType: 'peek' | 'receive';
-  }>(),
-);
+export const messagesActions = createActionGroup({
+  source: 'messages',
+  events: {
+    'load messages from endpoint': props<{
+      endpoint: ReceiveEndpoint;
+      options: ReceiveOptions;
+    }>(),
+    'start import messages': emptyProps(),
+    'clear endpoint': props<{
+      endpoint: ReceiveEndpoint;
+    }>(),
+    'send message': props<{
+      endpoint: SendEndpoint;
+      message: Omit<Message, 'body'> & { bodyBase64: string };
+    }>(),
+  },
+});
 
-export const closePage = createAction(
-  '[Messages] close page',
-  props<{
-    pageId: UUID;
-  }>(),
-);
-
-export const loadMessagesLoadingDone = createAction(
-  '[Messages] peek messages finished loading',
-  props<{
-    pageId: UUID;
-    endpoint: ReceiveEndpoint;
-    receiveType: 'peek' | 'receive';
-  }>(),
-);
-
-export const clearEndpoint = createAction(
-  '[Messages] clear endpoint',
-  props<{
-    endpoint: ReceiveEndpoint;
-    messagesToClearCount: number;
-  }>(),
-);
-
-export const clearedEndpoint = createAction(
-  '[Messages] cleared endpoint',
-  props<{
-    endpoint: ReceiveEndpoint;
-  }>(),
-);
-
-export const sendMessage = createAction(
-  '[Messages] send message',
-  props<{
-    endpoint: SendEndpoint;
-    message: ServiceBusMessage;
-  }>(),
-);
-
-export const sendMessages = createAction(
-  '[Messages] send messages',
-  props<{
-    endpoint: SendEndpoint;
-    messages: ServiceBusMessage[];
-  }>(),
-);
-
-export const sendPartialBatch = createAction(
-  '[Messages] send partial batch',
-  props<{
-    transactionId: UUID;
-    endpoint: SendEndpoint;
-    messages: ServiceBusMessage[];
-    alreadySentAmount: number;
-    totalAmount: number;
-    lastBatch: boolean;
-  }>(),
-);
-
-export const exportMessages = createAction(
-  '[Messages] export messages',
-  props<{
-    pageId: UUID;
-    filter?: MessageFilter;
-    selection?: string[];
-  }>(),
-);
-
-export const importMessages = createAction('[Messages] import messages');
-
-export const setPageFilter = createAction(
-  '[Messages] set page filter',
-  props<{
-    pageId: UUID;
-    filter: MessageFilter;
-  }>(),
-);
-
-export const setPageSelection = createAction(
-  '[Messages] set page selection',
-  props<{
-    pageId: UUID;
-    sequenceNumbers: string[] | undefined;
-  }>(),
-);
+export const messagePagesActions = createActionGroup({
+  source: 'message pages',
+  events: {
+    'set page filter': props<{
+      pageId: UUID;
+      filter: MessageFilter;
+    }>(),
+    'set page selection': props<{
+      pageId: UUID;
+      selectionKeys: string[];
+    }>(),
+    'rename page': props<{
+      pageId: UUID;
+      pageName: string;
+    }>(),
+    'close page': props<{
+      pageId: UUID;
+    }>(),
+    'export messages': props<{
+      pageId: UUID;
+      filter?: MessageFilter;
+      selectionKeys?: string[];
+    }>(),
+    'Resend messages': props<{
+      endpoint: SendEndpoint;
+      pageId: UUID;
+      messageFilter?: MessageFilter;
+      selectionKeys?: string[];
+      modificationActions: MessageModificationAction[];
+    }>(),
+  },
+});

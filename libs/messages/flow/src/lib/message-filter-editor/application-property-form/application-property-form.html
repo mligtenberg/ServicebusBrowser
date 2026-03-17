@@ -7,10 +7,13 @@
     />
   </p-inputgroup-addon>
 
-  <input
-    pInputText
+  <lib-select-signal-form-input
+    [options]="systemApplicationOptions()"
     [formField]="propertyForm.fieldName"
-    placeholder="Property Name"
+    (valueChange)="onApplicationPropertyChange($event)"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="Select Property"
     class="fieldName"
   />
 

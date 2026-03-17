@@ -1,19 +1,19 @@
 import { Component, computed, effect, input, model, output } from '@angular/core';
 
 import {
-  Action,
+  MessageModificationAction,
   AlterAction,
   AlterApplicationPropertyActions,
   AlterApplicationPropertyPartialReplaceAction,
   AlterType,
-  PropertyValue
-} from '@service-bus-browser/messages-contracts';
+} from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { Tooltip } from 'primeng/tooltip';
+import { PropertyValue } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'lib-alter-application-properties',
@@ -32,7 +32,7 @@ import { Tooltip } from 'primeng/tooltip';
 export class AlterApplicationPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
 
-  action = input<Action>();
+  action = input<MessageModificationAction>();
   protected alterType = model<AlterType>('fullReplace');
   protected fieldName = model<string>('');
   protected value = model<PropertyValue | undefined>();

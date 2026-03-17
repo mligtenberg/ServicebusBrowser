@@ -1,0 +1,28 @@
+.load-form {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  flex-direction: column;
+  margin: 1rem 0;
+  min-width: 20rem;
+
+  ::ng-deep p-select-button {
+    display: flex;
+    > * {
+      flex: 1;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+p-floatlabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

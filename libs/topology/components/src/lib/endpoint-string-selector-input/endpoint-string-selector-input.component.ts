@@ -6,7 +6,7 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from '@angular/forms';
-import { SendEndpoint } from '@service-bus-browser/message-queue-contracts';
+import { SendEndpoint } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'sbb-tpl-endpoint-string-selector-input',
@@ -32,12 +32,12 @@ export class EndpointStringSelectorInputComponent
   connectionsFilter = input<string[]>();
 
   writeValue(obj: string): void {
-    this.endpoint.set({
-      endpoint: obj,
-      queueName: '',
-      connectionId: '0-0-0-0-0',
-      endpointDisplay: obj,
-    });
+    // this.endpoint.set({
+    //   endpoint: obj,
+    //   queueName: '',
+    //   connectionId: '0-0-0-0-0',
+    //   endpointDisplay: obj,
+    // });
   }
   registerOnChange(fn: (_: string | null) => void): void {
     this.onChange = fn;

@@ -1,5 +1,5 @@
-import { SYSTEM_PROPERTIES } from '@service-bus-browser/messages-contracts';
 import { SystemPropertyKeys } from '../send-message/form';
+import { SYSTEM_PROPERTIES } from '@service-bus-browser/filtering';
 
 export const propertyTypes = [
   { label: 'Text', value: 'string' },

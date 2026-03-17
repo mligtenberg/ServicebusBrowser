@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import {
-  MessagesActions,
-  MessagesEffectActions,
+  messagePagesEffectActions,
 } from '@service-bus-browser/messages-store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { from, switchMap } from 'rxjs';
@@ -17,18 +16,7 @@ export class RouterEffects {
   navigateTo$ = createEffect(
     () =>
       this.actions.pipe(
-        ofType(MessagesActions.loadMessagesLoadingDone),
-        switchMap(({ pageId }) =>
-          from(this.router.navigate(['messages', 'page', pageId])),
-        ),
-      ),
-    { dispatch: false },
-  );
-
-  navigateToImportedPage$ = createEffect(
-    () =>
-      this.actions.pipe(
-        ofType(MessagesEffectActions.messagesImported),
+        ofType(messagePagesEffectActions.pageLoaded, messagePagesEffectActions.pageLoadCancelled),
         switchMap(({ pageId }) =>
           from(this.router.navigate(['messages', 'page', pageId])),
         ),

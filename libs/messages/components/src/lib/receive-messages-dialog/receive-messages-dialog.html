@@ -1,0 +1,59 @@
+<p-dialog
+  [modal]="true"
+  [visible]="loadMessagesDialogVisible()"
+  [closable]="false"
+  appendTo="body"
+  [header]="'Load ' + receiveEndpoint()?.displayName + ' messages'"
+>
+  <div class="load-form">
+    <ng-template [ngTemplateOutlet]="optionsTemplate" [ngTemplateOutletContext]="{ $implicit: defaultOptionModel() }"></ng-template>
+    <p-select-button [options]="receiveModes()" [ngModel]="options().receiveMode" (ngModelChange)="updateOptions('receiveMode', $event)"/>
+    <ng-template [ngTemplateOutlet]="optionsTemplate" [ngTemplateOutletContext]="{ $implicit: modeOptionModel() }"></ng-template>
+
+    <div class="actions">
+      <p-button text label="Cancel" (click)="cancelLoadMessages()" class="cancel-button"></p-button>
+      <p-button label="Load" (click)="loadMessages()" class="load-button"></p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<ng-template #optionsTemplate let-optionsModel>
+  @for (option of optionsModel; track option.fieldName) {
+    <div class="option">
+      @if (option.description.type === 'number') {
+        <ng-container *ngTemplateOutlet="numberTemplate; context: { $implicit: option }"></ng-container>
+      }
+      @if (option.description.type === 'string') {
+        <ng-container *ngTemplateOutlet="textTemplate; context: { $implicit: option }"></ng-container>
+      }
+      @if (option.description.type === 'enum') {
+        <p-select [options]="option.description.enum" [ngModel]="options()[option.fieldName]"
+                  (ngModelChange)="updateOptions(option.fieldName, $event)"></p-select>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #textTemplate let-option>
+  <p-floatlabel variant="on">
+    <input pInputText
+           type="text"
+           [id]="option.fieldName"
+           [ngModel]="options()[option.fieldName] ?? ''"
+           autocomplete="off"
+           [pattern]="option.description.pattern"
+           (ngModelChange)="updateOptions(option.fieldName, $event)" />
+    <label for="{{ option.fieldName }}">{{ option.description.label }}</label>
+  </p-floatlabel>
+</ng-template>
+
+<ng-template #numberTemplate let-option>
+  <p-floatlabel variant="on">
+    <input pInputText
+           type="number"
+           [id]="option.fieldName"
+           [ngModel]="options()[option.fieldName] ?? ''"
+           (ngModelChange)="updateOptions(option.fieldName, $event)" />
+    <label for="{{ option.fieldName }}">{{ option.description.label }}</label>
+  </p-floatlabel>
+</ng-template>

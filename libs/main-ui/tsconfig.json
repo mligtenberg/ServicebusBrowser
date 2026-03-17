@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es2022",
+    "target": "es2024",
     "moduleResolution": "bundler",
     "strict": true,
     "noImplicitOverride": true,
@@ -9,7 +9,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "module": "preserve",
-    "lib": ["dom", "es2022"]
+    "lib": ["dom", "es2024"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

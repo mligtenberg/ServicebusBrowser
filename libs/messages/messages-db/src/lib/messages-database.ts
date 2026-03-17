@@ -1,28 +1,29 @@
-import { MessageFilter, ServiceBusReceivedMessage } from '@service-bus-browser/messages-contracts';
+import { MessageFilter } from '@service-bus-browser/filtering';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 
 export type MessagesDatabase = {
-  addMessages(messages: ServiceBusReceivedMessage[]): Promise<void>;
-  getMessage(
-    sequenceNumber: string,
-  ): Promise<ServiceBusReceivedMessage | undefined>;
-  countMessages(filter?: MessageFilter, selection?: string[]): Promise<number>;
+  addMessages(messages: ReceivedMessage[]): Promise<void>;
+  getMessage(key: string): Promise<ReceivedMessage | undefined>;
+  countMessages(
+    filter?: MessageFilter,
+    selectionKeys?: string[],
+  ): Promise<number>;
+  getSystemPropertyLabels(): Promise<{ label: string; type: string }[]>;
+  getApplicationPropertyLabels(): Promise<{ label: string; type: string }[]>;
   getMessages(
     filter?: MessageFilter,
     skip?: number,
     take?: number,
     ascending?: boolean,
-    selection?: string[],
-  ): Promise<ServiceBusReceivedMessage[]>;
+    selectionKeys?: string[],
+  ): Promise<ReceivedMessage[]>;
   walkMessagesWithCallback(
-    callback: (
-      message: ServiceBusReceivedMessage,
-      index: number,
-    ) => void | Promise<void>,
+    callback: (message: ReceivedMessage, index: number) => void | Promise<void>,
     filter?: MessageFilter,
     skip?: number,
     take?: number,
     ascending?: boolean,
-    selection?: string[],
+    selectionKeys?: string[],
   ): Promise<void>;
   deleteDatabase(): Promise<void>;
 };
