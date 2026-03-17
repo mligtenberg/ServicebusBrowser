@@ -9,6 +9,7 @@ import { LoadMessagesUtil } from './load-messages-util';
 import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
 import { ResendMessagesUtil } from './resend-messages-util';
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { ExportMessagesUtil } from './export-messages-util';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class MessagesEffects {
   actions$ = inject(Actions);
   loadMessagesUtil = inject(LoadMessagesUtil);
   resendMessageUtil = inject(ResendMessagesUtil);
+  exportMessagesUtil = inject(ExportMessagesUtil);
   messagesClient = inject(MessagesFrontendClient);
 
   loadMessages$ = createEffect(
@@ -92,6 +94,21 @@ export class MessagesEffects {
       ),
     { dispatch: false },
   );
+
+  exportMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(messagePagesActions.exportMessages),
+        switchMap(({ pageId, filter, selectionKeys }) => {
+          return this.exportMessagesUtil.exportMessages(
+            pageId,
+            filter,
+            selectionKeys,
+          );
+        }),
+      ),
+    { dispatch: false },
+  )
 
   reloadOnMessagedReceived$ = createEffect(() =>
     this.actions$.pipe(

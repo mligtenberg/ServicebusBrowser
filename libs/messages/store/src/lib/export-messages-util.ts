@@ -40,7 +40,12 @@ export class ExportMessagesUtil {
       }),
     );
 
-    const handle = await this.getFileHandle(`${page.name}.zip`);
+    const { handle, ufs: isUfs } = await this.getFileHandle(`${page.name}.zip`, [
+      {
+        name: 'application/zip',
+        extensions: ['.zip'],
+      },
+      ]);
     const writableStream = await handle.createWritable();
     const zip = new ZipWriter(writableStream);
 
@@ -94,13 +99,12 @@ export class ExportMessagesUtil {
 
     await zip.close();
 
+    if (isUfs) {
+      return;
+    }
+
     const file = await handle.getFile();
-    await this.fileService.saveFile(`${page.name}.zip`, file, [
-      {
-        name: 'application/zip',
-        extensions: ['.zip'],
-      },
-    ]);
+    await this.fileService.storeViaSyntaticFile(`${page.name}.zip`, file);
 
     this.store.dispatch(TasksActions.completeTask({ id: taskId }));
   }
@@ -187,18 +191,23 @@ export class ExportMessagesUtil {
         retrievedAt: new Date(),
       });
 
-      this.store.dispatch(messagePagesEffectActions.pageCreated({
-        pageId,
-        pageName,
-        disabled: true,
-      }))
+      this.store.dispatch(
+        messagePagesEffectActions.pageCreated({
+          pageId,
+          pageName,
+          disabled: true,
+        }),
+      );
 
       const zip = new ZipReader(readStream);
       const entries = await zip.getEntries();
-      const versionEntry = entries.find((entry) => entry.filename === 'VERSION');
+      const versionEntry = entries.find(
+        (entry) => entry.filename === 'VERSION',
+      );
 
       // we currently only have 2 versions of the archive, version 1.0.0 does not have a VERSION file, and version 2.0.0 has a VERSION file
-      const version = versionEntry && !versionEntry.directory ? '2.0.0' : '1.0.0';
+      const version =
+        versionEntry && !versionEntry.directory ? '2.0.0' : '1.0.0';
 
       const dirs = entries.filter((entry) => entry.directory);
       const totalItemCount = dirs.length;
@@ -246,9 +255,10 @@ export class ExportMessagesUtil {
         const bodyBlob = await bodyBlobPromise;
         const propertiesBlob = await propertiesBlobPromise;
 
-        const message = version === '1.0.0'
-          ? await this.parseV1Message(bodyBlob, propertiesBlob)
-          : await this.parseV2Message(bodyBlob, propertiesBlob);
+        const message =
+          version === '1.0.0'
+            ? await this.parseV1Message(bodyBlob, propertiesBlob)
+            : await this.parseV2Message(bodyBlob, propertiesBlob);
 
         messages.push(message);
 
@@ -276,8 +286,8 @@ export class ExportMessagesUtil {
       this.store.dispatch(
         messagePagesEffectActions.pageLoaded({
           pageId,
-          endpoint: null
-        })
+          endpoint: null,
+        }),
       );
     } catch (e) {
       console.error(e);
@@ -290,8 +300,10 @@ export class ExportMessagesUtil {
       .then((buffer) => new Uint8Array(buffer));
 
     const properties = JSON.parse(await propertiesBlob.text());
-    const key = Array.from({ length: 20 - properties.sequenceNumber.length })
-      .map(() => "0").join() + properties.sequenceNumber;
+    const key =
+      Array.from({ length: 20 - properties.sequenceNumber.length })
+        .map(() => '0')
+        .join() + properties.sequenceNumber;
 
     return {
       key: key,
@@ -329,11 +341,28 @@ export class ExportMessagesUtil {
     } as ReceivedMessage;
   }
 
-  private async getFileHandle(name: string) {
+  private async getFileHandle(
+    fileName: string,
+    fileTypes: Array<{ extensions: string[]; name: string }>,
+  ) {
+    const pickerSupported =
+      'showSaveFilePicker' in window &&
+      typeof (window as any).showSaveFilePicker === 'function';
+
+    if (pickerSupported) {
+      const handle = (await (window as any).showSaveFilePicker({
+        suggestedName: fileName,
+        types: fileTypes,
+      })) as FileSystemFileHandle;
+
+      return { handle, ufs: true }
+    }
+
     const opfsRoot = await navigator.storage.getDirectory();
     const sqliteRoot = await opfsRoot.getDirectoryHandle('exports', {
       create: true,
     });
-    return await sqliteRoot.getFileHandle(name, { create: true });
+    const opfsHandle = await sqliteRoot.getFileHandle(fileName, { create: true });
+    return { handle: opfsHandle, ufs: false };
   }
 }
