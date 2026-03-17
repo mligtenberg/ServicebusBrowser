@@ -12,16 +12,6 @@ export const checkConnection = createAction(
   props<{ connection: Connection }>(),
 );
 
-export const removeConnection = createAction(
-  '[Connections] Remove Connection',
-  props<{ connectionId: UUID }>(),
-);
-
-export const activateConnection = createAction(
-  '[Connections] Activate Connection',
-  props<{ connection: Connection }>(),
-);
-
 export const resetConnectionTest = createAction(
   '[Connections] Reset Connection Test',
 );

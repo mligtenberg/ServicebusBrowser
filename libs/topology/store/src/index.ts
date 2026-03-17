@@ -6,6 +6,7 @@ import * as actions from './lib/topology.actions'
 import * as selectors from './lib/topology.selectors'
 import { provideEffects } from '@ngrx/effects';
 import { TopologyEffects } from './lib/topology.effects';
+import { TopologyLoggingEffects } from './lib/topology-logging.effects';
 
 // some IDEs do not understand the export * as x from 'y' syntax
 export const TopologyActions = actions;
@@ -18,7 +19,8 @@ export function provideTopologyState(): (
   return [
     provideState(topologyFeature),
     provideEffects([
-      TopologyEffects
+      TopologyEffects,
+      TopologyLoggingEffects
     ])
   ];
 }

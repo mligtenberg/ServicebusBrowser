@@ -62,6 +62,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         {
           icon: 'pi pi-plus',
           displayName: 'Add queue',
+          actionGroup: 'topo',
           actionType: 'service-bus:queue:add',
           parameters: {
             connectionId: this.connection.id,
@@ -70,9 +71,20 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         {
           icon: 'pi pi-plus',
           displayName: 'Add topic',
+          actionGroup: 'topo',
           actionType: 'service-bus:topic:add',
           parameters: {
             connectionId: this.connection.id,
+          },
+        },
+        {
+          icon: 'pi pi-trash',
+          displayName: `Remove ${this.connection.name}`,
+          actionGroup: 'connection',
+          actionType: 'connection:delete',
+          parameters: {
+            connectionId: this.connection.id,
+            connectionName: this.connection.name,
           },
         },
       ],

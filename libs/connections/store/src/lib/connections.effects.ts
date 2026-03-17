@@ -35,26 +35,6 @@ export class ConnectionsEffects {
     )
   );
 
-  removeConnection$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(actions.removeConnection),
-      switchMap(({ connectionId }) =>
-        from(this.serviceBusClient.removeConnection(connectionId)).pipe(
-          map(() => internalActions.connectionRemoved({ connectionId })),
-          catchError((error) => [
-            internalActions.failedToRemoveConnection({
-              connectionId,
-              error: {
-                title: 'Failed to remove connection',
-                detail: error.message,
-              },
-            }),
-          ])
-        )
-      )
-    )
-  );
-
   testConnection$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.checkConnection),
@@ -71,6 +51,13 @@ export class ConnectionsEffects {
           })
         )
       )
+    )
+  );
+
+  refreshTopology$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(internalActions.connectionAdded),
+      map(() => TopologyActions.loadTopologyRootNodes())
     )
   );
 }

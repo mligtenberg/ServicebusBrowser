@@ -6,15 +6,11 @@ import * as internalActions from './connections.internal-actions';
 export const featureKey = 'connections';
 
 export type ConnectionsState = {
-  allConnections: Connection[];
-  activeConnections: Connection[];
   connectionTestStatus: 'none' | 'success' | 'error';
   connectionUnderTest: Connection | null;
 };
 
 export const initialState: ConnectionsState = {
-  allConnections: [],
-  activeConnections: [],
   connectionTestStatus: 'none',
   connectionUnderTest: null,
 };
