@@ -18,6 +18,7 @@ import { Textarea } from 'primeng/textarea';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
+import { Logger } from '@service-bus-browser/logs-services';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -42,6 +43,7 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
+  logger = inject(Logger);
   form = this.createForm();
 
   destroy$ = new Subject<void>();
@@ -250,7 +252,8 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
         this.activeRoute.snapshot.params['connectionId'],
         this.activeRoute.snapshot.params['topicId'],
         this.activeRoute.snapshot.params['subscriptionId'],
-      )
+      );
+      this.logger.info(`Subscription rule ${subscriptionRule.name} created successfully`);
       return;
     }
 
@@ -264,7 +267,8 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
       this.activeRoute.snapshot.params['connectionId'],
       this.activeRoute.snapshot.params['topicId'],
       this.activeRoute.snapshot.params['subscriptionId'],
-    )
+    );
+    this.logger.info(`Subscription rule ${subscriptionRule.name} updated successfully`);
   }
 
   ngOnDestroy(): void {

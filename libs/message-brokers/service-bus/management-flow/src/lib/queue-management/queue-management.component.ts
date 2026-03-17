@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
+import { Logger } from '@service-bus-browser/logs-services';
 
 @Component({
   selector: 'lib-queue-management',
@@ -45,6 +46,7 @@ export class QueueManagementComponent {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
+  logger = inject(Logger);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -192,12 +194,14 @@ export class QueueManagementComponent {
     if (this.action() === 'create') {
       await this.managementClient.createQueue(this.activeRoute.snapshot.params['connectionId'], queue);
       this.refreshUtil.refreshQueues(this.activeRoute.snapshot.params['connectionId'] as UUID);
+      this.logger.info(`Queue ${queue.name} created successfully`);
       return;
     }
 
     // update queue
     await this.managementClient.editQueue(this.activeRoute.snapshot.params['connectionId'], queue);
     this.refreshUtil.refreshQueues(this.activeRoute.snapshot.params['connectionId'] as UUID);
+    this.logger.info(`Queue ${queue.name} updated successfully`);
   }
 
   isDate(value: unknown): boolean {

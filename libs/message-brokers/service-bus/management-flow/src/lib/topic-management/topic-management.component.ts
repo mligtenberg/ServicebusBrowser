@@ -19,6 +19,7 @@ import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
+import { Logger } from '@service-bus-browser/logs-services';
 
 @Component({
   selector: 'lib-topic-management',
@@ -44,6 +45,7 @@ export class TopicManagementComponent {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
+  logger = inject(Logger);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -208,7 +210,10 @@ export class TopicManagementComponent {
         this.activeRoute.snapshot.params['connectionId'],
         topic,
       );
-      this.refreshUtil.refreshTopics(this.activeRoute.snapshot.params['connectionId'] as UUID);
+      this.refreshUtil.refreshTopics(
+        this.activeRoute.snapshot.params['connectionId'] as UUID,
+      );
+      this.logger.info(`Topic ${topic.name} created successfully`);
       return;
     }
 
@@ -217,7 +222,10 @@ export class TopicManagementComponent {
       this.activeRoute.snapshot.params['connectionId'],
       topic,
     );
-    this.refreshUtil.refreshTopics(this.activeRoute.snapshot.params['connectionId'] as UUID);
+    this.refreshUtil.refreshTopics(
+      this.activeRoute.snapshot.params['connectionId'] as UUID,
+    );
+    this.logger.info(`Topic ${topic.name} updated successfully`);
   }
 
   isDate(value: unknown): boolean {

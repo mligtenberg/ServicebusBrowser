@@ -22,6 +22,7 @@ import { TableModule } from 'primeng/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
+import { Logger } from '@service-bus-browser/logs-services';
 
 @Component({
   selector: 'lib-subscription-management',
@@ -48,6 +49,8 @@ export class SubscriptionManagementComponent {
   activeRoute = inject(ActivatedRoute);
   refreshUtil = inject(RefreshUtil);
   managementClient = inject(ServiceBusManagementFrontendClient);
+  logger = inject(Logger);
+
   form = this.createForm();
   action = signal<'create' | 'modify'>('create');
   currentSubscription = signal<SubscriptionWithMetaData | undefined>(undefined);
@@ -189,7 +192,11 @@ export class SubscriptionManagementComponent {
         this.activeRoute.snapshot.params['topicId'],
         subscription,
       );
-      this.refreshUtil.refreshSubscriptions(this.activeRoute.snapshot.params['connectionId'] as UUID, this.activeRoute.snapshot.params['topicId'] as string);
+      this.refreshUtil.refreshSubscriptions(
+        this.activeRoute.snapshot.params['connectionId'] as UUID,
+        this.activeRoute.snapshot.params['topicId'] as string,
+      );
+      this.logger.info(`Subscription ${subscription.name} created successfully`);
       return;
     }
 
@@ -199,7 +206,11 @@ export class SubscriptionManagementComponent {
       this.activeRoute.snapshot.params['topicId'],
       subscription,
     );
-    this.refreshUtil.refreshSubscriptions(this.activeRoute.snapshot.params['connectionId'] as UUID, this.activeRoute.snapshot.params['topicId'] as string);
+    this.refreshUtil.refreshSubscriptions(
+      this.activeRoute.snapshot.params['connectionId'] as UUID,
+      this.activeRoute.snapshot.params['topicId'] as string,
+    );
+    this.logger.info(`Subscription ${subscription.name} updated successfully`);
   }
 
   private createForm() {
