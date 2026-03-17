@@ -1,7 +1,7 @@
 import {
-  Connection,
   MessageQueueTargetType,
   ReceiveOptionsDescription,
+  ServiceBusConnection,
   TopologyNode,
   TopologyProvider,
 } from '@service-bus-browser/api-contracts';
@@ -41,7 +41,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
     },
   };
 
-  constructor(private connection: Connection) {
+  constructor(private connection: ServiceBusConnection) {
     this.administrationClient = new ServiceBusManagementClient(this.connection);
   }
 

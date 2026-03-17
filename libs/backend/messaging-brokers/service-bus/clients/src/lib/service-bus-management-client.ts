@@ -1,4 +1,4 @@
-import { Connection } from '@service-bus-browser/api-contracts';
+import { ServiceBusConnection } from '@service-bus-browser/api-contracts';
 import {
   CorrelationRuleFilter,
   CreateSubscriptionOptions,
@@ -23,7 +23,7 @@ import {
 import { getCredential } from './internal/credential-helper';
 
 export class ServiceBusManagementClient {
-  constructor(private connection: Connection) {}
+  constructor(private connection: ServiceBusConnection) {}
 
   async checkConnection(): Promise<boolean> {
     try {

@@ -1,4 +1,4 @@
-export * from './lib/connection';
+export * from './lib/connections';
 export * from './lib/connection-validator';
 
 export * from './lib/endpoints/receive-options';

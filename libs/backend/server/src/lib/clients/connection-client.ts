@@ -7,7 +7,6 @@ import {
 } from '@service-bus-browser/api-contracts';
 import {
   ServiceBusConnectionValidator,
-  ServiceBusManagementClient,
   ServiceBusMessagesReader,
   ServiceBusMessagesSender,
   ServiceBusTopologyProvider,

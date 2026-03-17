@@ -1,8 +1,8 @@
 import {
-  Connection,
   Message,
   MessagesSender,
   SendEndpoint,
+  ServiceBusConnection,
 } from '@service-bus-browser/api-contracts';
 import {
   ServiceBusClient,
@@ -13,7 +13,7 @@ import { Duration } from 'luxon';
 import { getCredential } from './internal/credential-helper';
 
 export class ServiceBusMessagesSender implements MessagesSender {
-  constructor(private connection: Connection) {}
+  constructor(private connection: ServiceBusConnection) {}
 
   async send(endpoint: SendEndpoint, message: Message): Promise<void> {
     const sender = this.getSender(endpoint);

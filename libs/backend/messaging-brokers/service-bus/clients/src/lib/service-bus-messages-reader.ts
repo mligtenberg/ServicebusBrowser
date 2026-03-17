@@ -1,9 +1,9 @@
 import {
-  Connection,
   MessagesReader,
   PropertyValue,
   ReceivedMessage,
   ReceiveEndpoint,
+  ServiceBusConnection,
 } from '@service-bus-browser/api-contracts';
 import Long from 'long';
 import {
@@ -24,7 +24,7 @@ type DeleteContinuationTokenBody = {
 }
 
 export class ServiceBusMessagesReader implements MessagesReader {
-  constructor(private connection: Connection) {}
+  constructor(private connection: ServiceBusConnection) {}
 
   async receiveMessages(
     receiveEndpoint: ReceiveEndpoint,
