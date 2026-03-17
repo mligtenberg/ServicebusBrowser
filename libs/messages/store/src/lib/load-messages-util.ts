@@ -5,7 +5,7 @@ import {
   ReceiveOptions,
 } from '@service-bus-browser/api-contracts';
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
-import { messagePagesEffectActions } from './messages.effect-actions';
+import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 import { Logger } from '@service-bus-browser/logs-services';
@@ -76,7 +76,7 @@ export class LoadMessagesUtil {
       continuationToken = result.continuationToken;
 
       if (await this.isTaskCanceled(taskId)) {
-        await this.handleTaskCanceled(pageId, endpoint);
+        await this.handleTaskCancelled(pageId, endpoint);
         return;
       }
 
@@ -96,28 +96,95 @@ export class LoadMessagesUtil {
       }
 
       if (zeroMessagesLoadedCount === 3) {
-        this.logger.warn(`Could not retrieve more messages for ${endpoint.displayName}.`, {
-          pageId,
-          endpoint,
-          continuationToken,
-          result,
-        });
+        this.logger.warn(
+          `Could not retrieve more messages for ${endpoint.displayName}.`,
+          {
+            pageId,
+            endpoint,
+            continuationToken,
+            result,
+          },
+        );
         break;
       }
     } while (continuationToken);
 
     this.store.dispatch(TasksActions.completeTask({ id: taskId }));
-    this.store.dispatch(messagePagesEffectActions.pageLoaded({ pageId, endpoint }));
+    this.store.dispatch(
+      messagePagesEffectActions.pageLoaded({ pageId, endpoint }),
+    );
+    this.logger.info(`Loaded messages from ${endpoint.longDisplayName}`);
   }
 
-  private async handleTaskCanceled(pageId: UUID, endpoint: ReceiveEndpoint) {
-    this.logger.warn(`Retrieval of messages from ${endpoint.displayName} canceled.`, {
-      pageId
-    });
-    this.store.dispatch(messagePagesEffectActions.pageLoadCancelled({ pageId, endpoint }));
+  async clearMessages(endpoint: ReceiveEndpoint) {
+    try {
+      const taskId = crypto.randomUUID();
+      this.store.dispatch(
+        TasksActions.createTask({
+          id: taskId,
+          description: `Clearing messages from ${endpoint.longDisplayName}`,
+          hasProgress: false,
+          cancelable: true,
+        }),
+      );
+      this.logger.info(`Clearing messages from ${endpoint.longDisplayName}`);
+
+      let continuationToken: string | undefined = undefined;
+      do {
+        const result = await this.messagesClient.clearMessages(
+          endpoint,
+          continuationToken,
+        );
+
+        if (await this.isTaskCanceled(taskId)) {
+          this.handleClearTaskCancelled(endpoint);
+          return;
+        }
+        
+        continuationToken = result.continuationToken;
+      } while (continuationToken);
+
+      this.store.dispatch(TasksActions.completeTask({ id: taskId }));
+      this.logger.info(`Cleared messages from ${endpoint.longDisplayName}`);
+      this.store.dispatch(messagesEffectActions.clearedEndpoint({
+      endpoint: endpoint,
+    }));
+    } catch (error) {
+      this.logger.error(`Failed to clear messages from ${endpoint.longDisplayName}`, {
+        error,
+      });
+      this.store.dispatch(messagesEffectActions.failedToClearMessages({
+        endpoint: endpoint,
+        error: error as Error,
+      }))
+    }
+  }
+
+  private async handleTaskCancelled(pageId: UUID, endpoint: ReceiveEndpoint) {
+    this.logger.warn(
+      `Retrieval of messages from ${endpoint.displayName} cancelled.`,
+      {
+        pageId,
+      },
+    );
+    this.store.dispatch(
+      messagePagesEffectActions.pageLoadCancelled({ pageId, endpoint }),
+    );
+  }
+
+  private handleClearTaskCancelled(endpoint: ReceiveEndpoint) {
+    this.logger.warn(
+      `Clearing of messages from ${endpoint.displayName} cancelled.`
+    );
+    this.store.dispatch(messagesEffectActions.failedToClearMessages({
+      endpoint: endpoint,
+      error: new Error('Clearing messages cancelled'),
+    }));
   }
 
   private isTaskCanceled(taskId: UUID) {
-    return firstValueFrom(this.store.select(TasksSelectors.selectTaskCanceled(taskId)));
+    return firstValueFrom(
+      this.store.select(TasksSelectors.selectTaskCanceled(taskId)),
+    );
   }
 }

@@ -20,69 +20,83 @@ export class MessagesEffects {
   resendMessageUtil = inject(ResendMessagesUtil);
   messagesClient = inject(MessagesFrontendClient);
 
-  loadActions$ = createEffect(() => this.actions$.pipe(
-    ofType(messagesActions.loadMessagesFromEndpoint),
-    switchMap(({ endpoint, options }) => {
-      return this.loadMessagesUtil.loadMessages(endpoint, options);
-    })
-  ), { dispatch: false });
+  loadMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(messagesActions.loadMessagesFromEndpoint),
+        switchMap(({ endpoint, options }) => {
+          return this.loadMessagesUtil.loadMessages(endpoint, options);
+        }),
+      ),
+    { dispatch: false },
+  );
 
-  sendMessage$ = createEffect(() => this.actions$.pipe(
-    ofType(messagesActions.sendMessage),
-    switchMap(({ endpoint, message }) => {
-      const { bodyBase64, ...rest } = message;
+  clearMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(messagesActions.clearEndpoint),
+        switchMap(({ endpoint }) => {
+          return this.loadMessagesUtil.clearMessages(endpoint);
+        }),
+      ),
+    { dispatch: false },
+  );
 
-      const body = (Uint8Array as any).fromBase64(bodyBase64);
+  sendMessage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(messagesActions.sendMessage),
+      switchMap(({ endpoint, message }) => {
+        const { bodyBase64, ...rest } = message;
 
-      const messageToSend = { ...rest, body: body };
-      return from(this.messagesClient.sendMessage(endpoint, messageToSend))
-        .pipe(
+        const body = (Uint8Array as any).fromBase64(bodyBase64);
+
+        const messageToSend = { ...rest, body: body };
+        return from(
+          this.messagesClient.sendMessage(endpoint, messageToSend),
+        ).pipe(
           map(() => messagesEffectActions.messageSent({ endpoint })),
-          catchError((err) => of(messagesEffectActions.failedToSendMessage({
-            endpoint,
-            error: err instanceof Error ? err : new Error(err?.toString())
-          })))
-        )
-    })
-  ))
+          catchError((err) =>
+            of(
+              messagesEffectActions.failedToSendMessage({
+                endpoint,
+                error: err instanceof Error ? err : new Error(err?.toString()),
+              }),
+            ),
+          ),
+        );
+      }),
+    ),
+  );
 
-  clearMessages$ = createEffect(() => this.actions$.pipe(
-    ofType(messagesActions.clearEndpoint),
-    switchMap(({ endpoint }) => {
-      return from(this.messagesClient.clearMessages(endpoint))
-        .pipe(
-          map(() => messagesEffectActions.clearedEndpoint({ endpoint })),
-          catchError((err) => of(messagesEffectActions.failedToClearMessages({
+  resendMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(messagePagesActions.resendMessages),
+        switchMap(
+          ({
             endpoint,
-            error: err instanceof Error ? err : new Error(err?.toString())
-          })))
-        )
-    })
-  ))
-
-  resendMessages$ = createEffect(() => this.actions$.pipe(
-    ofType(messagePagesActions.resendMessages),
-    switchMap(({
-                 endpoint,
-                 pageId,
-                 messageFilter,
-                 modificationActions,
-                 selectionKeys
-    }) => {
-      return this.resendMessageUtil.resendMessages(
-        endpoint,
-        pageId,
-        messageFilter,
-        selectionKeys,
-        modificationActions
-      );
-    })
-  ), { dispatch: false });
+            pageId,
+            messageFilter,
+            modificationActions,
+            selectionKeys,
+          }) => {
+            return this.resendMessageUtil.resendMessages(
+              endpoint,
+              pageId,
+              messageFilter,
+              selectionKeys,
+              modificationActions,
+            );
+          },
+        ),
+      ),
+    { dispatch: false },
+  );
 
   reloadOnMessagedReceived$ = createEffect(() =>
     this.actions$.pipe(
       ofType(messagePagesEffectActions.pageLoaded),
-      filter(({ endpoint}) => !!endpoint),
+      filter(({ endpoint }) => !!endpoint),
       map(({ endpoint }) => {
         return TopologyActions.reloadReceiveEndpoint({ endpoint: endpoint! });
       }),
@@ -99,16 +113,16 @@ export class MessagesEffects {
   reloadEndpointAfterBatchSent$ = createEffect(() =>
     this.actions$.pipe(
       ofType(messagePagesEffectActions.messagesResent),
-      map(({ endpoint }) =>
-        TopologyActions.reloadSendEndpoint({ endpoint }),
-      ),
+      map(({ endpoint }) => TopologyActions.reloadSendEndpoint({ endpoint })),
     ),
   );
 
   reloadEndpointAfterClear$ = createEffect(() =>
     this.actions$.pipe(
       ofType(messagesEffectActions.clearedEndpoint),
-      map(({ endpoint }) => TopologyActions.reloadReceiveEndpoint({ endpoint })),
+      map(({ endpoint }) =>
+        TopologyActions.reloadReceiveEndpoint({ endpoint }),
+      ),
     ),
   );
 }

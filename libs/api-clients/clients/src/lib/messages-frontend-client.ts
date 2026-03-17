@@ -25,10 +25,11 @@ export class MessagesFrontendClient {
     })) as {messages: ReceivedMessage[], continuationToken: string};
   }
 
-  async clearMessages(endpoint: ReceiveEndpoint) {
-    await this.serviceBusApi.messagesDoRequest('clearMessages', {
+  async clearMessages(endpoint: ReceiveEndpoint, continuationToken?: string) {
+    return (await this.serviceBusApi.messagesDoRequest('clearMessages', {
       endpoint,
-    });
+      continuationToken,
+    })) as { continuationToken?: string };
   }
 
   async sendMessage(endpoint: SendEndpoint, message: Message) {

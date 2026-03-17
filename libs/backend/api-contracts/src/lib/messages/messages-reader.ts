@@ -8,5 +8,8 @@ export type MessagesReader = {
     options?: ReceiveOptions,
     continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }>;
-  clear(receiveEndpoint: ReceiveEndpoint): Promise<void>;
+  clear(
+    receiveEndpoint: ReceiveEndpoint,
+    continuationToken?: string,
+  ): Promise<{ continuationToken?: string }>;
 };

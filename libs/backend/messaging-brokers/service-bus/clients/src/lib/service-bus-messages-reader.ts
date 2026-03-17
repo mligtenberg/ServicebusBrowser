@@ -19,6 +19,10 @@ type ContinuationTokenBody = {
   alreadyLoadedAmountOfMessages: number;
 };
 
+type DeleteContinuationTokenBody = {
+  zeroMessagesReceivedCounter: number;
+}
+
 export class ServiceBusMessagesReader implements MessagesReader {
   constructor(private connection: Connection) {}
 
@@ -38,7 +42,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
     const maxAmountOfMessagesToReceive =
       options.maxAmountOfMessagesToReceive ?? 1;
     const tokenBody = continuationToken
-      ? this.decodeContinuationToken(continuationToken)
+      ? this.decodeContinuationToken<ContinuationTokenBody>(continuationToken)
       : ({
           alreadyLoadedAmountOfMessages: 0,
           lastLoadedSequenceNumber: options.fromSequenceNumber ?? '0',
@@ -65,7 +69,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
           })
         : await receiveClient.receiveMessages(
             currentMaxAmountOfMessagesToReceive,
-            { maxWaitTimeInMs: 300 },
+            { maxWaitTimeInMs: 100 },
           );
 
     messages = messages.filter((message) => message.body !== undefined);
@@ -94,14 +98,14 @@ export class ServiceBusMessagesReader implements MessagesReader {
     };
   }
 
-  private makeContinuationToken(tokenBody: ContinuationTokenBody): string {
+  private makeContinuationToken<T>(tokenBody: T): string {
     const buf = Buffer.from(JSON.stringify(tokenBody), 'utf-8');
     return btoa(buf.toString('base64'));
   }
 
-  private decodeContinuationToken(
+  private decodeContinuationToken<T>(
     continuationToken: string,
-  ): ContinuationTokenBody {
+  ): T {
     const buf = Buffer.from(atob(continuationToken), 'base64');
     return JSON.parse(buf.toString('utf-8'));
   }
@@ -135,17 +139,31 @@ export class ServiceBusMessagesReader implements MessagesReader {
     };
   }
 
-  async clear(endpoint: ReceiveEndpoint): Promise<void> {
+  async clear(endpoint: ReceiveEndpoint, continuationToken?: string): Promise<{ continuationToken?: string }> {
     if (!endpoint) {
       throw new Error('endpoints is required for clearing messages');
     }
+    let { zeroMessagesReceivedCounter } = continuationToken
+      ? this.decodeContinuationToken<DeleteContinuationTokenBody>(
+          continuationToken,
+        )
+      : ({ zeroMessagesReceivedCounter: 0 } as DeleteContinuationTokenBody);
+
 
     const receiver = this.getReceiver(endpoint, 'receiveAndDelete');
-
-    await receiver.purgeMessages({
-      beforeEnqueueTime: new Date(),
-    });
+    const messages = await receiver.receiveMessages(250, { maxWaitTimeInMs: 300 });
     await receiver.close();
+
+    if (messages.length === 0) {
+      zeroMessagesReceivedCounter++;
+    }
+
+    if (zeroMessagesReceivedCounter >= 2) {
+      return {};
+    }
+
+    const newToken = this.makeContinuationToken({ zeroMessagesReceivedCounter });
+    return { continuationToken: newToken };
   }
 
   private getReceiver(

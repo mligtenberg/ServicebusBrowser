@@ -25,7 +25,7 @@ const retrieveMessages: ServiceBusServerFunc = async (
   return await client.receiveMessages(body.endpoint, body.options, body.continuationToken);
 };
 
-async function clearMessages(body: { endpoint: ReceiveEndpoint }, connectionManager: ConnectionManager) {
+async function clearMessages(body: { endpoint: ReceiveEndpoint, continuationToken: string | undefined }, connectionManager: ConnectionManager) {
   const client = connectionManager
     .getConnectionClient({ id: body.endpoint.connectionId })
     .getMessagesReader();
@@ -34,7 +34,7 @@ async function clearMessages(body: { endpoint: ReceiveEndpoint }, connectionMana
     throw new Error(`No messages reader found for connection: ${body.endpoint.connectionId}`);
   }
 
-  await client?.clear(body.endpoint);
+  return await client.clear(body.endpoint, body.continuationToken);
 }
 
 export default new Map<string, ServiceBusServerFunc>([
