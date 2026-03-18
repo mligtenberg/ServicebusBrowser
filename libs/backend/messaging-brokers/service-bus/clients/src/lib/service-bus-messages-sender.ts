@@ -4,11 +4,8 @@ import {
   SendEndpoint,
   ServiceBusConnection,
 } from '@service-bus-browser/api-contracts';
-import {
-  ServiceBusClient,
-  ServiceBusMessage,
-  ServiceBusSender,
-} from '@azure/service-bus';
+import { ServiceBusClient, ServiceBusSender } from '@azure/service-bus';
+import { AmqpAnnotatedMessage } from '@azure/core-amqp';
 import { Duration } from 'luxon';
 import { getCredential } from './internal/credential-helper';
 
@@ -43,8 +40,8 @@ export class ServiceBusMessagesSender implements MessagesSender {
     await sender.close();
   }
 
-  mapMessage(message: Message): ServiceBusMessage {
-    const timeToLive = message.systemProperties?.['timeToLive'];
+  mapMessage(message: Message): AmqpAnnotatedMessage {
+    const timeToLive = message.headers?.['ttl'];
 
     const duration =
       timeToLive && typeof timeToLive === 'string'
@@ -52,27 +49,58 @@ export class ServiceBusMessagesSender implements MessagesSender {
         : null;
     const parsedTimeToLive = duration ? duration.as('milliseconds') : undefined;
 
+    const header = {
+      durable: message.headers?.['durable'],
+      priority: message.headers?.['priority'],
+      ttl: parsedTimeToLive ?? message.headers?.['ttl'],
+      firstAcquirer: message.headers?.['first-acquirer'],
+      deliveryCount: message.headers?.['delivery-count'],
+    } as AmqpAnnotatedMessage['header'];
+
+    const properties = {
+      messageId: message.properties?.['message-id'] ?? message.messageId,
+      userId: this.toBuffer(message.properties?.['user-id']),
+      to: message.properties?.['to'],
+      subject: message.properties?.['subject'],
+      replyTo: message.properties?.['reply-to'],
+      correlationId: this.toBuffer(message.properties?.['correlation-id']),
+      contentType: message.properties?.['content-type'] ?? message.contentType,
+      contentEncoding: message.properties?.['content-encoding'],
+      absoluteExpiryTime: this.toEpochMs(
+        message.properties?.['absolute-expiry-time'],
+      ),
+      creationTime: this.toEpochMs(message.properties?.['creation-time']),
+      groupId: message.properties?.['group-id'],
+      groupSequence: message.properties?.['group-sequence'],
+      replyToGroupId: message.properties?.['reply-to-group-id'],
+    } as AmqpAnnotatedMessage['properties'];
+
     return {
       body: message.body.buffer,
-      messageId: message.messageId,
-      correlationId:
-        (message.systemProperties?.['correlationId'] as string) ?? undefined,
-      contentType: message.contentType,
-      partitionKey:
-        (message.systemProperties?.['partitionKey'] as string) ?? undefined,
-      replyTo: (message.systemProperties?.['replyTo'] as string) ?? undefined,
-      replyToSessionId:
-        (message.systemProperties?.['replyToSessionId'] as string) ?? undefined,
-      sessionId:
-        (message.systemProperties?.['sessionId'] as string) ?? undefined,
-      timeToLive: parsedTimeToLive,
-      to: (message.systemProperties?.['to'] as string) ?? undefined,
-      subject: (message.systemProperties?.['subject'] as string) ?? undefined,
+      header,
+      properties,
+      deliveryAnnotations: message.deliveryAnnotations,
+      messageAnnotations: message.messageAnnotations,
       applicationProperties: message.applicationProperties,
-      scheduledEnqueueTimeUtc:
-        (message.systemProperties?.['scheduledEnqueueTimeUtc'] as Date) ??
-        undefined,
     };
+  }
+
+  private toBuffer(
+    value: string | number | Uint8Array | undefined,
+  ): Buffer | string | number | undefined {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      return value;
+    }
+
+    return Buffer.from(value);
+  }
+
+  private toEpochMs(value: Date | undefined): number | undefined {
+    return value ? value.getTime() : undefined;
   }
 
   private getSender(endpoint: SendEndpoint): ServiceBusSender {

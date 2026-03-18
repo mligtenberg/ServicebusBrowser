@@ -5,6 +5,7 @@ import App from './app/app';
 import ServiceBusEvents from './app/events/service-bus.events';
 import UpdateEvents from './app/events/update.events';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -22,6 +23,29 @@ protocol.registerSchemesAsPrivileged([
 
 export default class Main {
   static initialize() {
+    const gotSingleInstanceLock = app.requestSingleInstanceLock();
+    if (!gotSingleInstanceLock) {
+      app.quit();
+      return;
+    }
+
+    app.on('second-instance', () => {
+      if (App.mainWindow) {
+        if (App.mainWindow.isMinimized()) {
+          App.mainWindow.restore();
+        }
+        App.mainWindow.focus();
+      }
+    });
+
+    if (App.isDevelopmentMode()) {
+      const appDataPath = app.getPath('appData');
+      app.setPath(
+        'userData',
+        path.join(appDataPath, 'servicebus-browser-app-dev'),
+      );
+    }
+
     if (SquirrelEvents.handleEvents()) {
       // squirrel event handled (except first run event) and app will exit in 1000ms, so don't do anything else
       app.quit();
@@ -56,21 +80,42 @@ async function initExtensions() {
     ? JSON.parse(fs.readFileSync(extensionsJsonPath, 'utf8'))
     : [];
 
-  const installedExtensions = session.defaultSession.extensions.getAllExtensions();
-  for (const extension of installedExtensions) {
-    await session.defaultSession.extensions.removeExtension(extension.name);
-  }
+  const installedExtensions =
+    session.defaultSession.extensions.getAllExtensions();
+  const normalizePath = (extensionPath: string) =>
+    path.resolve(extensionPath).replace(/[\\/]+$/, '');
 
-  for (const extension of contents) {
-    console.log(`Installing extensions: ${extension}`);
-    await session.defaultSession.extensions.loadExtension(extension);
+  const installedExtensionPaths = new Set(
+    installedExtensions
+      .map((extension) => (extension as { path?: string }).path)
+      .filter((extensionPath): extensionPath is string =>
+        Boolean(extensionPath),
+      )
+      .map((extensionPath) => normalizePath(extensionPath)),
+  );
+
+  for (const extensionPath of contents) {
+    const normalizedExtensionPath = normalizePath(extensionPath);
+
+    if (installedExtensionPaths.has(normalizedExtensionPath)) {
+      console.log(`Extension already installed: ${extensionPath}`);
+      continue;
+    }
+
+    console.log(`Installing extension: ${extensionPath}`);
+
+    try {
+      await session.defaultSession.extensions.loadExtension(extensionPath);
+      installedExtensionPaths.add(normalizedExtensionPath);
+    } catch (error) {
+      console.error(`Failed to install extension: ${extensionPath}`, error);
+    }
   }
 }
 
-
-  // bootstrap app
-  Main.bootstrapApp();
-  Main.bootstrapAppEvents();
+// bootstrap app
+Main.bootstrapApp();
+Main.bootstrapAppEvents();
 
 if (App.isDevelopmentMode()) {
   App.application

@@ -1,9 +1,7 @@
 import { MessagesDatabase } from './messages-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Database } from './sqllite/database';
-import {
-  ensureMessagesDbCreated,
-} from './sqllite/ensure-db-created';
+import { ensureMessagesDbCreated } from './sqllite/ensure-db-created';
 import { getWhereClause } from './filter-to-where-clause';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 import { BSON } from 'bson';
@@ -36,23 +34,31 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return;
     }
 
-    const foundSystemLabels = new Set<string>();
-    const foundApplicationLabels = new Set<string>();
-
-    const knownSystemPropertyNames = await this.selectRows<[string]>(
-      "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'system' AND propertyType <> 'null'",
-    );
-    const knownApplicationPropertyNames = await this.selectRows<[string]>(
-      "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'application' AND propertyType <> 'null'",
-    );
-
-    for (const propertyName of knownSystemPropertyNames.flat()) {
-      foundSystemLabels.add(propertyName);
-    }
-
-    for (const propertyName of knownApplicationPropertyNames.flat()) {
-      foundApplicationLabels.add(propertyName);
-    }
+    const knownHeaderPropertyNames = (
+      await this.selectRows<[string]>(
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'headers' AND propertyType <> 'null'",
+      )
+    ).flat();
+    const knownPropertiesPropertyNames = (
+      await this.selectRows<[string]>(
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'properties' AND propertyType <> 'null'",
+      )
+    ).flat();
+    const knownDeliveryAnnotationsPropertyNames = (
+      await this.selectRows<[string]>(
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'deliveryAnnotations' AND propertyType <> 'null'",
+      )
+    ).flat();
+    const knownMessageAnnotationsPropertyNames = (
+      await this.selectRows<[string]>(
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'messageAnnotations' AND propertyType <> 'null'",
+      )
+    ).flat();
+    const knownApplicationPropertyNames = (
+      await this.selectRows<[string]>(
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'application' AND propertyType <> 'null'",
+      )
+    ).flat();
 
     await this.database.exec('BEGIN TRANSACTION');
     try {
@@ -82,91 +88,80 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
           [message.key],
         );
 
-        const systemProperties = message.systemProperties ?? {};
-        for (const [propertyName, propertyValue] of Object.entries(
-          systemProperties,
-        )) {
-          await this.database.exec(
-            `INSERT OR REPLACE INTO systemProperties (
+        const insertProperties = async (
+          properties: Record<string, unknown>,
+          tableName: string,
+          knownLabels: string[],
+        ) => {
+          const foundLabels = new Set<string>(knownLabels);
+
+          for (const [propertyName, propertyValue] of Object.entries(
+            properties,
+          )) {
+            await this.database.exec(
+              `INSERT OR REPLACE INTO ${tableName} (
               messageId,
               propertyName,
               propertyType,
               propertyValue
             ) VALUES (?, ?, ?, ?)`,
-            [
-              message.key,
-              propertyName,
-              this.getPropertyType(propertyValue),
-              this.serializePropertyValue(propertyValue),
-            ],
-          );
-        }
-
-        const systemPropertiesLabels = Object.keys(systemProperties);
-        for (const label of systemPropertiesLabels) {
-          if (foundSystemLabels.has(label)) {
-            continue;
+              [
+                message.key,
+                propertyName,
+                this.getPropertyType(propertyValue),
+                this.serializePropertyValue(propertyValue),
+              ],
+            );
           }
 
-          const propertyType = this.getPropertyType(systemProperties[label]);
-          await this.database.exec(
-            `INSERT OR REPLACE INTO propertyLabels (
+          const propertiesLabels = Object.keys(properties);
+          for (const label of propertiesLabels) {
+            if (foundLabels.has(label)) {
+              continue;
+            }
+
+            const propertyType = this.getPropertyType(properties[label]);
+            await this.database.exec(
+              `INSERT OR REPLACE INTO propertyLabels (
               propertyName,
               propertyType,
               propertyLocation
             ) VALUES (?, ?, ?)`,
-            [label, propertyType, 'system'],
-          );
+              [label, propertyType, tableName],
+            );
 
-          // only add the label if we already know the property type
-          if (propertyType !== 'null') {
-            foundSystemLabels.add(label);
+            // only add the label if we already know the property type
+            if (propertyType !== 'null') {
+              foundLabels.add(label);
+            }
           }
-        }
+        };
 
-        const applicationProperties = message.applicationProperties ?? {};
-        for (const [propertyName, propertyValue] of Object.entries(
-          applicationProperties,
-        )) {
-          await this.database.exec(
-            `INSERT OR REPLACE INTO applicationProperties (
-              messageId,
-              propertyName,
-              propertyType,
-              propertyValue
-            ) VALUES (?, ?, ?, ?)`,
-            [
-              message.key,
-              propertyName,
-              this.getPropertyType(propertyValue),
-              this.serializePropertyValue(propertyValue),
-            ],
-          );
-        }
-
-        const applicationLabels = Object.keys(applicationProperties);
-        for (const label of applicationLabels) {
-          if (foundApplicationLabels.has(label)) {
-            continue;
-          }
-
-          const propertyType = this.getPropertyType(
-            applicationProperties[label],
-          );
-          await this.database.exec(
-            `INSERT OR REPLACE INTO propertyLabels (
-              propertyName,
-              propertyType,
-              propertyLocation
-            ) VALUES (?, ?, ?)`,
-            [label, propertyType, 'application'],
-          );
-
-          // only add the label if we already know the property type
-          if (propertyType !== 'null') {
-            foundApplicationLabels.add(label);
-          }
-        }
+        await insertProperties(
+          message.headers as Record<string, unknown>,
+          'headers',
+          knownHeaderPropertyNames,
+        );
+        await insertProperties(
+          message.applicationProperties as Record<string, unknown>,
+          'application',
+          knownApplicationPropertyNames,
+        );
+        await insertProperties(
+          message.properties as Record<string, unknown>,
+          'properties',
+          knownPropertiesPropertyNames,
+        );
+        await insertProperties(
+          message.deliveryAnnotations as Record<string, unknown>,
+          'deliveryAnnotations',
+          knownDeliveryAnnotationsPropertyNames,
+        );
+        await insertProperties(
+          message.messageAnnotations as Record<string, unknown>,
+          'messageAnnotations',
+          knownMessageAnnotationsPropertyNames,
+        );
       }
 
       await this.database.exec('COMMIT');

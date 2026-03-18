@@ -26,6 +26,14 @@ export interface ServiceBusSubscriptionReceiveEndpoint
   type: 'subscription';
 }
 
+export interface RabbitMqQueueReceiveEndpoint extends ReceiveEndpointBase {
+  connectionId: UUID;
+  queueName: string;
+  target: 'rabbitmq';
+  type: 'queue';
+}
+
 export type ReceiveEndpoint =
   | ServiceBusQueueReceiveEndpoint
-  | ServiceBusSubscriptionReceiveEndpoint;
+  | ServiceBusSubscriptionReceiveEndpoint
+  | RabbitMqQueueReceiveEndpoint;

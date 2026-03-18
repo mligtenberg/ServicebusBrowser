@@ -11,7 +11,7 @@ export type TopologyNode = {
   name: string;
   refreshable: boolean;
   defaultAction?: TopologyAction;
-  availableMessageCounts?: Record<string, number>;
+  availableMessageCounts?: { name: string; count: number; showInSummary: boolean }[];
   sendEndpoint?: SendEndpoint;
   receiveEndpoints?: ReceiveEndpoint[];
   children?: TopologyNode[];

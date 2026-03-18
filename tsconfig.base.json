@@ -97,6 +97,9 @@
       ],
       "@service-bus-browser/service-bus-api-contracts": [
         "libs/backend/messaging-brokers/service-bus/contracts/src/index.ts"
+      ],
+      "@service-bus-browser/rabbitmq-backend-clients": [
+        "libs/backend/messaging-brokers/rabbitmq/clients/src/index.ts"
       ]
     }
   },

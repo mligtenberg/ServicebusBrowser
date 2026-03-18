@@ -252,12 +252,23 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'queue',
-      availableMessageCounts: {
-        'Active messages': queue.metaData.activeMessageCount,
-        'Dead letters': queue.metaData.deadLetterMessageCount,
-        'Transferring dead letters':
-          queue.metaData.transferDeadLetterMessageCount,
-      },
+      availableMessageCounts: [
+        {
+          name: 'Active messages',
+          count: queue.metaData.activeMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Dead letters',
+          count: queue.metaData.deadLetterMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Transferring dead letters',
+          count: queue.metaData.transferDeadLetterMessageCount,
+          showInSummary: true,
+        }
+      ],
       defaultAction: {
         icon: 'pi pi-pencil',
         displayName: 'Edit queue',
@@ -407,12 +418,23 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'subscription',
-      availableMessageCounts: {
-        'Active messages': subscription.metaData.activeMessageCount,
-        'Dead letters': subscription.metaData.deadLetterMessageCount,
-        'Transferring dead letters':
-          subscription.metaData.transferDeadLetterMessageCount,
-      },
+      availableMessageCounts: [
+        {
+          name: 'Active messages',
+          count: subscription.metaData.activeMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Dead letters',
+          count: subscription.metaData.deadLetterMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Transferring dead letters',
+          count: subscription.metaData.transferDeadLetterMessageCount,
+          showInSummary: true,
+        },
+      ],
       receiveEndpoints: [
         {
           displayName: subscription.name,

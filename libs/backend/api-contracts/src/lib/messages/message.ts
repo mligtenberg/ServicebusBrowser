@@ -1,5 +1,29 @@
 export type PropertyValue = number | boolean | string | Date | null;
 
+export type AmqpHeader = {
+  durable?: boolean;
+  priority?: number;
+  ttl?: number;
+  'first-acquirer'?: boolean;
+  'delivery-count'?: number;
+};
+
+export type AmqpProperties = {
+  'message-id'?: string | number | Uint8Array;
+  'user-id'?: Uint8Array;
+  to?: string;
+  subject?: string;
+  'reply-to'?: string;
+  'correlation-id'?: string | number | Uint8Array;
+  'content-type'?: string;
+  'content-encoding'?: string;
+  'absolute-expiry-time'?: Date;
+  'creation-time'?: Date;
+  'group-id'?: string;
+  'group-sequence'?: number;
+  'reply-to-group-id'?: string;
+};
+
 /**
  * Describes the message to be sent to Service Bus.
  */
@@ -8,7 +32,10 @@ export interface Message {
   messageId?: string | number;
   contentType?: string;
 
-  systemProperties?: Record<string, PropertyValue>;
+  headers?: AmqpHeader;
+  deliveryAnnotations?: Record<string, PropertyValue>;
+  messageAnnotations?: Record<string, PropertyValue>;
+  properties?: AmqpProperties;
   applicationProperties?: Record<string, PropertyValue>;
 }
 
@@ -22,21 +49,10 @@ export function ToMessageToSend(message: ReceivedMessage): Message {
     body: message.body,
     messageId: message.messageId,
     contentType: message.contentType,
-    systemProperties: Object.entries(message.systemProperties ?? {})
-      .filter(
-        ([key]) =>
-          ![
-            'messageId',
-            'deadLetterReason',
-            'deadLetterErrorDescription',
-            'enqueuedTimeUtc',
-            'expiresAtUtc',
-            'sequenceNumber',
-            'state',
-            'deliveryCount',
-          ].includes(key),
-      )
-      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
+    headers: message.headers,
+    deliveryAnnotations: message.deliveryAnnotations,
+    messageAnnotations: message.messageAnnotations,
+    properties: message.properties,
     applicationProperties: message.applicationProperties,
   };
 }

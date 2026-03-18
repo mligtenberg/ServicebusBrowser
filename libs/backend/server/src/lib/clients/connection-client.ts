@@ -6,6 +6,12 @@ import {
   TopologyProvider,
 } from '@service-bus-browser/api-contracts';
 import {
+  RabbitMqConnectionValidator,
+  RabbitMqMessagesReader,
+  RabbitMqMessagesSender,
+  RabbitMqTopologyProvider,
+} from '@service-bus-browser/rabbitmq-backend-clients';
+import {
   ServiceBusConnectionValidator,
   ServiceBusMessagesReader,
   ServiceBusMessagesSender,
@@ -20,12 +26,20 @@ export class ConnectionClient {
       return new ServiceBusTopologyProvider(this.connection);
     }
 
+    if (this.connection.target === 'rabbitmq') {
+      return new RabbitMqTopologyProvider(this.connection);
+    }
+
     return undefined;
   }
 
   getMessagesReader(): MessagesReader | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusMessagesReader(this.connection);
+    }
+
+    if (this.connection.target === 'rabbitmq') {
+      return new RabbitMqMessagesReader(this.connection);
     }
 
     return undefined;
@@ -36,12 +50,20 @@ export class ConnectionClient {
       return new ServiceBusMessagesSender(this.connection);
     }
 
+    if (this.connection.target === 'rabbitmq') {
+      return new RabbitMqMessagesSender(this.connection);
+    }
+
     return undefined;
   }
 
   getConnectionValidator(): ConnectionValidator | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusConnectionValidator(this.connection);
+    }
+
+    if (this.connection.target === 'rabbitmq') {
+      return new RabbitMqConnectionValidator(this.connection);
     }
 
     return undefined;

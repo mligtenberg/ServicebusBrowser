@@ -22,6 +22,16 @@ export interface ServiceBusTopicSendEndpoint extends SendEndpointBase {
   type: 'topic';
 }
 
+export interface RabbitMqQueueSendEndpoint extends SendEndpointBase {
+  connectionId: UUID;
+  queueName: string;
+  endpoint: string;
+  endpointDisplay: string;
+  target: 'rabbitmq';
+  type: 'queue';
+}
+
 export type SendEndpoint =
   | ServiceBusQueueSendEndpoint
-  | ServiceBusTopicSendEndpoint;
+  | ServiceBusTopicSendEndpoint
+  | RabbitMqQueueSendEndpoint;
