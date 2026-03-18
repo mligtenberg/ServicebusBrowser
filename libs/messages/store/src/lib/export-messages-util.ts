@@ -1,6 +1,4 @@
-import {
-  MessageFilter,
-} from '@service-bus-browser/filtering';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ZipReader, ZipWriter } from '@zip.js/zip.js';
@@ -40,12 +38,15 @@ export class ExportMessagesUtil {
       }),
     );
 
-    const { handle, ufs: isUfs } = await this.getFileHandle(`${page.name}.zip`, [
-      {
-        name: 'application/zip',
-        extensions: ['.zip'],
-      },
-      ]);
+    const { handle, ufs: isUfs } = await this.getFileHandle(
+      `${page.name}.zip`,
+      [
+        {
+          name: 'application/zip',
+          extensions: ['.zip'],
+        },
+      ],
+    );
     const writableStream = await handle.createWritable();
     const zip = new ZipWriter(writableStream);
 
@@ -137,7 +138,10 @@ export class ExportMessagesUtil {
       messageId: message.messageId,
       sequence: message.sequence,
       contentType: message.contentType,
-      systemProperties: message.systemProperties || {},
+      headers: message.headers || {},
+      deliveryAnnotations: message.deliveryAnnotations || {},
+      messageAnnotations: message.messageAnnotations || {},
+      properties: message.properties || {},
       applicationProperties: message.applicationProperties || {},
     };
 
@@ -305,21 +309,17 @@ export class ExportMessagesUtil {
         .map(() => '0')
         .join() + properties.sequenceNumber;
 
+    const mapped = this.mapV1SystemProperties(properties);
+
     return {
       key: key,
       body: bodyContent,
       messageId: properties.messageId,
       sequence: properties.sequenceNumber,
-      systemProperties: {
-        subject: properties.subject,
-        correlationId: properties.correlationId,
-        contentType: properties.contentType,
-        enqueuedTimeUtc: properties.enqueuedTimeUtc,
-        timeToLive: properties.timeToLive,
-        to: properties.to,
-        enqueuedSequenceNumber: properties.enqueuedSequenceNumber,
-        state: 'active',
-      },
+      contentType: properties.contentType,
+      headers: mapped.headers,
+      properties: mapped.properties,
+      messageAnnotations: mapped.messageAnnotations,
       applicationProperties: properties.applicationProperties || {},
     } as ReceivedMessage;
   }
@@ -336,9 +336,103 @@ export class ExportMessagesUtil {
       body: bodyContent,
       messageId: properties.messageId,
       sequence: properties.sequence,
-      systemProperties: properties.systemProperties || {},
+      contentType: properties.contentType,
+      headers: properties.headers || {},
+      deliveryAnnotations: properties.deliveryAnnotations || {},
+      messageAnnotations: properties.messageAnnotations || {},
+      properties: properties.properties || {},
       applicationProperties: properties.applicationProperties || {},
     } as ReceivedMessage;
+  }
+
+  private mapV1SystemProperties(properties: Record<string, unknown>) {
+    const headers: Record<string, unknown> = {};
+    const amqpProperties: Record<string, unknown> = {};
+    const messageAnnotations: Record<string, unknown> = {};
+    const usedKeys = new Set<string>();
+
+    const setHeader = (key: string, value: unknown) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+      headers[key] = value;
+    };
+
+    const setProperty = (key: string, value: unknown) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+      amqpProperties[key] = value;
+    };
+
+    const markUsed = (...keys: string[]) => {
+      keys.forEach((key) => usedKeys.add(key));
+    };
+
+    setProperty('message-id', properties['messageId']);
+    setProperty('correlation-id', properties['correlationId']);
+    setProperty('subject', properties['subject']);
+    setProperty('to', properties['to']);
+    setProperty('reply-to', properties['replyTo']);
+    setProperty('content-type', properties['contentType']);
+    markUsed(
+      'messageId',
+      'correlationId',
+      'subject',
+      'to',
+      'replyTo',
+      'contentType',
+    );
+
+    const timeToLive = properties['timeToLive'];
+    if (typeof timeToLive === 'number') {
+      setHeader('ttl', timeToLive);
+      markUsed('timeToLive');
+    }
+
+    if (properties['deliveryCount'] !== undefined) {
+      setHeader('delivery-count', properties['deliveryCount']);
+      markUsed('deliveryCount');
+    }
+
+    if (properties['enqueuedTimeUtc'] !== undefined) {
+      messageAnnotations['enqueuedTimeUtc'] = properties['enqueuedTimeUtc'];
+      markUsed('enqueuedTimeUtc');
+    }
+
+    if (properties['enqueuedSequenceNumber'] !== undefined) {
+      messageAnnotations['enqueuedSequenceNumber'] =
+        properties['enqueuedSequenceNumber'];
+      markUsed('enqueuedSequenceNumber');
+    }
+
+    if (properties['state'] !== undefined) {
+      messageAnnotations['state'] = properties['state'];
+      markUsed('state');
+    }
+
+    if (timeToLive !== undefined && !headers['ttl']) {
+      messageAnnotations['timeToLive'] = timeToLive;
+      markUsed('timeToLive');
+    }
+
+    Object.entries(properties).forEach(([key, value]) => {
+      if (usedKeys.has(key)) {
+        return;
+      }
+
+      messageAnnotations[key] = value;
+    });
+
+    return {
+      headers: Object.keys(headers).length > 0 ? headers : undefined,
+      properties:
+        Object.keys(amqpProperties).length > 0 ? amqpProperties : undefined,
+      messageAnnotations:
+        Object.keys(messageAnnotations).length > 0
+          ? messageAnnotations
+          : undefined,
+    };
   }
 
   private async getFileHandle(
@@ -355,14 +449,16 @@ export class ExportMessagesUtil {
         types: fileTypes,
       })) as FileSystemFileHandle;
 
-      return { handle, ufs: true }
+      return { handle, ufs: true };
     }
 
     const opfsRoot = await navigator.storage.getDirectory();
     const sqliteRoot = await opfsRoot.getDirectoryHandle('exports', {
       create: true,
     });
-    const opfsHandle = await sqliteRoot.getFileHandle(fileName, { create: true });
+    const opfsHandle = await sqliteRoot.getFileHandle(fileName, {
+      create: true,
+    });
     return { handle: opfsHandle, ufs: false };
   }
 }

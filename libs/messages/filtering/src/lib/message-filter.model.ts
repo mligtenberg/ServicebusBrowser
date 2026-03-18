@@ -43,7 +43,10 @@ export type BodyFilter = {
 }
 
 export interface MessageFilter {
-  systemProperties: PropertyFilter[];
+  headers: PropertyFilter[];
+  deliveryAnnotations: PropertyFilter[];
+  messageAnnotations: PropertyFilter[];
+  properties: PropertyFilter[];
   applicationProperties: PropertyFilter[];
   body: BodyFilter[];
 }

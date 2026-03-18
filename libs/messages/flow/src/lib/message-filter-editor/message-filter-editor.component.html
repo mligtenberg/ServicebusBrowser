@@ -9,45 +9,157 @@
 >
   <div>
     <div>
-      <p-accordion [multiple]="true" [value]="['0', '1', '2']">
-        <!-- System Properties -->
+      <p-accordion [multiple]="true" [value]="['0', '1', '2', '3', '4', '5']">
+        <!-- Headers -->
         <p-accordion-panel value="0">
           <p-accordion-header>
             <div class="filter-header">
-              System Properties
-              @let systemFilterTagValue = systemFilterTag();
-              @if (systemFilterTagValue) {
-                <p-tag>{{ systemFilterTagValue }}</p-tag>
+              Headers
+              @let headersFilterTagValue = headersFilterTag();
+              @if (headersFilterTagValue) {
+                <p-tag>{{ headersFilterTagValue }}</p-tag>
               }
             </div>
           </p-accordion-header>
           <p-accordion-content>
             <div>
-              @for (filter of filterForm.systemProperties().value();
+              @for (
+                filter of filterForm.headers().value();
                 let index = $index;
-                track index) {
+                track index
+              ) {
                 <div class="filter-line system-property-filter-line">
                   <lib-system-property-form
-                    [formField]="filterForm.systemProperties[index]"
+                    [formField]="filterForm.headers[index]"
                     [removable]="true"
-                    (removedPressed)="removeSystemPropertyFilter(index)"
-                    [availableSystemProperties]="knownSystemProperties()"
+                    (removedPressed)="removeHeaderFilter(index)"
+                    [availableSystemProperties]="knownHeaders()"
                   />
                 </div>
               }
 
               <p-button
                 icon="pi pi-plus"
-                label="Add System Property Filter"
+                label="Add Header Filter"
                 variant="outlined"
-                (click)="addSystemPropertyFilter()"
+                (click)="addHeaderFilter()"
               ></p-button>
             </div>
           </p-accordion-content>
         </p-accordion-panel>
 
-        <!-- Application Properties -->
+        <!-- Properties -->
         <p-accordion-panel value="1">
+          <p-accordion-header>
+            <div class="filter-header">
+              Properties
+              @let propertiesFilterTagValue = propertiesFilterTag();
+              @if (propertiesFilterTagValue) {
+                <p-tag>{{ propertiesFilterTagValue }}</p-tag>
+              }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @for (
+              filter of filterForm.properties().value();
+              let index = $index;
+              track index
+            ) {
+              <div class="filter-line system-property-filter-line">
+                <lib-system-property-form
+                  [formField]="filterForm.properties[index]"
+                  [removable]="true"
+                  (removedPressed)="removePropertiesFilter(index)"
+                  [availableSystemProperties]="knownProperties()"
+                />
+              </div>
+            }
+
+            <p-button
+              icon="pi pi-plus"
+              label="Add Property Filter"
+              variant="outlined"
+              (click)="addPropertiesFilter()"
+            ></p-button>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <!-- Delivery Annotations -->
+        <p-accordion-panel value="2">
+          <p-accordion-header>
+            <div class="filter-header">
+              Delivery Annotations
+              @let deliveryAnnotationsFilterTagValue =
+                deliveryAnnotationsFilterTag();
+              @if (deliveryAnnotationsFilterTagValue) {
+                <p-tag>{{ deliveryAnnotationsFilterTagValue }}</p-tag>
+              }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @for (
+              filter of filterForm.deliveryAnnotations().value();
+              let index = $index;
+              track index
+            ) {
+              <div class="filter-line system-property-filter-line">
+                <lib-system-property-form
+                  [formField]="filterForm.deliveryAnnotations[index]"
+                  [removable]="true"
+                  (removedPressed)="removeDeliveryAnnotationFilter(index)"
+                  [availableSystemProperties]="knownDeliveryAnnotations()"
+                />
+              </div>
+            }
+
+            <p-button
+              icon="pi pi-plus"
+              label="Add Delivery Annotation Filter"
+              variant="outlined"
+              (click)="addDeliveryAnnotationFilter()"
+            ></p-button>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <!-- Message Annotations -->
+        <p-accordion-panel value="3">
+          <p-accordion-header>
+            <div class="filter-header">
+              Message Annotations
+              @let messageAnnotationsFilterTagValue =
+                messageAnnotationsFilterTag();
+              @if (messageAnnotationsFilterTagValue) {
+                <p-tag>{{ messageAnnotationsFilterTagValue }}</p-tag>
+              }
+            </div>
+          </p-accordion-header>
+          <p-accordion-content>
+            @for (
+              filter of filterForm.messageAnnotations().value();
+              let index = $index;
+              track index
+            ) {
+              <div class="filter-line system-property-filter-line">
+                <lib-system-property-form
+                  [formField]="filterForm.messageAnnotations[index]"
+                  [removable]="true"
+                  (removedPressed)="removeMessageAnnotationFilter(index)"
+                  [availableSystemProperties]="knownMessageAnnotations()"
+                />
+              </div>
+            }
+
+            <p-button
+              icon="pi pi-plus"
+              label="Add Message Annotation Filter"
+              variant="outlined"
+              (click)="addMessageAnnotationFilter()"
+            ></p-button>
+          </p-accordion-content>
+        </p-accordion-panel>
+
+        <!-- Application Properties -->
+        <p-accordion-panel value="4">
           <p-accordion-header>
             <div class="filter-header">
               Application Properties
@@ -58,15 +170,19 @@
             </div>
           </p-accordion-header>
           <p-accordion-content>
-            @for (filter of filterForm.applicationProperties().value();
+            @for (
+              filter of filterForm.applicationProperties().value();
               let index = $index;
-              track index) {
+              track index
+            ) {
               <div class="filter-line application-property-filter-line">
                 <lib-application-property-form
                   [formField]="filterForm.applicationProperties[index]"
                   [removable]="true"
                   (removedPressed)="removeApplicationPropertyFilter(index)"
-                  [availableApplicationProperties]="knownApplicationProperties()"
+                  [availableApplicationProperties]="
+                    knownApplicationProperties()
+                  "
                 />
               </div>
             }
@@ -81,7 +197,7 @@
         </p-accordion-panel>
 
         <!-- Body -->
-        <p-accordion-panel value="2">
+        <p-accordion-panel value="5">
           <p-accordion-header>
             <div class="filter-header">
               Message Body
@@ -92,9 +208,11 @@
             </div>
           </p-accordion-header>
           <p-accordion-content>
-            @for (filter of filterForm.body().value();
+            @for (
+              filter of filterForm.body().value();
               let index = $index;
-              track index) {
+              track index
+            ) {
               <div class="filter-line application-property-filter-line">
                 <lib-body-property-form
                   [formField]="filterForm.body[index]"

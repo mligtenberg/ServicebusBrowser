@@ -8,12 +8,11 @@ import {
   TimespanFilter,
 } from './message-filter.model';
 import { Duration } from 'luxon';
-import { Message } from '@service-bus-browser/api-contracts';
+import { Message, MessagePropertyTypes } from '@service-bus-browser/api-contracts';
 
 /**
  * Service for filtering messages based on various criteria
  */
-
 export function filterMessages(
   messages: Message[],
   filter: MessageFilter,
@@ -24,17 +23,24 @@ export function filterMessages(
 
   let filteredMessages = messages;
 
-  if (hasActiveSystemPropertyFilters(filter)) {
-    filteredMessages = filterBySystemProperty(filteredMessages, filter);
-  }
+  const propertyFilterFunc = (messages: Message[], filterField: MessagePropertyTypes) => {
+    if (oneOrMoreActiveFiltersActiveFilters(filter[filterField])) {
+      return filterByGenericFilterByProperty(
+        messages,
+        filter,
+        filterField,
+      );
+    }
 
-  if (hasActiveApplicationPropertyFilters(filter)) {
-    filteredMessages = filterByApplicationProperty(filteredMessages, filter);
-  }
+    return messages;
+  };
 
-  if (hasActiveBodyFilter(filter)) {
-    filteredMessages = filterByBody(filteredMessages, filter);
-  }
+  filteredMessages = propertyFilterFunc(filteredMessages, 'headers');
+  filteredMessages = propertyFilterFunc(filteredMessages, 'deliveryAnnotations');
+  filteredMessages = propertyFilterFunc(filteredMessages, 'messageAnnotations');
+  filteredMessages = propertyFilterFunc(filteredMessages, 'properties');
+  filteredMessages = propertyFilterFunc(filteredMessages, 'applicationProperties');
+  filteredMessages = filterByBody(filteredMessages, filter);
 
   return filteredMessages;
 }
@@ -47,20 +53,36 @@ export function messageInFilter(
     return true;
   }
 
-  if (hasActiveSystemPropertyFilters(filter)) {
-    for (const filterPart of filter.systemProperties) {
-      if (!messageInSystemPropertyFilter(message, filterPart)) {
-        return false;
+  const propertyFilterFunc = (filterField: MessagePropertyTypes) => {
+    if (oneOrMoreActiveFiltersActiveFilters(filter[filterField])) {
+      for (const filterPart of filter[filterField]) {
+        if (!messageInGenericPropertyFilter(message, filterPart, filterField)) {
+          return false;
+        }
       }
     }
+
+    return true;
   }
 
-  if (hasActiveApplicationPropertyFilters(filter)) {
-    for (const filterPart of filter.applicationProperties) {
-      if (!messageInApplicationPropertyFilter(message, filterPart)) {
-        return false;
-      }
-    }
+  if (!propertyFilterFunc('headers')) {
+    return false;
+  }
+
+  if (!propertyFilterFunc('deliveryAnnotations')) {
+    return false;
+  }
+
+  if (!propertyFilterFunc('messageAnnotations')) {
+    return false;
+  }
+
+  if (!propertyFilterFunc('properties')) {
+    return false;
+  }
+
+  if (!propertyFilterFunc('applicationProperties')) {
+    return false;
   }
 
   if (hasActiveBodyFilter(filter)) {
@@ -74,54 +96,30 @@ export function messageInFilter(
   return true;
 }
 
-function filterBySystemProperty(
+
+function filterByGenericFilterByProperty(
   messages: Message[],
   filter: MessageFilter,
+  filterField: MessagePropertyTypes,
 ): Message[] {
   let filteredMessages = messages;
-  for (const filterPart of filter.systemProperties) {
+  for (const filterPart of filter[filterField]) {
     filteredMessages = filteredMessages.filter((message) =>
-      messageInSystemPropertyFilter(message, filterPart),
+      messageInGenericPropertyFilter(message, filterPart, filterField),
     );
   }
   return filteredMessages;
 }
 
-function messageInSystemPropertyFilter(
+function messageInGenericPropertyFilter(
   message: Message,
   filter: PropertyFilter,
+  filterField: MessagePropertyTypes,
 ): boolean {
   if (!filter.isActive) {
     return true;
   }
-  const propValue = message.systemProperties?.[filter.fieldName];
-  if (propValue === undefined) {
-    return false;
-  }
-  return matchesPropertyFilter(propValue, filter);
-}
-
-function filterByApplicationProperty(
-  messages: Message[],
-  filter: MessageFilter,
-): Message[] {
-  let filteredMessages = messages;
-  for (const filterPart of filter.applicationProperties) {
-    filteredMessages = filteredMessages.filter((message) =>
-      messageInApplicationPropertyFilter(message, filterPart),
-    );
-  }
-  return filteredMessages;
-}
-
-function messageInApplicationPropertyFilter(
-  message: Message,
-  filter: PropertyFilter,
-): boolean {
-  if (!filter.isActive) {
-    return true;
-  }
-  const propValue = message.applicationProperties?.[filter.fieldName];
+  const propValue = (message[filterField] as Record<string, unknown>)?.[filter.fieldName];
   if (propValue === undefined) {
     return false;
   }
@@ -302,14 +300,17 @@ function matchesNumberFilter(value: number, filter: NumberFilter): boolean {
 
 export function hasActiveFilters(filter: MessageFilter): boolean {
   return (
-    hasActiveSystemPropertyFilters(filter) ||
-    hasActiveApplicationPropertyFilters(filter) ||
+    oneOrMoreActiveFiltersActiveFilters(filter.headers) ||
+    oneOrMoreActiveFiltersActiveFilters(filter.deliveryAnnotations) ||
+    oneOrMoreActiveFiltersActiveFilters(filter.messageAnnotations) ||
+    oneOrMoreActiveFiltersActiveFilters(filter.properties) ||
+    oneOrMoreActiveFiltersActiveFilters(filter.applicationProperties) ||
     hasActiveBodyFilter(filter)
   );
 }
 
-export function hasActiveSystemPropertyFilters(filter: MessageFilter): boolean {
-  return filter.systemProperties.some((prop) => prop.isActive);
+export function oneOrMoreActiveFiltersActiveFilters(propertyFilters: PropertyFilter[]): boolean {
+  return propertyFilters.some((prop) => prop.isActive);
 }
 
 export function hasActiveApplicationPropertyFilters(
@@ -324,11 +325,28 @@ export function hasActiveBodyFilter(filter: MessageFilter): boolean {
 
 export function filterIsValid(filter: MessageFilter): boolean {
   if (
-    filter.systemProperties.filter((prop) => !isPropertyFilterValid(prop))
+    filter.headers.filter((prop) => !isPropertyFilterValid(prop))
       .length
   ) {
     return false;
   }
+
+  if (filter.deliveryAnnotations.filter((prop) => !isPropertyFilterValid(prop)).length) {
+    return false;
+  }
+
+
+  if (
+    filter.messageAnnotations.filter((prop) => !isPropertyFilterValid(prop))
+      .length
+  ) {
+    return false;
+  }
+
+  if (filter.properties.filter((prop) => !isPropertyFilterValid(prop)).length) {
+    return false;
+  }
+
 
   if (
     filter.applicationProperties.filter((prop) => !isPropertyFilterValid(prop))

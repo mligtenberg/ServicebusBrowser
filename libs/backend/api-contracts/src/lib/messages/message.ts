@@ -44,6 +44,9 @@ export interface ReceivedMessage extends Message {
   sequence: string;
 }
 
+export type MessagePropertyTypes = Exclude<keyof Message, 'body' | 'messageId' | 'contentType'>;
+
+
 export function ToMessageToSend(message: ReceivedMessage): Message {
   return {
     body: message.body,
