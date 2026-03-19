@@ -189,9 +189,36 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     await this.database.destroy();
   }
 
-  async getSystemPropertyLabels(): Promise<{ label: string; type: string }[]> {
+  async getHeaderPropertyLabels(): Promise<{ label: string; type: string }[]> {
     const rows = await this.selectRows<[string, string]>(
-      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'system' AND propertyType <> 'null'",
+      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'headers' AND propertyType <> 'null'",
+    );
+    return rows.map(([label, type]) => ({ label, type }));
+  }
+
+  async getPropertiesPropertyLabels(): Promise<
+    { label: string; type: string }[]
+  > {
+    const rows = await this.selectRows<[string, string]>(
+      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'properties' AND propertyType <> 'null'",
+    );
+    return rows.map(([label, type]) => ({ label, type }));
+  }
+
+  async getDeliveryAnnotationsPropertyLabels(): Promise<
+    { label: string; type: string }[]
+  > {
+    const rows = await this.selectRows<[string, string]>(
+      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'deliveryAnnotations' AND propertyType <> 'null'",
+    );
+    return rows.map(([label, type]) => ({ label, type }));
+  }
+
+  async getMessageAnnotationsPropertyLabels(): Promise<
+    { label: string; type: string }[]
+  > {
+    const rows = await this.selectRows<[string, string]>(
+      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'messageAnnotations' AND propertyType <> 'null'",
     );
     return rows.map(([label, type]) => ({ label, type }));
   }

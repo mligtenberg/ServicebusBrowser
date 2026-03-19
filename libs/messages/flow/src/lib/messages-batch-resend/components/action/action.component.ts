@@ -41,18 +41,18 @@ export class ActionComponent {
   ];
 
   addTargets = [
-    { label: 'System Properties', value: 'systemProperties' },
+    { label: 'Properties', value: 'properties' },
     { label: 'Application Properties', value: 'applicationProperties' },
   ];
 
   alterTargets = [
     { label: 'Body', value: 'body' },
-    { label: 'System Properties', value: 'systemProperties' },
+    { label: 'Properties', value: 'properties' },
     { label: 'Application Properties', value: 'applicationProperties' },
   ];
 
   removeTargets = [
-    { label: 'System Properties', value: 'systemProperties' },
+    { label: 'Properties', value: 'properties' },
     { label: 'Application Properties', value: 'applicationProperties' },
   ];
 
@@ -75,7 +75,10 @@ export class ActionComponent {
   protected filterMenuVisable = model<boolean>(false);
   protected messageFilter = model<MessageFilter>({
     body: [],
-    systemProperties: [],
+    headers: [],
+    properties: [],
+    deliveryAnnotations: [],
+    messageAnnotations: [],
     applicationProperties: [],
   });
 
@@ -84,7 +87,10 @@ export class ActionComponent {
     this.target.set(undefined);
     this.messageFilter.set({
       body: [],
-      systemProperties: [],
+      headers: [],
+      properties: [],
+      deliveryAnnotations: [],
+      messageAnnotations: [],
       applicationProperties: [],
     });
   }
@@ -99,7 +105,9 @@ export class ActionComponent {
     });
 
     effect(() => {
-      const action = this.action() as Partial<MessageModificationAction> | undefined;
+      const action = this.action() as
+        | Partial<MessageModificationAction>
+        | undefined;
 
       if (!action) {
         return;
@@ -111,7 +119,10 @@ export class ActionComponent {
         action.applyOnFilter ?? {
           body: [],
           applicationProperties: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
         },
       );
     });

@@ -11,11 +11,7 @@ import {
 } from '@angular/core';
 
 import { ColorThemeService } from '@service-bus-browser/services';
-import {
-  CustomPropertyType,
-  SendMessagesForm,
-  SystemPropertyKeys,
-} from './form';
+import { CustomPropertyType, SendMessagesForm, AmqpPropertyKeys } from './form';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -34,8 +30,7 @@ import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-co
 import { Store } from '@ngrx/store';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
-import { SystemKeyProperties } from '@service-bus-browser/messages-contracts';
-import { SystemPropertyHelpers } from '../systemproperty-helpers';
+import { AmqpPropertyKeys as AmqpPropertyKeysList } from './form';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { NgTemplateOutlet } from '@angular/common';
 import { Splitter } from 'primeng/splitter';
@@ -44,7 +39,10 @@ import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { AutoCompleteFormInput } from '../form/auto-complete-form-input/auto-complete-form-input';
-import { SendEndpoint, ToMessageToSend } from '@service-bus-browser/api-contracts';
+import {
+  SendEndpoint,
+  ToMessageToSend,
+} from '@service-bus-browser/api-contracts';
 import { Actions, ofType } from '@ngrx/effects';
 import { routerNavigatedAction } from '@ngrx/router-store';
 
@@ -85,7 +83,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   value = model<SendMessagesForm>(this.getEmptyForm());
   form = form(this.value, (s) => {
     required(s.endpoint);
-    applyEach(s.systemProperties, (group) => {
+    applyEach(s.properties, (group) => {
       required(group.key);
     });
     applyEach(s.applicationProperties, (group) => {
@@ -97,7 +95,6 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   colorThemeService = inject(ColorThemeService);
   store = inject(Store);
   activatedRoute = inject(ActivatedRoute);
-  systemPropertyHelpers = inject(SystemPropertyHelpers);
   actions$ = inject(Actions);
 
   typeOptions: Record<string, CustomPropertyType | string>[] = [
@@ -174,8 +171,8 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   addProperty() {
     this.value.update((v) => ({
       ...v,
-      systemProperties: [
-        ...v.systemProperties,
+      properties: [
+        ...v.properties,
         {
           key: '',
           value: '',
@@ -187,16 +184,14 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   removeProperty(index: number) {
     this.value.update((v) => ({
       ...v,
-      systemProperties: v.systemProperties.filter((_, i) => i !== index),
+      properties: v.properties.filter((_, i) => i !== index),
     }));
   }
 
   getAvailablePropertyKeys(index: number) {
-    return SystemKeyProperties.filter(
+    return AmqpPropertyKeysList.filter(
       (key) =>
-        !this.value().systemProperties.some(
-          (p, i) => p.key === key && i !== index,
-        ),
+        !this.value().properties.some((p, i) => p.key === key && i !== index),
     ).map((key) => ({
       label: key,
       value: key,
@@ -204,37 +199,58 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   }
 
   propertyIsText(index: number) {
-    const key = this.value().systemProperties[index].key;
+    const key = this.value().properties[index].key;
     if (!key) {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsText(key);
+    return (
+      key === 'message-id' ||
+      key === 'user-id' ||
+      key === 'to' ||
+      key === 'subject' ||
+      key === 'reply-to' ||
+      key === 'correlation-id' ||
+      key === 'content-type' ||
+      key === 'content-encoding' ||
+      key === 'group-id' ||
+      key === 'reply-to-group-id'
+    );
   }
 
   propertyIsDate(index: number) {
-    const key = this.value().systemProperties[index].key;
+    const key = this.value().properties[index].key;
     if (!key) {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsDate(key);
+    return key === 'absolute-expiry-time' || key === 'creation-time';
   }
 
   propertyIsTimeSpan(index: number) {
-    const key = this.value().systemProperties[index].key;
+    const key = this.value().properties[index].key;
     if (!key) {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsTimeSpan(key);
+    return false;
+  }
+
+  propertyIsNumber(index: number) {
+    const key = this.value().properties[index].key;
+    if (!key) {
+      return false;
+    }
+
+    return key === 'group-sequence';
   }
 
   propertyUnknownType(index: number) {
     return (
       !this.propertyIsText(index) &&
       !this.propertyIsDate(index) &&
-      !this.propertyIsTimeSpan(index)
+      !this.propertyIsTimeSpan(index) &&
+      !this.propertyIsNumber(index)
     );
   }
 
@@ -277,15 +293,18 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
           // toBase64 is supported by all browsers, but not in typescript yet
           bodyBase64: (body as any).toBase64(),
           contentType: formValue.contentType ?? undefined,
-          messageId: (formValue.systemProperties.find(
-            (x) => x.key === 'messageId',
-          )?.value ?? undefined) as string | undefined,
-          systemProperties: formValue.systemProperties.reduce(
+          messageId: (formValue.properties.find((x) => x.key === 'message-id')
+            ?.value ?? undefined) as string | undefined,
+          properties: formValue.properties.reduce(
             (acc, x) => {
               acc[x.key] = x.value;
               return acc;
             },
-            {} as Record<string, string | number | Date | boolean>,
+            {
+              ...(formValue.contentType
+                ? { 'content-type': formValue.contentType }
+                : {}),
+            } as Record<string, string | number | Date | boolean>,
           ),
           applicationProperties: formValue.applicationProperties.reduce(
             (acc, x) => {
@@ -330,21 +349,21 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
 
         const message = ToMessageToSend(receivedMessage);
 
-        const systemProperties = Object.entries(message.systemProperties ?? {})
+        const properties = Object.entries(message.properties ?? {})
           .filter(
             ([key, value]) =>
-              value && SystemPropertyKeys.includes(key as SystemPropertyKeys),
+              value && AmqpPropertyKeysList.includes(key as AmqpPropertyKeys),
           )
           .map(([key, value]) => ({
-            key: key as SystemPropertyKeys,
-            value: (value ?? '') as string | Date,
+            key: key as AmqpPropertyKeys,
+            value: (value ?? '') as string | Date | number,
           }));
 
         const body = new TextDecoder().decode(message.body.buffer);
         this.value.set({
           body: body,
           contentType: message.contentType ?? '',
-          systemProperties: systemProperties,
+          properties: properties,
           applicationProperties: message.applicationProperties
             ? Object.entries(message.applicationProperties).map(
                 ([key, value]) => {
@@ -372,7 +391,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
     return {
       body: '',
       contentType: '',
-      systemProperties: [],
+      properties: [],
       applicationProperties: [],
       endpoint: null,
     };

@@ -1,9 +1,13 @@
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
-
 import {
-  PropertyValue,
-  SystemPropertyKey
-} from '@service-bus-browser/messages-contracts';
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+} from '@angular/core';
+
+import { PropertyValue } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
@@ -11,13 +15,15 @@ import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { Popover } from 'primeng/popover';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { SystemPropertyHelpers } from '../../../../../systemproperty-helpers';
-import { SystemPropertyKeys } from '../../../../../send-message/form';
+import {
+  AmqpPropertyKeys,
+  AmqpPropertyKeys as AmqpPropertyKeysList,
+} from '../../../../../send-message/form';
 import { Tooltip } from 'primeng/tooltip';
 import {
   AlterAction,
-  AlterSystemPropertyActions,
-  AlterSystemPropertyPartialReplaceAction,
+  AlterPropertyActions,
+  AlterPropertyPartialReplaceAction,
   AlterType,
   MessageModificationAction,
 } from '@service-bus-browser/message-modification-engine';
@@ -33,39 +39,36 @@ import {
     DatePicker,
     Popover,
     DurationInputComponent,
-    Tooltip
-],
+    Tooltip,
+  ],
   templateUrl: './alter-system-properties.component.html',
   styleUrls: ['./alter-system-properties.component.scss'],
 })
 export class AlterSystemPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
-  systemPropertyHelpers = inject(SystemPropertyHelpers);
 
   action = input<MessageModificationAction>();
   protected alterType = model<AlterType>('fullReplace');
-  protected fieldName = model<SystemPropertyKey | ''>('');
+  protected fieldName = model<AmqpPropertyKeys | ''>('');
   protected value = model<PropertyValue | undefined>();
   protected searchValue = model<string>('');
 
-  systemPropertyKeys = SystemPropertyKeys;
+  propertyKeys = AmqpPropertyKeysList;
 
   alterTypes = computed(() => {
-    const currentFieldIsString = this.systemPropertyIsText(this.fieldName());
+    const currentFieldIsString = this.propertyIsText(this.fieldName());
     if (!currentFieldIsString) {
-      return [
-        { label: 'Full Replace', value: 'fullReplace' },
-      ];
+      return [{ label: 'Full Replace', value: 'fullReplace' }];
     }
 
     return [
       { label: 'Full Replace', value: 'fullReplace' },
       { label: 'Search and Replace', value: 'searchAndReplace' },
       { label: 'Regex Replace', value: 'regexReplace' },
-    ]
+    ];
   });
 
-  alterAction = computed<AlterSystemPropertyActions | undefined>(() => {
+  alterAction = computed<AlterPropertyActions | undefined>(() => {
     const currentAlterType = this.alterType();
     const currentFieldName = this.fieldName();
     const currentValue = this.value();
@@ -77,13 +80,16 @@ export class AlterSystemPropertiesComponent {
     if (currentAlterType === 'fullReplace') {
       return {
         type: 'alter',
-        target: 'systemProperties',
-        fieldName: currentFieldName as SystemPropertyKey,
+        target: 'properties',
+        fieldName: currentFieldName as AmqpPropertyKeys,
         value: currentValue,
         alterType: 'fullReplace',
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };
@@ -96,14 +102,17 @@ export class AlterSystemPropertiesComponent {
 
       return {
         type: 'alter',
-        target: 'systemProperties',
-        fieldName: currentFieldName as SystemPropertyKey,
+        target: 'properties',
+        fieldName: currentFieldName as AmqpPropertyKeys,
         searchValue: currentSearchValue,
         value: currentValue as string,
         alterType: currentAlterType,
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };
@@ -116,18 +125,16 @@ export class AlterSystemPropertiesComponent {
     });
 
     effect(() => {
-      const action = this.action() as
-        | Partial<AlterSystemPropertyActions>
-        | undefined;
+      const action = this.action() as Partial<AlterPropertyActions> | undefined;
       if (!action) {
         return;
       }
 
       const partialReplaceAction =
-        action as Partial<AlterSystemPropertyPartialReplaceAction>;
+        action as Partial<AlterPropertyPartialReplaceAction>;
 
       if (action.fieldName) {
-        this.fieldName.set(action.fieldName);
+        this.fieldName.set(action.fieldName as AmqpPropertyKeys);
       }
 
       if (action.value) {
@@ -144,35 +151,55 @@ export class AlterSystemPropertiesComponent {
     });
   }
 
-  propertyUnknownType(key: SystemPropertyKey | '') {
+  propertyUnknownType(key: AmqpPropertyKeys | '') {
     return (
-      !this.systemPropertyIsText(key) &&
-      !this.systemPropertyIsDate(key) &&
-      !this.systemPropertyIsTimeSpan(key)
+      !this.propertyIsText(key) &&
+      !this.propertyIsDate(key) &&
+      !this.propertyIsTimeSpan(key) &&
+      !this.propertyIsNumber(key)
     );
   }
 
-  systemPropertyIsText(key: SystemPropertyKey | '') {
+  propertyIsText(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsText(key);
+    return (
+      key === 'message-id' ||
+      key === 'user-id' ||
+      key === 'to' ||
+      key === 'subject' ||
+      key === 'reply-to' ||
+      key === 'correlation-id' ||
+      key === 'content-type' ||
+      key === 'content-encoding' ||
+      key === 'group-id' ||
+      key === 'reply-to-group-id'
+    );
   }
 
-  systemPropertyIsDate(key: SystemPropertyKey | '') {
+  propertyIsDate(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsDate(key);
+    return key === 'absolute-expiry-time' || key === 'creation-time';
   }
 
-  systemPropertyIsTimeSpan(key: SystemPropertyKey | '') {
+  propertyIsTimeSpan(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsTimeSpan(key);
+    return false;
+  }
+
+  propertyIsNumber(key: AmqpPropertyKeys | '') {
+    if (key === '') {
+      return false;
+    }
+
+    return key === 'group-sequence';
   }
 }

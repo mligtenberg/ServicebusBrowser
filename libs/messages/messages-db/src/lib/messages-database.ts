@@ -8,7 +8,14 @@ export type MessagesDatabase = {
     filter?: MessageFilter,
     selectionKeys?: string[],
   ): Promise<number>;
-  getSystemPropertyLabels(): Promise<{ label: string; type: string }[]>;
+  getHeaderPropertyLabels(): Promise<{ label: string; type: string }[]>;
+  getPropertiesPropertyLabels(): Promise<{ label: string; type: string }[]>;
+  getDeliveryAnnotationsPropertyLabels(): Promise<
+    { label: string; type: string }[]
+  >;
+  getMessageAnnotationsPropertyLabels(): Promise<
+    { label: string; type: string }[]
+  >;
   getApplicationPropertyLabels(): Promise<{ label: string; type: string }[]>;
   getMessages(
     filter?: MessageFilter,

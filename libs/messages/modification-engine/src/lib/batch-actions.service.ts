@@ -3,7 +3,7 @@ import {
   MessageModificationAction,
   AddAction,
   AddApplicationPropertiesAction,
-  AddSystemPropertiesAction,
+  AddPropertiesAction,
   AlterAction,
   AlterApplicationPropertyActions,
   AlterApplicationPropertyFullReplaceAction,
@@ -11,8 +11,8 @@ import {
   AlterBodyAction,
   AlterBodyFullReplaceAction,
   AlterBodyPartialReplaceAction,
-  AlterSystemPropertyActions,
-  AlterSystemPropertyFullReplaceAction,
+  AlterPropertyActions,
+  AlterPropertyFullReplaceAction,
   RemoveAction,
 } from './batch-actions.model';
 import { messageInFilter } from '@service-bus-browser/filtering';
@@ -22,7 +22,10 @@ import { Message } from '@service-bus-browser/api-contracts';
   providedIn: 'root',
 })
 export class MessageModificationEngine {
-  applyBatchActions<T extends Message>(messages: T[], actions: MessageModificationAction[]): T[] {
+  applyBatchActions<T extends Message>(
+    messages: T[],
+    actions: MessageModificationAction[],
+  ): T[] {
     let modifiedMessages = messages;
     modifiedMessages = modifiedMessages.map((message) =>
       this.applyBatchActionsToMessage(message, actions),
@@ -31,7 +34,10 @@ export class MessageModificationEngine {
     return modifiedMessages;
   }
 
-  applyBatchActionsToMessage<T extends Message>(message: T, actions: MessageModificationAction[]): T {
+  applyBatchActionsToMessage<T extends Message>(
+    message: T,
+    actions: MessageModificationAction[],
+  ): T {
     let modifiedMessage = message;
     for (const action of actions) {
       modifiedMessage = this.applyBatchAction(modifiedMessage, action);
@@ -39,7 +45,10 @@ export class MessageModificationEngine {
     return modifiedMessage;
   }
 
-  public applyBatchAction<T extends Message>(message: T, action: MessageModificationAction): T {
+  public applyBatchAction<T extends Message>(
+    message: T,
+    action: MessageModificationAction,
+  ): T {
     if (
       action.applyOnFilter &&
       !messageInFilter(message, action.applyOnFilter)
@@ -62,9 +71,12 @@ export class MessageModificationEngine {
     throw new Error(`Unknown action type ${action}`);
   }
 
-  private applyAddBatchAction<T extends Message>(message: T, action: AddAction): T {
-    if (action.target === 'systemProperties') {
-      return this.applyAddSystemPropertyBatchAction(message, action);
+  private applyAddBatchAction<T extends Message>(
+    message: T,
+    action: AddAction,
+  ): T {
+    if (action.target === 'properties') {
+      return this.applyAddPropertyBatchAction(message, action);
     }
     if (action.target === 'applicationProperties') {
       return this.applyAddApplicationPropertyBatchAction(message, action);
@@ -73,15 +85,20 @@ export class MessageModificationEngine {
     throw new Error(`Unknown target ${action}`);
   }
 
-  private applyAddSystemPropertyBatchAction<T extends Message>(
+  private applyAddPropertyBatchAction<T extends Message>(
     message: T,
-    action: AddSystemPropertiesAction,
+    action: AddPropertiesAction,
   ) {
-    const currentValue = message.systemProperties?.[action.fieldName];
+    const currentValue = (
+      message.properties as Record<string, unknown> | undefined
+    )?.[action.fieldName];
     if (!currentValue || action.actionOnDuplicate === 'replace') {
       return {
         ...message,
-        [action.fieldName]: action.value,
+        properties: {
+          ...(message.properties ?? {}),
+          [action.fieldName]: action.value,
+        },
       };
     }
 
@@ -106,12 +123,15 @@ export class MessageModificationEngine {
     return message;
   }
 
-  private applyAlterBatchAction<T extends Message>(message: T, action: AlterAction): T {
+  private applyAlterBatchAction<T extends Message>(
+    message: T,
+    action: AlterAction,
+  ): T {
     if (action.target === 'body') {
       return this.applyAlterBodyAction(message, action);
     }
-    if (action.target === 'systemProperties') {
-      return this.applyAlterSystemPropertyAction(message, action);
+    if (action.target === 'properties') {
+      return this.applyAlterPropertyAction(message, action);
     }
     if (action.target === 'applicationProperties') {
       return this.applyAlterApplicationPropertyAction(message, action);
@@ -120,7 +140,10 @@ export class MessageModificationEngine {
     throw new Error(`Unknown target ${action}`);
   }
 
-  private applyAlterBodyAction<T extends Message>(message: T, action: AlterBodyAction): T {
+  private applyAlterBodyAction<T extends Message>(
+    message: T,
+    action: AlterBodyAction,
+  ): T {
     if (action.alterType === 'fullReplace') {
       return this.applyAlterBodyFullReplaceAction(message, action);
     }
@@ -152,54 +175,65 @@ export class MessageModificationEngine {
     if (action.alterType === 'searchAndReplace') {
       return {
         ...message,
-        body: new TextEncoder().encode(this.searchAndReplace(value, action.searchValue, action.value)),
+        body: new TextEncoder().encode(
+          this.searchAndReplace(value, action.searchValue, action.value),
+        ),
       };
     }
     if (action.alterType === 'regexReplace') {
       return {
         ...message,
-        body: new TextEncoder().encode(this.replaceByRegex(value, action.searchValue, action.value)),
+        body: new TextEncoder().encode(
+          this.replaceByRegex(value, action.searchValue, action.value),
+        ),
       };
     }
 
     throw new Error(`Unknown alter body action type ${action}`);
   }
 
-  private applyAlterSystemPropertyAction<T extends Message>(
+  private applyAlterPropertyAction<T extends Message>(
     message: T,
-    action: AlterSystemPropertyActions,
+    action: AlterPropertyActions,
   ): T {
     if (action.alterType === 'fullReplace') {
-      return this.applyAlterSystemPropertyFullReplaceAction(message, action);
+      return this.applyAlterPropertyFullReplaceAction(message, action);
     }
     if (
       action.alterType === 'searchAndReplace' ||
       action.alterType === 'regexReplace'
     ) {
-      return this.applyAlterSystemPropertyPartialReplaceAction(message, action);
+      return this.applyAlterPropertyPartialReplaceAction(message, action);
     }
 
-    throw new Error(`Unknown alter system property action type ${action}`);
+    throw new Error(`Unknown alter property action type ${action}`);
   }
 
-  private applyAlterSystemPropertyFullReplaceAction<T extends Message>(
+  private applyAlterPropertyFullReplaceAction<T extends Message>(
     message: T,
-    action: AlterSystemPropertyFullReplaceAction,
+    action: AlterPropertyFullReplaceAction,
   ): T {
-    const currentValue = message.systemProperties?.[action.fieldName];
+    const currentValue = (
+      message.properties as Record<string, unknown> | undefined
+    )?.[action.fieldName];
     return currentValue
       ? {
           ...message,
-          [action.fieldName]: action.value,
+          properties: {
+            ...(message.properties ?? {}),
+            [action.fieldName]: action.value,
+          },
         }
       : message;
   }
 
-  private applyAlterSystemPropertyPartialReplaceAction<T extends Message>(
+  private applyAlterPropertyPartialReplaceAction<T extends Message>(
     message: T,
-    action: AlterSystemPropertyActions,
+    action: AlterPropertyActions,
   ): T {
-    const value = message.systemProperties?.[action.fieldName];
+    const value = (message.properties as Record<string, unknown> | undefined)?.[
+      action.fieldName
+    ];
     if (!value || typeof value !== 'string') {
       return message;
     }
@@ -207,21 +241,27 @@ export class MessageModificationEngine {
     if (action.alterType === 'searchAndReplace') {
       return {
         ...message,
-        [action.fieldName]: this.searchAndReplace(
-          value,
-          action.searchValue,
-          action.value,
-        ),
+        properties: {
+          ...(message.properties ?? {}),
+          [action.fieldName]: this.searchAndReplace(
+            value,
+            action.searchValue,
+            action.value,
+          ),
+        },
       };
     }
     if (action.alterType === 'regexReplace') {
       return {
         ...message,
-        [action.fieldName]: this.replaceByRegex(
-          value,
-          action.searchValue,
-          action.value,
-        ),
+        properties: {
+          ...(message.properties ?? {}),
+          [action.fieldName]: this.replaceByRegex(
+            value,
+            action.searchValue,
+            action.value,
+          ),
+        },
       };
     }
 
@@ -306,11 +346,18 @@ export class MessageModificationEngine {
     throw new Error(`Unknown alter application property action type ${action}`);
   }
 
-  private applyRemoveBatchAction<T extends Message>(message: T, action: RemoveAction): T {
-    if (action.target === 'systemProperties') {
+  private applyRemoveBatchAction<T extends Message>(
+    message: T,
+    action: RemoveAction,
+  ): T {
+    if (action.target === 'properties') {
+      const updatedProps = {
+        ...(message.properties ?? {}),
+      } as Record<string, unknown>;
+      delete updatedProps[action.fieldName];
       return {
         ...message,
-        [action.fieldName]: undefined,
+        properties: updatedProps,
       };
     }
     if (action.target === 'applicationProperties') {

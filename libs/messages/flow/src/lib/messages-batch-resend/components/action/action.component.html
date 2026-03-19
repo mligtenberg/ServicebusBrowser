@@ -4,11 +4,7 @@
     [(ngModel)]="currentActionType"
     [options]="actionTypes"
   />
-  <p-select
-    placeholder="Target"
-    [(ngModel)]="target"
-    [options]="targets()"
-  />
+  <p-select placeholder="Target" [(ngModel)]="target" [options]="targets()" />
   <p-button
     [icon]="isFilterActive() ? 'pi pi-filter-fill' : 'pi pi-filter'"
     ariaLabel="filter messages"
@@ -17,7 +13,10 @@
 </p-input-group>
 
 @let currentTarget = target();
-@if (currentActionType() === 'add' && (currentTarget === 'systemProperties' || currentTarget === 'applicationProperties')) {
+@if (
+  currentActionType() === 'add' &&
+  (currentTarget === 'properties' || currentTarget === 'applicationProperties')
+) {
   <lib-add-action-body
     [action]="action()"
     [target]="currentTarget"
@@ -35,7 +34,10 @@
   />
 }
 
-@if (currentActionType() === 'remove' && (currentTarget === 'systemProperties' || currentTarget === 'applicationProperties')) {
+@if (
+  currentActionType() === 'remove' &&
+  (currentTarget === 'properties' || currentTarget === 'applicationProperties')
+) {
   <lib-remove-action-body
     [target]="currentTarget"
     [messageFilter]="messageFilter()"

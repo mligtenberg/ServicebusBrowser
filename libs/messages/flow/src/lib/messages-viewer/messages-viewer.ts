@@ -24,7 +24,6 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
 import { Splitter } from 'primeng/splitter';
@@ -69,15 +68,27 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   pageId = input.required<UUID>();
   messagesContextMenu = input<MenuItem[]>([]);
   applicationPropertiesContextMenu = input<MenuItem[]>([]);
-  systemPropertiesContextMenu = input<MenuItem[]>([]);
+  headersContextMenu = input<MenuItem[]>([]);
+  propertiesContextMenu = input<MenuItem[]>([]);
+  deliveryAnnotationsContextMenu = input<MenuItem[]>([]);
+  messageAnnotationsContextMenu = input<MenuItem[]>([]);
 
   messages = input.required<ReceivedMessage[]>();
   maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 
   selection = model<string | string[]>();
-  systemPropertiesContextMenuSelection = model<
-    { key: systemPropertyKeys; value: unknown } | undefined
+  headersContextMenuSelection = model<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  propertiesContextMenuSelection = model<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  deliveryAnnotationsContextMenuSelection = model<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  messageAnnotationsContextMenuSelection = model<
+    { key: string; value: unknown } | undefined
   >(undefined);
   applicationPropertiesContextMenuSelection = model<
     { key: string; value: unknown } | undefined
@@ -134,8 +145,15 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   showApplicationPropertiesContextMenu = computed(
     () => this.applicationPropertiesContextMenu().length > 0,
   );
-  showSystemPropertiesContextMenu = computed(
-    () => this.systemPropertiesContextMenu().length > 0,
+  showHeadersContextMenu = computed(() => this.headersContextMenu().length > 0);
+  showPropertiesContextMenu = computed(
+    () => this.propertiesContextMenu().length > 0,
+  );
+  showDeliveryAnnotationsContextMenu = computed(
+    () => this.deliveryAnnotationsContextMenu().length > 0,
+  );
+  showMessageAnnotationsContextMenu = computed(
+    () => this.messageAnnotationsContextMenu().length > 0,
   );
 
   body = computed(() => {
@@ -147,14 +165,53 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     return new TextDecoder().decode(message.body.buffer);
   });
 
-  systemProperties = computed<Array<{ key: string; value: unknown }>>(() => {
-    const systemProperties = this.selectedMessage()?.systemProperties;
+  headers = computed<Array<{ key: string; value: unknown }>>(() => {
+    const headers = this.selectedMessage()?.headers;
 
-    if (!systemProperties) {
+    if (!headers) {
       return [];
     }
 
-    return Object.entries(systemProperties).map(([key, value]) => ({
+    return Object.entries(headers).map(([key, value]) => ({
+      key,
+      label: key,
+      value,
+    }));
+  });
+  properties = computed<Array<{ key: string; value: unknown }>>(() => {
+    const properties = this.selectedMessage()?.properties;
+
+    if (!properties) {
+      return [];
+    }
+
+    return Object.entries(properties).map(([key, value]) => ({
+      key,
+      label: key,
+      value,
+    }));
+  });
+  deliveryAnnotations = computed<Array<{ key: string; value: unknown }>>(() => {
+    const deliveryAnnotations = this.selectedMessage()?.deliveryAnnotations;
+
+    if (!deliveryAnnotations) {
+      return [];
+    }
+
+    return Object.entries(deliveryAnnotations).map(([key, value]) => ({
+      key,
+      label: key,
+      value,
+    }));
+  });
+  messageAnnotations = computed<Array<{ key: string; value: unknown }>>(() => {
+    const messageAnnotations = this.selectedMessage()?.messageAnnotations;
+
+    if (!messageAnnotations) {
+      return [];
+    }
+
+    return Object.entries(messageAnnotations).map(([key, value]) => ({
       key,
       label: key,
       value,
@@ -178,7 +235,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   cols = [
     { field: 'sequence', header: 'Sequence' },
     { field: 'messageId', header: 'Id' },
-    { field: 'systemProperties.subject', header: 'Subject' },
+    { field: 'properties.subject', header: 'Subject' },
   ];
   propertiesCols = [
     { field: 'label', header: 'Key' },

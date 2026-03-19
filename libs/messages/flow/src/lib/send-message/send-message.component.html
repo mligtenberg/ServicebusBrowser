@@ -1,6 +1,9 @@
 <form class="send-message-container" #formContainer>
   <div class="edit-area">
-    <p-splitter [panelSizes]="[70, 30]" [layout]="containerWidth() < 600 ? 'vertical' : 'horizontal'">
+    <p-splitter
+      [panelSizes]="[70, 30]"
+      [layout]="containerWidth() < 600 ? 'vertical' : 'horizontal'"
+    >
       <ng-template #panel>
         <div class="header">
           <h2>Message body</h2>
@@ -9,13 +12,13 @@
       </ng-template>
       <ng-template #panel>
         <div class="all-properties-container">
-          <p-scroll-panel style="width: 100%; height: 100%;">
+          <p-scroll-panel style="width: 100%; height: 100%">
             <div class="system-properties">
               <div class="header">
-                <h2>System properties</h2>
+                <h2>Properties</h2>
               </div>
               <div class="properties-container">
-                <ng-container *ngTemplateOutlet="systemPropertiesTemplate" />
+                <ng-container *ngTemplateOutlet="propertiesTemplate" />
               </div>
             </div>
             <div class="application-properties">
@@ -23,7 +26,9 @@
                 <h2>Application properties</h2>
               </div>
               <div class="properties-container">
-                <ng-container *ngTemplateOutlet="applicationPropertiesTemplate" />
+                <ng-container
+                  *ngTemplateOutlet="applicationPropertiesTemplate"
+                />
               </div>
             </div>
           </p-scroll-panel>
@@ -32,14 +37,19 @@
     </p-splitter>
   </div>
   <div class="message-actions">
-    <sbb-tpl-endpoint-selector-input
-      [formField]="form.endpoint"/>
-    <button pButton type="button" (click)="send()" [disabled]="form().invalid()">Send</button>
+    <sbb-tpl-endpoint-selector-input [formField]="form.endpoint" />
+    <button
+      pButton
+      type="button"
+      (click)="send()"
+      [disabled]="form().invalid()"
+    >
+      Send
+    </button>
   </div>
 </form>
 
-
-<ng-template #systemPropertiesTemplate>
+<ng-template #propertiesTemplate>
   <p-floatlabel variant="on">
     <lib-auto-complete-form-input
       [suggestions]="contentTypeSuggestions()"
@@ -50,11 +60,15 @@
     <!--suppress XmlInvalidId -->
     <label for="contentType">Content type</label>
   </p-floatlabel>
-  @for (control of form.systemProperties().value(); let index = $index; track $index) {
-    @let systemProperty = form.systemProperties[index];
+  @for (
+    control of form.properties().value();
+    let index = $index;
+    track $index
+  ) {
+    @let property = form.properties[index];
     <p-input-group>
       <lib-select-signal-form-input
-        [formField]="systemProperty.key"
+        [formField]="property.key"
         [options]="getAvailablePropertyKeys($index)"
         optionLabel="label"
         optionValue="value"
@@ -63,37 +77,46 @@
       @if (propertyIsText($index)) {
         <input
           pInputText
-          [formField]="formHelpers.asStringValueTree(systemProperty.value)"
-          placeholder="Value"/>
+          [formField]="formHelpers.asStringValueTree(property.value)"
+          placeholder="Value"
+        />
       }
       @if (propertyIsDate($index)) {
         <lib-date-picker-signal-form-input
-          [formField]="formHelpers.asDateValueTree(systemProperty.value)" />
+          [formField]="formHelpers.asDateValueTree(property.value)"
+        />
       }
       @if (propertyIsTimeSpan($index)) {
         <input
           (click)="popover.toggle($event)"
           pInputText
           readonly
-          [value]="systemProperty.value().value()"
+          [value]="property.value().value()"
           class="time-span-trigger"
           aria-disabled="false"
-          placeholder="Value" />
-        <p-popover
-          appendTo="body"
-          #popover
-        >
+          placeholder="Value"
+        />
+        <p-popover appendTo="body" #popover>
           <sbb-duration-input
-            [formField]="formHelpers.asStringValueTree(systemProperty.value)"
+            [formField]="formHelpers.asStringValueTree(property.value)"
           />
         </p-popover>
+      }
+      @if (propertyIsNumber($index)) {
+        <input
+          pInputText
+          type="number"
+          [formField]="formHelpers.asNumberValueTree(property.value)"
+          placeholder="Value"
+        />
       }
 
       @if (propertyUnknownType($index)) {
         <input
           pInputText
-          [formField]="formHelpers.asStringValueTree(systemProperty.value)"
-          placeholder="Value"/>
+          [formField]="formHelpers.asStringValueTree(property.value)"
+          placeholder="Value"
+        />
       }
 
       <p-inputgroup-addon>
@@ -102,7 +125,8 @@
           icon="pi pi-times"
           [text]="true"
           severity="danger"
-          (click)="removeProperty($index)"/>
+          (click)="removeProperty($index)"
+        />
       </p-inputgroup-addon>
     </p-input-group>
   }
@@ -111,13 +135,18 @@
   </div>
 </ng-template>
 <ng-template #applicationPropertiesTemplate>
-  @for (control of form.applicationProperties().value(); let index = $index; track $index) {
+  @for (
+    control of form.applicationProperties().value();
+    let index = $index;
+    track $index
+  ) {
     @let applicationProperty = form.applicationProperties[index];
     <p-input-group>
       <input
         pInputText
         [formField]="applicationProperty.key"
-        placeholder="Key"/>
+        placeholder="Key"
+      />
       <lib-select-signal-form-input
         [formField]="applicationProperty.type"
         [options]="typeOptions"
@@ -128,29 +157,38 @@
         <input
           pInputText
           [formField]="formHelpers.asStringValueTree(applicationProperty.value)"
-          placeholder="Value"/>
+          placeholder="Value"
+        />
       }
       @if (control.type === 'datetime') {
         <lib-date-picker-signal-form-input
-          [formField]="formHelpers.asDateValueTree(applicationProperty.value)" />
+          [formField]="formHelpers.asDateValueTree(applicationProperty.value)"
+        />
       }
       @if (control.type === 'number') {
         <input
           pInputText
           type="number"
           [formField]="formHelpers.asNumberValueTree(applicationProperty.value)"
-          placeholder="Value"/>
+          placeholder="Value"
+        />
       }
       @if (control.type === 'boolean') {
         <lib-select-signal-form-input
-          [formField]="formHelpers.asBooleanValueTree(applicationProperty.value)"
-          [options]="[{
-          label: 'true',
-          value: true,
-          }, {
-          label: 'false',
-          value: false,
-          }]"/>
+          [formField]="
+            formHelpers.asBooleanValueTree(applicationProperty.value)
+          "
+          [options]="[
+            {
+              label: 'true',
+              value: true,
+            },
+            {
+              label: 'false',
+              value: false,
+            },
+          ]"
+        />
       }
       <p-inputgroup-addon>
         <p-button
@@ -158,12 +196,15 @@
           icon="pi pi-times"
           [text]="true"
           severity="danger"
-          (click)="removeApplicationProperty($index)"/>
+          (click)="removeApplicationProperty($index)"
+        />
       </p-inputgroup-addon>
     </p-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addApplicationProperty()">Add</button>
+    <button pButton type="button" (click)="addApplicationProperty()">
+      Add
+    </button>
   </div>
 </ng-template>
 <ng-template #bodyTemplate>

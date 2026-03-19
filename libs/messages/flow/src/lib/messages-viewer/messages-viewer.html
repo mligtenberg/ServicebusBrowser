@@ -1,58 +1,77 @@
 <div class="container" #container>
-
   @if (containerWidth() >= 600) {
-    <div class="wide">
-      <p-splitter [panelSizes]="[75, 25]"
-                  (onResizeStart)="isResizing.set(true)"
-                  (onResizeEnd)="isResizing.set(false); cdRef.detectChanges()"
-                  (resize)="onResize()"
-      >
-        <ng-template #panel>
-          <p-splitter [panelSizes]="[40, 60]" layout="vertical">
-            <ng-template pTemplate>
-              <div class="card messages">
-                <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
-              </div>
-            </ng-template>
-            <ng-template pTemplate>
-              <div class="card body">
-                <ng-template *ngTemplateOutlet="bodyTemplate" />
-              </div>
-            </ng-template>
-          </p-splitter>
-        </ng-template>
-        <ng-template #panel>
-          <p-scroll-panel style="width: 100%; height: 100%;" [ngClass]="{'hide-scrollbar': isResizing()}">
-            <div class="properties">
-              <div class="system-properties">
-                <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
-              </div>
-              <div class="application-properties">
-                <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-              </div>
+  <div class="wide">
+    <p-splitter
+      [panelSizes]="[75, 25]"
+      (onResizeStart)="isResizing.set(true)"
+      (onResizeEnd)="isResizing.set(false); cdRef.detectChanges()"
+      (resize)="onResize()"
+    >
+      <ng-template #panel>
+        <p-splitter [panelSizes]="[40, 60]" layout="vertical">
+          <ng-template pTemplate>
+            <div class="card messages">
+              <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
             </div>
-          </p-scroll-panel>
-        </ng-template>
-      </p-splitter>
+          </ng-template>
+          <ng-template pTemplate>
+            <div class="card body">
+              <ng-template *ngTemplateOutlet="bodyTemplate" />
+            </div>
+          </ng-template>
+        </p-splitter>
+      </ng-template>
+      <ng-template #panel>
+        <p-scroll-panel
+          style="width: 100%; height: 100%"
+          [ngClass]="{'hide-scrollbar': isResizing()}"
+        >
+          <div class="properties">
+            <div class="system-properties">
+              <ng-template *ngTemplateOutlet="headersTemplate" />
+            </div>
+            <div class="system-properties">
+              <ng-template *ngTemplateOutlet="propertiesTemplate" />
+            </div>
+            <div class="system-properties">
+              <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
+            </div>
+            <div class="system-properties">
+              <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
+            </div>
+            <div class="application-properties">
+              <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+            </div>
+          </div>
+        </p-scroll-panel>
+      </ng-template>
+    </p-splitter>
+  </div>
+  } @else {
+  <div class="narrow">
+    <div class="card messages">
+      <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
     </div>
-  }
-  @else {
-    <div class="narrow">
-      <div class="card messages">
-        <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
-      </div>
-      <div class="card body">
-        <ng-template *ngTemplateOutlet="bodyTemplate" />
-      </div>
-      <div class="system-properties">
-        <ng-template *ngTemplateOutlet="systemPropertiesTemplate" />
-      </div>
-      <div class="application-properties">
-        <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-      </div>
+    <div class="card body">
+      <ng-template *ngTemplateOutlet="bodyTemplate" />
     </div>
+    <div class="system-properties">
+      <ng-template *ngTemplateOutlet="headersTemplate" />
+    </div>
+    <div class="system-properties">
+      <ng-template *ngTemplateOutlet="propertiesTemplate" />
+    </div>
+    <div class="system-properties">
+      <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
+    </div>
+    <div class="system-properties">
+      <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
+    </div>
+    <div class="application-properties">
+      <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
+    </div>
+  </div>
   }
-
 </div>
 
 <ng-template #messageSelectorTemplate>
@@ -61,15 +80,11 @@
       <h2>Messages</h2>
       <div class="header-actions">
         @if (messagesHeader(); as ref) {
-          <ng-container *ngTemplateOutlet="ref"></ng-container>
+        <ng-container *ngTemplateOutlet="ref"></ng-container>
         }
       </div>
     </div>
-    <p-context-menu
-      #cm
-      appendTo="body"
-      [model]="messagesContextMenu()"
-    />
+    <p-context-menu #cm appendTo="body" [model]="messagesContextMenu()" />
     <p-table
       #messagesTable
       [columns]="cols"
@@ -93,9 +108,7 @@
       <ng-template pTemplate="header" let-columns>
         <tr>
           @for (col of columns; track col) {
-            <th style="width: 20%">
-              {{ col.header }}
-            </th>
+          <th style="width: 20%">{{ col.header }}</th>
           }
         </tr>
       </ng-template>
@@ -112,21 +125,19 @@
           [pSelectableRowIndex]="rowIndex"
         >
           @for (col of columns; track col) {
-            <td>
-              {{ getField(rowData, col.field) }}
-            </td>
+          <td>{{ getField(rowData, col.field) }}</td>
           }
         </tr>
       </ng-template>
     </p-table>
     @if (usePagination()) {
-      <p-paginator
-        [rows]="maxMessagesPerPage()"
-        [totalRecords]="messages().length"
-        (onPageChange)="setPage($event)"
-        style="--p-paginator-padding: 3px"
-        #messagesPaginator
-      />
+    <p-paginator
+      [rows]="maxMessagesPerPage()"
+      [totalRecords]="messages().length"
+      (onPageChange)="setPage($event)"
+      style="--p-paginator-padding: 3px"
+      #messagesPaginator
+    />
     }
   </div>
 </ng-template>
@@ -135,25 +146,27 @@
   <lib-body-viewer
     header="Body"
     [body]="body()"
-    [contentType]="selectedMessage()?.contentType ?? 'text/plain'" />
+    [contentType]="selectedMessage()?.contentType ?? 'text/plain'"
+  />
 </ng-template>
 
-<ng-template #systemPropertiesTemplate>
+<ng-template #headersTemplate>
   <div class="header">
-    <h2>System properties</h2>
+    <h2>Headers</h2>
   </div>
   <div class="table-container">
     <p-context-menu
       #propertyMenu
-      [model]="systemPropertiesContextMenu()"
-      appendTo="body" />
+      [model]="headersContextMenu()"
+      appendTo="body"
+    />
     <p-table
       [columns]="propertiesCols"
-      [value]="systemProperties()"
+      [value]="headers()"
       [virtualScroll]="false"
       dataKey="key"
-      [contextMenu]="showSystemPropertiesContextMenu() ? propertyMenu : undefined"
-      [(contextMenuSelection)]="systemPropertiesContextMenuSelection"
+      [contextMenu]="showHeadersContextMenu() ? propertyMenu : undefined"
+      [(contextMenuSelection)]="headersContextMenuSelection"
     >
       <ng-template
         pTemplate="body"
@@ -162,17 +175,131 @@
         let-columns="columns"
       >
         <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) {
-            @if (dateGuard(rowData[col.field])) {
-              <td class="user-selectable">
-                {{ rowData[col.field] | date: 'medium' }}
-              </td>
-            } @else {
-              <td class="user-selectable">
-                {{ rowData[col.field] }}
-              </td>
-            }
-          }
+          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
+          {
+          <td class="user-selectable">
+            {{ rowData[col.field] | date: 'medium' }}
+          </td>
+          } @else {
+          <td class="user-selectable">{{ rowData[col.field] }}</td>
+          } }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<ng-template #propertiesTemplate>
+  <div class="header">
+    <h2>Properties</h2>
+  </div>
+  <div class="table-container">
+    <p-context-menu
+      #propertiesMenu
+      [model]="propertiesContextMenu()"
+      appendTo="body"
+    />
+    <p-table
+      [columns]="propertiesCols"
+      [value]="properties()"
+      [virtualScroll]="false"
+      dataKey="key"
+      [contextMenu]="showPropertiesContextMenu() ? propertiesMenu : undefined"
+      [(contextMenuSelection)]="propertiesContextMenuSelection"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height: 30px" [pContextMenuRow]="rowData">
+          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
+          {
+          <td class="user-selectable">
+            {{ rowData[col.field] | date: 'medium' }}
+          </td>
+          } @else {
+          <td class="user-selectable">{{ rowData[col.field] }}</td>
+          } }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<ng-template #deliveryAnnotationsTemplate>
+  <div class="header">
+    <h2>Delivery annotations</h2>
+  </div>
+  <div class="table-container">
+    <p-context-menu
+      #deliveryAnnotationsMenu
+      [model]="deliveryAnnotationsContextMenu()"
+      appendTo="body"
+    />
+    <p-table
+      [columns]="propertiesCols"
+      [value]="deliveryAnnotations()"
+      [virtualScroll]="false"
+      dataKey="key"
+      [contextMenu]="showDeliveryAnnotationsContextMenu() ? deliveryAnnotationsMenu : undefined"
+      [(contextMenuSelection)]="deliveryAnnotationsContextMenuSelection"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height: 30px" [pContextMenuRow]="rowData">
+          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
+          {
+          <td class="user-selectable">
+            {{ rowData[col.field] | date: 'medium' }}
+          </td>
+          } @else {
+          <td class="user-selectable">{{ rowData[col.field] }}</td>
+          } }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<ng-template #messageAnnotationsTemplate>
+  <div class="header">
+    <h2>Message annotations</h2>
+  </div>
+  <div class="table-container">
+    <p-context-menu
+      #messageAnnotationsMenu
+      [model]="messageAnnotationsContextMenu()"
+      appendTo="body"
+    />
+    <p-table
+      [columns]="propertiesCols"
+      [value]="messageAnnotations()"
+      [virtualScroll]="false"
+      dataKey="key"
+      [contextMenu]="showMessageAnnotationsContextMenu() ? messageAnnotationsMenu : undefined"
+      [(contextMenuSelection)]="messageAnnotationsContextMenuSelection"
+    >
+      <ng-template
+        pTemplate="body"
+        let-rowData
+        let-rowIndex="rowIndex"
+        let-columns="columns"
+      >
+        <tr style="height: 30px" [pContextMenuRow]="rowData">
+          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
+          {
+          <td class="user-selectable">
+            {{ rowData[col.field] | date: 'medium' }}
+          </td>
+          } @else {
+          <td class="user-selectable">{{ rowData[col.field] }}</td>
+          } }
         </tr>
       </ng-template>
     </p-table>
@@ -187,7 +314,8 @@
     <p-context-menu
       #customPropertyMenu
       [model]="applicationPropertiesContextMenu()"
-      appendTo="body" />
+      appendTo="body"
+    />
     <p-table
       [columns]="propertiesCols"
       [value]="applicationProperties()"
@@ -204,9 +332,7 @@
       >
         <tr style="height: 30px" [pContextMenuRow]="rowData">
           @for (col of columns; track col) {
-            <td class="user-selectable">
-              {{ rowData[col.field] }}
-            </td>
+          <td class="user-selectable">{{ rowData[col.field] }}</td>
           }
         </tr>
       </ng-template>

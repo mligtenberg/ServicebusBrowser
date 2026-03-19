@@ -1,12 +1,19 @@
-import { Component, computed, effect, input, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+} from '@angular/core';
 
 import {
-  SystemPropertyKey
-} from '@service-bus-browser/messages-contracts';
+  AmqpPropertyKeys,
+  AmqpPropertyKeys as AmqpPropertyKeysList,
+} from '../../../send-message/form';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
-import { SystemPropertyKeys } from '../../../send-message/form';
 import {
   BatchActionTarget,
   MessageModificationAction,
@@ -16,11 +23,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-remove-action-body',
-  imports: [
-    FormsModule,
-    InputText,
-    Select
-],
+  imports: [FormsModule, InputText, Select],
   templateUrl: './remove-action-body.component.html',
   styleUrl: './remove-action-body.component.scss',
 })
@@ -31,26 +34,26 @@ export class RemoveActionBodyComponent {
   removeActionUpdated = output<RemoveAction | undefined>();
 
   protected applicationPropertyName = model<string>('');
-  protected systemPropertyName = model<SystemPropertyKey | ''>('');
+  protected propertyName = model<AmqpPropertyKeys | ''>('');
 
-  systemPropertyKeys = SystemPropertyKeys;
+  propertyKeys = AmqpPropertyKeysList;
 
   removeAction = computed<RemoveAction | undefined>(() => {
     const target = this.target();
     const fieldName =
       this.target() === 'applicationProperties'
         ? this.applicationPropertyName()
-        : this.systemPropertyName();
+        : this.propertyName();
 
     if (!fieldName || fieldName === '') {
       return undefined;
     }
 
-    if (target === 'systemProperties') {
+    if (target === 'properties') {
       return {
         type: 'remove',
-        target: 'systemProperties',
-        fieldName: fieldName as SystemPropertyKey,
+        target: 'properties',
+        fieldName: fieldName as AmqpPropertyKeys,
         applyOnFilter: this.messageFilter(),
       };
     }
@@ -71,14 +74,14 @@ export class RemoveActionBodyComponent {
     effect(() => {
       this.target();
       this.applicationPropertyName.set('');
-      this.systemPropertyName.set('');
+      this.propertyName.set('');
     });
 
     effect(() => {
       const action = this.action() as Partial<RemoveAction> | undefined;
 
-      if (action?.fieldName && this.target() === 'systemProperties') {
-        this.systemPropertyName.set(action.fieldName as SystemPropertyKey);
+      if (action?.fieldName && this.target() === 'properties') {
+        this.propertyName.set(action.fieldName as AmqpPropertyKeys);
       }
 
       if (action?.fieldName && this.target() === 'applicationProperties') {

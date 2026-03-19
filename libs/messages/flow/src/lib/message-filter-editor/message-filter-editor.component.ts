@@ -70,18 +70,10 @@ export class MessageFilterEditorComponent {
   );
   knownDeliveryAnnotations = input<{ label: string; type: string }[]>([]);
   knownMessageAnnotations = input<{ label: string; type: string }[]>([]);
-  knownPropertiesInput = input<{ label: string; type: string }[]>(
+  knownProperties = input<{ label: string; type: string }[]>(
     DEFAULT_MESSAGE_PROPERTIES,
   );
-  knownSystemProperties = input<{ label: string; type: string }[]>([]);
   knownApplicationProperties = input<{ label: string; type: string }[]>([]);
-
-  knownProperties = computed(() => {
-    const systemProperties = this.knownSystemProperties();
-    return systemProperties.length > 0
-      ? systemProperties
-      : this.knownPropertiesInput();
-  });
 
   shadowFilter = signal<MessageFilter>({
     headers: [],

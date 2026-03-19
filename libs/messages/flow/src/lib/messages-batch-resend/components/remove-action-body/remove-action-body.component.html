@@ -1,20 +1,21 @@
 <div class="filter-and-field-selection">
   <div class="field-selection">
-    @let isSystemProperty = target() === 'systemProperties';
-    @if (isSystemProperty) {
+    @let isProperty = target() === 'properties';
+    @if (isProperty) {
       <p-select
         appendTo="body"
         required
-        [(ngModel)]="systemPropertyName"
-        [options]="systemPropertyKeys"
-        placeholder="Select property to remove"/>
-    }
-    @else {
+        [(ngModel)]="propertyName"
+        [options]="propertyKeys"
+        placeholder="Select property to remove"
+      />
+    } @else {
       <input
         pInputText
         required
         [(ngModel)]="applicationPropertyName"
-        placeholder="Application property key to remove"/>
+        placeholder="Application property key to remove"
+      />
     }
   </div>
 </div>

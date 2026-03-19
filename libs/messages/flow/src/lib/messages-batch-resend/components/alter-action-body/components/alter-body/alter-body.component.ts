@@ -1,10 +1,19 @@
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+} from '@angular/core';
 
 import {
   MessageModificationAction,
   AlterAction,
-  AlterBodyAction, AlterBodyPartialReplaceAction,
-  AlterType
+  AlterBodyAction,
+  AlterBodyPartialReplaceAction,
+  AlterType,
 } from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
 import { InputGroup } from 'primeng/inputgroup';
@@ -29,8 +38,8 @@ import { Editor } from '@service-bus-browser/shared-components';
     Dialog,
     Editor,
     InputGroup,
-    Tooltip
-],
+    Tooltip,
+  ],
   templateUrl: './alter-body.component.html',
   styleUrls: ['./alter-body.component.scss'],
 })
@@ -76,7 +85,10 @@ export class AlterBodyComponent {
         alterType: 'fullReplace',
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };
@@ -95,7 +107,10 @@ export class AlterBodyComponent {
         alterType: currentAlterType,
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };

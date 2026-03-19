@@ -1,4 +1,3 @@
-
 <div class="container">
   @if (currentPage(); as page) {
     <lib-messages-viewer
@@ -8,18 +7,38 @@
       (lazyLoadTriggered)="loadMessages($event)"
       [multiselect]="true"
       [messagesContextMenu]="messageContextMenu()"
-      [systemPropertiesContextMenu]="systemPropertiesContextMenu()"
-      [(systemPropertiesContextMenuSelection)]="systemPropertiesContextMenuSelection"
+      [headersContextMenu]="headersContextMenu()"
+      [(headersContextMenuSelection)]="headersContextMenuSelection"
+      [propertiesContextMenu]="propertiesContextMenu()"
+      [(propertiesContextMenuSelection)]="propertiesContextMenuSelection"
+      [deliveryAnnotationsContextMenu]="deliveryAnnotationsContextMenu()"
+      [(deliveryAnnotationsContextMenuSelection)]="
+        deliveryAnnotationsContextMenuSelection
+      "
+      [messageAnnotationsContextMenu]="messageAnnotationsContextMenu()"
+      [(messageAnnotationsContextMenuSelection)]="
+        messageAnnotationsContextMenuSelection
+      "
       [applicationPropertiesContextMenu]="applicationPropertiesContextMenu()"
-      [(applicationPropertiesContextMenuSelection)]="applicationPropertiesContextMenuSelection"
+      [(applicationPropertiesContextMenuSelection)]="
+        applicationPropertiesContextMenuSelection
+      "
       [(selection)]="selection"
       (selectionChange)="onSelectionChange($event)"
       [isLoading]="isLoading()"
       #messagesViewer
     >
       <ng-template #messagesHeader>
-        <p-menu #menu [model]="allMessagesMenu()" [popup]="true" appendTo="body" />
-        <div class="status-widget" [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }">
+        <p-menu
+          #menu
+          [model]="allMessagesMenu()"
+          [popup]="true"
+          appendTo="body"
+        />
+        <div
+          class="status-widget"
+          [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }"
+        >
           <div
             type="button"
             class="badge filtered"
@@ -31,9 +50,10 @@
             <i class="pi pi-search"></i>
             @if (filteredMessageCount() !== undefined) {
               <span class="count">{{ filteredMessageCount() | number }}</span>
-              <span class="subtext">({{ filteredPercentage() | number : '1.1-1' }}%)</span>
-            }
-            @else {
+              <span class="subtext"
+                >({{ filteredPercentage() | number: '1.1-1' }}%)</span
+              >
+            } @else {
               <i class="pi pi-spin pi-spinner"></i>
             }
           </div>
@@ -48,8 +68,7 @@
             <i class="pi pi-inbox"></i>
             @if (totalMessageCount() !== undefined) {
               <span class="count">{{ totalMessageCount() | number }}</span>
-            }
-            @else {
+            } @else {
               <i class="pi pi-spin pi-spinner"></i>
             }
           </div>
@@ -60,39 +79,45 @@
             [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
             text="true"
           />
-          <p-button (click)="menu.show($event)" icon="pi pi-ellipsis-v" text="true" />
+          <p-button
+            (click)="menu.show($event)"
+            icon="pi pi-ellipsis-v"
+            text="true"
+          />
         </div>
       </ng-template>
     </lib-messages-viewer>
   }
 </div>
 
-
-  <p-dialog
-    header="Send messages"
-    appendTo="body"
-    [(visible)]="displaySendMessages"
-    [modal]="true"
+<p-dialog
+  header="Send messages"
+  appendTo="body"
+  [(visible)]="displaySendMessages"
+  [modal]="true"
+>
+  <p-scroll-panel>
+    <sbb-tpl-endpoint-selector-tree-input [(ngModel)]="sendEndpoint" />
+  </p-scroll-panel>
+  <div class="actions">
+    <button
+      pButton
+      type="button"
+      [disabled]="!sendEndpoint()"
+      (click)="sendMessages()"
     >
-    <p-scroll-panel>
-      <sbb-tpl-endpoint-selector-tree-input [(ngModel)]="sendEndpoint" />
-    </p-scroll-panel>
-    <div class="actions">
-      <button
-        pButton
-        type="button"
-        [disabled]="!sendEndpoint()"
-        (click)="sendMessages()"
-        >
-        Send
-      </button>
-    </div>
-  </p-dialog>
+      Send
+    </button>
+  </div>
+</p-dialog>
 
-  <lib-message-filter-editor
-    [(visible)]="displayFilterEditor"
-    [filters]="messageFilter()"
-    (filtersChange)="onFiltersUpdated($event)"
-    [knownApplicationProperties]="knownApplicationProperties()"
-    [knownSystemProperties]="knownSystemProperties()"
-  ></lib-message-filter-editor>
+<lib-message-filter-editor
+  [(visible)]="displayFilterEditor"
+  [filters]="messageFilter()"
+  (filtersChange)="onFiltersUpdated($event)"
+  [knownApplicationProperties]="knownApplicationProperties()"
+  [knownHeaders]="knownHeaders()"
+  [knownProperties]="knownProperties()"
+  [knownDeliveryAnnotations]="knownDeliveryAnnotations()"
+  [knownMessageAnnotations]="knownMessageAnnotations()"
+></lib-message-filter-editor>

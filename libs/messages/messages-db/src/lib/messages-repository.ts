@@ -18,10 +18,28 @@ export class MessagesRepository {
     return await messagesDb.addMessages(messages);
   }
 
-  async getSystemPropertyLabels(pageId: UUID) {
+  async getHeaderPropertyLabels(pageId: UUID) {
     const page = await this.getPage(pageId);
     const messagesDb = await this.getMessagesDb(page);
-    return await messagesDb.getSystemPropertyLabels();
+    return await messagesDb.getHeaderPropertyLabels();
+  }
+
+  async getPropertiesPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getPropertiesPropertyLabels();
+  }
+
+  async getDeliveryAnnotationsPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getDeliveryAnnotationsPropertyLabels();
+  }
+
+  async getMessageAnnotationsPropertyLabels(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getMessageAnnotationsPropertyLabels();
   }
 
   async getApplicationPropertyLabels(pageId: UUID) {

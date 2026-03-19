@@ -1,4 +1,11 @@
-import { Component, computed, effect, input, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+} from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -18,14 +25,7 @@ import { PropertyValue } from '@service-bus-browser/api-contracts';
 @Component({
   selector: 'lib-alter-application-properties',
   standalone: true,
-  imports: [
-    FormsModule,
-    InputGroup,
-    InputText,
-    Select,
-    DatePicker,
-    Tooltip
-],
+  imports: [FormsModule, InputGroup, InputText, Select, DatePicker, Tooltip],
   templateUrl: './alter-application-properties.component.html',
   styleUrls: ['./alter-application-properties.component.scss'],
 })
@@ -44,16 +44,14 @@ export class AlterApplicationPropertiesComponent {
   alterTypes = computed(() => {
     const propertyType = this.propertyType();
     if (propertyType !== 'string') {
-      return [
-        { label: 'Full Replace', value: 'fullReplace' },
-      ];
+      return [{ label: 'Full Replace', value: 'fullReplace' }];
     }
 
     return [
       { label: 'Full Replace', value: 'fullReplace' },
       { label: 'Search and Replace', value: 'searchAndReplace' },
       { label: 'Regex Replace', value: 'regexReplace' },
-    ]
+    ];
   });
 
   alterAction = computed<AlterApplicationPropertyActions | undefined>(() => {
@@ -74,7 +72,10 @@ export class AlterApplicationPropertiesComponent {
         alterType: 'fullReplace',
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };
@@ -94,7 +95,10 @@ export class AlterApplicationPropertiesComponent {
         alterType: currentAlterType,
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };

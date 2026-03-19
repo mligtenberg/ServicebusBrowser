@@ -2,7 +2,8 @@ import {
   ApplicationRef,
   Component,
   computed,
-  inject, input,
+  inject,
+  input,
   linkedSignal,
   model,
   signal,
@@ -30,10 +31,7 @@ import {
   toObservable,
   toSignal,
 } from '@angular/core/rxjs-interop';
-import {
-  MessagePage,
-  ReceivedSystemPropertyKey,
-} from '@service-bus-browser/messages-contracts';
+import { MessagePage } from '@service-bus-browser/messages-contracts';
 import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
@@ -54,8 +52,6 @@ import { MessageFilterEditorComponent } from '../message-filter-editor/message-f
 import { Tooltip } from 'primeng/tooltip';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
-import { systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
-import { SystemPropertyHelpers } from '../systemproperty-helpers';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import MessagesViewer from '../messages-viewer/messages-viewer';
@@ -82,7 +78,6 @@ const repository = await getMessagesRepository();
   styleUrl: './messages-page.component.scss',
 })
 export class MessagesPageComponent {
-  systemPropertyHelpers = inject(SystemPropertyHelpers);
   activatedRoute = inject(ActivatedRoute);
   store = inject(Store);
   router = inject(Router);
@@ -101,7 +96,10 @@ export class MessagesPageComponent {
     const currentPage = this.currentPage();
     return (
       currentPage?.filter ?? {
-        systemProperties: [],
+        headers: [],
+        deliveryAnnotations: [],
+        messageAnnotations: [],
+        properties: [],
         applicationProperties: [],
         body: [],
       }
@@ -116,15 +114,46 @@ export class MessagesPageComponent {
   selection = signal<string[]>([]);
   isLoading = signal(false);
 
-  knownSystemProperties = toSignal(
+  knownHeaders = toSignal(
     this.activatedRoute.params.pipe(
       map((params) => params['pageId']),
       distinctUntilChanged(),
       switchMap((pageId) => {
-        return from(repository.getSystemPropertyLabels(pageId));
+        return from(repository.getHeaderPropertyLabels(pageId));
       }),
-    ), { initialValue: [] }
-  )
+    ),
+    { initialValue: [] },
+  );
+  knownProperties = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getPropertiesPropertyLabels(pageId));
+      }),
+    ),
+    { initialValue: [] },
+  );
+  knownDeliveryAnnotations = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getDeliveryAnnotationsPropertyLabels(pageId));
+      }),
+    ),
+    { initialValue: [] },
+  );
+  knownMessageAnnotations = toSignal(
+    this.activatedRoute.params.pipe(
+      map((params) => params['pageId']),
+      distinctUntilChanged(),
+      switchMap((pageId) => {
+        return from(repository.getMessageAnnotationsPropertyLabels(pageId));
+      }),
+    ),
+    { initialValue: [] },
+  );
   knownApplicationProperties = toSignal(
     this.activatedRoute.params.pipe(
       map((params) => params['pageId']),
@@ -132,7 +161,8 @@ export class MessagesPageComponent {
       switchMap((pageId) => {
         return from(repository.getApplicationPropertyLabels(pageId));
       }),
-    ), { initialValue: [] }
+    ),
+    { initialValue: [] },
   );
 
   totalMessageCount = toSignal(
@@ -224,22 +254,38 @@ export class MessagesPageComponent {
       return [];
     }
 
-    return Object.entries(message.systemProperties ?? {}).map(
-      ([key, value]) => ({ key, value }),
-    );
+    return Object.entries(message.properties ?? {}).map(([key, value]) => {
+      if (value instanceof Uint8Array) {
+        return {
+          key,
+          value: new TextDecoder().decode(value),
+        };
+      }
+
+      return { key, value: value as PropertyValue };
+    });
   });
 
-  systemPropertiesContextMenuSelection = signal<
-    { key: systemPropertyKeys; value: unknown } | undefined
+  propertiesContextMenuSelection = signal<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  headersContextMenuSelection = signal<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  deliveryAnnotationsContextMenuSelection = signal<
+    { key: string; value: unknown } | undefined
+  >(undefined);
+  messageAnnotationsContextMenuSelection = signal<
+    { key: string; value: unknown } | undefined
   >(undefined);
   applicationPropertiesContextMenuSelection = signal<
     { key: string; value: unknown } | undefined
   >(undefined);
 
-  systemPropertiesContextMenu = computed(() => {
-    let selection = this.systemPropertiesContextMenuSelection();
+  headersContextMenu = computed(() => {
+    let selection = this.headersContextMenuSelection();
     if (!selection) {
-      selection = { key: 'contentType', value: '' };
+      selection = { key: 'durable', value: '' };
     }
 
     return [
@@ -261,7 +307,106 @@ export class MessagesPageComponent {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
         command: () => {
-          this.filterOnSystemProperty(
+          this.filterOnHeader(
+            selection.key,
+            selection.value as string | number | boolean | Date,
+          );
+        },
+      },
+    ];
+  });
+  propertiesContextMenu = computed(() => {
+    let selection = this.propertiesContextMenuSelection();
+    if (!selection) {
+      selection = { key: 'subject', value: '' };
+    }
+
+    return [
+      {
+        label: 'Copy property',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
+        },
+      },
+      {
+        label: "Copy property's value",
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(selection.value as string);
+        },
+      },
+      {
+        label: `Add filter for ${selection.key}`,
+        icon: 'pi pi-filter',
+        command: () => {
+          this.filterOnProperty(
+            selection.key,
+            selection.value as string | number | boolean | Date,
+          );
+        },
+      },
+    ];
+  });
+  deliveryAnnotationsContextMenu = computed(() => {
+    let selection = this.deliveryAnnotationsContextMenuSelection();
+    if (!selection) {
+      selection = { key: 'x-opt-enqueued-time', value: '' };
+    }
+
+    return [
+      {
+        label: 'Copy property',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
+        },
+      },
+      {
+        label: "Copy property's value",
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(selection.value as string);
+        },
+      },
+      {
+        label: `Add filter for ${selection.key}`,
+        icon: 'pi pi-filter',
+        command: () => {
+          this.filterOnDeliveryAnnotation(
+            selection.key,
+            selection.value as string | number | boolean | Date,
+          );
+        },
+      },
+    ];
+  });
+  messageAnnotationsContextMenu = computed(() => {
+    let selection = this.messageAnnotationsContextMenuSelection();
+    if (!selection) {
+      selection = { key: 'x-opt-sequence-number', value: '' };
+    }
+
+    return [
+      {
+        label: 'Copy property',
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
+        },
+      },
+      {
+        label: "Copy property's value",
+        icon: 'pi pi-copy',
+        command: () => {
+          navigator.clipboard.writeText(selection.value as string);
+        },
+      },
+      {
+        label: `Add filter for ${selection.key}`,
+        icon: 'pi pi-filter',
+        command: () => {
+          this.filterOnMessageAnnotation(
             selection.key,
             selection.value as string | number | boolean | Date,
           );
@@ -505,18 +650,93 @@ export class MessagesPageComponent {
     );
   }
 
-  protected filterOnSystemProperty(
-    key: systemPropertyKeys,
+  protected filterOnProperty(
+    key: string,
     value: string | number | boolean | Date,
   ) {
     this.displayFilterEditor.set(false);
-    const fieldType = this.systemPropertyHelpers.toFilterPropertyType(key);
+    const fieldType = this.toFilterPropertyType(key, value);
 
     let currentFilter = this.messageFilter();
     currentFilter = {
       ...currentFilter,
-      systemProperties: [
-        ...currentFilter.systemProperties,
+      properties: [
+        ...currentFilter.properties,
+        {
+          fieldName: key,
+          filterType: 'equals',
+          value: value,
+          fieldType: fieldType,
+          isActive: true,
+        } as PropertyFilter,
+      ],
+    };
+
+    this.onFiltersUpdated(currentFilter);
+  }
+
+  protected filterOnHeader(
+    key: string,
+    value: string | number | boolean | Date,
+  ) {
+    this.displayFilterEditor.set(false);
+    const fieldType = this.toFilterPropertyType(key, value);
+
+    let currentFilter = this.messageFilter();
+    currentFilter = {
+      ...currentFilter,
+      headers: [
+        ...currentFilter.headers,
+        {
+          fieldName: key,
+          filterType: 'equals',
+          value: value,
+          fieldType: fieldType,
+          isActive: true,
+        } as PropertyFilter,
+      ],
+    };
+
+    this.onFiltersUpdated(currentFilter);
+  }
+
+  protected filterOnDeliveryAnnotation(
+    key: string,
+    value: string | number | boolean | Date,
+  ) {
+    this.displayFilterEditor.set(false);
+    const fieldType = this.toFilterPropertyType(key, value);
+
+    let currentFilter = this.messageFilter();
+    currentFilter = {
+      ...currentFilter,
+      deliveryAnnotations: [
+        ...currentFilter.deliveryAnnotations,
+        {
+          fieldName: key,
+          filterType: 'equals',
+          value: value,
+          fieldType: fieldType,
+          isActive: true,
+        } as PropertyFilter,
+      ],
+    };
+
+    this.onFiltersUpdated(currentFilter);
+  }
+
+  protected filterOnMessageAnnotation(
+    key: string,
+    value: string | number | boolean | Date,
+  ) {
+    this.displayFilterEditor.set(false);
+    const fieldType = this.toFilterPropertyType(key, value);
+
+    let currentFilter = this.messageFilter();
+    currentFilter = {
+      ...currentFilter,
+      messageAnnotations: [
+        ...currentFilter.messageAnnotations,
         {
           fieldName: key,
           filterType: 'equals',
@@ -545,15 +765,36 @@ export class MessagesPageComponent {
           fieldName: key,
           filterType: 'equals',
           value: value,
-          fieldType: this.systemPropertyHelpers.toFilterPropertyType(
-            key as ReceivedSystemPropertyKey,
-          ),
+          fieldType: this.toFilterPropertyType(key, value),
           isActive: true,
         } as PropertyFilter,
       ],
     };
 
     this.onFiltersUpdated(currentFilter);
+  }
+
+  private toFilterPropertyType(
+    key: string,
+    value: string | number | boolean | Date,
+  ): 'date' | 'timespan' | 'string' | 'number' | 'boolean' {
+    if (value instanceof Date) {
+      return 'date';
+    }
+
+    if (typeof value === 'number') {
+      return 'number';
+    }
+
+    if (typeof value === 'boolean') {
+      return 'boolean';
+    }
+
+    if (key === 'ttl') {
+      return 'timespan';
+    }
+
+    return 'string';
   }
 
   protected async loadMessages($event: TableLazyLoadEvent) {

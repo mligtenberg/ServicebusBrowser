@@ -1,11 +1,21 @@
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  model,
+  output,
+} from '@angular/core';
 
 import {
   MessageModificationAction,
   AddAction,
   BatchActionTarget,
 } from '@service-bus-browser/message-modification-engine';
-import { SystemPropertyKeys } from '../../../send-message/form';
+import {
+  AmqpPropertyKeys,
+  AmqpPropertyKeys as AmqpPropertyKeysList,
+} from '../../../send-message/form';
 import { DatePicker } from 'primeng/datepicker';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -13,11 +23,9 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { Select } from 'primeng/select';
-import { SystemPropertyHelpers } from '../../../systemproperty-helpers';
 import { Checkbox } from 'primeng/checkbox';
 import { MessageFilter } from '@service-bus-browser/filtering';
 import { PropertyValue } from '@service-bus-browser/api-contracts';
-import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
 
 @Component({
   selector: 'lib-add-action-body',
@@ -30,8 +38,8 @@ import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
     Popover,
     Select,
     ReactiveFormsModule,
-    Checkbox
-],
+    Checkbox,
+  ],
   templateUrl: './add-action-body.component.html',
   styleUrl: './add-action-body.component.scss',
 })
@@ -39,16 +47,15 @@ export class AddActionBodyComponent {
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
   addActionUpdated = output<AddAction | undefined>();
-  systemPropertyHelpers = inject(SystemPropertyHelpers);
 
   action = input<MessageModificationAction>();
 
   protected applicationPropertyName = model<string>('');
-  protected systemPropertyName = model<SystemPropertyKeys | ''>('');
+  protected propertyName = model<AmqpPropertyKeys | ''>('');
   protected replaceOnDuplicate = model<boolean>(false);
   protected value = model<PropertyValue | undefined>();
 
-  systemPropertyKeys = SystemPropertyKeys;
+  propertyKeys = AmqpPropertyKeysList;
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
 
   addAction = computed<AddAction | undefined>(() => {
@@ -56,7 +63,7 @@ export class AddActionBodyComponent {
     const fieldName =
       this.target() === 'applicationProperties'
         ? this.applicationPropertyName()
-        : this.systemPropertyName();
+        : this.propertyName();
 
     const currentValue = this.value();
 
@@ -64,12 +71,12 @@ export class AddActionBodyComponent {
       return undefined;
     }
 
-    if (target === 'systemProperties') {
+    if (target === 'properties') {
       return {
         type: 'add',
-        target: 'systemProperties',
+        target: 'properties',
         actionOnDuplicate: this.replaceOnDuplicate() ? 'replace' : 'skip',
-        fieldName: fieldName as SystemPropertyKeys,
+        fieldName: fieldName as AmqpPropertyKeys,
         value: currentValue,
         applyOnFilter: this.messageFilter(),
       };
@@ -93,12 +100,12 @@ export class AddActionBodyComponent {
     effect(() => {
       this.target();
       this.applicationPropertyName.set('');
-      this.systemPropertyName.set('');
+      this.propertyName.set('');
     });
 
     effect(() => {
       this.applicationPropertyName();
-      this.systemPropertyName();
+      this.propertyName();
 
       this.value.set(undefined);
     });
@@ -109,8 +116,8 @@ export class AddActionBodyComponent {
         return;
       }
 
-      if (addAction.fieldName && this.target() === 'systemProperties') {
-        this.systemPropertyName.set(addAction.fieldName as SystemPropertyKeys);
+      if (addAction.fieldName && this.target() === 'properties') {
+        this.propertyName.set(addAction.fieldName as AmqpPropertyKeys);
       }
       if (addAction.fieldName && this.target() === 'applicationProperties') {
         this.applicationPropertyName.set(addAction.fieldName);
@@ -124,36 +131,56 @@ export class AddActionBodyComponent {
     });
   }
 
-  propertyUnknownType(key: SystemPropertyKey | '') {
+  propertyUnknownType(key: AmqpPropertyKeys | '') {
     return (
-      !this.systemPropertyIsText(key) &&
-      !this.systemPropertyIsDate(key) &&
-      !this.systemPropertyIsTimeSpan(key)
+      !this.propertyIsText(key) &&
+      !this.propertyIsDate(key) &&
+      !this.propertyIsTimeSpan(key) &&
+      !this.propertyIsNumber(key)
     );
   }
 
-  systemPropertyIsText(key: SystemPropertyKey | '') {
+  propertyIsText(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsText(key);
+    return (
+      key === 'message-id' ||
+      key === 'user-id' ||
+      key === 'to' ||
+      key === 'subject' ||
+      key === 'reply-to' ||
+      key === 'correlation-id' ||
+      key === 'content-type' ||
+      key === 'content-encoding' ||
+      key === 'group-id' ||
+      key === 'reply-to-group-id'
+    );
   }
 
-  systemPropertyIsDate(key: SystemPropertyKey | '') {
+  propertyIsDate(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsDate(key);
+    return key === 'absolute-expiry-time' || key === 'creation-time';
   }
 
-  systemPropertyIsTimeSpan(key: SystemPropertyKey | '') {
+  propertyIsTimeSpan(key: AmqpPropertyKeys | '') {
     if (key === '') {
       return false;
     }
 
-    return this.systemPropertyHelpers.propertyIsTimeSpan(key);
+    return false;
+  }
+
+  propertyIsNumber(key: AmqpPropertyKeys | '') {
+    if (key === '') {
+      return false;
+    }
+
+    return key === 'group-sequence';
   }
 
   protected readonly console = console;

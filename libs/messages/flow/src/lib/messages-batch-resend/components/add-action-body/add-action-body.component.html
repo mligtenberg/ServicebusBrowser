@@ -9,32 +9,30 @@
 </div>
 
 <div class="add-action-body">
-  @let isSystemProperty = target() === 'systemProperties';
-  @if (isSystemProperty) {
+  @let isProperty = target() === 'properties';
+  @if (isProperty) {
     <p-input-group>
       <p-select
         appendTo="body"
         required
-        [(ngModel)]="systemPropertyName"
-        [options]="systemPropertyKeys"/>
+        [(ngModel)]="propertyName"
+        [options]="propertyKeys"
+      />
 
-      @if (systemPropertyIsText(systemPropertyName())) {
-        <input
-          pInputText
-          required
-          [(ngModel)]="value"
-          placeholder="Value"/>
+      @if (propertyIsText(propertyName())) {
+        <input pInputText required [(ngModel)]="value" placeholder="Value" />
       }
-      @if (systemPropertyIsDate(systemPropertyName())) {
+      @if (propertyIsDate(propertyName())) {
         <p-date-picker
           [(ngModel)]="value"
           required
           appendTo="body"
           [showTime]="true"
           hourFormat="24"
-          placeholder="Value"/>
+          placeholder="Value"
+        />
       }
-      @if (systemPropertyIsTimeSpan(systemPropertyName())) {
+      @if (propertyIsTimeSpan(propertyName())) {
         <input
           #timeSpanInput
           (click)="popover.toggle($event)"
@@ -44,45 +42,42 @@
           [ngModel]="value()"
           class="time-span-trigger"
           aria-disabled="false"
-          placeholder="Value" />
-        <p-popover
-          appendTo="body"
-          #popover
-        >
-          <sbb-duration-input
-            required
-            [(ngModel)]="value"
-          />
+          placeholder="Value"
+        />
+        <p-popover appendTo="body" #popover>
+          <sbb-duration-input required [(ngModel)]="value" />
         </p-popover>
       }
 
-      @if (propertyUnknownType(systemPropertyName())) {
+      @if (propertyIsNumber(propertyName())) {
         <input
           pInputText
+          type="number"
           required
           [(ngModel)]="value"
-          placeholder="Value"/>
+          placeholder="Value"
+        />
+      }
+
+      @if (propertyUnknownType(propertyName())) {
+        <input pInputText required [(ngModel)]="value" placeholder="Value" />
       }
     </p-input-group>
-  }
-  @else {
+  } @else {
     <p-input-group>
       <input
         pInputText
         required
         [(ngModel)]="applicationPropertyName"
-        placeholder="Key"/>
+        placeholder="Key"
+      />
       <p-select
         appendTo="body"
         #customPropertyTypeSelect
         [options]="typeOptions"
       />
       @if (customPropertyTypeSelect.value === 'string') {
-        <input
-          pInputText
-          required
-          [(ngModel)]="value"
-          placeholder="Value"/>
+        <input pInputText required [(ngModel)]="value" placeholder="Value" />
       }
       @if (customPropertyTypeSelect.value === 'datetime') {
         <p-date-picker
@@ -91,21 +86,19 @@
           hourFormat="24"
           [(ngModel)]="value"
           appendTo="body"
-          placeholder="Value"/>
+          placeholder="Value"
+        />
       }
       @if (customPropertyTypeSelect.value === 'number') {
-        <input
-          pInputText
-          required
-          [(ngModel)]="value"
-          placeholder="Value"/>
+        <input pInputText required [(ngModel)]="value" placeholder="Value" />
       }
       @if (customPropertyTypeSelect.value === 'boolean') {
         <p-select
           appendTo="body"
           required
           [(ngModel)]="value"
-          [options]="[true, false]"/>
+          [options]="[true, false]"
+        />
       }
     </p-input-group>
   }

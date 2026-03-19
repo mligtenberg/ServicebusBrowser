@@ -1,18 +1,15 @@
-import {
-  PropertyValue,
-  SystemPropertyKey,
-} from '@service-bus-browser/messages-contracts';
+import { PropertyValue } from '@service-bus-browser/messages-contracts';
 import { MessageFilter } from '@service-bus-browser/filtering';
 
 type BaseAction = {
   applyOnFilter: MessageFilter;
 };
 
-export type AddSystemPropertiesAction = BaseAction & {
+export type AddPropertiesAction = BaseAction & {
   type: 'add';
-  target: 'systemProperties';
+  target: 'properties';
   actionOnDuplicate: 'replace' | 'skip';
-  fieldName: SystemPropertyKey;
+  fieldName: string;
   value: PropertyValue;
 };
 
@@ -24,9 +21,7 @@ export type AddApplicationPropertiesAction = BaseAction & {
   value: PropertyValue;
 };
 
-export type AddAction =
-  | AddSystemPropertiesAction
-  | AddApplicationPropertiesAction;
+export type AddAction = AddPropertiesAction | AddApplicationPropertiesAction;
 
 export type AlterBodyFullReplaceAction = BaseAction & {
   type: 'alter';
@@ -47,26 +42,26 @@ export type AlterBodyAction =
   | AlterBodyFullReplaceAction
   | AlterBodyPartialReplaceAction;
 
-export type AlterSystemPropertyFullReplaceAction = BaseAction & {
+export type AlterPropertyFullReplaceAction = BaseAction & {
   type: 'alter';
-  target: 'systemProperties';
-  fieldName: SystemPropertyKey;
+  target: 'properties';
+  fieldName: string;
   value: PropertyValue;
   alterType: 'fullReplace';
 };
 
-export type AlterSystemPropertyPartialReplaceAction = BaseAction & {
+export type AlterPropertyPartialReplaceAction = BaseAction & {
   type: 'alter';
-  target: 'systemProperties';
-  fieldName: SystemPropertyKey;
+  target: 'properties';
+  fieldName: string;
   searchValue: string;
   value: string;
   alterType: 'searchAndReplace' | 'regexReplace';
 };
 
-export type AlterSystemPropertyActions =
-  | AlterSystemPropertyFullReplaceAction
-  | AlterSystemPropertyPartialReplaceAction;
+export type AlterPropertyActions =
+  | AlterPropertyFullReplaceAction
+  | AlterPropertyPartialReplaceAction;
 
 export type AlterApplicationPropertyFullReplaceAction = BaseAction & {
   type: 'alter';
@@ -90,15 +85,15 @@ export type AlterApplicationPropertyActions =
   | AlterApplicationPropertyPartialReplaceAction;
 
 export type AlterPropertyAction =
-  | AlterSystemPropertyActions
+  | AlterPropertyActions
   | AlterApplicationPropertyActions;
 export type AlterAction = AlterBodyAction | AlterPropertyAction;
 export type AlterType = 'fullReplace' | 'searchAndReplace' | 'regexReplace';
 
-export type RemoveSystemPropertyAction = BaseAction & {
+export type RemovePropertyAction = BaseAction & {
   type: 'remove';
-  target: 'systemProperties';
-  fieldName: SystemPropertyKey;
+  target: 'properties';
+  fieldName: string;
 };
 
 export type RemoveApplicationPropertyAction = BaseAction & {
@@ -108,13 +103,10 @@ export type RemoveApplicationPropertyAction = BaseAction & {
 };
 
 export type RemoveAction =
-  | RemoveSystemPropertyAction
+  | RemovePropertyAction
   | RemoveApplicationPropertyAction;
 
 export type BatchActionType = 'add' | 'alter' | 'remove';
-export type BatchActionTarget =
-  | 'body'
-  | 'systemProperties'
-  | 'applicationProperties';
+export type BatchActionTarget = 'body' | 'properties' | 'applicationProperties';
 
 export type MessageModificationAction = AddAction | AlterAction | RemoveAction;

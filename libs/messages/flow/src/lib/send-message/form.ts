@@ -1,40 +1,45 @@
 import { SendEndpoint } from '@service-bus-browser/api-contracts';
 
-type SystemStringPropertyKeys =
-  | 'correlationId'
-  | 'partitionKey'
-  | 'sessionId'
-  | 'replyToSessionId'
-  | 'messageId'
-  | 'subject'
+type AmqpStringPropertyKeys =
+  | 'message-id'
+  | 'user-id'
   | 'to'
-  | 'replyTo';
+  | 'subject'
+  | 'reply-to'
+  | 'correlation-id'
+  | 'content-type'
+  | 'content-encoding'
+  | 'group-id'
+  | 'reply-to-group-id';
 
-type SystemDatePropertyKeys = 'scheduledEnqueueTimeUtc';
+type AmqpDatePropertyKeys = 'absolute-expiry-time' | 'creation-time';
 
-type SystemTimeSpanPropertyKeys = 'timeToLive';
+type AmqpNumberPropertyKeys = 'group-sequence';
 
-export type SystemPropertyKeys =
-  | SystemStringPropertyKeys
-  | SystemDatePropertyKeys
-  | SystemTimeSpanPropertyKeys;
+export type AmqpPropertyKeys =
+  | AmqpStringPropertyKeys
+  | AmqpDatePropertyKeys
+  | AmqpNumberPropertyKeys;
 
-export const SystemPropertyKeys: SystemPropertyKeys[] = [
-  'correlationId',
-  'partitionKey',
-  'sessionId',
-  'replyToSessionId',
-  'messageId',
-  'subject',
+export const AmqpPropertyKeys: AmqpPropertyKeys[] = [
+  'message-id',
+  'user-id',
   'to',
-  'replyTo',
-  'scheduledEnqueueTimeUtc',
-  'timeToLive',
+  'subject',
+  'reply-to',
+  'correlation-id',
+  'content-type',
+  'content-encoding',
+  'absolute-expiry-time',
+  'creation-time',
+  'group-id',
+  'group-sequence',
+  'reply-to-group-id',
 ];
 
-export type SystemPropertyGroup = {
-  key: SystemPropertyKeys | '';
-  value: string | Date;
+export type PropertyGroup = {
+  key: AmqpPropertyKeys | '';
+  value: string | Date | number;
 };
 
 export type CustomPropertyType = 'string' | 'number' | 'datetime' | 'boolean';
@@ -47,7 +52,7 @@ export type ApplicationPropertyGroup = {
 export interface SendMessagesForm {
   body: string;
   contentType: string;
-  systemProperties: SystemPropertyGroup[];
+  properties: PropertyGroup[];
   applicationProperties: ApplicationPropertyGroup[];
   endpoint: SendEndpoint | null;
 }
