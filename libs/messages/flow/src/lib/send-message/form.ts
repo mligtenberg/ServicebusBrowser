@@ -16,6 +16,12 @@ type AmqpDatePropertyKeys = 'absolute-expiry-time' | 'creation-time';
 
 type AmqpNumberPropertyKeys = 'group-sequence';
 
+type AmqpHeaderBooleanKeys = 'durable' | 'first-acquirer';
+
+type AmqpHeaderNumberKeys = 'priority' | 'ttl' | 'delivery-count';
+
+export type AmqpHeaderKeys = AmqpHeaderBooleanKeys | AmqpHeaderNumberKeys;
+
 export type AmqpPropertyKeys =
   | AmqpStringPropertyKeys
   | AmqpDatePropertyKeys
@@ -37,9 +43,22 @@ export const AmqpPropertyKeys: AmqpPropertyKeys[] = [
   'reply-to-group-id',
 ];
 
+export const AmqpHeaderKeys: AmqpHeaderKeys[] = [
+  'durable',
+  'priority',
+  'ttl',
+  'first-acquirer',
+  'delivery-count',
+];
+
 export type PropertyGroup = {
   key: AmqpPropertyKeys | '';
   value: string | Date | number;
+};
+
+export type HeaderPropertyGroup = {
+  key: AmqpHeaderKeys | '';
+  value: boolean | number;
 };
 
 export type CustomPropertyType = 'string' | 'number' | 'datetime' | 'boolean';
@@ -53,6 +72,9 @@ export interface SendMessagesForm {
   body: string;
   contentType: string;
   properties: PropertyGroup[];
+  headers: HeaderPropertyGroup[];
+  deliveryAnnotations: ApplicationPropertyGroup[];
+  messageAnnotations: ApplicationPropertyGroup[];
   applicationProperties: ApplicationPropertyGroup[];
   endpoint: SendEndpoint | null;
 }

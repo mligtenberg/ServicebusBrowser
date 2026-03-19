@@ -3,10 +3,12 @@ import { ConnectionOptions } from 'rhea-promise';
 
 export function getConnectionOptions(
   connection: RabbitMqConnection,
+  vhostName?: string,
 ): ConnectionOptions {
+  const vhost = vhostName ?? getVHost(connection);
   const options = {
     host: connection.host,
-    hostname: connection.host,
+    hostname: vhost,
     port: connection.amqpPort,
     username: connection.userName,
     password: connection.password,
@@ -17,7 +19,7 @@ export function getConnectionOptions(
 }
 
 export function getVHost(connection: RabbitMqConnection): string {
-  return '/';
+  return connection.vhost ?? '/';
 }
 
 export function getManagementBaseUrl(connection: RabbitMqConnection): string {

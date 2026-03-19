@@ -51,16 +51,3 @@ export interface MessageFilter {
   body: BodyFilter[];
 }
 
-// Known system properties with their types
-export const SYSTEM_PROPERTIES: { [key: string]: 'string' | 'date' | 'number' | 'boolean' } = {
-  messageId: 'string',
-  contentType: 'string',
-  correlationId: 'string',
-  subject: 'string',
-  to: 'string',
-  timeToLive: 'string',
-  enqueuedTimeUtc: 'date',
-  sequenceNumber: 'string',
-  state: 'string',
-  enqueuedSequenceNumber: 'number'
-};

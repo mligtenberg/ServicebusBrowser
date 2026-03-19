@@ -64,20 +64,23 @@ export class TopologyEffects implements OnInitEffects {
         if (endpoint.target === 'serviceBus' && endpoint.type === 'topic') {
           return `/${endpoint.connectionId}/topics/${endpoint.topicName}`;
         }
-        return `/${endpoint['connectionId']}`
+        if (endpoint.target === 'rabbitmq' && endpoint.type === 'queue') {
+          return `/${endpoint.connectionId}/vhosts/${encodeURIComponent(endpoint.vhostName)}/queues/${encodeURIComponent(endpoint.queueName)}`;
+        }
+        if (endpoint.target === 'rabbitmq' && endpoint.type === 'exchange') {
+          return `/${endpoint.connectionId}/vhosts/${encodeURIComponent(endpoint.vhostName)}/exchanges`;
+        }
+        return `/${endpoint['connectionId']}`;
       }),
       map((path) => refreshTopology({ path })),
-    )
-  )
+    ),
+  );
 
   refreshReceiveEndpoint$ = createEffect(() =>
     this.actions$.pipe(
       ofType(reloadReceiveEndpoint),
       map(({ endpoint }) => {
-        if (
-          endpoint.target === 'serviceBus' &&
-          endpoint.type === 'queue'
-        ) {
+        if (endpoint.target === 'serviceBus' && endpoint.type === 'queue') {
           return `/${endpoint.connectionId}/queues/${endpoint.queueName}`;
         }
         if (
@@ -86,9 +89,12 @@ export class TopologyEffects implements OnInitEffects {
         ) {
           return `/${endpoint.connectionId}/topics/${endpoint.topicName}/subscriptions/${endpoint.subscriptionName}`;
         }
-        return `/${endpoint['connectionId']}`
+        if (endpoint.target === 'rabbitmq' && endpoint.type === 'queue') {
+          return `/${endpoint.connectionId}/vhosts/${encodeURIComponent(endpoint.vhostName)}/queues/${encodeURIComponent(endpoint.queueName)}`;
+        }
+        return `/${endpoint['connectionId']}`;
       }),
       map((path) => refreshTopology({ path })),
-    )
-  )
+    ),
+  );
 }

@@ -1,6 +1,3 @@
-import { SystemPropertyKeys } from '../send-message/form';
-import { SYSTEM_PROPERTIES } from '@service-bus-browser/filtering';
-
 export const propertyTypes = [
   { label: 'Text', value: 'string' },
   { label: 'Date', value: 'date' },
@@ -44,11 +41,3 @@ export const bodyFilterTypes = [
   { label: 'Not contains', value: 'notcontains' },
   { label: 'Not regex', value: 'notregex' },
 ];
-
-export const systemPropertyOptions = Object.entries(SYSTEM_PROPERTIES).map(([key]) => ({
-  label: key,
-  value: key,
-})) as {
-  label: string;
-  value: SystemPropertyKeys;
-}[];

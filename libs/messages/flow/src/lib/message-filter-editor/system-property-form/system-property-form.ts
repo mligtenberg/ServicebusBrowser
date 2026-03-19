@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model, output } from '@angular/core';
+import { Component, computed, input, model, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
@@ -9,17 +9,13 @@ import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
-import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
-import { SystemPropertyHelpers } from '../../systemproperty-helpers';
 import {
   dateFilterTypes,
   numberFilterTypes,
   stringFilterTypes,
-  systemPropertyOptions,
   timespanFilterTypes,
 } from '../options';
 import { PropertyFilter } from '@service-bus-browser/filtering';
-import { label } from '@primeuix/themes/aura/metergroup';
 
 @Component({
   selector: 'lib-system-property-form',

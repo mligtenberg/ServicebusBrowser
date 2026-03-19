@@ -28,6 +28,7 @@ export interface ServiceBusSubscriptionReceiveEndpoint
 
 export interface RabbitMqQueueReceiveEndpoint extends ReceiveEndpointBase {
   connectionId: UUID;
+  vhostName: string;
   queueName: string;
   target: 'rabbitmq';
   type: 'queue';

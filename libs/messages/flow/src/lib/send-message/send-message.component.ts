@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 
 import { ColorThemeService } from '@service-bus-browser/services';
-import { CustomPropertyType, SendMessagesForm, AmqpPropertyKeys } from './form';
+import {
+  CustomPropertyType,
+  SendMessagesForm,
+  AmqpPropertyKeys,
+  AmqpHeaderKeys,
+} from './form';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -30,7 +35,10 @@ import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-co
 import { Store } from '@ngrx/store';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { ActivatedRoute } from '@angular/router';
-import { AmqpPropertyKeys as AmqpPropertyKeysList } from './form';
+import {
+  AmqpHeaderKeys as AmqpHeaderKeysList,
+  AmqpPropertyKeys as AmqpPropertyKeysList,
+} from './form';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { NgTemplateOutlet } from '@angular/common';
 import { Splitter } from 'primeng/splitter';
@@ -84,6 +92,15 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   form = form(this.value, (s) => {
     required(s.endpoint);
     applyEach(s.properties, (group) => {
+      required(group.key);
+    });
+    applyEach(s.headers, (group) => {
+      required(group.key);
+    });
+    applyEach(s.deliveryAnnotations, (group) => {
+      required(group.key);
+    });
+    applyEach(s.messageAnnotations, (group) => {
       required(group.key);
     });
     applyEach(s.applicationProperties, (group) => {
@@ -198,6 +215,26 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
     }));
   }
 
+  getAvailableHeaderKeys(index: number) {
+    return AmqpHeaderKeysList.filter(
+      (key) =>
+        !this.value().headers.some((h, i) => h.key === key && i !== index),
+    ).map((key) => ({
+      label: key,
+      value: key,
+    }));
+  }
+
+  headerIsBoolean(index: number) {
+    const key = this.value().headers[index].key;
+    return key === 'durable' || key === 'first-acquirer';
+  }
+
+  headerIsNumber(index: number) {
+    const key = this.value().headers[index].key;
+    return key === 'priority' || key === 'ttl' || key === 'delivery-count';
+  }
+
   propertyIsText(index: number) {
     const key = this.value().properties[index].key;
     if (!key) {
@@ -254,11 +291,11 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  addApplicationProperty() {
+  addApplicationProperty = () => {
     this.value.update((v) => ({
       ...v,
       applicationProperties: [
-        ...v.applicationProperties,
+        ...(v.applicationProperties ?? []),
         {
           key: '',
           type: 'string',
@@ -266,16 +303,82 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
         },
       ],
     }));
-  }
+  };
 
-  removeApplicationProperty(index: number) {
+  removeApplicationProperty = (index: number) => {
     this.value.update((v) => ({
       ...v,
-      applicationProperties: v.applicationProperties.filter(
+      applicationProperties: (v.applicationProperties ?? []).filter(
         (_, i) => i !== index,
       ),
     }));
-  }
+  };
+
+  addHeaderProperty = () => {
+    this.value.update((v) => ({
+      ...v,
+      headers: [
+        ...(v.headers ?? []),
+        {
+          key: '',
+          value: 0,
+        },
+      ],
+    }));
+  };
+
+  removeHeaderProperty = (index: number) => {
+    this.value.update((v) => ({
+      ...v,
+      headers: (v.headers ?? []).filter((_, i) => i !== index),
+    }));
+  };
+
+  addDeliveryAnnotation = () => {
+    this.value.update((v) => ({
+      ...v,
+      deliveryAnnotations: [
+        ...(v.deliveryAnnotations ?? []),
+        {
+          key: '',
+          type: 'string',
+          value: '',
+        },
+      ],
+    }));
+  };
+
+  removeDeliveryAnnotation = (index: number) => {
+    this.value.update((v) => ({
+      ...v,
+      deliveryAnnotations: (v.deliveryAnnotations ?? []).filter(
+        (_, i) => i !== index,
+      ),
+    }));
+  };
+
+  addMessageAnnotation = () => {
+    this.value.update((v) => ({
+      ...v,
+      messageAnnotations: [
+        ...(v.messageAnnotations ?? []),
+        {
+          key: '',
+          type: 'string',
+          value: '',
+        },
+      ],
+    }));
+  };
+
+  removeMessageAnnotation = (index: number) => {
+    this.value.update((v) => ({
+      ...v,
+      messageAnnotations: (v.messageAnnotations ?? []).filter(
+        (_, i) => i !== index,
+      ),
+    }));
+  };
 
   send() {
     if (!this.form().valid) {
@@ -286,6 +389,27 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
     const formValue = this.value();
     const body = new TextEncoder().encode(formValue.body);
 
+    const mapCustomPropertyGroups = (
+      groups:
+        | Array<{ key: string; value: string | number | Date | boolean }>
+        | undefined,
+    ) => {
+      if (!groups) {
+        return {} as Record<string, string | number | Date | boolean>;
+      }
+
+      return groups.reduce(
+        (acc, group) => {
+          if (!group.key) {
+            return acc;
+          }
+          acc[group.key] = group.value;
+          return acc;
+        },
+        {} as Record<string, string | number | Date | boolean>,
+      );
+    };
+
     this.store.dispatch(
       messagesActions.sendMessage({
         endpoint: formValue.endpoint!,
@@ -295,6 +419,18 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
           contentType: formValue.contentType ?? undefined,
           messageId: (formValue.properties.find((x) => x.key === 'message-id')
             ?.value ?? undefined) as string | undefined,
+          headers: mapCustomPropertyGroups(
+            formValue.headers as Array<{
+              key: string;
+              value: string | number | Date | boolean;
+            }>,
+          ),
+          deliveryAnnotations: mapCustomPropertyGroups(
+            formValue.deliveryAnnotations,
+          ),
+          messageAnnotations: mapCustomPropertyGroups(
+            formValue.messageAnnotations,
+          ),
           properties: formValue.properties.reduce(
             (acc, x) => {
               acc[x.key] = x.value;
@@ -306,12 +442,8 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
                 : {}),
             } as Record<string, string | number | Date | boolean>,
           ),
-          applicationProperties: formValue.applicationProperties.reduce(
-            (acc, x) => {
-              acc[x.key] = x.value;
-              return acc;
-            },
-            {} as Record<string, string | number | Date | boolean>,
+          applicationProperties: mapCustomPropertyGroups(
+            formValue.applicationProperties,
           ),
         },
       }),
@@ -350,37 +482,79 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
         const message = ToMessageToSend(receivedMessage);
 
         const properties = Object.entries(message.properties ?? {})
-          .filter(
-            ([key, value]) =>
-              value && AmqpPropertyKeysList.includes(key as AmqpPropertyKeys),
+          .filter(([key]) =>
+            AmqpPropertyKeysList.includes(key as AmqpPropertyKeys),
           )
           .map(([key, value]) => ({
             key: key as AmqpPropertyKeys,
             value: (value ?? '') as string | Date | number,
           }));
 
+        const legacyHeadersFromProperties = Object.entries(
+          message.properties ?? {},
+        )
+          .filter(([key]) => AmqpHeaderKeysList.includes(key as AmqpHeaderKeys))
+          .map(([key, value]) => {
+            const typedKey = key as AmqpHeaderKeys;
+            if (typedKey === 'durable' || typedKey === 'first-acquirer') {
+              return {
+                key: typedKey,
+                value: Boolean(value),
+              };
+            }
+
+            return {
+              key: typedKey,
+              value: Number(value ?? 0),
+            };
+          });
+
         const body = new TextDecoder().decode(message.body.buffer);
+        const mapValueToGroup = ([key, value]: [string, unknown]) => {
+          return {
+            key,
+            type:
+              typeof value === 'string'
+                ? 'string'
+                : typeof value === 'number'
+                  ? 'number'
+                  : typeof value === 'boolean'
+                    ? 'boolean'
+                    : ('datetime' as CustomPropertyType),
+            value: (value ?? '') as string | number | Date | boolean,
+          };
+        };
+
+        const mapHeaderValueToGroup = ([key, value]: [string, unknown]) => {
+          const typedKey = key as AmqpHeaderKeys;
+          if (typedKey === 'durable' || typedKey === 'first-acquirer') {
+            return {
+              key: typedKey,
+              value: Boolean(value),
+            };
+          }
+
+          return {
+            key: typedKey,
+            value: Number(value ?? 0),
+          };
+        };
+
         this.value.set({
           body: body,
           contentType: message.contentType ?? '',
           properties: properties,
+          headers: message.headers
+            ? Object.entries(message.headers).map(mapHeaderValueToGroup)
+            : legacyHeadersFromProperties,
+          deliveryAnnotations: message.deliveryAnnotations
+            ? Object.entries(message.deliveryAnnotations).map(mapValueToGroup)
+            : [],
+          messageAnnotations: message.messageAnnotations
+            ? Object.entries(message.messageAnnotations).map(mapValueToGroup)
+            : [],
           applicationProperties: message.applicationProperties
-            ? Object.entries(message.applicationProperties).map(
-                ([key, value]) => {
-                  return {
-                    key,
-                    type:
-                      typeof value === 'string'
-                        ? 'string'
-                        : typeof value === 'number'
-                          ? 'number'
-                          : typeof value === 'boolean'
-                            ? 'boolean'
-                            : ('datetime' as CustomPropertyType),
-                    value: value ?? '',
-                  };
-                },
-              )
+            ? Object.entries(message.applicationProperties).map(mapValueToGroup)
             : [],
           endpoint: null,
         });
@@ -392,6 +566,9 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       body: '',
       contentType: '',
       properties: [],
+      headers: [],
+      deliveryAnnotations: [],
+      messageAnnotations: [],
       applicationProperties: [],
       endpoint: null,
     };

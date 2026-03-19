@@ -37,6 +37,17 @@
   <div class="input-field">
     <p-floatlabel variant="on">
       <input
+        id="rabbitMqVHost"
+        class="full-width"
+        pInputText
+        [(ngModel)]="vhost"
+      />
+      <label for="rabbitMqVHost">VHost</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
         id="rabbitMqUserName"
         class="full-width"
         pInputText

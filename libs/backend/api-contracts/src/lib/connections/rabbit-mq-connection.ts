@@ -5,6 +5,7 @@ export interface RabbitMqConnection extends ConnectionBase {
   host: string;
   managementPort: number;
   amqpPort: number;
+  vhost?: string;
   userName: string;
   password: string;
   target: 'rabbitmq';

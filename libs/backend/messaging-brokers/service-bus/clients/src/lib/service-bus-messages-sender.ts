@@ -104,6 +104,10 @@ export class ServiceBusMessagesSender implements MessagesSender {
   }
 
   private getSender(endpoint: SendEndpoint): ServiceBusSender {
+    if (endpoint.target !== 'serviceBus') {
+      throw new Error("Endpoint target must be 'serviceBus'");
+    }
+
     const auth = getCredential(this.connection);
     const client = new ServiceBusClient(auth.hostName, auth.credential);
 

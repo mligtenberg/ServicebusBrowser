@@ -24,7 +24,14 @@ export class RabbitMqMessagesReader implements MessagesReader {
     } = { receiveMode: 'receive' },
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
     const maxAmount = options.maxAmountOfMessagesToReceive ?? 1;
-    const client = new Connection(getConnectionOptions(this.connection));
+    const client = new Connection(
+      getConnectionOptions(
+        this.connection,
+        receiveEndpoint.target === 'rabbitmq'
+          ? receiveEndpoint.vhostName
+          : undefined,
+      ),
+    );
 
     try {
       await client.open();

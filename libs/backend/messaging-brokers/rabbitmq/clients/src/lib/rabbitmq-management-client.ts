@@ -1,14 +1,25 @@
 import { RabbitMqConnection } from '@service-bus-browser/api-contracts';
-import {
-  getManagementBaseUrl,
-  getVHost,
-} from './internal/rabbitmq-connection-options';
+import { getManagementBaseUrl } from './internal/rabbitmq-connection-options';
 
 export interface RabbitMqQueue {
   name: string;
+  vhost: string;
   messages: number;
   messages_ready: number;
   messages_unacknowledged: number;
+}
+
+export interface RabbitMqExchange {
+  name: string;
+  vhost: string;
+  type: string;
+  durable: boolean;
+  auto_delete: boolean;
+  internal: boolean;
+}
+
+export interface RabbitMqVHost {
+  name: string;
 }
 
 export class RabbitMqManagementClient {
@@ -16,24 +27,36 @@ export class RabbitMqManagementClient {
 
   async checkConnection(): Promise<boolean> {
     try {
-      await this.getQueues();
+      await this.getVHosts();
       return true;
     } catch {
       return false;
     }
   }
 
-  async getQueues(): Promise<RabbitMqQueue[]> {
-    const vHost = encodeURIComponent(getVHost(this.connection));
+  async getVHosts(): Promise<RabbitMqVHost[]> {
+    return this.request<RabbitMqVHost[]>('/api/vhosts');
+  }
+
+  async getQueuesByVHost(vHostName: string): Promise<RabbitMqQueue[]> {
+    const vHost = encodeURIComponent(vHostName);
     return this.request<RabbitMqQueue[]>(`/api/queues/${vHost}`);
   }
 
-  async getQueue(queueName: string): Promise<RabbitMqQueue> {
-    const vHost = encodeURIComponent(getVHost(this.connection));
+  async getQueueByVHost(
+    vHostName: string,
+    queueName: string,
+  ): Promise<RabbitMqQueue> {
+    const vHost = encodeURIComponent(vHostName);
     const encodedQueueName = encodeURIComponent(queueName);
     return this.request<RabbitMqQueue>(
       `/api/queues/${vHost}/${encodedQueueName}`,
     );
+  }
+
+  async getExchangesByVHost(vHostName: string): Promise<RabbitMqExchange[]> {
+    const vHost = encodeURIComponent(vHostName);
+    return this.request<RabbitMqExchange[]>(`/api/exchanges/${vHost}`);
   }
 
   private async request<T>(path: string): Promise<T> {

@@ -18,6 +18,7 @@ export class RabbitmqConnectionTargetComponent {
   host = model<string>();
   managementPort = model<number>();
   amqpPort = model<number>();
+  vhost = model<string>('/');
   userName = model<string>();
   password = model<string>();
 
@@ -26,6 +27,7 @@ export class RabbitmqConnectionTargetComponent {
     const host = this.host();
     const managementPort = this.managementPort();
     const amqpPort = this.amqpPort();
+    const vhost = this.vhost();
     const userName = this.userName();
     const password = this.password();
 
@@ -43,6 +45,7 @@ export class RabbitmqConnectionTargetComponent {
           host,
           managementPort,
           amqpPort,
+          vhost: vhost && vhost.trim() ? vhost : '/',
           userName,
           password,
           target: 'rabbitmq',

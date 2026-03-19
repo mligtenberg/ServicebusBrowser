@@ -11,7 +11,12 @@ export class RabbitMqMessagesSender implements MessagesSender {
   constructor(private readonly connection: RabbitMqConnection) {}
 
   async send(endpoint: SendEndpoint, message: Message): Promise<void> {
-    const client = new Connection(getConnectionOptions(this.connection));
+    const client = new Connection(
+      getConnectionOptions(
+        this.connection,
+        endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
+      ),
+    );
     try {
       await client.open();
       const sender = await client.createSender({
@@ -43,8 +48,14 @@ export class RabbitMqMessagesSender implements MessagesSender {
   }
 
   private getAddress(endpoint: SendEndpoint): string {
-    if (endpoint.target === 'rabbitmq' && endpoint.type === 'queue') {
-      return endpoint.queueName;
+    if (endpoint.target === 'rabbitmq') {
+      if (endpoint.type === 'queue') {
+        return endpoint.queueName;
+      }
+
+      if (endpoint.type === 'exchange') {
+        return endpoint.exchangeName;
+      }
     }
 
     throw new Error('Invalid RabbitMQ send endpoint');

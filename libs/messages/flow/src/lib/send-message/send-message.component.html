@@ -21,13 +21,62 @@
                 <ng-container *ngTemplateOutlet="propertiesTemplate" />
               </div>
             </div>
+            <div class="system-properties">
+              <div class="header">
+                <h2>Headers</h2>
+              </div>
+              <div class="properties-container">
+                <ng-container *ngTemplateOutlet="headersTemplate" />
+              </div>
+            </div>
+            <div class="system-properties">
+              <div class="header">
+                <h2>Delivery annotations</h2>
+              </div>
+              <div class="properties-container">
+                <ng-container
+                  *ngTemplateOutlet="
+                    typedPropertiesTemplate;
+                    context: {
+                      formArray: form.deliveryAnnotations,
+                      addFn: addDeliveryAnnotation,
+                      removeFn: removeDeliveryAnnotation,
+                    }
+                  "
+                />
+              </div>
+            </div>
+            <div class="system-properties">
+              <div class="header">
+                <h2>Message annotations</h2>
+              </div>
+              <div class="properties-container">
+                <ng-container
+                  *ngTemplateOutlet="
+                    typedPropertiesTemplate;
+                    context: {
+                      formArray: form.messageAnnotations,
+                      addFn: addMessageAnnotation,
+                      removeFn: removeMessageAnnotation,
+                    }
+                  "
+                />
+              </div>
+            </div>
             <div class="application-properties">
               <div class="header">
                 <h2>Application properties</h2>
               </div>
               <div class="properties-container">
                 <ng-container
-                  *ngTemplateOutlet="applicationPropertiesTemplate"
+                  *ngTemplateOutlet="
+                    typedPropertiesTemplate;
+                    context: {
+                      formArray: form.applicationProperties,
+                      addFn: addApplicationProperty,
+                      removeFn: removeApplicationProperty,
+                    }
+                  "
                 />
               </div>
             </div>
@@ -134,21 +183,66 @@
     <button pButton type="button" (click)="addProperty()">Add</button>
   </div>
 </ng-template>
-<ng-template #applicationPropertiesTemplate>
-  @for (
-    control of form.applicationProperties().value();
-    let index = $index;
-    track $index
-  ) {
-    @let applicationProperty = form.applicationProperties[index];
+<ng-template #headersTemplate>
+  @for (control of form.headers().value(); let index = $index; track $index) {
+    @let header = form.headers[index];
     <p-input-group>
-      <input
-        pInputText
-        [formField]="applicationProperty.key"
-        placeholder="Key"
-      />
       <lib-select-signal-form-input
-        [formField]="applicationProperty.type"
+        [formField]="header.key"
+        [options]="getAvailableHeaderKeys($index)"
+        optionLabel="label"
+        optionValue="value"
+      />
+      @if (headerIsBoolean($index)) {
+        <lib-select-signal-form-input
+          [formField]="formHelpers.asBooleanValueTree(header.value)"
+          [options]="[
+            {
+              label: 'true',
+              value: true,
+            },
+            {
+              label: 'false',
+              value: false,
+            },
+          ]"
+        />
+      }
+      @if (headerIsNumber($index)) {
+        <input
+          pInputText
+          type="number"
+          [formField]="formHelpers.asNumberValueTree(header.value)"
+          placeholder="Value"
+        />
+      }
+      <p-inputgroup-addon>
+        <p-button
+          type="button"
+          icon="pi pi-times"
+          [text]="true"
+          severity="danger"
+          (click)="removeHeaderProperty($index)"
+        />
+      </p-inputgroup-addon>
+    </p-input-group>
+  }
+  <div class="actions">
+    <button pButton type="button" (click)="addHeaderProperty()">Add</button>
+  </div>
+</ng-template>
+<ng-template
+  #typedPropertiesTemplate
+  let-formArray="formArray"
+  let-addFn="addFn"
+  let-removeFn="removeFn"
+>
+  @for (control of formArray().value(); let index = $index; track $index) {
+    @let property = formArray[index];
+    <p-input-group>
+      <input pInputText [formField]="property.key" placeholder="Key" />
+      <lib-select-signal-form-input
+        [formField]="property.type"
         [options]="typeOptions"
         optionLabel="label"
         optionValue="value"
@@ -156,28 +250,26 @@
       @if (control.type === 'string') {
         <input
           pInputText
-          [formField]="formHelpers.asStringValueTree(applicationProperty.value)"
+          [formField]="formHelpers.asStringValueTree(property.value)"
           placeholder="Value"
         />
       }
       @if (control.type === 'datetime') {
         <lib-date-picker-signal-form-input
-          [formField]="formHelpers.asDateValueTree(applicationProperty.value)"
+          [formField]="formHelpers.asDateValueTree(property.value)"
         />
       }
       @if (control.type === 'number') {
         <input
           pInputText
           type="number"
-          [formField]="formHelpers.asNumberValueTree(applicationProperty.value)"
+          [formField]="formHelpers.asNumberValueTree(property.value)"
           placeholder="Value"
         />
       }
       @if (control.type === 'boolean') {
         <lib-select-signal-form-input
-          [formField]="
-            formHelpers.asBooleanValueTree(applicationProperty.value)
-          "
+          [formField]="formHelpers.asBooleanValueTree(property.value)"
           [options]="[
             {
               label: 'true',
@@ -196,15 +288,13 @@
           icon="pi pi-times"
           [text]="true"
           severity="danger"
-          (click)="removeApplicationProperty($index)"
+          (click)="removeFn($index)"
         />
       </p-inputgroup-addon>
     </p-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addApplicationProperty()">
-      Add
-    </button>
+    <button pButton type="button" (click)="addFn()">Add</button>
   </div>
 </ng-template>
 <ng-template #bodyTemplate>

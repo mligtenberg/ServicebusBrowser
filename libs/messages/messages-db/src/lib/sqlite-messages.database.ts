@@ -56,7 +56,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     ).flat();
     const knownApplicationPropertyNames = (
       await this.selectRows<[string]>(
-        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'application' AND propertyType <> 'null'",
+        "SELECT propertyName FROM propertyLabels WHERE propertyLocation = 'applicationProperties' AND propertyType <> 'null'",
       )
     ).flat();
 
@@ -96,7 +96,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
           const foundLabels = new Set<string>(knownLabels);
 
           for (const [propertyName, propertyValue] of Object.entries(
-            properties,
+            properties ?? {},
           )) {
             await this.database.exec(
               `INSERT OR REPLACE INTO ${tableName} (
@@ -144,7 +144,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
         );
         await insertProperties(
           message.applicationProperties as Record<string, unknown>,
-          'application',
+          'applicationProperties',
           knownApplicationPropertyNames,
         );
         await insertProperties(
@@ -227,7 +227,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     { label: string; type: string }[]
   > {
     const rows = await this.selectRows<[string, string]>(
-      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'application' AND propertyType <> 'null'",
+      "SELECT propertyName, propertyType FROM propertyLabels WHERE propertyLocation = 'applicationProperties' AND propertyType <> 'null'",
     );
     return rows.map(([label, type]) => ({ label, type }));
   }

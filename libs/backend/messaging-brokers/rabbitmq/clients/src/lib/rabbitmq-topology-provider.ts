@@ -8,6 +8,7 @@ import {
 import {
   faFolder as faFolderSolid,
   faServer,
+  faRightLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { RabbitMqManagementClient } from './rabbitmq-management-client';
 
@@ -39,7 +40,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'connection',
-      children: [await this.loadQueues()],
+      children: [await this.loadVHosts()],
       actions: [
         {
           icon: 'pi pi-trash',
@@ -63,39 +64,114 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       return this.getTopology();
     }
 
-    const segments = refreshFromPath.split('/');
-    if (segments[2] === 'queues') {
-      return this.refreshQueues(segments);
+    const segments = refreshFromPath.split('/').filter(Boolean);
+    if (segments[1] === 'vhosts') {
+      return this.refreshVHostNode(segments);
     }
 
     return this.getTopology();
   }
 
-  private async refreshQueues(segments: string[]): Promise<TopologyNode> {
-    const queueName = segments[3];
-    if (!queueName) {
-      return this.loadQueues();
-    }
-
-    const queue = await this.managementClient.getQueue(queueName);
-    return this.mapQueue(queue);
-  }
-
-  private async loadQueues(): Promise<TopologyNode> {
+  private async loadVHosts(): Promise<TopologyNode> {
     try {
-      const queues = await this.managementClient.getQueues();
+      const vhosts = await this.managementClient.getVHosts();
       return {
-        path: `/${this.connection.id}/queues`,
-        name: 'Queues',
+        path: `/${this.connection.id}/vhosts`,
+        name: 'VHosts',
         selectable: false,
         type: 'operational-grouping',
         refreshable: true,
-        children: queues.map((queue) => this.mapQueue(queue)),
+        children: await Promise.all(
+          vhosts.map((vhost) => this.mapVHost(vhost.name)),
+        ),
       };
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       return {
-        path: `/${this.connection.id}/queues`,
+        path: `/${this.connection.id}/vhosts`,
+        name: 'VHosts',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: [],
+        actions: [],
+        errored: true,
+        errorMessage: error.message,
+      };
+    }
+  }
+
+  private async refreshVHostNode(segments: string[]): Promise<TopologyNode> {
+    const encodedVHost = segments[2];
+    if (!encodedVHost) {
+      return this.loadVHosts();
+    }
+
+    const vhostName = decodeURIComponent(encodedVHost);
+
+    if (segments.length === 3) {
+      return this.mapVHost(vhostName);
+    }
+
+    const nodeType = segments[3];
+    if (nodeType === 'queues') {
+      const queueName = segments[4]
+        ? decodeURIComponent(segments[4])
+        : undefined;
+      if (!queueName) {
+        return this.loadQueues(vhostName);
+      }
+
+      const queue = await this.managementClient.getQueueByVHost(
+        vhostName,
+        queueName,
+      );
+      return this.mapQueue(queue, vhostName);
+    }
+
+    if (nodeType === 'exchanges') {
+      return this.loadExchanges(vhostName);
+    }
+
+    return this.mapVHost(vhostName);
+  }
+
+  private async mapVHost(vhostName: string): Promise<TopologyNode> {
+    const encodedVHost = encodeURIComponent(vhostName);
+    const [queuesNode, exchangesNode] = await Promise.all([
+      this.loadQueues(vhostName),
+      this.loadExchanges(vhostName),
+    ]);
+
+    return {
+      icon: faFolderSolid,
+      path: `/${this.connection.id}/vhosts/${encodedVHost}`,
+      name: vhostName,
+      refreshable: true,
+      selectable: false,
+      type: 'operational-grouping',
+      children: [queuesNode, exchangesNode],
+    };
+  }
+
+  private async loadQueues(vhostName: string): Promise<TopologyNode> {
+    const encodedVHost = encodeURIComponent(vhostName);
+    const path = `/${this.connection.id}/vhosts/${encodedVHost}/queues`;
+
+    try {
+      const queues = await this.managementClient.getQueuesByVHost(vhostName);
+      return {
+        path,
+        name: 'Queues',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: queues.map((queue) => this.mapQueue(queue, vhostName)),
+      };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      return {
+        path,
         name: 'Queues',
         selectable: false,
         type: 'operational-grouping',
@@ -108,15 +184,57 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
     }
   }
 
-  private mapQueue(queue: {
-    name: string;
-    messages: number;
-    messages_ready: number;
-    messages_unacknowledged: number;
-  }): TopologyNode {
+  private async loadExchanges(vhostName: string): Promise<TopologyNode> {
+    const encodedVHost = encodeURIComponent(vhostName);
+    const path = `/${this.connection.id}/vhosts/${encodedVHost}/exchanges`;
+
+    try {
+      const exchanges =
+        await this.managementClient.getExchangesByVHost(vhostName);
+      return {
+        path,
+        name: 'Exchanges',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: exchanges
+          .filter((exchange) => exchange.name)
+          .map((exchange) => this.mapExchange(vhostName, exchange)),
+      };
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      return {
+        path,
+        name: 'Exchanges',
+        selectable: false,
+        type: 'operational-grouping',
+        refreshable: true,
+        children: [],
+        actions: [],
+        errored: true,
+        errorMessage: error.message,
+      };
+    }
+  }
+
+  private mapQueue(
+    queue: {
+      name: string;
+      messages: number;
+      messages_ready: number;
+      messages_unacknowledged: number;
+    },
+    vhostName?: string,
+  ): TopologyNode {
+    const encodedVHost = encodeURIComponent(vhostName ?? '/');
+    const encodedQueueName = encodeURIComponent(queue.name);
+    const endpointDisplay =
+      `${this.connection.host}:${this.connection.amqpPort}` +
+      `/${vhostName ?? '/'}/${queue.name}`;
+
     return {
       icon: faFolderSolid,
-      path: `/${this.connection.id}/queues/${queue.name}`,
+      path: `/${this.connection.id}/vhosts/${encodedVHost}/queues/${encodedQueueName}`,
       name: queue.name,
       refreshable: true,
       selectable: true,
@@ -125,39 +243,82 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         {
           name: 'Total messages',
           count: queue.messages ?? 0,
-          showInSummary: true
+          showInSummary: true,
         },
         {
           name: 'Ready messages',
           count: queue.messages_ready ?? 0,
-          showInSummary: false
+          showInSummary: false,
         },
         {
           name: 'Unacked messages',
           count: queue.messages_unacknowledged ?? 0,
-          showInSummary: false
-        }
+          showInSummary: false,
+        },
       ],
       sendEndpoint: {
         displayName: queue.name,
         connectionId: this.connection.id,
+        vhostName: vhostName ?? '/',
         queueName: queue.name,
         endpoint: `${this.connection.host}:${this.connection.amqpPort}`,
-        endpointDisplay: `${this.connection.host}:${this.connection.amqpPort}`,
+        endpointDisplay,
         target: 'rabbitmq',
         type: 'queue',
       },
       receiveEndpoints: [
         {
           displayName: '',
-          longDisplayName: queue.name,
+          longDisplayName: `${vhostName ?? '/'} / ${queue.name}`,
           connectionId: this.connection.id,
+          vhostName: vhostName ?? '/',
           queueName: queue.name,
           target: 'rabbitmq',
           type: 'queue',
           receiveOptionsDescription: this.availableOptions,
         },
       ],
+    };
+  }
+
+  private mapExchange(
+    vhostName: string,
+    exchange: {
+      name: string;
+      type: string;
+      durable: boolean;
+      auto_delete: boolean;
+      internal: boolean;
+    },
+  ): TopologyNode {
+    const encodedVHost = encodeURIComponent(vhostName);
+    const encodedExchangeName = encodeURIComponent(exchange.name);
+    const properties = [
+      `type=${exchange.type}`,
+      exchange.durable ? 'durable' : 'non-durable',
+      exchange.auto_delete ? 'auto-delete' : 'manual-delete',
+      exchange.internal ? 'internal' : 'public',
+    ];
+
+    return {
+      icon: faRightLeft,
+      path: `/${this.connection.id}/vhosts/${encodedVHost}/exchanges/${encodedExchangeName}`,
+      name: exchange.name,
+      refreshable: true,
+      selectable: true,
+      type: 'exchange',
+      sendEndpoint: {
+        displayName: exchange.name,
+        connectionId: this.connection.id,
+        vhostName,
+        exchangeName: exchange.name,
+        endpoint: `${this.connection.host}:${this.connection.amqpPort}`,
+        endpointDisplay:
+          `${this.connection.host}:${this.connection.amqpPort}` +
+          `/${vhostName}/${exchange.name} (${properties.join(', ')})`,
+        target: 'rabbitmq',
+        type: 'exchange',
+      },
     };
   }
 }
