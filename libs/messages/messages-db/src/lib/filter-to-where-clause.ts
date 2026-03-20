@@ -116,7 +116,7 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
   applyPropertyFilters(filter.deliveryAnnotations, 'deliveryAnnotations');
   applyPropertyFilters(filter.messageAnnotations, 'messageAnnotations');
 
-  applyPropertyFilters(filter.applicationProperties, 'application');
+  applyPropertyFilters(filter.applicationProperties, 'applicationProperties');
 
   if (!clauses.length) {
     return { clause: '', args: [] };

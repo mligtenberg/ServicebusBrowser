@@ -69,13 +69,5 @@ async function createMessageAnnotations(database: Database) {
 }
 
 async function createApplicationProperties(database: Database) {
-  await database.exec(`CREATE TABLE IF NOT EXISTS applicationProperties (
-    messageId TEXT,
-    propertyName TEXT,
-    propertyType TEXT,
-    propertyValue TEXT,
-    PRIMARY KEY(messageId, propertyName),
-    FOREIGN KEY(messageId) REFERENCES messages(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-  )`);
+  await createGenericProperties(database, 'applicationProperties');
 }

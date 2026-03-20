@@ -23,7 +23,7 @@ export class RabbitMqMessagesSender implements MessagesSender {
         target: { address: this.getAddress(endpoint) },
       });
       sender.send({
-        body: Buffer.from(message.body),
+        body: message.body.buffer,
         message_id: this.toBuffer(
           message.properties?.['message-id'] ?? message.messageId,
         ),

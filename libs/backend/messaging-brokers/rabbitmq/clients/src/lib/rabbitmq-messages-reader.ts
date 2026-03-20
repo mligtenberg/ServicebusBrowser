@@ -13,6 +13,12 @@ import {
   ReceiverOptions,
 } from 'rhea-promise';
 import { getConnectionOptions } from './internal/rabbitmq-connection-options';
+import { sequenceNumberToKey } from './internal/sequence-number-to-key';
+
+type ContinuationTokenBody = {
+  alreadyLoadedAmountOfMessages: number;
+  streamOffset?: 'first' | 'last' | 'next' | number;
+};
 
 export class RabbitMqMessagesReader implements MessagesReader {
   constructor(private readonly connection: RabbitMqConnection) {}
@@ -24,8 +30,24 @@ export class RabbitMqMessagesReader implements MessagesReader {
       maxAmountOfMessagesToReceive?: number;
       streamOffset?: 'first' | 'last' | 'next';
     } = { receiveMode: 'receive' },
+    continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
     const maxAmount = options.maxAmountOfMessagesToReceive ?? 1;
+    const tokenBody = continuationToken
+      ? this.decodeContinuationToken<ContinuationTokenBody>(continuationToken)
+      : ({
+          alreadyLoadedAmountOfMessages: 0,
+          streamOffset: options.streamOffset,
+        } as ContinuationTokenBody);
+    let currentMaxAmountOfMessagesToReceive =
+      maxAmount - tokenBody.alreadyLoadedAmountOfMessages;
+    currentMaxAmountOfMessagesToReceive =
+      currentMaxAmountOfMessagesToReceive > 250 ? 250 : currentMaxAmountOfMessagesToReceive;
+
+    if (currentMaxAmountOfMessagesToReceive <= 0) {
+      return { messages: [] };
+    }
+
     const waitTimeInMs = this.isStreamEndpoint(receiveEndpoint) ? 1000 : 150;
     const client = new Connection(
       getConnectionOptions(
@@ -39,14 +61,16 @@ export class RabbitMqMessagesReader implements MessagesReader {
     try {
       await client.open();
       const receiver = await client.createReceiver({
-        ...this.getReceiverOptions(receiveEndpoint, options),
+        ...this.getReceiverOptions(receiveEndpoint, {
+          streamOffset: tokenBody.streamOffset,
+        }),
         autoaccept: false,
         credit_window: 0,
       });
 
       const messages = await this.collectMessages(
         receiver,
-        maxAmount,
+        currentMaxAmountOfMessagesToReceive,
         waitTimeInMs,
       );
       if (
@@ -64,10 +88,30 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
       await receiver.close();
 
+      const mappedMessages = messages.map((message, index) =>
+        this.mapReceivedMessage(message, index),
+      );
+
+      const alreadyLoadedAmountOfMessages =
+        tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
+
+      const shouldReturnContinuationToken =
+        currentMaxAmountOfMessagesToReceive > mappedMessages.length;
+
+      const newContinuationToken = shouldReturnContinuationToken
+        ? this.makeContinuationToken({
+            alreadyLoadedAmountOfMessages,
+            streamOffset:
+              this.getNextStreamOffset(messages) ??
+              tokenBody.streamOffset ??
+              options.streamOffset ??
+              'first',
+          })
+        : undefined;
+
       return {
-        messages: messages.map((message, index) =>
-          this.mapReceivedMessage(message, index),
-        ),
+        messages: mappedMessages,
+        continuationToken: newContinuationToken,
       };
     } finally {
       await client.close().catch(() => undefined);
@@ -127,7 +171,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
     const body = this.toByteArray(message?.body);
 
     return {
-      key: context.delivery?.id?.toString() ?? `${Date.now()}-${index}`,
+      key: sequenceNumberToKey(index.toString()),
       sequence: context.delivery?.id?.toString() ?? `${index}`,
       messageId: message?.message_id?.toString(),
       body,
@@ -175,12 +219,6 @@ export class RabbitMqMessagesReader implements MessagesReader {
   }
 
   private mapAmqpHeader(message: EventContext['message']) {
-    const header = (message as { header?: Record<string, unknown> } | undefined)
-      ?.header;
-    if (!header) {
-      return undefined;
-    }
-
     const amqpHeader: Record<string, PropertyValue> = {};
     const setIfDefined = (key: string, value: unknown) => {
       if (value !== undefined) {
@@ -188,23 +226,16 @@ export class RabbitMqMessagesReader implements MessagesReader {
       }
     };
 
-    setIfDefined('durable', header['durable']);
-    setIfDefined('priority', header['priority']);
-    setIfDefined('ttl', header['ttl']);
-    setIfDefined('first-acquirer', header['first_acquirer']);
-    setIfDefined('delivery-count', header['delivery_count']);
+    setIfDefined('durable', message?.durable);
+    setIfDefined('priority', message?.priority);
+    setIfDefined('ttl', message?.ttl);
+    setIfDefined('first-acquirer', message?.first_acquirer);
+    setIfDefined('delivery-count', message?.delivery_count);
 
     return Object.keys(amqpHeader).length > 0 ? amqpHeader : undefined;
   }
 
   private mapAmqpProperties(message: EventContext['message']) {
-    const properties = (
-      message as { properties?: Record<string, unknown> } | undefined
-    )?.properties;
-    if (!properties) {
-      return undefined;
-    }
-
     const amqpProperties: Record<string, PropertyValue> = {};
     const setIfDefined = (key: string, value: unknown) => {
       if (value !== undefined) {
@@ -212,19 +243,19 @@ export class RabbitMqMessagesReader implements MessagesReader {
       }
     };
 
-    setIfDefined('message-id', properties['message_id']);
-    setIfDefined('user-id', properties['user_id']);
-    setIfDefined('to', properties['to']);
-    setIfDefined('subject', properties['subject']);
-    setIfDefined('reply-to', properties['reply_to']);
-    setIfDefined('correlation-id', properties['correlation_id']);
-    setIfDefined('content-type', properties['content_type']);
-    setIfDefined('content-encoding', properties['content_encoding']);
-    setIfDefined('absolute-expiry-time', properties['absolute_expiry_time']);
-    setIfDefined('creation-time', properties['creation_time']);
-    setIfDefined('group-id', properties['group_id']);
-    setIfDefined('group-sequence', properties['group_sequence']);
-    setIfDefined('reply-to-group-id', properties['reply_to_group_id']);
+    setIfDefined('message-id', message?.message_id);
+    setIfDefined('user-id', message?.user_id);
+    setIfDefined('to', message?.to);
+    setIfDefined('subject', message?.subject);
+    setIfDefined('reply-to', message?.reply_to);
+    setIfDefined('correlation-id', message?.correlation_id);
+    setIfDefined('content-type', message?.content_type);
+    setIfDefined('content-encoding', message?.content_encoding);
+    setIfDefined('absolute-expiry-time', message?.absolute_expiry_time);
+    setIfDefined('creation-time', message?.creation_time);
+    setIfDefined('group-id', message?.group_id);
+    setIfDefined('group-sequence', message?.group_sequence);
+    setIfDefined('reply-to-group-id', message?.reply_to_group_id);
 
     return Object.keys(amqpProperties).length > 0 ? amqpProperties : undefined;
   }
@@ -239,7 +270,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
   private getReceiverOptions(
     endpoint: ReceiveEndpoint,
-    options: { streamOffset?: 'first' | 'last' | 'next' },
+    options: { streamOffset?: 'first' | 'last' | 'next' | number },
   ): ReceiverOptions {
     const address = this.getAddress(endpoint);
 
@@ -265,5 +296,40 @@ export class RabbitMqMessagesReader implements MessagesReader {
       endpoint.type === 'queue' &&
       endpoint.queueType === 'stream'
     );
+  }
+
+  private getNextStreamOffset(messages: EventContext[]): number | undefined {
+    const lastMessage = messages[messages.length - 1]?.message as
+      | { message_annotations?: Record<string, unknown> }
+      | undefined;
+
+    const messageAnnotations = lastMessage?.message_annotations;
+    if (!messageAnnotations) {
+      return undefined;
+    }
+
+    const offset = messageAnnotations['x-stream-offset'];
+    if (typeof offset === 'number' && Number.isFinite(offset)) {
+      return offset + 1;
+    }
+
+    if (typeof offset === 'string') {
+      const parsed = Number.parseInt(offset, 10);
+      if (Number.isFinite(parsed)) {
+        return parsed + 1;
+      }
+    }
+
+    return undefined;
+  }
+
+  private makeContinuationToken<T>(tokenBody: T): string {
+    const buf = Buffer.from(JSON.stringify(tokenBody), 'utf-8');
+    return btoa(buf.toString('base64'));
+  }
+
+  private decodeContinuationToken<T>(continuationToken: string): T {
+    const buf = Buffer.from(atob(continuationToken), 'base64');
+    return JSON.parse(buf.toString('utf-8'));
   }
 }
