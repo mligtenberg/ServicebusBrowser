@@ -10,6 +10,7 @@ import {
   EventContext,
   Receiver,
   ReceiverEvents,
+  ReceiverOptions,
 } from 'rhea-promise';
 import { getConnectionOptions } from './internal/rabbitmq-connection-options';
 
@@ -21,9 +22,11 @@ export class RabbitMqMessagesReader implements MessagesReader {
     options: {
       receiveMode: 'peek' | 'receive';
       maxAmountOfMessagesToReceive?: number;
+      streamOffset?: 'first' | 'last' | 'next';
     } = { receiveMode: 'receive' },
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
     const maxAmount = options.maxAmountOfMessagesToReceive ?? 1;
+    const waitTimeInMs = this.isStreamEndpoint(receiveEndpoint) ? 1000 : 150;
     const client = new Connection(
       getConnectionOptions(
         this.connection,
@@ -36,13 +39,20 @@ export class RabbitMqMessagesReader implements MessagesReader {
     try {
       await client.open();
       const receiver = await client.createReceiver({
-        source: { address: this.getAddress(receiveEndpoint) },
+        ...this.getReceiverOptions(receiveEndpoint, options),
         autoaccept: false,
         credit_window: 0,
       });
 
-      const messages = await this.collectMessages(receiver, maxAmount, 150);
-      if (options.receiveMode !== 'peek') {
+      const messages = await this.collectMessages(
+        receiver,
+        maxAmount,
+        waitTimeInMs,
+      );
+      if (
+        options.receiveMode !== 'peek' &&
+        !this.isStreamEndpoint(receiveEndpoint)
+      ) {
         await Promise.all(
           messages.map((message) => message.delivery?.accept()),
         );
@@ -92,7 +102,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
       };
 
       const onMessage = (context: EventContext) => {
-        if (!context.delivery || !context.message) {
+        if (!context.message) {
           return;
         }
 
@@ -221,9 +231,39 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
   private getAddress(endpoint: ReceiveEndpoint): string {
     if (endpoint.target === 'rabbitmq' && endpoint.type === 'queue') {
-      return endpoint.queueName;
+      return `/queues/${encodeURIComponent(endpoint.queueName)}`;
     }
 
     throw new Error('Invalid RabbitMQ receive endpoint');
+  }
+
+  private getReceiverOptions(
+    endpoint: ReceiveEndpoint,
+    options: { streamOffset?: 'first' | 'last' | 'next' },
+  ): ReceiverOptions {
+    const address = this.getAddress(endpoint);
+
+    if (!this.isStreamEndpoint(endpoint)) {
+      return {
+        source: { address },
+      };
+    }
+
+    return {
+      source: {
+        address,
+        filter: {
+          'rabbitmq:stream-offset-spec': options.streamOffset ?? 'first',
+        },
+      },
+    };
+  }
+
+  private isStreamEndpoint(endpoint: ReceiveEndpoint): boolean {
+    return (
+      endpoint.target === 'rabbitmq' &&
+      endpoint.type === 'queue' &&
+      endpoint.queueType === 'stream'
+    );
   }
 }

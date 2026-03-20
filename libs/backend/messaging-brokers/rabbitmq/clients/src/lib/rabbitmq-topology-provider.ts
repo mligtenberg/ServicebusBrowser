@@ -10,16 +10,36 @@ import {
   faServer,
   faRightLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import { RabbitMqManagementClient, RabbitMqQueue } from './rabbitmq-management-client';
+import {
+  RabbitMqManagementClient,
+  RabbitMqQueue,
+} from './rabbitmq-management-client';
 
 export class RabbitMqTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'rabbitmq';
   private readonly managementClient;
-  private readonly availableOptions: ReceiveOptionsDescription = {
+  private readonly queueOptions: ReceiveOptionsDescription = {
     genericOptions: {
       maxAmountOfMessagesToReceive: {
         type: 'number',
         label: 'Max amount of messages to receive',
+      },
+    },
+    modes: {
+      peek: {},
+      receive: {},
+    },
+  };
+  private readonly streamOptions: ReceiveOptionsDescription = {
+    genericOptions: {
+      maxAmountOfMessagesToReceive: {
+        type: 'number',
+        label: 'Max amount of messages to receive',
+      },
+      streamOffset: {
+        type: 'enum',
+        label: 'Stream offset',
+        enum: ['first', 'last', 'next'],
       },
     },
     modes: {
@@ -217,21 +237,16 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
     }
   }
 
-  private mapQueue(
-    queue: RabbitMqQueue,
-    vhostName: string,
-  ): TopologyNode {
+  private mapQueue(queue: RabbitMqQueue, vhostName: string): TopologyNode {
     const encodedVHost = encodeURIComponent(vhostName ?? '/');
     const encodedQueueName = encodeURIComponent(queue.name);
     const endpointDisplay =
       `${this.connection.host}:${this.connection.amqpPort}` +
       `/${vhostName ?? '/'}/${queue.name}`;
 
-    const receiveEndpointLongName = [
-      vhostName,
-      queue.name,
-    ].map((part) => part.replace(/^\/?(.*?)\/?$/, "$1"))
-      .filter((p) => p !== "")
+    const receiveEndpointLongName = [vhostName, queue.name]
+      .map((part) => part.replace(/^\/?(.*?)\/?$/, '$1'))
+      .filter((p) => p !== '')
       .join('/');
 
     return {
@@ -267,7 +282,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         endpointDisplay,
         target: 'rabbitmq',
         type: 'queue',
-        supportedMessageAnnotations: []
+        supportedMessageAnnotations: [],
       },
       receiveEndpoints: [
         {
@@ -278,9 +293,10 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
           queueName: queue.name,
           target: 'rabbitmq',
           type: 'queue',
-          receiveOptionsDescription: this.availableOptions,
+          receiveOptionsDescription:
+            queue.type === 'stream' ? this.streamOptions : this.queueOptions,
           queueType: queue.type,
-          clearable: queue.type !== 'stream'
+          clearable: queue.type !== 'stream',
         },
       ],
     };
@@ -323,7 +339,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
           `/${vhostName}/${exchange.name} (${properties.join(', ')})`,
         target: 'rabbitmq',
         type: 'exchange',
-        supportedMessageAnnotations: []
+        supportedMessageAnnotations: [],
       },
     };
   }

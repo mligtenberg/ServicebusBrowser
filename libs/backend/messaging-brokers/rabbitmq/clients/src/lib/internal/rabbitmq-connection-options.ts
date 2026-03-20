@@ -6,9 +6,10 @@ export function getConnectionOptions(
   vhostName?: string,
 ): ConnectionOptions {
   const vhost = vhostName ?? getVHost(connection);
+  const openHostname = vhost === '/' ? undefined : `vhost:${vhost}`;
   const options = {
     host: connection.host,
-    hostname: vhost,
+    hostname: openHostname,
     port: connection.amqpPort,
     username: connection.userName,
     password: connection.password,
