@@ -8,6 +8,8 @@ export type AmqpHeader = {
   'delivery-count'?: number;
 };
 
+export type AmqpHeaderKeys = keyof AmqpHeader;
+
 export type AmqpProperties = {
   'message-id'?: string | number | Uint8Array;
   'user-id'?: Uint8Array;
@@ -52,9 +54,9 @@ export function ToMessageToSend(message: ReceivedMessage): Message {
     body: message.body,
     messageId: message.messageId,
     contentType: message.contentType,
-    headers: message.headers,
-    deliveryAnnotations: message.deliveryAnnotations,
-    messageAnnotations: message.messageAnnotations,
+    headers: {},
+    deliveryAnnotations: {},
+    messageAnnotations: {},
     properties: message.properties,
     applicationProperties: message.applicationProperties,
   };

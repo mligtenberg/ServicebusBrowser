@@ -34,7 +34,6 @@ export class EndpointSelectorTreeInputComponent
 
   store = inject(Store);
   disabled = signal(false);
-  // namespaces = this.store.selectSignal(TopologySelectors.selectNamespaces);
   value = signal<SendEndpoint | null>(null);
   selected = output<SendEndpoint>();
 

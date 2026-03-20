@@ -31,36 +31,10 @@
             </div>
             <div class="system-properties">
               <div class="header">
-                <h2>Delivery annotations</h2>
-              </div>
-              <div class="properties-container">
-                <ng-container
-                  *ngTemplateOutlet="
-                    typedPropertiesTemplate;
-                    context: {
-                      formArray: form.deliveryAnnotations,
-                      addFn: addDeliveryAnnotation,
-                      removeFn: removeDeliveryAnnotation,
-                    }
-                  "
-                />
-              </div>
-            </div>
-            <div class="system-properties">
-              <div class="header">
                 <h2>Message annotations</h2>
               </div>
               <div class="properties-container">
-                <ng-container
-                  *ngTemplateOutlet="
-                    typedPropertiesTemplate;
-                    context: {
-                      formArray: form.messageAnnotations,
-                      addFn: addMessageAnnotation,
-                      removeFn: removeMessageAnnotation,
-                    }
-                  "
-                />
+                <ng-container *ngTemplateOutlet="messageAnnotationsTemplate" />
               </div>
             </div>
             <div class="application-properties">
@@ -229,6 +203,85 @@
   }
   <div class="actions">
     <button pButton type="button" (click)="addHeaderProperty()">Add</button>
+  </div>
+</ng-template>
+<ng-template #messageAnnotationsTemplate>
+  @for (
+    control of form.messageAnnotations().value();
+    let index = $index;
+    track $index
+  ) {
+    @let messageAnnotation = form.messageAnnotations[index];
+    <p-input-group>
+      <lib-auto-complete-form-input
+        [suggestions]="messageAnnotationKeySuggestions()"
+        (completeMethod)="messageAnnotationKeySearch.set($event.query)"
+        (hide)="messageAnnotationKeySearch.set(null)"
+        [formField]="messageAnnotation.key"
+      />
+      <lib-select-signal-form-input
+        [formField]="messageAnnotation.type"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
+      @if (control.type === 'string') {
+        <input
+          pInputText
+          [formField]="formHelpers.asStringValueTree(messageAnnotation.value)"
+          placeholder="Value"
+        />
+      }
+      @if (control.type === 'datetime') {
+        <lib-date-picker-signal-form-input
+          [formField]="formHelpers.asDateValueTree(messageAnnotation.value)"
+        />
+      }
+      @if (control.type === 'number') {
+        <input
+          pInputText
+          type="number"
+          [formField]="formHelpers.asNumberValueTree(messageAnnotation.value)"
+          placeholder="Value"
+        />
+      }
+      @if (control.type === 'boolean') {
+        <lib-select-signal-form-input
+          [formField]="formHelpers.asBooleanValueTree(messageAnnotation.value)"
+          [options]="[
+            {
+              label: 'true',
+              value: true,
+            },
+            {
+              label: 'false',
+              value: false,
+            },
+          ]"
+        />
+      }
+      <p-inputgroup-addon>
+        <p-button
+          type="button"
+          icon="pi pi-times"
+          [text]="true"
+          severity="danger"
+          (click)="removeMessageAnnotation($index)"
+        />
+      </p-inputgroup-addon>
+      @if (!isSupportedMessageAnnotationKey(control.key)) {
+        <div class="unsupported-annotation-hint">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>
+          This key is not listed in the selected endpoint's supported message
+          annotations.
+        </span>
+        </div>
+      }
+    </p-input-group>
+  }
+  <div class="actions">
+    <button pButton type="button" (click)="addMessageAnnotation()">Add</button>
   </div>
 </ng-template>
 <ng-template

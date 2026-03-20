@@ -96,7 +96,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
           const foundLabels = new Set<string>(knownLabels);
 
           for (const [propertyName, propertyValue] of Object.entries(
-            properties ?? {},
+            properties,
           )) {
             await this.database.exec(
               `INSERT OR REPLACE INTO ${tableName} (
@@ -138,27 +138,27 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
         };
 
         await insertProperties(
-          message.headers as Record<string, unknown>,
+          message.headers ?? {},
           'headers',
           knownHeaderPropertyNames,
         );
         await insertProperties(
-          message.applicationProperties as Record<string, unknown>,
+          message.applicationProperties ?? {},
           'applicationProperties',
           knownApplicationPropertyNames,
         );
         await insertProperties(
-          message.properties as Record<string, unknown>,
+          message.properties ?? {},
           'properties',
           knownPropertiesPropertyNames,
         );
         await insertProperties(
-          message.deliveryAnnotations as Record<string, unknown>,
+          message.deliveryAnnotations ?? {},
           'deliveryAnnotations',
           knownDeliveryAnnotationsPropertyNames,
         );
         await insertProperties(
-          message.messageAnnotations as Record<string, unknown>,
+          message.messageAnnotations ?? {},
           'messageAnnotations',
           knownMessageAnnotationsPropertyNames,
         );

@@ -219,7 +219,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
   }
 
   private mapDeliveryAnnotations(message: ServiceBusReceivedMessage) {
-    const raw = message._rawAmqpMessage as
+    const raw = message._rawAmqpMessage.deliveryAnnotations as
       | {
           deliveryAnnotations?: Record<string, PropertyValue>;
         }

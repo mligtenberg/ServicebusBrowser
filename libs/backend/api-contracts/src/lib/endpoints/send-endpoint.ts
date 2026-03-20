@@ -2,6 +2,11 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 
 interface SendEndpointBase {
   displayName: string;
+  supportedMessageAnnotations: {
+    key: string;
+    description?: string;
+    displayType: 'string' | 'date' | 'number';
+  }[]
 }
 
 export interface ServiceBusQueueSendEndpoint extends SendEndpointBase {

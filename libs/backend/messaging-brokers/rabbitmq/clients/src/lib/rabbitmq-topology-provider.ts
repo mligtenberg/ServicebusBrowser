@@ -265,6 +265,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         endpointDisplay,
         target: 'rabbitmq',
         type: 'queue',
+        supportedMessageAnnotations: []
       },
       receiveEndpoints: [
         {
@@ -304,7 +305,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       icon: faRightLeft,
       path: `/${this.connection.id}/vhosts/${encodedVHost}/exchanges/${encodedExchangeName}`,
       name: exchange.name,
-      refreshable: true,
+      refreshable: false,
       selectable: true,
       type: 'exchange',
       sendEndpoint: {
@@ -318,6 +319,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
           `/${vhostName}/${exchange.name} (${properties.join(', ')})`,
         target: 'rabbitmq',
         type: 'exchange',
+        supportedMessageAnnotations: []
       },
     };
   }

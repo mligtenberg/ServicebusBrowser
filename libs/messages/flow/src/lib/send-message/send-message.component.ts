@@ -108,6 +108,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
     });
   });
   containerWidth = signal(0);
+  messageAnnotationKeySearch = signal<string | null>(null);
 
   colorThemeService = inject(ColorThemeService);
   store = inject(Store);
@@ -183,6 +184,21 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
         enabled: false,
       },
     };
+  });
+  messageAnnotationKeySuggestions = computed(() => {
+    const sendEndpoint = this.value().endpoint;
+    if (!sendEndpoint) {
+      return [];
+    }
+
+    const searchQuery = this.messageAnnotationKeySearch();
+    if (searchQuery === null) {
+      return [];
+    }
+
+    return sendEndpoint.supportedMessageAnnotations
+      .map((annotation) => annotation.key)
+      .filter((key) => key.toLowerCase().includes(searchQuery.toLowerCase()));
   });
 
   addProperty() {
@@ -572,6 +588,21 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       applicationProperties: [],
       endpoint: null,
     };
+  }
+
+  isSupportedMessageAnnotationKey(key: string): boolean {
+    if (!key) {
+      return true;
+    }
+
+    const value = this.value();
+    if (!value.endpoint) {
+      return true;
+    }
+
+    return value.endpoint.supportedMessageAnnotations.some(
+      (annotation) => annotation.key === key,
+    );
   }
 
   ngAfterViewInit() {

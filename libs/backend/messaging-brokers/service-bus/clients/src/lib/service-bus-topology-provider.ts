@@ -1,6 +1,7 @@
 import {
   MessageQueueTargetType,
   ReceiveOptionsDescription,
+  SendEndpoint,
   ServiceBusConnection,
   TopologyNode,
   TopologyProvider,
@@ -40,6 +41,22 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       receive: {},
     },
   };
+
+  private readonly availableMessageAnnotations: SendEndpoint['supportedMessageAnnotations'] =
+    [
+      {
+        key: 'x-opt-partition-key',
+        description:
+          'Key that dictates which partition the message should land in.',
+        displayType: 'string',
+      },
+      {
+        key: 'x-opt-via-partition-key',
+        description:
+          'Partition-key value when a transaction is to be used to send messages via a transfer queue.',
+        displayType: 'string'
+      },
+    ];
 
   constructor(private connection: ServiceBusConnection) {
     this.administrationClient = new ServiceBusManagementClient(this.connection);
@@ -267,7 +284,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           name: 'Transferring dead letters',
           count: queue.metaData.transferDeadLetterMessageCount,
           showInSummary: true,
-        }
+        },
       ],
       defaultAction: {
         icon: 'pi pi-pencil',
@@ -286,6 +303,9 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         endpointDisplay: queue.metaData.endpointDisplay,
         target: 'serviceBus',
         type: 'queue',
+        supportedMessageAnnotations: [
+          ...this.availableMessageAnnotations
+        ]
       },
       receiveEndpoints: [
         {
@@ -360,6 +380,9 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         endpointDisplay: topic.metadata.endpointDisplay,
         target: 'serviceBus',
         type: 'topic',
+        supportedMessageAnnotations: [
+          ...this.availableMessageAnnotations
+        ]
       },
       defaultAction: {
         icon: 'pi pi-pencil',
