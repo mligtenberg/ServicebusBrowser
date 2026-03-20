@@ -10,7 +10,7 @@ import {
   faServer,
   faRightLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import { RabbitMqManagementClient } from './rabbitmq-management-client';
+import { RabbitMqManagementClient, RabbitMqQueue } from './rabbitmq-management-client';
 
 export class RabbitMqTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'rabbitmq';
@@ -218,19 +218,21 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
   }
 
   private mapQueue(
-    queue: {
-      name: string;
-      messages: number;
-      messages_ready: number;
-      messages_unacknowledged: number;
-    },
-    vhostName?: string,
+    queue: RabbitMqQueue,
+    vhostName: string,
   ): TopologyNode {
     const encodedVHost = encodeURIComponent(vhostName ?? '/');
     const encodedQueueName = encodeURIComponent(queue.name);
     const endpointDisplay =
       `${this.connection.host}:${this.connection.amqpPort}` +
       `/${vhostName ?? '/'}/${queue.name}`;
+
+    const receiveEndpointLongName = [
+      vhostName,
+      queue.name,
+    ].map((part) => part.replace(/^\/?(.*?)\/?$/, "$1"))
+      .filter((p) => p !== "")
+      .join('/');
 
     return {
       icon: faFolderSolid,
@@ -270,13 +272,15 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       receiveEndpoints: [
         {
           displayName: '',
-          longDisplayName: `${vhostName ?? '/'} / ${queue.name}`,
+          longDisplayName: receiveEndpointLongName,
           connectionId: this.connection.id,
           vhostName: vhostName ?? '/',
           queueName: queue.name,
           target: 'rabbitmq',
           type: 'queue',
           receiveOptionsDescription: this.availableOptions,
+          queueType: queue.type,
+          clearable: queue.type !== 'stream'
         },
       ],
     };

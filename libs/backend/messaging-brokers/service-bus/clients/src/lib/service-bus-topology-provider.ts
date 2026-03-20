@@ -303,9 +303,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         endpointDisplay: queue.metaData.endpointDisplay,
         target: 'serviceBus',
         type: 'queue',
-        supportedMessageAnnotations: [
-          ...this.availableMessageAnnotations
-        ]
+        supportedMessageAnnotations: [...this.availableMessageAnnotations],
       },
       receiveEndpoints: [
         {
@@ -317,6 +315,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: undefined,
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           displayName: 'dead letters',
@@ -327,6 +326,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: 'deadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           displayName: 'transfer dead letters',
@@ -337,6 +337,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: 'transferDeadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
       ],
       actions: [
@@ -469,6 +470,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           target: 'serviceBus',
           type: 'subscription',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           target: 'serviceBus',
@@ -480,6 +482,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           subscriptionName: subscription.name,
           channel: 'deadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           target: 'serviceBus',
@@ -491,6 +494,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           subscriptionName: subscription.name,
           channel: 'transferDeadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
       ],
       actions: [

@@ -7,6 +7,7 @@ export interface RabbitMqQueue {
   messages: number;
   messages_ready: number;
   messages_unacknowledged: number;
+  type: 'classic' | 'quorum' | 'stream';
 }
 
 export interface RabbitMqExchange {

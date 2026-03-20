@@ -153,6 +153,9 @@ export class GenericTreeNodeComponent {
       addSeparatorIfNeeded();
 
       for (const receiveEndpoint of node.receiveEndpoints) {
+        if (!receiveEndpoint.clearable) {
+          continue;
+        }
         contextMenu.push({
           icon: 'pi pi-eraser',
           label: `Clear ${receiveEndpoint.displayName} messages`,
