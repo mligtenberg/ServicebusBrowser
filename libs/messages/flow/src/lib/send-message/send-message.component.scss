@@ -1,6 +1,15 @@
 :host {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   height: 100%;
+  --kv-key-width: 38%;
+  --kv-type-width: 20%;
+  --kv-gap: 0.375rem;
+  --p-inputtext-padding-y: 0.4rem;
+  --p-inputtext-padding-x: 0.5rem;
+  --p-select-padding-y: 0.4rem;
+  --p-select-padding-x: 0.5rem;
+  --p-button-padding-y: 0.35rem;
+  --p-button-padding-x: 0.6rem;
 
   ::ng-deep {
     .p-autocomplete {
@@ -36,15 +45,15 @@
 }
 
 .properties-container {
-  padding: 0.5rem;
+  padding: 0.35rem 0.45rem 0.45rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--kv-gap);
 }
 
 .message-actions {
   min-height: 3.5rem;
-  padding: 0.5rem;
+  padding: 0.4rem 0.5rem;
 }
 
 .header {
@@ -52,9 +61,9 @@
 }
 
 ::ng-deep h2 {
-  padding: 0 0 0 0.5rem;
+  padding: 0 0 0 0.45rem;
   margin: 0.25rem;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .actions {
@@ -95,6 +104,8 @@ p-virtual-scroller {
 }
 
 p-input-group {
+  width: 100%;
+
   lib-select-signal-form-input:first-child {
     border-radius: var(--p-select-border-radius) 0 0
       var(--p-select-border-radius);
@@ -116,4 +127,29 @@ p-input-group {
       }
     }
   }
+}
+
+.kv-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  align-items: stretch;
+
+  > .kv-key {
+    flex: 1 1 3em;
+  }
+
+  > .kv-type {
+    width: 10em;
+  }
+
+  > .kv-value {
+    flex: 1 1 3em;
+    min-width: 10em;
+  }
+
+  input {
+    font-size: 0.875rem;
+  }
+
 }
