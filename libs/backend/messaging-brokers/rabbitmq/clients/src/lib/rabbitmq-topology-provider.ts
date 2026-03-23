@@ -52,27 +52,46 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
   }
 
   async getTopology(): Promise<TopologyNode> {
-    return {
-      path: `/${this.connection.id}`,
-      name: this.connection.name,
-      icon: faServer,
-      refreshable: true,
-      selectable: true,
-      type: 'connection',
-      children: [await this.loadVHosts()],
-      actions: [
-        {
-          icon: 'pi pi-trash',
-          displayName: `Remove ${this.connection.name}`,
-          actionGroup: 'connection',
-          actionType: 'connection:delete',
-          parameters: {
-            connectionId: this.connection.id,
-            connectionName: this.connection.name,
+    try {
+      const vhosts = await this.loadVHosts();
+
+      return {
+        path: `/${this.connection.id}`,
+        name: this.connection.name,
+        icon: faServer,
+        refreshable: true,
+        selectable: true,
+        type: 'connection',
+        children: vhosts,
+        actions: [
+          {
+            icon: 'pi pi-trash',
+            displayName: `Remove ${this.connection.name}`,
+            actionGroup: 'connection',
+            actionType: 'connection:delete',
+            parameters: {
+              connectionId: this.connection.id,
+              connectionName: this.connection.name,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
+    catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      return {
+        path: `/${this.connection.id}`,
+        name: this.connection.name,
+        icon: faServer,
+        refreshable: true,
+        selectable: true,
+        type: 'connection',
+        children: [],
+        actions: [],
+        errored: true,
+        errorMessage: error.message,
+      }
+    }
   }
 
   refreshTopology(refreshFromPath: string): Promise<TopologyNode> {
@@ -91,39 +110,15 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
     return this.getTopology();
   }
 
-  private async loadVHosts(): Promise<TopologyNode> {
-    try {
-      const vhosts = await this.managementClient.getVHosts();
-      return {
-        path: `/${this.connection.id}/vhosts`,
-        name: 'VHosts',
-        selectable: false,
-        type: 'operational-grouping',
-        refreshable: true,
-        children: await Promise.all(
-          vhosts.map((vhost) => this.mapVHost(vhost.name)),
-        ),
-      };
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error(String(err));
-      return {
-        path: `/${this.connection.id}/vhosts`,
-        name: 'VHosts',
-        selectable: false,
-        type: 'operational-grouping',
-        refreshable: true,
-        children: [],
-        actions: [],
-        errored: true,
-        errorMessage: error.message,
-      };
-    }
+  private async loadVHosts(): Promise<TopologyNode[]> {
+    const vhosts = await this.managementClient.getVHosts();
+    return await Promise.all(vhosts.map((vhost) => this.mapVHost(vhost.name)));
   }
 
   private async refreshVHostNode(segments: string[]): Promise<TopologyNode> {
     const encodedVHost = segments[2];
     if (!encodedVHost) {
-      return this.loadVHosts();
+      throw new Error('Invalid path');
     }
 
     const vhostName = decodeURIComponent(encodedVHost);
