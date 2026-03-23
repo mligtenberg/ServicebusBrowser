@@ -242,7 +242,11 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       return undefined;
     }
 
-    return BSON.deserialize(this.fromBase64(row[0] as any)) as ReceivedMessage;
+    const decoded = BSON.deserialize(this.fromBase64(row[0] as any));
+    return {
+      ...decoded,
+      body: decoded['body'].buffer as any as Uint8Array,
+    } as ReceivedMessage;
   }
 
   async getMessages(
