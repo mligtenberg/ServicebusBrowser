@@ -363,10 +363,9 @@ export class MessageModificationEngine {
     if (action.target === 'applicationProperties') {
       return {
         ...message,
-        applicationProperties: {
-          ...message.applicationProperties,
-          [action.fieldName]: undefined,
-        },
+        applicationProperties: Object.entries(message.applicationProperties ?? {})
+          .filter(([key]) => key !== action.fieldName)
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}),
       };
     }
 

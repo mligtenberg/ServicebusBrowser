@@ -17,7 +17,7 @@ import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 
 type ContinuationTokenBody = {
   alreadyLoadedAmountOfMessages: number;
-  streamOffset?: 'first' | 'last' | 'next' | number;
+  streamOffset?: number;
 };
 
 export class RabbitMqMessagesReader implements MessagesReader {
@@ -28,7 +28,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
     options: {
       receiveMode: 'peek' | 'receive';
       maxAmountOfMessagesToReceive?: number;
-      streamOffset?: 'first' | 'last' | 'next';
+      streamOffset?: number;
     } = { receiveMode: 'receive' },
     continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
@@ -88,24 +88,18 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
       await receiver.close();
 
-      const mappedMessages = messages.map((message, index) =>
-        this.mapReceivedMessage(message, index),
+      const mappedMessages = messages.map((message) =>
+        this.mapReceivedMessage(message, tokenBody.alreadyLoadedAmountOfMessages),
       );
 
       const alreadyLoadedAmountOfMessages =
         tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
 
-      const shouldReturnContinuationToken =
-        currentMaxAmountOfMessagesToReceive > mappedMessages.length;
-
+      const shouldReturnContinuationToken = maxAmount > alreadyLoadedAmountOfMessages;
       const newContinuationToken = shouldReturnContinuationToken
         ? this.makeContinuationToken({
             alreadyLoadedAmountOfMessages,
-            streamOffset:
-              this.getNextStreamOffset(messages) ??
-              tokenBody.streamOffset ??
-              options.streamOffset ??
-              'first',
+            streamOffset: alreadyLoadedAmountOfMessages
           })
         : undefined;
 
@@ -165,14 +159,15 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
   private mapReceivedMessage(
     context: EventContext,
-    index: number,
+    alreadyReceivedMessages: number,
   ): ReceivedMessage {
     const message = context.message;
     const body = this.toByteArray(message?.body);
+    const id = alreadyReceivedMessages + (context.delivery?.id ?? 0);
 
     return {
-      key: sequenceNumberToKey(index.toString()),
-      sequence: context.delivery?.id?.toString() ?? `${index}`,
+      key: sequenceNumberToKey(id.toString()),
+      sequence: id.toString(),
       messageId: message?.message_id?.toString(),
       body,
       contentType: message?.content_type,

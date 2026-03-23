@@ -525,7 +525,7 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
             };
           });
 
-        const body = new TextDecoder().decode(message.body.buffer);
+        const body = new TextDecoder().decode(message.body);
         const mapValueToGroup = ([key, value]: [string, unknown]) => {
           return {
             key,

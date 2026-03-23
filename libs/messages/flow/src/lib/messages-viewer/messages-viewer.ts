@@ -162,7 +162,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       return '';
     }
 
-    return new TextDecoder().decode(message.body.buffer);
+    return new TextDecoder().decode(message.body);
   });
 
   headers = computed<Array<{ key: string; value: unknown }>>(() => {

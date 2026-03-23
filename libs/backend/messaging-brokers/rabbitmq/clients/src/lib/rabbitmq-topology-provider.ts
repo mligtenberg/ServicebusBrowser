@@ -37,9 +37,8 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         label: 'Max amount of messages to receive',
       },
       streamOffset: {
-        type: 'enum',
+        type: 'number',
         label: 'Stream offset',
-        enum: ['first', 'last', 'next'],
       },
     },
     modes: {

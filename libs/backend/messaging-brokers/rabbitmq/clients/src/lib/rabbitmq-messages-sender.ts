@@ -22,19 +22,16 @@ export class RabbitMqMessagesSender implements MessagesSender {
       const sender = await client.createSender({
         target: { address: this.getAddress(endpoint) },
       });
-      sender.send({
-        body: message.body.buffer,
-        message_id: this.toBuffer(
-          message.properties?.['message-id'] ?? message.messageId,
-        ),
-        content_type:
-          message.properties?.['content-type'] ?? message.contentType,
+      const messageToSend = {
+        ...this.mapAmqpProperties(message),
+        body: message.body,
         application_properties: message.applicationProperties,
         header: this.mapAmqpHeader(message),
-        properties: this.mapAmqpProperties(message),
         delivery_annotations: message.deliveryAnnotations,
         message_annotations: message.messageAnnotations,
-      } as unknown as RheaMessage);
+      } as unknown as RheaMessage;
+
+      sender.send(messageToSend);
       await sender.close();
     } finally {
       await client.close().catch(() => undefined);

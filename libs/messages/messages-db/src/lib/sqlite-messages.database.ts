@@ -358,11 +358,14 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
             this.fromBase64(row[0] as any),
           ) as ReceivedMessage;
         } catch (error) {
-          console.error('Error parsing message from database:', error);
           return null;
         }
       })
-      .filter((message) => message !== null);
+      .filter((message) => message !== null)
+      .map((message) => ({
+        ...message,
+        body: message.body.buffer as any as Uint8Array,
+      }));
   }
 
   private getPropertyType(value: unknown): string {
