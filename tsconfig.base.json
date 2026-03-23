@@ -100,6 +100,9 @@
       ],
       "@service-bus-browser/rabbitmq-backend-clients": [
         "libs/backend/messaging-brokers/rabbitmq/clients/src/index.ts"
+      ],
+      "@service-bus-browser/custom-icons": [
+        "libs/shared/custom-icons/src/index.ts"
       ]
     }
   },

@@ -7,13 +7,13 @@ import {
 } from '@service-bus-browser/api-contracts';
 import {
   faFolder as faFolderSolid,
-  faServer,
   faRightLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   RabbitMqManagementClient,
   RabbitMqQueue,
 } from './rabbitmq-management-client';
+import { sbbRabbitMq } from '@service-bus-browser/custom-icons';
 
 export class RabbitMqTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'rabbitmq';
@@ -58,7 +58,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       return {
         path: `/${this.connection.id}`,
         name: this.connection.name,
-        icon: faServer,
+        icon: sbbRabbitMq,
         refreshable: true,
         selectable: true,
         type: 'connection',
@@ -82,7 +82,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       return {
         path: `/${this.connection.id}`,
         name: this.connection.name,
-        icon: faServer,
+        icon: sbbRabbitMq,
         refreshable: true,
         selectable: true,
         type: 'connection',
@@ -90,7 +90,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         actions: [],
         errored: true,
         errorMessage: error.message,
-      }
+      };
     }
   }
 

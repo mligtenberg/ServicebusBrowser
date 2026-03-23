@@ -11,7 +11,6 @@ import {
   faCheckToSlot,
   faFolder as faFolderSolid,
   faFolderTree,
-  faServer,
 } from '@fortawesome/free-solid-svg-icons';
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -19,6 +18,7 @@ import {
   SubscriptionWithMetaData,
   TopicWithMetaData,
 } from '@service-bus-browser/service-bus-api-contracts';
+import { sbbAzureServiceBus } from '@service-bus-browser/custom-icons';
 
 export class ServiceBusTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'serviceBus';
@@ -71,7 +71,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
     return {
       path: `/${this.connection.id}`,
       name: this.connection.name,
-      icon: faServer,
+      icon: sbbAzureServiceBus,
       refreshable: true,
       selectable: true,
       type: 'connection',
