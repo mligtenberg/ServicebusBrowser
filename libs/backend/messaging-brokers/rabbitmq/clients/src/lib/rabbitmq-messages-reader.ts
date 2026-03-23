@@ -42,7 +42,9 @@ export class RabbitMqMessagesReader implements MessagesReader {
     let currentMaxAmountOfMessagesToReceive =
       maxAmount - tokenBody.alreadyLoadedAmountOfMessages;
     currentMaxAmountOfMessagesToReceive =
-      currentMaxAmountOfMessagesToReceive > 250 ? 250 : currentMaxAmountOfMessagesToReceive;
+      currentMaxAmountOfMessagesToReceive > 250
+        ? 250
+        : currentMaxAmountOfMessagesToReceive;
 
     if (currentMaxAmountOfMessagesToReceive <= 0) {
       return { messages: [] };
@@ -89,17 +91,24 @@ export class RabbitMqMessagesReader implements MessagesReader {
       await receiver.close();
 
       const mappedMessages = messages.map((message) =>
-        this.mapReceivedMessage(message, tokenBody.alreadyLoadedAmountOfMessages),
+        this.mapReceivedMessage(
+          message,
+          tokenBody.alreadyLoadedAmountOfMessages,
+        ),
       );
 
       const alreadyLoadedAmountOfMessages =
         tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
 
-      const shouldReturnContinuationToken = maxAmount > alreadyLoadedAmountOfMessages;
+      const reachedBatchLimit =
+        mappedMessages.length === currentMaxAmountOfMessagesToReceive;
+      const shouldReturnContinuationToken =
+        reachedBatchLimit && maxAmount > alreadyLoadedAmountOfMessages;
       const newContinuationToken = shouldReturnContinuationToken
         ? this.makeContinuationToken({
             alreadyLoadedAmountOfMessages,
-            streamOffset: alreadyLoadedAmountOfMessages
+            streamOffset:
+              this.getNextStreamOffset(messages) ?? tokenBody.streamOffset,
           })
         : undefined;
 
@@ -265,7 +274,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
   private getReceiverOptions(
     endpoint: ReceiveEndpoint,
-    options: { streamOffset?: 'first' | 'last' | 'next' | number },
+    options: { streamOffset?: number },
   ): ReceiverOptions {
     const address = this.getAddress(endpoint);
 
