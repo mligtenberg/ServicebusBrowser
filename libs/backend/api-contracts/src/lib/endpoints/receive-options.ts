@@ -12,7 +12,11 @@ export type ReceiveOptionType =
       type: 'enum';
       enum: string[];
       label: string;
-    };
+    }
+  | {
+    type: 'notification';
+    message: string;
+  };
 
 export type ReceiveOptionsDescription = {
   genericOptions: {

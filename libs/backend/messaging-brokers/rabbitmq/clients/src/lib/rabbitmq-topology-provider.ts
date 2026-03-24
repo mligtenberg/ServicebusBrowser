@@ -26,7 +26,14 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       },
     },
     modes: {
-      peek: {},
+      peek: {
+        shovelNotification: {
+          type: 'notification',
+          message:
+            'Peek mode copies messages via a shovel to a temporary queue.\n' +
+            'Performance may be impacted for large queues.',
+        },
+      },
       receive: {},
     },
   };
@@ -76,8 +83,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
           },
         ],
       };
-    }
-    catch (err) {
+    } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       return {
         path: `/${this.connection.id}`,
