@@ -6,6 +6,8 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { ConnectionStore } from './connection-store';
 
 export class ConnectionManager {
+  connectionClients = new Map<UUID, ConnectionClient>();
+
   constructor(private connectionStore: ConnectionStore) {}
 
   addConnection(connection: Connection) {
@@ -14,6 +16,7 @@ export class ConnectionManager {
 
   removeConnection(connectionId: UUID) {
     this.connectionStore.removeConnection(connectionId);
+    this.connectionClients.delete(connectionId);
   }
 
   getConnection(options: { id: UUID }) {
@@ -33,7 +36,13 @@ export class ConnectionManager {
       throw new Error(`Connection ${optionsId as string} not found`);
     }
 
-    return new ConnectionClient(connection);
+    if (this.connectionClients.has(connection.id)) {
+      return this.connectionClients.get(connection.id)!;
+    }
+
+    const client = new ConnectionClient(connection);
+    this.connectionClients.set(connection.id, client);
+    return client;
   }
 
   listConnections(): { connectionId: UUID; connectionName: string }[] {

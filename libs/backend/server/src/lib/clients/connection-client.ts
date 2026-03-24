@@ -19,9 +19,32 @@ import {
 } from '@service-bus-browser/service-bus-backend-clients';
 
 export class ConnectionClient {
-  constructor(private connection: Connection) {}
+  topologyProvider: TopologyProvider | undefined;
+  messagesReader: MessagesReader | undefined;
+  messagesSender: MessagesSender | undefined;
+  connectionValidator: ConnectionValidator | undefined;
+
+  constructor(private connection: Connection) {
+    this.topologyProvider = this._getTopologyClient();
+    this.messagesReader = this._getMessagesReader();
+    this.messagesSender = this._getMessagesSender();
+    this.connectionValidator = this._getConnectionValidator();
+  }
 
   getTopologyClient(): TopologyProvider | undefined {
+    return this.topologyProvider;
+  }
+  getMessagesReader(): MessagesReader | undefined {
+    return this.messagesReader;
+  }
+  getMessagesSender(): MessagesSender | undefined {
+    return this.messagesSender;
+  }
+  getConnectionValidator(): ConnectionValidator | undefined {
+    return this.connectionValidator;
+  }
+
+  private _getTopologyClient(): TopologyProvider | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusTopologyProvider(this.connection);
     }
@@ -33,7 +56,7 @@ export class ConnectionClient {
     return undefined;
   }
 
-  getMessagesReader(): MessagesReader | undefined {
+  private _getMessagesReader(): MessagesReader | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusMessagesReader(this.connection);
     }
@@ -45,7 +68,7 @@ export class ConnectionClient {
     return undefined;
   }
 
-  getMessagesSender(): MessagesSender | undefined {
+  private _getMessagesSender(): MessagesSender | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusMessagesSender(this.connection);
     }
@@ -57,7 +80,7 @@ export class ConnectionClient {
     return undefined;
   }
 
-  getConnectionValidator(): ConnectionValidator | undefined {
+  private _getConnectionValidator(): ConnectionValidator | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusConnectionValidator(this.connection);
     }

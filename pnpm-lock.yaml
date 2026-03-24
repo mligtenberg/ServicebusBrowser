@@ -125,6 +125,9 @@ importers:
       primeng:
         specifier: ^21.1.2
         version: 21.1.2(a0fcd4a50625e8f39edf2a710671398d)
+      rhea:
+        specifier: ^3.0.4
+        version: 3.0.4
       rhea-promise:
         specifier: ^3.0.3
         version: 3.0.3
