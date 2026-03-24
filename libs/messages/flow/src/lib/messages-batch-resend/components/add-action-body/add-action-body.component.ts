@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -13,6 +13,7 @@ import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
 import { Popover } from 'primeng/popover';
 import { Select } from 'primeng/select';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { SystemPropertyHelpers } from '../../../systemproperty-helpers';
 import { Checkbox } from 'primeng/checkbox';
 import { MessageFilter } from '@service-bus-browser/filtering';
@@ -22,6 +23,7 @@ import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
 @Component({
   selector: 'lib-add-action-body',
   imports: [
+    AutoComplete,
     DatePicker,
     DurationInputComponent,
     FormsModule,
@@ -38,6 +40,7 @@ import { SystemPropertyKey } from '@service-bus-browser/messages-contracts';
 export class AddActionBodyComponent {
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
+  applicationPropertyLabels = input<string[]>([]);
   addActionUpdated = output<AddAction | undefined>();
   systemPropertyHelpers = inject(SystemPropertyHelpers);
 
@@ -50,6 +53,16 @@ export class AddActionBodyComponent {
 
   systemPropertyKeys = SystemPropertyKeys;
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
+  protected filteredLabels = signal<string[]>([]);
+
+  filterLabels(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toLowerCase();
+    this.filteredLabels.set(
+      this.applicationPropertyLabels().filter((l) =>
+        l.toLowerCase().includes(query),
+      ),
+    );
+  }
 
   addAction = computed<AddAction | undefined>(() => {
     const target = this.target();

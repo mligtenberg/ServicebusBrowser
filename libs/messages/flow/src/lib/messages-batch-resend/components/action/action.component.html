@@ -22,6 +22,7 @@
     [action]="action()"
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
+    [applicationPropertyLabels]="applicationPropertyLabels()"
     (addActionUpdated)="action.set($event)"
   />
 }
@@ -31,6 +32,7 @@
     [action]="action()"
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
+    [applicationPropertyLabels]="applicationPropertyLabels()"
     (alterActionUpdated)="action.set($event)"
   />
 }
@@ -39,6 +41,7 @@
   <lib-remove-action-body
     [target]="currentTarget"
     [messageFilter]="messageFilter()"
+    [applicationPropertyLabels]="applicationPropertyLabels()"
     (removeActionUpdated)="action.set($event)"
   />
 }

@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, output } from '@angular/core';
+import { Component, computed, effect, input, model, output, signal } from '@angular/core';
 
 import {
   SystemPropertyKey
@@ -6,6 +6,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { SystemPropertyKeys } from '../../../send-message/form';
 import {
   BatchActionTarget,
@@ -17,6 +18,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
 @Component({
   selector: 'lib-remove-action-body',
   imports: [
+    AutoComplete,
     FormsModule,
     InputText,
     Select
@@ -28,12 +30,23 @@ export class RemoveActionBodyComponent {
   action = input<MessageModificationAction>();
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
+  applicationPropertyLabels = input<string[]>([]);
   removeActionUpdated = output<RemoveAction | undefined>();
 
   protected applicationPropertyName = model<string>('');
   protected systemPropertyName = model<SystemPropertyKey | ''>('');
+  protected filteredLabels = signal<string[]>([]);
 
   systemPropertyKeys = SystemPropertyKeys;
+
+  filterLabels(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toLowerCase();
+    this.filteredLabels.set(
+      this.applicationPropertyLabels().filter((l) =>
+        l.toLowerCase().includes(query),
+      ),
+    );
+  }
 
   removeAction = computed<RemoveAction | undefined>(() => {
     const target = this.target();

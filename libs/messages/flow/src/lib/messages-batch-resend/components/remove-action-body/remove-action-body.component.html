@@ -10,11 +10,15 @@
         placeholder="Select property to remove"/>
     }
     @else {
-      <input
-        pInputText
+      <p-autocomplete
         required
         [(ngModel)]="applicationPropertyName"
-        placeholder="Application property key to remove"/>
+        [suggestions]="filteredLabels()"
+        (completeMethod)="filterLabels($event)"
+        placeholder="Application property key to remove"
+        [forceSelection]="false"
+        appendTo="body"
+      />
     }
   </div>
 </div>

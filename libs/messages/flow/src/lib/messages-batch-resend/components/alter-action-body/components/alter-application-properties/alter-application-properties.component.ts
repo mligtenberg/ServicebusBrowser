@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, output } from '@angular/core';
+import { Component, computed, effect, input, model, output, signal } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -13,12 +13,14 @@ import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { Tooltip } from 'primeng/tooltip';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { PropertyValue } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'lib-alter-application-properties',
   standalone: true,
   imports: [
+    AutoComplete,
     FormsModule,
     InputGroup,
     InputText,
@@ -33,13 +35,24 @@ export class AlterApplicationPropertiesComponent {
   alterActionUpdated = output<AlterAction | undefined>();
 
   action = input<MessageModificationAction>();
+  applicationPropertyLabels = input<string[]>([]);
   protected alterType = model<AlterType>('fullReplace');
   protected fieldName = model<string>('');
   protected value = model<PropertyValue | undefined>();
   protected searchValue = model<string>('');
   protected propertyType = model<string>('string');
+  protected filteredLabels = signal<string[]>([]);
 
   typeOptions = ['string', 'datetime', 'number', 'boolean'];
+
+  filterLabels(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toLowerCase();
+    this.filteredLabels.set(
+      this.applicationPropertyLabels().filter((l) =>
+        l.toLowerCase().includes(query),
+      ),
+    );
+  }
 
   alterTypes = computed(() => {
     const propertyType = this.propertyType();
