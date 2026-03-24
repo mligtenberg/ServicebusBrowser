@@ -1,5 +1,5 @@
 import {
-  ApplicationConfig, importProvidersFrom,
+  ApplicationConfig,
   isDevMode,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -45,9 +45,6 @@ export const appConfig: ApplicationConfig = {
       provide: MessageService,
       useClass: MessageService,
     },
-    provideMonacoConfig({
-      urlPrefix: '/assets/monaco',
-    }),
 
     // config
     provideZonelessChangeDetection(),
@@ -66,6 +63,11 @@ export const appConfig: ApplicationConfig = {
     provideTopologyState(),
     provideServiceBusElectronClient(),
     provideMainUi(),
+
+    // monaco
+    provideMonacoConfig({
+      urlPrefix: '/assets/monaco',
+    }),
 
     // ngrx
     provideStore(),

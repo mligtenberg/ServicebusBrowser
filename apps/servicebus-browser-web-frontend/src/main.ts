@@ -16,6 +16,5 @@ if (navigator.storage && navigator.storage.persist) {
 
 registerCustomIcons();
 
-initializeClientConfig().then(() => {
-  bootstrapApplication(App, appConfig).catch((err) => console.error(err));
-});
+await initializeClientConfig();
+bootstrapApplication(App, appConfig).catch((err) => console.error(err));

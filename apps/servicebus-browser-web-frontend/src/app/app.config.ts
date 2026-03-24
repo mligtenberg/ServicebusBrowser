@@ -1,6 +1,6 @@
 import {
-  ApplicationConfig,
-  isDevMode,
+  ApplicationConfig, inject,
+  isDevMode, provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -37,6 +37,8 @@ import {
   MsalService,
 } from '@azure/msal-angular';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
+import { DialogService } from 'primeng/dynamicdialog';
+import { lastValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -50,6 +52,10 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     {
+      provide: DialogService,
+      useClass: DialogService,
+    },
+    {
       provide: MessageService,
       useClass: MessageService,
     },
@@ -57,11 +63,12 @@ export const appConfig: ApplicationConfig = {
     // config
     provideZonelessChangeDetection(),
     provideHttpClient(),
-    provideRouter(appRoutes,
+    provideRouter(
+      appRoutes,
       withPreloading(PreloadAllModules),
       withRouterConfig({
         onSameUrlNavigation: 'reload',
-      })
+      }),
     ),
     provideLogsState(),
     provideTasksState(),
@@ -105,5 +112,9 @@ export const appConfig: ApplicationConfig = {
     MsalService,
     MsalGuard,
     MsalBroadcastService,
+    provideAppInitializer(async () => {
+      const msalService = inject(MsalService);
+      await lastValueFrom(msalService.initialize());
+    }),
   ],
 };

@@ -4,14 +4,14 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 export const pagesActions = createActionGroup({
   source: 'pages',
   events: {
-    movePage: props<{
+    'move page': props<{
       id: UUID;
       fromPosition: number;
       newPosition: number;
     }>(),
-    loadPageOrderFromStorage: props<{
+    'load page order from storage': props<{
       orderOverrides: Record<number, UUID>;
     }>(),
-    closePage: props<{ id: UUID; position: number }>(),
+    'close page': props<{ id: UUID; position: number }>(),
   },
 });

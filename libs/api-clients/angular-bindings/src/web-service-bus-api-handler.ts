@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ApiHandler } from '@service-bus-browser/service-bus-frontend-clients';
 
 export class WebServiceBusApiHandler implements ApiHandler {
@@ -11,7 +11,7 @@ export class WebServiceBusApiHandler implements ApiHandler {
     requestType: string,
     request: unknown,
   ): Promise<unknown> {
-    return await firstValueFrom(
+    return await lastValueFrom(
       this.httpClient.post(
         `${this.baseUrl}management/command`,
         {

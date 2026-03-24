@@ -4,13 +4,12 @@ import { Button } from 'primeng/button';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-import { MessagesActions } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith } from 'rxjs';
 import { ColorThemeService } from '@service-bus-browser/services';
-import { TopologyActions } from '@service-bus-browser/topology-store';
+import { messagesActions } from '@service-bus-browser/messages-store';
 
 @Component({
   selector: 'app-main-app',
@@ -25,10 +24,12 @@ export class MainApp {
 
   protected title = 'Service Bus Browser';
   private readonly store = inject(Store);
-  activeAccount = toSignal(this.msalBroadcastService.msalSubject$.pipe(
-    map(() => this.authService.instance.getActiveAccount()),
-    startWith(this.authService.instance.getActiveAccount())
-  ));
+  activeAccount = toSignal(
+    this.msalBroadcastService.msalSubject$.pipe(
+      map(() => this.authService.instance.getActiveAccount()),
+      startWith(this.authService.instance.getActiveAccount()),
+    ),
+  );
   userName = computed(() => this.activeAccount()?.name);
 
   menuItems: MenuItem[] = [
@@ -78,7 +79,7 @@ export class MainApp {
           icon: 'pi pi-info-circle',
           routerLink: '/about',
         },
-      ]
+      ],
     },
   ];
 
@@ -89,15 +90,11 @@ export class MainApp {
       command: () => {
         this.signOut();
       },
-    }
+    },
   ];
 
-  constructor() {
-    this.store.dispatch(TopologyActions.loadNamespaces());
-  }
-
   importMessages(): void {
-    this.store.dispatch(MessagesActions.importMessages());
+    this.store.dispatch(messagesActions.startImportMessages());
   }
 
   signOut(): void {
