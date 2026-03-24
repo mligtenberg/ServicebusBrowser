@@ -73,7 +73,7 @@ export class RabbitMqManagementClient {
       'PUT',
       `/api/queues/${vHost}/${encodedQueueName}`,
       {
-        durable: false,
+        durable: true,
         auto_delete: false,
         arguments: { 'x-expires': 3600000 },
       },
