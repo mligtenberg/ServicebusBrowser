@@ -4,7 +4,7 @@ import {
   RabbitMqConnection,
   SendEndpoint,
 } from '@service-bus-browser/api-contracts';
-import { Connection, Message as RheaMessage } from 'rhea-promise';
+import { Connection, Message as RheaMessage, Sender } from 'rhea-promise';
 import { getConnectionOptions } from './internal/rabbitmq-connection-options';
 
 export class RabbitMqMessagesSender implements MessagesSender {
@@ -22,16 +22,8 @@ export class RabbitMqMessagesSender implements MessagesSender {
       const sender = await client.createSender({
         target: { address: this.getAddress(endpoint) },
       });
-      const messageToSend = {
-        ...this.mapAmqpProperties(message),
-        body: message.body,
-        application_properties: message.applicationProperties,
-        header: this.mapAmqpHeader(message),
-        delivery_annotations: message.deliveryAnnotations,
-        message_annotations: message.messageAnnotations,
-      } as unknown as RheaMessage;
+      await this.doSend(message, sender);
 
-      sender.send(messageToSend);
       await sender.close();
     } finally {
       await client.close().catch(() => undefined);
@@ -39,9 +31,21 @@ export class RabbitMqMessagesSender implements MessagesSender {
   }
 
   async sendBatch(endpoint: SendEndpoint, messages: Message[]): Promise<void> {
+    const client = new Connection(
+      getConnectionOptions(
+        this.connection,
+        endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
+      ),
+    );
+    await client.open();
+    const sender = await client.createSender({
+      target: { address: this.getAddress(endpoint) },
+    });
     for (const message of messages) {
-      await this.send(endpoint, message);
+      await this.doSend(message, sender);
     }
+    await sender.close();
+    await client.close();
   }
 
   private getAddress(endpoint: SendEndpoint): string {
@@ -56,6 +60,29 @@ export class RabbitMqMessagesSender implements MessagesSender {
     }
 
     throw new Error('Invalid RabbitMQ send endpoint');
+  }
+
+  private doSend(message: Message, sender: Sender): Promise<void> {
+    const messageToSend = {
+      ...this.mapAmqpProperties(message),
+      body: message.body,
+      application_properties: message.applicationProperties,
+      header: this.mapAmqpHeader(message),
+      delivery_annotations: message.deliveryAnnotations,
+      message_annotations: message.messageAnnotations,
+    } as unknown as RheaMessage;
+
+    const result = new Promise<void>((resolve, reject) => {
+      sender.once('accepted', () => {
+        resolve();
+      })
+      sender.once('rejected', (err) => {
+        reject(err);
+      });
+    })
+
+    sender.send(messageToSend);
+    return result;
   }
 
   private mapAmqpHeader(message: Message) {
