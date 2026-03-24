@@ -1,6 +1,6 @@
 import {
-  ApplicationConfig, inject,
-  isDevMode, provideAppInitializer,
+  ApplicationConfig,
+  isDevMode,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -21,24 +21,14 @@ import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import {
-  HTTP_INTERCEPTORS,
   provideHttpClient,
-  withInterceptorsFromDi,
+  withInterceptors,
 } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
-import { MSALInstanceFactory, MSALGuardConfigFactory, MSALInterceptorConfigFactory } from './msal-config';
-import {
-  MSAL_GUARD_CONFIG,
-  MSAL_INSTANCE,
-  MSAL_INTERCEPTOR_CONFIG,
-  MsalBroadcastService,
-  MsalGuard,
-  MsalInterceptor,
-  MsalService,
-} from '@azure/msal-angular';
+import { provideAuth, authInterceptor } from 'angular-auth-oidc-client';
+import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
-import { lastValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -62,7 +52,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideZonelessChangeDetection(),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideRouter(
       appRoutes,
       withPreloading(PreloadAllModules),
@@ -90,27 +80,9 @@ export const appConfig: ApplicationConfig = {
       logOnly: !isDevMode(),
     }),
 
-    //msal
-    provideHttpClient(withInterceptorsFromDi()),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: MsalInterceptor,
-      multi: true,
-    },
-    {
-      provide: MSAL_INSTANCE,
-      useFactory: MSALInstanceFactory,
-    },
-    {
-      provide: MSAL_INTERCEPTOR_CONFIG,
-      useFactory: MSALInterceptorConfigFactory,
-    },
-    {
-      provide: MSAL_GUARD_CONFIG,
-      useFactory: MSALGuardConfigFactory,
-    },
-    MsalService,
-    MsalGuard,
-    MsalBroadcastService,
+    // oidc auth
+    provideAuth({
+      loader: ClientConfigStsLoader,
+    }),
   ],
 };

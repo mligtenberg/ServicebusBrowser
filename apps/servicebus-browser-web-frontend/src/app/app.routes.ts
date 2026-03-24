@@ -1,11 +1,11 @@
 import { Route } from '@angular/router';
 import { AboutComponent } from '@service-bus-browser/main-ui';
-import { MsalGuard } from '@azure/msal-angular';
+import { AutoLoginPartialRoutesGuard } from 'angular-auth-oidc-client';
 
 export const appRoutes: Route[] = [
   {
     path: '',
-    canActivate: [MsalGuard],
+    canActivate: [AutoLoginPartialRoutesGuard],
     loadComponent: () => import('./main-app/main-app').then((m) => m.MainApp),
     children: [
       {

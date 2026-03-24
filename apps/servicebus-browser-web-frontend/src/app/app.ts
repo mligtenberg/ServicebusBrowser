@@ -1,9 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
-import { filter } from 'rxjs';
-import { InteractionStatus, } from '@azure/msal-browser';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ColorThemeService } from '@service-bus-browser/services';
 
 @Component({
@@ -13,42 +10,19 @@ import { ColorThemeService } from '@service-bus-browser/services';
   styleUrl: './app.scss',
 })
 export class App {
-  private authService = inject(MsalService);
-  private msalBroadcastService = inject(MsalBroadcastService);
+  private oidcSecurityService = inject(OidcSecurityService);
   private themeService = inject(ColorThemeService);
   darkMode = this.themeService.darkMode;
   initialized = signal<boolean>(false);
 
   constructor() {
-    this.authService.handleRedirectObservable().subscribe(() => {
-      this.initialized.set(true);
+    this.oidcSecurityService.checkAuth().subscribe({
+      next: () => this.initialized.set(true),
+      error: () => this.initialized.set(true),
     });
-
-    this.msalBroadcastService.inProgress$
-      .pipe(
-        filter((status: InteractionStatus) => status === InteractionStatus.None),
-        takeUntilDestroyed()
-      )
-      .subscribe(() => {
-        this.checkAndSetActiveAccount();
-      });
 
     this.setDarkMode(this.darkMode());
     effect(() => this.setDarkMode(this.darkMode()));
-  }
-
-  checkAndSetActiveAccount(){
-    /**
-     * If no active account set but there are accounts signed in, sets first account to active account
-     * To use active account set here, subscribe to inProgress$ first in your component
-     * Note: Basic usage demonstrated. Your app may require more complicated account selection logic
-     */
-    const activeAccount = this.authService.instance.getActiveAccount();
-
-    if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
-      const accounts = this.authService.instance.getAllAccounts();
-      this.authService.instance.setActiveAccount(accounts[0]);
-    }
   }
 
   setDarkMode(darkMode: boolean) {

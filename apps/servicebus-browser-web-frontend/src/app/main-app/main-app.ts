@@ -5,9 +5,9 @@ import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { Store } from '@ngrx/store';
-import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, startWith } from 'rxjs';
+import { map } from 'rxjs';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { messagesActions } from '@service-bus-browser/messages-store';
 
@@ -18,19 +18,16 @@ import { messagesActions } from '@service-bus-browser/messages-store';
   styleUrl: './main-app.scss',
 })
 export class MainApp {
-  private authService = inject(MsalService);
-  private msalBroadcastService = inject(MsalBroadcastService);
+  private oidcSecurityService = inject(OidcSecurityService);
   private themeService = inject(ColorThemeService);
 
   protected title = 'Service Bus Browser';
   private readonly store = inject(Store);
-  activeAccount = toSignal(
-    this.msalBroadcastService.msalSubject$.pipe(
-      map(() => this.authService.instance.getActiveAccount()),
-      startWith(this.authService.instance.getActiveAccount()),
-    ),
+
+  userData = toSignal(
+    this.oidcSecurityService.userData$.pipe(map((r) => r.userData)),
   );
-  userName = computed(() => this.activeAccount()?.name);
+  userName = computed(() => this.userData()?.name);
 
   menuItems: MenuItem[] = [
     {
@@ -98,6 +95,6 @@ export class MainApp {
   }
 
   signOut(): void {
-    this.authService.logoutRedirect();
+    this.oidcSecurityService.logoff().subscribe();
   }
 }
