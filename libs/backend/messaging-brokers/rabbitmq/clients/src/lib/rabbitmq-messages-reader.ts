@@ -2,6 +2,7 @@ import {
   MessagesReader,
   PropertyValue,
   RabbitMqConnection,
+  RabbitMqQueueReceiveEndpoint,
   ReceiveEndpoint,
   ReceivedMessage,
 } from '@service-bus-browser/api-contracts';
@@ -14,10 +15,13 @@ import {
 } from 'rhea-promise';
 import { getConnectionOptions } from './internal/rabbitmq-connection-options';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
+import { RabbitMqManagementClient } from './rabbitmq-management-client';
 
 type ContinuationTokenBody = {
   alreadyLoadedAmountOfMessages: number;
   streamOffset?: number;
+  peekTempQueueName?: string;
+  peekTempExchangeName?: string;
 };
 
 export class RabbitMqMessagesReader implements MessagesReader {
@@ -30,6 +34,217 @@ export class RabbitMqMessagesReader implements MessagesReader {
       maxAmountOfMessagesToReceive?: number;
       streamOffset?: number;
     } = { receiveMode: 'receive' },
+    continuationToken?: string,
+  ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
+    if (
+      !this.isStreamEndpoint(receiveEndpoint) &&
+      options.receiveMode === 'peek'
+    ) {
+      return this.peekQueueMessages(
+        receiveEndpoint as RabbitMqQueueReceiveEndpoint,
+        options,
+        continuationToken,
+      );
+    }
+
+    return this.receiveMessagesInternal(
+      receiveEndpoint,
+      options,
+      continuationToken,
+    );
+  }
+
+  async clear(
+    receiveEndpoint: ReceiveEndpoint,
+  ): Promise<{ continuationToken?: string }> {
+    const result = await this.receiveMessages(receiveEndpoint, {
+      receiveMode: 'receive',
+      maxAmountOfMessagesToReceive: 250,
+    });
+
+    return result.messages.length < 250
+      ? {}
+      : {
+          continuationToken: Buffer.from('pending', 'utf-8').toString('base64'),
+        };
+  }
+
+  private async peekQueueMessages(
+    receiveEndpoint: RabbitMqQueueReceiveEndpoint,
+    options: {
+      receiveMode: 'peek' | 'receive';
+      maxAmountOfMessagesToReceive?: number;
+    },
+    continuationToken?: string,
+  ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
+    const maxAmount = options.maxAmountOfMessagesToReceive ?? 1;
+    const tokenBody = continuationToken
+      ? this.decodeContinuationToken<ContinuationTokenBody>(continuationToken)
+      : ({ alreadyLoadedAmountOfMessages: 0 } as ContinuationTokenBody);
+
+    const managementClient = new RabbitMqManagementClient(this.connection);
+
+    let tempQueueName = tokenBody.peekTempQueueName;
+    let tempExchangeName = tokenBody.peekTempExchangeName;
+
+    try {
+      if (!tempQueueName || !tempExchangeName) {
+        const id = crypto.randomUUID();
+        tempQueueName = `sbb-peek-${id}-q`;
+        tempExchangeName = `sbb-peek-${id}-ex`;
+        const shovelName = `sbb-peek-${id}-shovel`;
+
+        await managementClient.createExchange(
+          receiveEndpoint.vhostName,
+          tempExchangeName,
+        );
+        await managementClient.createQueue(
+          receiveEndpoint.vhostName,
+          tempQueueName,
+        );
+        await managementClient.bindQueueToExchange(
+          receiveEndpoint.vhostName,
+          tempExchangeName,
+          tempQueueName,
+        );
+        await managementClient.bindQueueToExchange(
+          receiveEndpoint.vhostName,
+          tempExchangeName,
+          receiveEndpoint.queueName,
+        );
+
+        await managementClient.createShovel(
+          receiveEndpoint.vhostName,
+          shovelName,
+          receiveEndpoint.queueName,
+          tempExchangeName,
+        );
+        await managementClient.waitForShovelCompletion(
+          receiveEndpoint.vhostName,
+          shovelName,
+        );
+        await managementClient
+          .deleteShovel(receiveEndpoint.vhostName, shovelName)
+          .catch(() => undefined);
+      }
+
+      const tempEndpoint: RabbitMqQueueReceiveEndpoint = {
+        ...receiveEndpoint,
+        queueName: tempQueueName,
+        queueType: 'classic',
+      };
+
+      let currentMaxAmountOfMessagesToReceive =
+        maxAmount - tokenBody.alreadyLoadedAmountOfMessages;
+      if (currentMaxAmountOfMessagesToReceive > 250) {
+        currentMaxAmountOfMessagesToReceive = 250;
+      }
+
+      if (currentMaxAmountOfMessagesToReceive <= 0) {
+        await this.cleanupTempResources(
+          managementClient,
+          receiveEndpoint.vhostName,
+          tempQueueName,
+          tempExchangeName,
+        );
+        return { messages: [] };
+      }
+
+      const messages = await this.readFromEndpoint(
+        tempEndpoint,
+        currentMaxAmountOfMessagesToReceive,
+      );
+
+      const mappedMessages = messages.map((message) =>
+        this.mapReceivedMessage(
+          message,
+          tokenBody.alreadyLoadedAmountOfMessages,
+        ),
+      );
+
+      const alreadyLoadedAmountOfMessages =
+        tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
+
+      const reachedBatchLimit =
+        mappedMessages.length === currentMaxAmountOfMessagesToReceive;
+      const hasMoreToLoad = reachedBatchLimit && maxAmount > alreadyLoadedAmountOfMessages;
+
+      if (!hasMoreToLoad) {
+        await this.cleanupTempResources(
+          managementClient,
+          receiveEndpoint.vhostName,
+          tempQueueName,
+          tempExchangeName,
+        );
+        return { messages: mappedMessages };
+      }
+
+      return {
+        messages: mappedMessages,
+        continuationToken: this.makeContinuationToken<ContinuationTokenBody>({
+          alreadyLoadedAmountOfMessages,
+          peekTempQueueName: tempQueueName,
+          peekTempExchangeName: tempExchangeName,
+        }),
+      };
+    } catch (err) {
+      if (tempQueueName) {
+        await managementClient
+          .deleteQueue(receiveEndpoint.vhostName, tempQueueName)
+          .catch(() => undefined);
+      }
+      if (tempExchangeName) {
+        await managementClient
+          .deleteExchange(receiveEndpoint.vhostName, tempExchangeName)
+          .catch(() => undefined);
+      }
+      throw err;
+    }
+  }
+
+  private async cleanupTempResources(
+    managementClient: RabbitMqManagementClient,
+    vHostName: string,
+    tempQueueName: string,
+    tempExchangeName: string,
+  ): Promise<void> {
+    await Promise.allSettled([
+      managementClient.deleteQueue(vHostName, tempQueueName),
+      managementClient.deleteExchange(vHostName, tempExchangeName),
+    ]);
+  }
+
+  private async readFromEndpoint(
+    endpoint: RabbitMqQueueReceiveEndpoint,
+    maxAmount: number,
+  ): Promise<EventContext[]> {
+    const client = new Connection(
+      getConnectionOptions(this.connection, endpoint.vhostName),
+    );
+    try {
+      await client.open();
+      const receiver = await client.createReceiver({
+        ...this.getReceiverOptions(endpoint, {}),
+        autoaccept: false,
+        credit_window: 0,
+      });
+
+      const messages = await this.collectMessages(receiver, maxAmount, 150);
+      await Promise.all(messages.map((m) => m.delivery?.accept()));
+      await receiver.close();
+      return messages;
+    } finally {
+      await client.close().catch(() => undefined);
+    }
+  }
+
+  private async receiveMessagesInternal(
+    receiveEndpoint: ReceiveEndpoint,
+    options: {
+      receiveMode: 'peek' | 'receive';
+      maxAmountOfMessagesToReceive?: number;
+      streamOffset?: number;
+    },
     continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
     const maxAmount = options.maxAmountOfMessagesToReceive ?? 1;
@@ -119,21 +334,6 @@ export class RabbitMqMessagesReader implements MessagesReader {
     } finally {
       await client.close().catch(() => undefined);
     }
-  }
-
-  async clear(
-    receiveEndpoint: ReceiveEndpoint,
-  ): Promise<{ continuationToken?: string }> {
-    const result = await this.receiveMessages(receiveEndpoint, {
-      receiveMode: 'receive',
-      maxAmountOfMessagesToReceive: 250,
-    });
-
-    return result.messages.length < 250
-      ? {}
-      : {
-          continuationToken: Buffer.from('pending', 'utf-8').toString('base64'),
-        };
   }
 
   private collectMessages(
