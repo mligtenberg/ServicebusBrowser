@@ -65,11 +65,14 @@
     </p-input-group>
   } @else {
     <p-input-group>
-      <input
-        pInputText
+      <p-autocomplete
         required
         [(ngModel)]="applicationPropertyName"
+        [suggestions]="filteredLabels()"
+        (completeMethod)="filterLabels($event)"
         placeholder="Key"
+        [forceSelection]="false"
+        appendTo="body"
       />
       <p-select
         appendTo="body"

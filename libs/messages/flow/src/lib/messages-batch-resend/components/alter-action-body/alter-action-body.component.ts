@@ -26,6 +26,7 @@ export class AlterActionBodyComponent {
   target = input.required<BatchActionTarget>();
   messageFilter = input.required<MessageFilter>();
   action = input<MessageModificationAction>();
+  applicationPropertyLabels = input<string[]>([]);
   alterActionUpdated = output<AlterAction | undefined>();
 
   protected alterAction = model<AlterAction | undefined>();

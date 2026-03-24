@@ -1,4 +1,4 @@
-import { Component, computed, effect, model } from '@angular/core';
+import { Component, computed, effect, input, model } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -69,6 +69,7 @@ export class ActionComponent {
     }
   });
 
+  applicationPropertyLabels = input<string[]>([]);
   currentActionType = model<BatchActionType>();
   target = model<BatchActionTarget>();
   action = model<MessageModificationAction>();

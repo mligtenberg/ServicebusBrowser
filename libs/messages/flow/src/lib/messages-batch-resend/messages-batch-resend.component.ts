@@ -84,6 +84,17 @@ export class MessagesBatchResendComponent {
     ),
   );
 
+  applicationPropertyLabels = toSignal(
+    toObservable(this.pageId).pipe(
+      switchMap((pageId) => {
+        if (!pageId) return of([] as { label: string; type: string }[]);
+        return repository.getApplicationPropertyLabels(pageId);
+      }),
+      map((labels) => labels.map((l) => l.label)),
+    ),
+    { initialValue: [] as string[] },
+  );
+
   actionEditor = viewChild<ActionComponent>('actionEditor');
 
   private store = inject(Store);

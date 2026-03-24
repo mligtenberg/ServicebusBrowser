@@ -113,7 +113,7 @@
       } @else {
         <h3>Add Action</h3>
       }
-      <lib-action #actionEditor [(action)]="currentAction"></lib-action>
+      <lib-action #actionEditor [(action)]="currentAction" [applicationPropertyLabels]="applicationPropertyLabels()"></lib-action>
 
       <div class="action-buttons">
         <p-button

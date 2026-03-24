@@ -1,19 +1,12 @@
-import {
-  Component,
-  computed,
-  effect,
-  input,
-  model,
-  output,
-} from '@angular/core';
+import { Component, computed, effect, input, model, output, signal } from '@angular/core';
 
 import {
   AmqpPropertyKeys,
   AmqpPropertyKeys as AmqpPropertyKeysList,
 } from '../../../send-message/form';
 import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import {
   BatchActionTarget,
   MessageModificationAction,
@@ -23,7 +16,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-remove-action-body',
-  imports: [FormsModule, InputText, Select],
+  imports: [AutoComplete, FormsModule, Select],
   templateUrl: './remove-action-body.component.html',
   styleUrl: './remove-action-body.component.scss',
 })
@@ -31,12 +24,23 @@ export class RemoveActionBodyComponent {
   action = input<MessageModificationAction>();
   target = input.required<Exclude<BatchActionTarget, 'body'>>();
   messageFilter = input.required<MessageFilter>();
+  applicationPropertyLabels = input<string[]>([]);
   removeActionUpdated = output<RemoveAction | undefined>();
 
   protected applicationPropertyName = model<string>('');
   protected propertyName = model<AmqpPropertyKeys | ''>('');
+  protected filteredLabels = signal<string[]>([]);
 
   propertyKeys = AmqpPropertyKeysList;
+
+  filterLabels(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toLowerCase();
+    this.filteredLabels.set(
+      this.applicationPropertyLabels().filter((l) =>
+        l.toLowerCase().includes(query),
+      ),
+    );
+  }
 
   removeAction = computed<RemoveAction | undefined>(() => {
     const target = this.target();

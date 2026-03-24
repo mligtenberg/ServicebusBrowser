@@ -16,7 +16,7 @@
   @case ('applicationProperties') {
     <lib-alter-application-properties
       [action]="action()"
-      (alterActionUpdated)="onAlterActionUpdated($event)"
-    />
+      [applicationPropertyLabels]="applicationPropertyLabels()"
+      (alterActionUpdated)="onAlterActionUpdated($event)" />
   }
 }

@@ -1,10 +1,14 @@
 <div class="alter-application-properties-container">
   <p-input-group>
-    <input
-      pInputText
+    <p-autocomplete
       required
       [(ngModel)]="fieldName"
-      placeholder="Property Key"/>
+      [suggestions]="filteredLabels()"
+      (completeMethod)="filterLabels($event)"
+      placeholder="Property Key"
+      [forceSelection]="false"
+      appendTo="body"
+    />
 
     <p-select
       [options]="alterTypes()"
