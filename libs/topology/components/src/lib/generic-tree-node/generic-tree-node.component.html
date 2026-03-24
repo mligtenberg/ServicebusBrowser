@@ -17,7 +17,7 @@
       <div class="message-count-tooltip">
         @for (messageCount of messageCountEntities(); track $index) {
           <div>
-            {{messageCount[0]}}: {{messageCount[1]}}
+            {{messageCount.name}}: {{messageCount.count}}
           </div>
         }
       </div>

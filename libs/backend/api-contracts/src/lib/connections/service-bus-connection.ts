@@ -1,12 +1,4 @@
-import { UUID } from '@service-bus-browser/shared-contracts';
-import { MessageQueueTargetType } from './message-queue-types';
-
-interface ConnectionBase {
-  id: UUID;
-  type: string;
-  name: string;
-  target: MessageQueueTargetType;
-}
+import { ConnectionBase } from './connection-base';
 
 export interface ServiceBusConnectionStringConnection extends ConnectionBase {
   type: 'connectionString';
@@ -45,7 +37,7 @@ export interface ServiceBusUserAssignedManagedIdentityConnection
   clientId: string;
 }
 
-export type Connection =
+export type ServiceBusConnection =
   | ServiceBusConnectionStringConnection
   | ServiceBusAzureCliAuthConnection
   | ServiceBusAzureServicePrincipalConnection

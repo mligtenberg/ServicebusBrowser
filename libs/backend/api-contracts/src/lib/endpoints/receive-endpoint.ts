@@ -6,6 +6,7 @@ interface ReceiveEndpointBase {
   displayName: string;
   longDisplayName: string;
   receiveOptionsDescription: ReceiveOptionsDescription;
+  clearable: boolean
 }
 
 export interface ServiceBusQueueReceiveEndpoint extends ReceiveEndpointBase {
@@ -26,6 +27,16 @@ export interface ServiceBusSubscriptionReceiveEndpoint
   type: 'subscription';
 }
 
+export interface RabbitMqQueueReceiveEndpoint extends ReceiveEndpointBase {
+  connectionId: UUID;
+  vhostName: string;
+  queueName: string;
+  target: 'rabbitmq';
+  type: 'queue';
+  queueType: 'classic' | 'quorum' | 'stream';
+}
+
 export type ReceiveEndpoint =
   | ServiceBusQueueReceiveEndpoint
-  | ServiceBusSubscriptionReceiveEndpoint;
+  | ServiceBusSubscriptionReceiveEndpoint
+  | RabbitMqQueueReceiveEndpoint;

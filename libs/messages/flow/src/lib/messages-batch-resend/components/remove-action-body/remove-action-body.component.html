@@ -1,12 +1,12 @@
 <div class="filter-and-field-selection">
   <div class="field-selection">
-    @let isSystemProperty = target() === 'systemProperties';
-    @if (isSystemProperty) {
+    @let isProperty = target() === 'properties';
+    @if (isProperty) {
       <p-select
         appendTo="body"
         required
-        [(ngModel)]="systemPropertyName"
-        [options]="systemPropertyKeys"
+        [(ngModel)]="propertyName"
+        [options]="propertyKeys"
         placeholder="Select property to remove"/>
     }
     @else {

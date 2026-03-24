@@ -30,6 +30,9 @@
         <p-select [options]="option.description.enum" [ngModel]="options()[option.fieldName]"
                   (ngModelChange)="updateOptions(option.fieldName, $event)"></p-select>
       }
+      @if (option.description.type === 'notification') {
+        <p-message severity="warn"><span class="original-line-breaks">{{ option.description.message }}</span></p-message>
+      }
     </div>
   }
 </ng-template>

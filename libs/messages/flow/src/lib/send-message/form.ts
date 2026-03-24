@@ -1,40 +1,64 @@
 import { SendEndpoint } from '@service-bus-browser/api-contracts';
 
-type SystemStringPropertyKeys =
-  | 'correlationId'
-  | 'partitionKey'
-  | 'sessionId'
-  | 'replyToSessionId'
-  | 'messageId'
-  | 'subject'
+type AmqpStringPropertyKeys =
+  | 'message-id'
+  | 'user-id'
   | 'to'
-  | 'replyTo';
+  | 'subject'
+  | 'reply-to'
+  | 'correlation-id'
+  | 'content-type'
+  | 'content-encoding'
+  | 'group-id'
+  | 'reply-to-group-id';
 
-type SystemDatePropertyKeys = 'scheduledEnqueueTimeUtc';
+type AmqpDatePropertyKeys = 'absolute-expiry-time' | 'creation-time';
 
-type SystemTimeSpanPropertyKeys = 'timeToLive';
+type AmqpNumberPropertyKeys = 'group-sequence';
 
-export type SystemPropertyKeys =
-  | SystemStringPropertyKeys
-  | SystemDatePropertyKeys
-  | SystemTimeSpanPropertyKeys;
+type AmqpHeaderBooleanKeys = 'durable' | 'first-acquirer';
 
-export const SystemPropertyKeys: SystemPropertyKeys[] = [
-  'correlationId',
-  'partitionKey',
-  'sessionId',
-  'replyToSessionId',
-  'messageId',
-  'subject',
+type AmqpHeaderNumberKeys = 'priority' | 'ttl' | 'delivery-count';
+
+export type AmqpHeaderKeys = AmqpHeaderBooleanKeys | AmqpHeaderNumberKeys;
+
+export type AmqpPropertyKeys =
+  | AmqpStringPropertyKeys
+  | AmqpDatePropertyKeys
+  | AmqpNumberPropertyKeys;
+
+export const AmqpPropertyKeys: AmqpPropertyKeys[] = [
+  'message-id',
+  'user-id',
   'to',
-  'replyTo',
-  'scheduledEnqueueTimeUtc',
-  'timeToLive',
+  'subject',
+  'reply-to',
+  'correlation-id',
+  'content-type',
+  'content-encoding',
+  'absolute-expiry-time',
+  'creation-time',
+  'group-id',
+  'group-sequence',
+  'reply-to-group-id',
 ];
 
-export type SystemPropertyGroup = {
-  key: SystemPropertyKeys | '';
-  value: string | Date;
+export const AmqpHeaderKeys: AmqpHeaderKeys[] = [
+  'durable',
+  'priority',
+  'ttl',
+  'first-acquirer',
+  'delivery-count',
+];
+
+export type PropertyGroup = {
+  key: AmqpPropertyKeys | '';
+  value: string | Date | number;
+};
+
+export type HeaderPropertyGroup = {
+  key: AmqpHeaderKeys | '';
+  value: boolean | number;
 };
 
 export type CustomPropertyType = 'string' | 'number' | 'datetime' | 'boolean';
@@ -47,7 +71,10 @@ export type ApplicationPropertyGroup = {
 export interface SendMessagesForm {
   body: string;
   contentType: string;
-  systemProperties: SystemPropertyGroup[];
+  properties: PropertyGroup[];
+  headers: HeaderPropertyGroup[];
+  deliveryAnnotations: ApplicationPropertyGroup[];
+  messageAnnotations: ApplicationPropertyGroup[];
   applicationProperties: ApplicationPropertyGroup[];
   endpoint: SendEndpoint | null;
 }

@@ -1,0 +1,71 @@
+<section class="rabbitmq">
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqHost"
+        class="full-width"
+        pInputText
+        [(ngModel)]="host"
+      />
+      <label for="rabbitMqHost">Host</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqManagementPort"
+        type="number"
+        class="full-width"
+        pInputText
+        [(ngModel)]="managementPort"
+      />
+      <label for="rabbitMqManagementPort">Management port</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqAmqpPort"
+        type="number"
+        class="full-width"
+        pInputText
+        [(ngModel)]="amqpPort"
+      />
+      <label for="rabbitMqAmqpPort">AMQP port</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqVHost"
+        class="full-width"
+        pInputText
+        [(ngModel)]="vhost"
+      />
+      <label for="rabbitMqVHost">VHost</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqUserName"
+        class="full-width"
+        pInputText
+        [(ngModel)]="userName"
+      />
+      <label for="rabbitMqUserName">Username</label>
+    </p-floatlabel>
+  </div>
+  <div class="input-field">
+    <p-floatlabel variant="on">
+      <input
+        id="rabbitMqPassword"
+        type="password"
+        class="full-width"
+        pInputText
+        [(ngModel)]="password"
+      />
+      <label for="rabbitMqPassword">Password</label>
+    </p-floatlabel>
+  </div>
+</section>

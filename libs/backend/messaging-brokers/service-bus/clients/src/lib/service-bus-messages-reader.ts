@@ -1,9 +1,9 @@
 import {
-  Connection,
   MessagesReader,
   PropertyValue,
   ReceivedMessage,
   ReceiveEndpoint,
+  ServiceBusConnection,
 } from '@service-bus-browser/api-contracts';
 import Long from 'long';
 import {
@@ -21,10 +21,10 @@ type ContinuationTokenBody = {
 
 type DeleteContinuationTokenBody = {
   zeroMessagesReceivedCounter: number;
-}
+};
 
 export class ServiceBusMessagesReader implements MessagesReader {
-  constructor(private connection: Connection) {}
+  constructor(private connection: ServiceBusConnection) {}
 
   async receiveMessages(
     receiveEndpoint: ReceiveEndpoint,
@@ -85,7 +85,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
       tokenBody.lastLoadedSequenceNumber;
 
     const newContinuationToken =
-       currentMaxAmountOfMessagesToReceive > mappedMessages.length
+      currentMaxAmountOfMessagesToReceive > mappedMessages.length
         ? this.makeContinuationToken({
             alreadyLoadedAmountOfMessages: alreadyLoadedAmountOfMessages,
             lastLoadedSequenceNumber: lastLoadedSequenceNumber,
@@ -103,9 +103,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
     return btoa(buf.toString('base64'));
   }
 
-  private decodeContinuationToken<T>(
-    continuationToken: string,
-  ): T {
+  private decodeContinuationToken<T>(continuationToken: string): T {
     const buf = Buffer.from(atob(continuationToken), 'base64');
     return JSON.parse(buf.toString('utf-8'));
   }
@@ -119,27 +117,18 @@ export class ServiceBusMessagesReader implements MessagesReader {
       body: message.body,
       contentType: message.contentType,
       sequence: message.sequenceNumber?.toString() ?? '0',
-      systemProperties: Object.entries(message)
-        .filter(
-          ([key]) =>
-            !['body', 'applicationProperties', '_rawAmqpMessage'].includes(key),
-        )
-        .filter(([_, value]) => value !== undefined && value !== null)
-        .reduce(
-          (acc, [key, value]) => {
-            if (value instanceof Long) {
-              value = value.toString();
-            }
-            acc[key] = value;
-            return acc;
-          },
-          {} as Record<string, PropertyValue>,
-        ),
+      headers: this.mapAmqpHeader(message),
+      deliveryAnnotations: this.mapDeliveryAnnotations(message),
+      messageAnnotations: this.mapMessageAnnotations(message),
+      properties: this.mapAmqpProperties(message),
       applicationProperties: message.applicationProperties,
     };
   }
 
-  async clear(endpoint: ReceiveEndpoint, continuationToken?: string): Promise<{ continuationToken?: string }> {
+  async clear(
+    endpoint: ReceiveEndpoint,
+    continuationToken?: string,
+  ): Promise<{ continuationToken?: string }> {
     if (!endpoint) {
       throw new Error('endpoints is required for clearing messages');
     }
@@ -149,9 +138,10 @@ export class ServiceBusMessagesReader implements MessagesReader {
         )
       : ({ zeroMessagesReceivedCounter: 0 } as DeleteContinuationTokenBody);
 
-
     const receiver = this.getReceiver(endpoint, 'receiveAndDelete');
-    const messages = await receiver.receiveMessages(250, { maxWaitTimeInMs: 300 });
+    const messages = await receiver.receiveMessages(250, {
+      maxWaitTimeInMs: 300,
+    });
     await receiver.close();
 
     if (messages.length === 0) {
@@ -162,14 +152,98 @@ export class ServiceBusMessagesReader implements MessagesReader {
       return {};
     }
 
-    const newToken = this.makeContinuationToken({ zeroMessagesReceivedCounter });
+    const newToken = this.makeContinuationToken({
+      zeroMessagesReceivedCounter,
+    });
     return { continuationToken: newToken };
+  }
+
+  private mapAmqpHeader(message: ServiceBusReceivedMessage) {
+    const raw = message._rawAmqpMessage;
+    const header = raw?.header;
+    if (!header) {
+      return undefined;
+    }
+
+    const amqpHeader: Record<string, PropertyValue> = {};
+    const setIfDefined = (key: string, value: unknown) => {
+      if (value !== undefined && value !== null) {
+        amqpHeader[key] = value as PropertyValue;
+      }
+    };
+
+    setIfDefined('durable', header.durable);
+    setIfDefined('priority', header.priority);
+    setIfDefined('ttl', header.timeToLive);
+    setIfDefined('first-acquirer', header.firstAcquirer);
+    setIfDefined('delivery-count', header.deliveryCount);
+
+    return Object.keys(amqpHeader).length > 0 ? amqpHeader : undefined;
+  }
+
+  private mapAmqpProperties(message: ServiceBusReceivedMessage) {
+    const raw = message._rawAmqpMessage;
+    const properties = raw?.properties;
+    if (!properties) {
+      return undefined;
+    }
+
+    const amqpProperties: Record<string, PropertyValue> = {};
+    const setIfDefined = (key: string, value: unknown) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      if (value instanceof Long) {
+        amqpProperties[key] = value.toString();
+        return;
+      }
+
+      amqpProperties[key] = value as PropertyValue;
+    };
+
+    setIfDefined('message-id', properties['messageId']);
+    setIfDefined('to', properties['to']);
+    setIfDefined('subject', properties['subject']);
+    setIfDefined('reply-to', properties['replyTo']);
+    setIfDefined('correlation-id', properties['correlationId']);
+    setIfDefined('content-type', properties['contentType']);
+    setIfDefined('content-encoding', properties['contentEncoding']);
+    setIfDefined('absolute-expiry-time', properties['absoluteExpiryTime']);
+    setIfDefined('creation-time', properties['creationTime']);
+    setIfDefined('group-id', properties['groupId']);
+    setIfDefined('group-sequence', properties['groupSequence']);
+    setIfDefined('reply-to-group-id', properties['replyToGroupId']);
+
+    return Object.keys(amqpProperties).length > 0 ? amqpProperties : undefined;
+  }
+
+  private mapDeliveryAnnotations(message: ServiceBusReceivedMessage) {
+    const raw = message._rawAmqpMessage.deliveryAnnotations as
+      | {
+          deliveryAnnotations?: Record<string, PropertyValue>;
+        }
+      | undefined;
+    return raw?.deliveryAnnotations ?? undefined;
+  }
+
+  private mapMessageAnnotations(message: ServiceBusReceivedMessage) {
+    const raw = message._rawAmqpMessage as
+      | {
+          messageAnnotations?: Record<string, PropertyValue>;
+        }
+      | undefined;
+    return raw?.messageAnnotations ?? undefined;
   }
 
   private getReceiver(
     endpoint: ReceiveEndpoint,
     receiveMode: 'peekLock' | 'receiveAndDelete',
   ): ServiceBusReceiver {
+    if (endpoint.target !== 'serviceBus') {
+      throw new Error('Invalid Service Bus receive endpoint');
+    }
+
     const auth = getCredential(this.connection);
     const client = new ServiceBusClient(auth.hostName, auth.credential);
 

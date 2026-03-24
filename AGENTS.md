@@ -1,0 +1,27 @@
+- These instructions apply to the entire repository unless a deeper `AGENTS.md` overrides them.
+- This is an Nx monorepo for Servicebus Browser.
+- Main stacks: Angular 21, Electron, Express, Jest, ESLint, PNPM, and Nx.
+- Primary apps live under `apps/`; reusable domain libraries live under `libs/`.
+- Use `pnpm` for all package management tasks.
+- Prefer small, focused changes that stay within the touched app or library boundaries.
+- Follow existing Nx project boundaries and naming; do not move projects unless explicitly requested.
+- Keep changes ASCII unless a file already requires non-ASCII content.
+- Do not add new dependencies unless they are necessary for the task.
+- Do not edit generated output such as `dist/`, `coverage/`, `.nx/`, or `node_modules/`.
+- Install dependencies: `pnpm install`
+- List projects: `pnpm exec nx show projects`
+- Run an app or lib target: `pnpm exec nx run <project>:<target>`
+- Run tests for one project: `pnpm exec nx run <project>:test`
+- Run lint for one project: `pnpm exec nx run <project>:lint`
+- Run builds for one project: `pnpm exec nx run <project>:build`
+- Run multiple targets: `pnpm exec nx run-many -t <target>`
+- Start the desktop app flow: `pnpm exec nx run-many -t serve`
+- When changing code in `apps/`, check nearby `project.json`, `tsconfig*`, and README files first.
+- When changing code in `libs/`, preserve public exports and look for downstream usage before renaming symbols.
+- Prefer fixing root causes over patching symptoms.
+- Keep README or docs updates aligned with behavior changes when user-facing workflows change.
+- Validate the smallest relevant Nx target first, then widen scope if needed.
+- For code changes, prefer project-scoped checks such as `pnpm exec nx run <project>:test` or `pnpm exec nx run <project>:lint`.
+- Only run broad workspace commands when the change crosses project boundaries or the user asks for it.
+- Respect `.gitignore` and avoid committing generated files.
+- If a task introduces a new generated artifact or local tool output, update `.gitignore` in the same change.

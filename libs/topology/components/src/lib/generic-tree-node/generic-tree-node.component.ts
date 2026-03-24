@@ -77,13 +77,13 @@ export class GenericTreeNodeComponent {
     if (!node.availableMessageCounts) {
       return undefined;
     }
+    const counts = node.availableMessageCounts.filter((e) => e.showInSummary);
 
-    const entities = Object.entries(node.availableMessageCounts);
-    if (entities.length === 0) {
+    if (counts.length === 0) {
       return undefined;
     }
 
-    return `(${entities.map(([key, value]) => `${value}`).join(', ')})`;
+    return `(${counts.map((c) => `${c.count}`).join(', ')})`;
   });
 
   messageCountEntities = computed(() => {
@@ -92,7 +92,7 @@ export class GenericTreeNodeComponent {
       return undefined;
     }
 
-    return Object.entries(node.availableMessageCounts);
+    return node.availableMessageCounts;
   });
 
   showRefresh = computed(() => {
@@ -153,6 +153,9 @@ export class GenericTreeNodeComponent {
       addSeparatorIfNeeded();
 
       for (const receiveEndpoint of node.receiveEndpoints) {
+        if (!receiveEndpoint.clearable) {
+          continue;
+        }
         contextMenu.push({
           icon: 'pi pi-eraser',
           label: `Clear ${receiveEndpoint.displayName} messages`,

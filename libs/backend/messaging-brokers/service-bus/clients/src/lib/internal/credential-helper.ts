@@ -1,4 +1,6 @@
-import { Connection } from '@service-bus-browser/api-contracts';
+import {
+  ServiceBusConnection,
+} from '@service-bus-browser/api-contracts';
 import {
   TokenCredential,
   ManagedIdentityCredential,
@@ -15,7 +17,7 @@ export type ServiceBusCredential = {
   credential: TokenCredential | NamedKeyCredential;
 };
 
-export function getCredential(connection: Connection): ServiceBusCredential {
+export function getCredential(connection: ServiceBusConnection): ServiceBusCredential {
   if (connection.type === 'connectionString') {
     const parsedConnectionString = parseConnectionString<{
       Endpoint: string;

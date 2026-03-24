@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { initializeClientConfig } from './app/client-config-loader';
+import { registerCustomIcons } from '@service-bus-browser/custom-icons';
 
 if (navigator.storage && navigator.storage.persist) {
   const persistent = await navigator.storage.persist();
@@ -12,6 +13,8 @@ if (navigator.storage && navigator.storage.persist) {
     console.log('Storage may be cleared by the UA under storage pressure.');
   }
 }
+
+registerCustomIcons();
 
 initializeClientConfig().then(() => {
   bootstrapApplication(App, appConfig).catch((err) => console.error(err));

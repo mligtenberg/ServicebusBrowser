@@ -17,6 +17,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Select } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
 import { messagesActions } from '@service-bus-browser/messages-store';
+import { Message } from 'primeng/message';
 
 @Component({
   selector: 'lib-receive-messages-dialog',
@@ -29,6 +30,7 @@ import { messagesActions } from '@service-bus-browser/messages-store';
     NgTemplateOutlet,
     Select,
     SelectButton,
+    Message,
   ],
   templateUrl: './receive-messages-dialog.html',
   styleUrl: './receive-messages-dialog.scss',

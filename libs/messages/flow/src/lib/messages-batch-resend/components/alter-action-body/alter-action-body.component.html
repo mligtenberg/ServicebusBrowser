@@ -4,12 +4,14 @@
   @case ('body') {
     <lib-alter-body
       [action]="action()"
-      (alterActionUpdated)="onAlterActionUpdated($event)" />
+      (alterActionUpdated)="onAlterActionUpdated($event)"
+    />
   }
-  @case ('systemProperties') {
+  @case ('properties') {
     <lib-alter-system-properties
       [action]="action()"
-      (alterActionUpdated)="onAlterActionUpdated($event)" />
+      (alterActionUpdated)="onAlterActionUpdated($event)"
+    />
   }
   @case ('applicationProperties') {
     <lib-alter-application-properties

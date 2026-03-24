@@ -17,7 +17,11 @@ export function combineWhereClauses(clauses: WhereClause[]): WhereClause {
   }
 
   return {
-    clause: "WHERE " + clauses.map((clause) => "(" + clause.clause.replace("WHERE ", "") + ")").join(' AND '),
+    clause:
+      'WHERE ' +
+      clauses
+        .map((clause) => '(' + clause.clause.replace('WHERE ', '') + ')')
+        .join(' AND '),
     args: clauses.flatMap((clause) => clause.args),
   };
 }
@@ -76,57 +80,43 @@ export function filterToWhereClause(filter?: MessageFilter): WhereClause {
     }
   }
 
-  for (const systemPropertyFilter of filter.systemProperties) {
-    if (!systemPropertyFilter.isActive) {
-      continue;
+  const applyPropertyFilters = (
+    filters: PropertyFilter[],
+    tableName: string,
+  ) => {
+    for (const propertyFilter of filters) {
+      if (!propertyFilter.isActive) {
+        continue;
+      }
+
+      const appClauses: string[] = [
+        'messageId = messages.id',
+        'propertyName = ?',
+      ];
+      const appArgs: Array<string | number | boolean | null> = [
+        propertyFilter.fieldName,
+      ];
+
+      appendPropertyClause(
+        appClauses,
+        appArgs,
+        propertyFilter,
+        'propertyValue',
+      );
+
+      clauses.push(
+        `EXISTS (SELECT 1 FROM ${tableName} WHERE ${appClauses.join(' AND ')})`,
+      );
+      args.push(...appArgs);
     }
+  };
 
-    const appClauses: string[] = [
-      'messageId = messages.id',
-      'propertyName = ?',
-    ];
-    const appArgs: Array<string | number | boolean | null> = [
-      systemPropertyFilter.fieldName,
-    ];
+  applyPropertyFilters(filter.headers, 'headers');
+  applyPropertyFilters(filter.properties, 'properties');
+  applyPropertyFilters(filter.deliveryAnnotations, 'deliveryAnnotations');
+  applyPropertyFilters(filter.messageAnnotations, 'messageAnnotations');
 
-    appendPropertyClause(
-      appClauses,
-      appArgs,
-      systemPropertyFilter,
-      'propertyValue',
-    );
-
-    clauses.push(
-      `EXISTS (SELECT 1 FROM systemProperties WHERE ${appClauses.join(' AND ')})`,
-    );
-    args.push(...appArgs);
-  }
-
-  for (const applicationPropertyFilter of filter.applicationProperties) {
-    if (!applicationPropertyFilter.isActive) {
-      continue;
-    }
-
-    const appClauses: string[] = [
-      'messageId = messages.id',
-      'propertyName = ?',
-    ];
-    const appArgs: Array<string | number | boolean | null> = [
-      applicationPropertyFilter.fieldName,
-    ];
-
-    appendPropertyClause(
-      appClauses,
-      appArgs,
-      applicationPropertyFilter,
-      'propertyValue',
-    );
-
-    clauses.push(
-      `EXISTS (SELECT 1 FROM applicationProperties WHERE ${appClauses.join(' AND ')})`,
-    );
-    args.push(...appArgs);
-  }
+  applyPropertyFilters(filter.applicationProperties, 'applicationProperties');
 
   if (!clauses.length) {
     return { clause: '', args: [] };
@@ -203,7 +193,7 @@ function appendPropertyClause(
   }
 
   if (filter.fieldType === 'date') {
-    const value = (filter.value).toISOString();
+    const value = filter.value.toISOString();
     switch (filter.filterType) {
       case 'before':
         clauses.push(`${columnName} < ?`);
@@ -255,7 +245,6 @@ function appendPropertyClause(
     }
   }
 }
-
 
 export function getWhereClause(filter?: MessageFilter, selection?: string[]) {
   const filterWhereClause = filterToWhereClause(filter);

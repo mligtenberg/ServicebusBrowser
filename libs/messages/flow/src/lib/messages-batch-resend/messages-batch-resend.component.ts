@@ -243,8 +243,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing endpoints',
-        detail:
-          'Please select a destination endpoint for resending messages',
+        detail: 'Please select a destination endpoint for resending messages',
       });
       return;
     }
@@ -258,7 +257,10 @@ export class MessagesBatchResendComponent {
           message: {
             bodyBase64: (sendMessage.body as any).toBase64(),
             messageId: sendMessage.messageId,
-            systemProperties: sendMessage.systemProperties,
+            headers: sendMessage.headers,
+            properties: sendMessage.properties,
+            deliveryAnnotations: sendMessage.deliveryAnnotations,
+            messageAnnotations: sendMessage.messageAnnotations,
             contentType: sendMessage.contentType,
             applicationProperties: sendMessage.applicationProperties,
           },
@@ -287,8 +289,7 @@ export class MessagesBatchResendComponent {
       this.messageService.add({
         severity: 'error',
         summary: 'Missing endpoints',
-        detail:
-          'Please select a destination endpoint for resending messages',
+        detail: 'Please select a destination endpoint for resending messages',
       });
       return;
     }
@@ -296,13 +297,15 @@ export class MessagesBatchResendComponent {
     const pageId = this.pageId();
     const selection = this.selection();
 
-    this.store.dispatch(messagePagesActions.resendMessages({
-      pageId,
-      endpoint: selectedEndpoint,
-      messageFilter: this.messageFilter(),
-      selectionKeys: selection,
-      modificationActions: this.actions(),
-    }))
+    this.store.dispatch(
+      messagePagesActions.resendMessages({
+        pageId,
+        endpoint: selectedEndpoint,
+        messageFilter: this.messageFilter(),
+        selectionKeys: selection,
+        modificationActions: this.actions(),
+      }),
+    );
 
     // Close the preview drawer if it's open
     this.previewDrawerVisible.set(false);
@@ -324,7 +327,7 @@ export class MessagesBatchResendComponent {
   getActionTargetLabel(target: BatchActionTarget): string {
     const targetMap: Record<string, string> = {
       body: 'Body',
-      systemProperties: 'System Properties',
+      properties: 'Properties',
       applicationProperties: 'Application Properties',
     };
 

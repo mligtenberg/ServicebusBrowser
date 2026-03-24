@@ -1,7 +1,8 @@
 import {
-  Connection,
   MessageQueueTargetType,
   ReceiveOptionsDescription,
+  SendEndpoint,
+  ServiceBusConnection,
   TopologyNode,
   TopologyProvider,
 } from '@service-bus-browser/api-contracts';
@@ -10,7 +11,6 @@ import {
   faCheckToSlot,
   faFolder as faFolderSolid,
   faFolderTree,
-  faServer,
 } from '@fortawesome/free-solid-svg-icons';
 import { faFolder } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -18,6 +18,7 @@ import {
   SubscriptionWithMetaData,
   TopicWithMetaData,
 } from '@service-bus-browser/service-bus-api-contracts';
+import { sbbAzureServiceBus } from '@service-bus-browser/custom-icons';
 
 export class ServiceBusTopologyProvider implements TopologyProvider {
   readonly target: MessageQueueTargetType = 'serviceBus';
@@ -41,7 +42,23 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
     },
   };
 
-  constructor(private connection: Connection) {
+  private readonly availableMessageAnnotations: SendEndpoint['supportedMessageAnnotations'] =
+    [
+      {
+        key: 'x-opt-partition-key',
+        description:
+          'Key that dictates which partition the message should land in.',
+        displayType: 'string',
+      },
+      {
+        key: 'x-opt-via-partition-key',
+        description:
+          'Partition-key value when a transaction is to be used to send messages via a transfer queue.',
+        displayType: 'string'
+      },
+    ];
+
+  constructor(private connection: ServiceBusConnection) {
     this.administrationClient = new ServiceBusManagementClient(this.connection);
   }
 
@@ -54,7 +71,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
     return {
       path: `/${this.connection.id}`,
       name: this.connection.name,
-      icon: faServer,
+      icon: sbbAzureServiceBus,
       refreshable: true,
       selectable: true,
       type: 'connection',
@@ -252,12 +269,23 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'queue',
-      availableMessageCounts: {
-        'Active messages': queue.metaData.activeMessageCount,
-        'Dead letters': queue.metaData.deadLetterMessageCount,
-        'Transferring dead letters':
-          queue.metaData.transferDeadLetterMessageCount,
-      },
+      availableMessageCounts: [
+        {
+          name: 'Active messages',
+          count: queue.metaData.activeMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Dead letters',
+          count: queue.metaData.deadLetterMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Transferring dead letters',
+          count: queue.metaData.transferDeadLetterMessageCount,
+          showInSummary: true,
+        },
+      ],
       defaultAction: {
         icon: 'pi pi-pencil',
         displayName: 'Edit queue',
@@ -275,6 +303,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         endpointDisplay: queue.metaData.endpointDisplay,
         target: 'serviceBus',
         type: 'queue',
+        supportedMessageAnnotations: [...this.availableMessageAnnotations],
       },
       receiveEndpoints: [
         {
@@ -286,6 +315,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: undefined,
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           displayName: 'dead letters',
@@ -296,6 +326,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: 'deadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           displayName: 'transfer dead letters',
@@ -306,6 +337,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           type: 'queue',
           channel: 'transferDeadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
       ],
       actions: [
@@ -349,6 +381,9 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         endpointDisplay: topic.metadata.endpointDisplay,
         target: 'serviceBus',
         type: 'topic',
+        supportedMessageAnnotations: [
+          ...this.availableMessageAnnotations
+        ]
       },
       defaultAction: {
         icon: 'pi pi-pencil',
@@ -407,12 +442,23 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'subscription',
-      availableMessageCounts: {
-        'Active messages': subscription.metaData.activeMessageCount,
-        'Dead letters': subscription.metaData.deadLetterMessageCount,
-        'Transferring dead letters':
-          subscription.metaData.transferDeadLetterMessageCount,
-      },
+      availableMessageCounts: [
+        {
+          name: 'Active messages',
+          count: subscription.metaData.activeMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Dead letters',
+          count: subscription.metaData.deadLetterMessageCount,
+          showInSummary: true,
+        },
+        {
+          name: 'Transferring dead letters',
+          count: subscription.metaData.transferDeadLetterMessageCount,
+          showInSummary: true,
+        },
+      ],
       receiveEndpoints: [
         {
           displayName: subscription.name,
@@ -424,6 +470,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           target: 'serviceBus',
           type: 'subscription',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           target: 'serviceBus',
@@ -435,6 +482,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           subscriptionName: subscription.name,
           channel: 'deadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
         {
           target: 'serviceBus',
@@ -446,6 +494,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           subscriptionName: subscription.name,
           channel: 'transferDeadLetter',
           receiveOptionsDescription: this.availableOptions,
+          clearable: true,
         },
       ],
       actions: [

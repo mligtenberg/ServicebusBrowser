@@ -1,4 +1,9 @@
 :host {
   display: flex;
   justify-content: stretch;
+  align-items: stretch;
+}
+
+::ng-deep p-select {
+  display: block;
 }

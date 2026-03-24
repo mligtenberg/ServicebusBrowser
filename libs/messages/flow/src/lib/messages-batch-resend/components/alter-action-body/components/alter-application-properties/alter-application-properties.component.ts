@@ -57,16 +57,14 @@ export class AlterApplicationPropertiesComponent {
   alterTypes = computed(() => {
     const propertyType = this.propertyType();
     if (propertyType !== 'string') {
-      return [
-        { label: 'Full Replace', value: 'fullReplace' },
-      ];
+      return [{ label: 'Full Replace', value: 'fullReplace' }];
     }
 
     return [
       { label: 'Full Replace', value: 'fullReplace' },
       { label: 'Search and Replace', value: 'searchAndReplace' },
       { label: 'Regex Replace', value: 'regexReplace' },
-    ]
+    ];
   });
 
   alterAction = computed<AlterApplicationPropertyActions | undefined>(() => {
@@ -87,7 +85,10 @@ export class AlterApplicationPropertiesComponent {
         alterType: 'fullReplace',
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };
@@ -107,7 +108,10 @@ export class AlterApplicationPropertiesComponent {
         alterType: currentAlterType,
         applyOnFilter: {
           body: [],
-          systemProperties: [],
+          headers: [],
+          properties: [],
+          deliveryAnnotations: [],
+          messageAnnotations: [],
           applicationProperties: [],
         },
       };

@@ -4,7 +4,7 @@
       appendTo="body"
       required
       [(ngModel)]="fieldName"
-      [options]="systemPropertyKeys"
+      [options]="propertyKeys"
       placeholder="Select property"
     />
 
@@ -27,25 +27,27 @@
     />
   }
 
-  @if (systemPropertyIsText(fieldName())) {
+  @if (propertyIsText(fieldName())) {
     <input
       pInputText
       required
       [(ngModel)]="value"
       placeholder="Value"
       [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"/>
+      tooltipPosition="top"
+    />
   }
-  @if (systemPropertyIsDate(fieldName())) {
+  @if (propertyIsDate(fieldName())) {
     <p-date-picker
       [(ngModel)]="value"
       required
       appendTo="body"
       [showTime]="true"
       hourFormat="24"
-      placeholder="Value"/>
+      placeholder="Value"
+    />
   }
-  @if (systemPropertyIsTimeSpan(fieldName())) {
+  @if (propertyIsTimeSpan(fieldName())) {
     <input
       #timeSpanInput
       (click)="popover.toggle($event)"
@@ -55,24 +57,25 @@
       [ngModel]="value()"
       class="time-span-trigger"
       aria-disabled="false"
-      placeholder="Value" />
-    <p-popover
-      appendTo="body"
-      #popover
-    >
-      <sbb-duration-input
-        required
-        [(ngModel)]="value"
-      />
+      placeholder="Value"
+    />
+    <p-popover appendTo="body" #popover>
+      <sbb-duration-input required [(ngModel)]="value" />
     </p-popover>
   }
 
-  @if (propertyUnknownType(fieldName())) {
+  @if (propertyIsNumber(fieldName())) {
     <input
       pInputText
       required
+      type="number"
       [(ngModel)]="value"
-      placeholder="Value"/>
+      placeholder="Value"
+    />
+  }
+
+  @if (propertyUnknownType(fieldName())) {
+    <input pInputText required [(ngModel)]="value" placeholder="Value" />
   }
 </div>
 

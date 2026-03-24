@@ -101,7 +101,7 @@ export class TopologyTreeComponent {
   private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
     const mapper = (node: TopologyNode): TreeNode<TopologyNode> => ({
       key: node.path,
-      data: node,
+      data: structuredClone(node),
       expanded: this.opened().includes(node.path),
       children: node.children?.map((node) => mapper(node)),
       leaf: !node.children || node.children.length === 0,
