@@ -98,6 +98,6 @@ export class MainApp {
   }
 
   signOut(): void {
-    this.authService.logout();
+    this.authService.logoutRedirect();
   }
 }

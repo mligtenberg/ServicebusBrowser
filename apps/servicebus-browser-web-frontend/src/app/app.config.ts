@@ -112,9 +112,5 @@ export const appConfig: ApplicationConfig = {
     MsalService,
     MsalGuard,
     MsalBroadcastService,
-    provideAppInitializer(async () => {
-      const msalService = inject(MsalService);
-      await lastValueFrom(msalService.initialize());
-    }),
   ],
 };
