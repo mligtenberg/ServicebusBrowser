@@ -2,9 +2,10 @@
   <div class="actions">
     <h2 class="title">{{header()}}</h2>
     @if (isCsvTableVisible()) {
-      <div class="csv-delimiter-selector">
-        <span class="csv-delimiter-label">Delimiter</span>
+    <div class="csv-delimiter-selector">
+      <p-floatlabel variant="on">
         <p-select
+          inputId="csv-delimiter"
           [(ngModel)]="csvDelimiter"
           [options]="csvDelimiterOptions"
           optionLabel="label"
@@ -12,7 +13,9 @@
           [editable]="true"
           appendTo="body"
         />
-      </div>
+        <label for="csv-delimiter">Delimiter</label>
+      </p-floatlabel>
+    </div>
     }
     <p-toggle-switch
       [(ngModel)]="showPrettyBody"
@@ -28,7 +31,7 @@
     ></p-button>
   </div>
   <div class="editor">
-    <ng-container *ngTemplateOutlet="bodyView"/>
+    <ng-container *ngTemplateOutlet="bodyView" />
   </div>
 </div>
 
@@ -42,9 +45,10 @@
   <div class="editor-container">
     <div class="actions">
       @if (isCsvTableVisible()) {
-        <div class="csv-delimiter-selector">
-          <span class="csv-delimiter-label">Delimiter</span>
+      <div class="csv-delimiter-selector">
+        <p-floatlabel variant="over">
           <p-select
+            inputId="csv-delimiter-fullscreen"
             [(ngModel)]="csvDelimiter"
             [options]="csvDelimiterOptions"
             optionLabel="label"
@@ -52,7 +56,9 @@
             [editable]="true"
             appendTo="body"
           />
-        </div>
+          <label for="csv-delimiter-fullscreen">Delimiter</label>
+        </p-floatlabel>
+      </div>
       }
       <p-toggle-switch
         [(ngModel)]="showPrettyBody"
@@ -62,41 +68,35 @@
       />
     </div>
     @if (displayBodyFullscreen()) {
-      <div class="editor">
-        <ng-container *ngTemplateOutlet="bodyView"/>
-      </div>
+    <div class="editor">
+      <ng-container *ngTemplateOutlet="bodyView" />
+    </div>
     }
   </div>
 </p-dialog>
 
 <ng-template #bodyView>
   @if (isCsvTableVisible()) {
-    <div class="csv-table-wrapper">
-      <p-table [value]="csvRows()" [scrollable]="true" scrollHeight="flex">
-        <ng-template pTemplate="header">
-          <tr>
-            @for (header of csvHeaders(); track header) {
-              <th>{{ header }}</th>
-            }
-          </tr>
-        </ng-template>
+  <div class="csv-table-wrapper">
+    <p-table [value]="csvRows()" [scrollable]="true" scrollHeight="flex">
+      <ng-template pTemplate="header">
+        <tr>
+          @for (header of csvHeaders(); track header) {
+          <th>{{ header }}</th>
+          }
+        </tr>
+      </ng-template>
 
-        <ng-template pTemplate="body" let-rowData>
-          <tr>
-            @for (header of csvHeaders(); track header) {
-              <td>{{ rowData[header] }}</td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  } @else {
-    @let body = shownBody();
-    @if (body !== undefined) {
-      <sbb-editor
-        [editorOptions]="editorOptions()"
-        [value]="body"
-      ></sbb-editor>
-    }
-  }
+      <ng-template pTemplate="body" let-rowData>
+        <tr>
+          @for (header of csvHeaders(); track header) {
+          <td>{{ rowData[header] }}</td>
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  } @else { @let body = shownBody(); @if (body !== undefined) {
+  <sbb-editor [editorOptions]="editorOptions()" [value]="body"></sbb-editor>
+  } }
 </ng-template>

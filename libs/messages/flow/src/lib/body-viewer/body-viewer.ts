@@ -9,6 +9,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'lib-body-viewer',
@@ -22,6 +23,7 @@ import { Select } from 'primeng/select';
     Button,
     Tooltip,
     Select,
+    FloatLabel,
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',
@@ -37,10 +39,10 @@ export class BodyViewer {
   csvDelimiter = model(',');
 
   csvDelimiterOptions = [
-    { label: ',  Comma', value: ',' },
-    { label: ';  Semicolon', value: ';' },
-    { label: '|  Pipe', value: '|' },
-    { label: '→  Tab', value: '\t' },
+    { label: ',', value: ',' },
+    { label: ';', value: ';' },
+    { label: '|', value: '|' },
+    { label: 'Tab', value: '\t' },
   ];
 
   bodyLanguage = computed(() => {
@@ -78,7 +80,11 @@ export class BodyViewer {
       return this.body();
     }
 
-    return this.prettyPrint(this.body() ?? '', this.bodyLanguage(), this.csvDelimiter());
+    return this.prettyPrint(
+      this.body() ?? '',
+      this.bodyLanguage(),
+      this.csvDelimiter(),
+    );
   });
 
   isCsvTableVisible = computed(
@@ -90,7 +96,10 @@ export class BodyViewer {
       return [];
     }
 
-    const [headers = []] = this.parseCsvRows(this.body() ?? '', this.csvDelimiter());
+    const [headers = []] = this.parseCsvRows(
+      this.body() ?? '',
+      this.csvDelimiter(),
+    );
     return headers;
   });
 
@@ -127,7 +136,11 @@ export class BodyViewer {
 
   prettyPrintAvailable = computed(() => this.bodyLanguage() !== 'text');
 
-  private prettyPrint(body: string, language: string, csvDelimiter = ','): string {
+  private prettyPrint(
+    body: string,
+    language: string,
+    csvDelimiter = ',',
+  ): string {
     const normalized = body.replace(/\r\n/g, '\n').trim();
     if (!normalized) {
       return body;
@@ -269,7 +282,9 @@ export class BodyViewer {
     }
 
     return rows
-      .map((row) => row.map((field) => this.toCsvField(field, delimiter)).join(delimiter))
+      .map((row) =>
+        row.map((field) => this.toCsvField(field, delimiter)).join(delimiter),
+      )
       .join('\n');
   }
 
