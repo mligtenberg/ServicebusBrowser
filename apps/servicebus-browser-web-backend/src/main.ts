@@ -9,6 +9,7 @@ import { Server } from '@service-bus-browser/service-bus-server';
 import { ReadonlyConfigFileConnectionStorage } from './readonly-config-file-connection-store';
 import bp from 'body-parser';
 import { getOidcConfig, validateJWT } from './validate-tokens';
+import { BSON, EJSON } from 'bson';
 
 const serviceBusBrowserServer = new Server(new ReadonlyConfigFileConnectionStorage());
 
@@ -38,7 +39,9 @@ app.post('/api/messages/command', async (req, res) => {
     res.send(result);
   }
   else {
-    res.send(result);
+    const bsonData = BSON.serialize({ result });
+    res.setHeader('Content-Type', 'application/bson');
+    res.send(Buffer.from(bsonData));
   }
 });
 
@@ -60,7 +63,9 @@ app.post('/api/management/command', async (req, res) => {
     });
   }
   else {
-    res.send(result);
+    const bsonData = BSON.serialize({ result });
+    res.setHeader('Content-Type', 'application/bson');
+    res.send(Buffer.from(bsonData));
   }
 });
 
@@ -84,7 +89,9 @@ app.post('/api/service-bus-management/command', async (req, res) => {
       res.send(Buffer.from(buffer));
     });
   } else {
-    res.send(result);
+    const bsonData = BSON.serialize({ result });
+    res.setHeader('Content-Type', 'application/bson');
+    res.send(Buffer.from(bsonData));
   }
 });
 
