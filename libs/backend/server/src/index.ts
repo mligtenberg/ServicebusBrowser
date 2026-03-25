@@ -2,6 +2,7 @@ import { ConnectionManager } from './lib/clients/connection-manager';
 import messagesOperations from './lib/messages';
 import managementOperations from './lib/management';
 import serviceBusManagementOperations from './lib/service-bus-management';
+import rabbitmqManagementOperations from './lib/rabbitmq-management';
 
 import { ConnectionStore as _connectionStore } from './lib/clients/connection-store';
 export type ConnectionStore = _connectionStore;
@@ -28,6 +29,18 @@ export class Server {
   serviceBusManagementExecute(actionName: string, requestBody: unknown) {
     if (serviceBusManagementOperations.has(actionName)) {
       const func = serviceBusManagementOperations.get(actionName);
+      return (
+        func?.(requestBody, this.connectionManager) ??
+        Promise.reject('Action returned undefined')
+      );
+    }
+
+    throw new Error(`Action ${actionName} not found`);
+  }
+
+  rabbitmqManagementExecute(actionName: string, requestBody: unknown) {
+    if (rabbitmqManagementOperations.has(actionName)) {
+      const func = rabbitmqManagementOperations.get(actionName);
       return (
         func?.(requestBody, this.connectionManager) ??
         Promise.reject('Action returned undefined')

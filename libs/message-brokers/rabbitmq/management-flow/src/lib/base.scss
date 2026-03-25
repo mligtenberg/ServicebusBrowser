@@ -1,0 +1,84 @@
+:host {
+  ::ng-deep .p-card.p-component {
+    height: 100%;
+  }
+
+  ::ng-deep .p-card-body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .p-card-content {
+      height: 100%;
+    }
+  }
+}
+
+input, textarea, p-inputnumber, p-select {
+  width: 100%;
+}
+
+.line {
+  margin: 1em 0;
+  width: 100%;
+}
+
+form {
+  padding: 0.5rem;
+
+  box-sizing: border-box;
+  min-height: 100cqh;
+  display: grid;
+  gap: 1rem;
+  grid-template-areas:
+    'name settings'
+    'information settings'
+    'actions actions';
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto 1fr auto;
+
+  .name {
+    grid-area: name;
+  }
+
+  .settings {
+    grid-area: settings;
+  }
+
+  .information {
+    grid-area: information;
+  }
+
+  .actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  @container mainContent (width < 900px) {
+    grid-template-areas:
+    'name actions'
+    'settings settings'
+    'information information';
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(20rem, 1fr);
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.table-container {
+  height: 100%;
+  container: table / size;
+  min-height: 20rem;
+}
+
+p-card {
+  height: 100%;
+}

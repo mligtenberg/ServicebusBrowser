@@ -96,6 +96,33 @@ app.post('/api/service-bus-management/command', async (req, res) => {
 });
 
 
+app.post('/api/rabbitmq-management/command', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token || !(await validateJWT(token))) {
+    res.status(401).send('Unauthorized');
+    return;
+  }
+
+  const request: { requestType: string; body: unknown } = req.body;
+
+  const result = await serviceBusBrowserServer.rabbitmqManagementExecute(
+    request.requestType,
+    request.body,
+  );
+  if (result instanceof Blob) {
+    result.arrayBuffer().then((buffer) => {
+      res.setHeader('Content-Type', result.type);
+      res.setHeader('Content-Length', buffer.byteLength);
+      res.send(Buffer.from(buffer));
+    });
+  } else {
+    const bsonData = BSON.serialize({ result });
+    res.setHeader('Content-Type', 'application/bson');
+    res.send(Buffer.from(bsonData));
+  }
+});
+
+
 const port = 3333;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);

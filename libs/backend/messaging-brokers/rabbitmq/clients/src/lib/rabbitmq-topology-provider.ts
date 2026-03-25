@@ -186,6 +186,18 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         selectable: false,
         type: 'operational-grouping',
         refreshable: true,
+        actions: [
+          {
+            icon: 'pi pi-plus',
+            displayName: 'Add Queue',
+            actionGroup: 'rabbitmq-queue',
+            actionType: 'rabbitmq:queue:add',
+            parameters: {
+              connectionId: this.connection.id,
+              vhostName,
+            },
+          },
+        ],
         children: queues.map((queue) => this.mapQueue(queue, vhostName)),
       };
     } catch (err) {
@@ -217,6 +229,18 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         selectable: false,
         type: 'operational-grouping',
         refreshable: true,
+        actions: [
+          {
+            icon: 'pi pi-plus',
+            displayName: 'Add Exchange',
+            actionGroup: 'rabbitmq-exchange',
+            actionType: 'rabbitmq:exchange:add',
+            parameters: {
+              connectionId: this.connection.id,
+              vhostName,
+            },
+          },
+        ],
         children: exchanges
           .filter((exchange) => exchange.name)
           .map((exchange) => this.mapExchange(vhostName, exchange)),
@@ -256,6 +280,30 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       refreshable: true,
       selectable: true,
       type: 'queue',
+      actions: [
+        {
+          icon: 'pi pi-pencil',
+          displayName: `Edit ${queue.name}`,
+          actionGroup: 'rabbitmq-queue',
+          actionType: 'rabbitmq:queue:edit',
+          parameters: {
+            connectionId: this.connection.id,
+            vhostName,
+            queueName: queue.name,
+          },
+        },
+        {
+          icon: 'pi pi-trash',
+          displayName: `Delete ${queue.name}`,
+          actionGroup: 'rabbitmq-queue',
+          actionType: 'rabbitmq:queue:delete',
+          parameters: {
+            connectionId: this.connection.id,
+            vhostName,
+            queueName: queue.name,
+          },
+        },
+      ],
       availableMessageCounts: [
         {
           name: 'Total messages',
@@ -328,6 +376,30 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       refreshable: false,
       selectable: true,
       type: 'exchange',
+      actions: [
+        {
+          icon: 'pi pi-pencil',
+          displayName: `View ${exchange.name}`,
+          actionGroup: 'rabbitmq-exchange',
+          actionType: 'rabbitmq:exchange:edit',
+          parameters: {
+            connectionId: this.connection.id,
+            vhostName,
+            exchangeName: exchange.name,
+          },
+        },
+        {
+          icon: 'pi pi-trash',
+          displayName: `Delete ${exchange.name}`,
+          actionGroup: 'rabbitmq-exchange',
+          actionType: 'rabbitmq:exchange:delete',
+          parameters: {
+            connectionId: this.connection.id,
+            vhostName,
+            exchangeName: exchange.name,
+          },
+        },
+      ],
       sendEndpoint: {
         displayName: exchange.name,
         connectionId: this.connection.id,

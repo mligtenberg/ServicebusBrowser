@@ -86,6 +86,52 @@ export class RabbitMqManagementClient {
     await this.requestDelete(`/api/queues/${vHost}/${encodedQueueName}`);
   }
 
+  async createQueueFull(
+    vHostName: string,
+    queueName: string,
+    durable: boolean,
+    autoDelete: boolean,
+    queueType: 'classic' | 'quorum' | 'stream',
+  ): Promise<void> {
+    const vHost = encodeURIComponent(vHostName);
+    const encodedQueueName = encodeURIComponent(queueName);
+    const args: Record<string, unknown> = {};
+    if (queueType !== 'classic') {
+      args['x-queue-type'] = queueType;
+    }
+    await this.requestWithBody(
+      'PUT',
+      `/api/queues/${vHost}/${encodedQueueName}`,
+      {
+        durable,
+        auto_delete: autoDelete,
+        arguments: args,
+      },
+    );
+  }
+
+  async createExchangeFull(
+    vHostName: string,
+    exchangeName: string,
+    type: string,
+    durable: boolean,
+    autoDelete: boolean,
+    internal: boolean,
+  ): Promise<void> {
+    const vHost = encodeURIComponent(vHostName);
+    const encodedExchangeName = encodeURIComponent(exchangeName);
+    await this.requestWithBody(
+      'PUT',
+      `/api/exchanges/${vHost}/${encodedExchangeName}`,
+      {
+        type,
+        durable,
+        auto_delete: autoDelete,
+        internal,
+      },
+    );
+  }
+
   async createExchange(vHostName: string, exchangeName: string): Promise<void> {
     const vHost = encodeURIComponent(vHostName);
     const encodedExchangeName = encodeURIComponent(exchangeName);

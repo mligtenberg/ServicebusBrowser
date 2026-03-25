@@ -11,6 +11,10 @@ export const appRoutes: Route[] = [
     loadChildren: () => import('@service-bus-browser/service-bus-management-flow').then(m => m.routes)
   },
   {
+    path: 'manage-rabbitmq',
+    loadChildren: () => import('@service-bus-browser/rabbitmq-management-flow').then(m => m.routes)
+  },
+  {
     path: 'messages',
     loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes({
       baseRoute: 'messages'

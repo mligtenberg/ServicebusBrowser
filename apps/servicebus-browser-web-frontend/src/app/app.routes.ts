@@ -17,6 +17,13 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: 'manage-rabbitmq',
+        loadChildren: () =>
+          import('@service-bus-browser/rabbitmq-management-flow').then(
+            (m) => m.routes,
+          ),
+      },
+      {
         path: 'messages',
         loadChildren: () =>
           import('@service-bus-browser/messages-flow').then((m) =>

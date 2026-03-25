@@ -4,6 +4,7 @@ import {
   MessagesFrontendClient,
   ApiHandler,
   ServiceBusManagementFrontendClient,
+  RabbitMqManagementFrontendClient,
 } from '@service-bus-browser/service-bus-frontend-clients';
 import { WebServiceBusApiHandler } from './web-service-bus-api-handler';
 import { HttpClient } from '@angular/common/http';
@@ -31,7 +32,11 @@ export function provideServiceBusElectronClient(): (
     {
       provide: ServiceBusManagementFrontendClient,
       useFactory: () => new ServiceBusManagementFrontendClient(serviceBusApi),
-    }
+    },
+    {
+      provide: RabbitMqManagementFrontendClient,
+      useFactory: () => new RabbitMqManagementFrontendClient(serviceBusApi),
+    },
   ];
 }
 
@@ -58,6 +63,11 @@ export function provideServiceBusWebClient(
       provide: ServiceBusManagementFrontendClient,
       useClass: ServiceBusManagementFrontendClient,
       deps: [WebServiceBusApiHandler],
-    }
+    },
+    {
+      provide: RabbitMqManagementFrontendClient,
+      useClass: RabbitMqManagementFrontendClient,
+      deps: [WebServiceBusApiHandler],
+    },
   ];
 }

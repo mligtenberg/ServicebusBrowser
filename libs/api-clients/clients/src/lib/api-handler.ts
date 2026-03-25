@@ -5,4 +5,8 @@ export interface ApiHandler {
   ): Promise<unknown>;
   managementDoRequest(requestType: string, request: unknown): Promise<unknown>;
   messagesDoRequest(requestType: string, request: unknown): Promise<unknown>;
+  rabbitmqManagementDoRequest(
+    requestType: string,
+    request: unknown,
+  ): Promise<unknown>;
 }

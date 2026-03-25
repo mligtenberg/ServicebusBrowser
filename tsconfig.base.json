@@ -103,6 +103,9 @@
       ],
       "@service-bus-browser/custom-icons": [
         "libs/shared/custom-icons/src/index.ts"
+      ],
+      "@service-bus-browser/rabbitmq-management-flow": [
+        "libs/message-brokers/rabbitmq/management-flow/src/index.ts"
       ]
     }
   },

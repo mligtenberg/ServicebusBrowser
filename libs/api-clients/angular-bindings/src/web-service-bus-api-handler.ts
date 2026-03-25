@@ -77,6 +77,29 @@ export class WebServiceBusApiHandler implements ApiHandler {
     );
   }
 
+  async rabbitmqManagementDoRequest(
+    requestType: string,
+    request: unknown,
+  ): Promise<unknown> {
+    return await firstValueFrom(
+      this.httpClient
+        .post(
+          `${this.baseUrl}rabbitmq-management/command`,
+          {
+            requestType,
+            body: request,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            responseType: 'blob',
+          },
+        )
+        .pipe(map((response) => this.decodeResponse(response))),
+    );
+  }
+
   async decodeResponse(response: Blob): Promise<any> {
     const document = BSON.deserialize(await response.bytes());
 

@@ -1,0 +1,64 @@
+<form [formGroup]="form">
+  <p-card class="name" header="Name">
+    <div class="line">
+      <p-float-label variant="on">
+        <input pInputText id="queueName" formControlName="name" />
+        <label for="queueName">Queue Name</label>
+      </p-float-label>
+    </div>
+  </p-card>
+
+  <p-card class="settings" header="Queue Settings" formGroupName="settings">
+    <div class="line">
+      <p-float-label variant="on">
+        <p-select
+          id="queueType"
+          formControlName="type"
+          [options]="queueTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+        />
+        <label for="queueType">Queue Type</label>
+      </p-float-label>
+    </div>
+
+    <div class="checkbox">
+      <p-checkbox formControlName="durable" inputId="durable" [binary]="true" />
+      <!--suppress XmlInvalidId -->
+      <label for="durable">Durable</label>
+    </div>
+
+    <div class="checkbox">
+      <p-checkbox formControlName="autoDelete" inputId="autoDelete" [binary]="true" />
+      <!--suppress XmlInvalidId -->
+      <label for="autoDelete">Auto Delete</label>
+    </div>
+  </p-card>
+
+  @if (action() === 'modify') {
+    <p-card class="information" header="Queue Information">
+      <div class="table-container">
+        <p-table
+          [columns]="informationCols"
+          [value]="currentQueueInformation()"
+          [scrollable]="true"
+          scrollHeight="100cqh"
+        >
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr style="height:30px">
+              @for (col of columns; track col) {
+                <td class="user-selectable">{{ rowData[col.field] }}</td>
+              }
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-card>
+  }
+
+  <div class="actions">
+    @if (action() === 'create') {
+      <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
+    }
+  </div>
+</form>
