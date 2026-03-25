@@ -1,11 +1,10 @@
-let clientConfig: { clientId: string, authority: string } | undefined;
+import { OpenIdConfiguration } from 'angular-auth-oidc-client';
+
+let clientConfig: OpenIdConfiguration | undefined;
 
 export async function initializeClientConfig(): Promise<void> {
   const clientConfigResponse = await fetch('/api/client-config');
-  clientConfig = await clientConfigResponse.json() as {
-    clientId: string;
-    authority: string;
-  };
+  clientConfig = await clientConfigResponse.json();
 }
 
 export function getClientConfig() {

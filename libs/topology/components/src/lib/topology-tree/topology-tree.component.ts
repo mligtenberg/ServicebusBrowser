@@ -27,6 +27,7 @@ import { Router } from '@angular/router';
 import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 import { ActionManager } from '@service-bus-browser/actions-framework';
 import { ConfirmationService } from '@service-bus-browser/shared-components';
+import { TopologyActions } from '@service-bus-browser/topology-store';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -97,6 +98,10 @@ export class TopologyTreeComponent {
 
   searchTerm = signal('');
   opened = signal<string[]>([]);
+
+  constructor() {
+    this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+  }
 
   private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
     const mapper = (node: TopologyNode): TreeNode<TopologyNode> => ({

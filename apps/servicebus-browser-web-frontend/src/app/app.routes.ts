@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { AboutComponent } from '@service-bus-browser/main-ui';
 import { AutoLoginPartialRoutesGuard } from 'angular-auth-oidc-client';
+import { OidcCallback } from './oidc-callback/oidc-callback';
 
 export const appRoutes: Route[] = [
   {
@@ -29,6 +30,10 @@ export const appRoutes: Route[] = [
         component: AboutComponent,
       },
     ],
+  },
+  {
+    path: 'oidc-callback',
+    component: OidcCallback
   },
   {
     path: 'login-failed',

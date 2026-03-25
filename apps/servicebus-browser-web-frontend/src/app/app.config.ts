@@ -25,13 +25,28 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
-import { provideAuth, authInterceptor } from 'angular-auth-oidc-client';
+import {
+  provideAuth,
+  authInterceptor,
+  StsConfigLoader, withAppInitializerAuthCheck,
+} from 'angular-auth-oidc-client';
 import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // oidc auth
+    provideAuth(
+      {
+        loader: {
+          provide: StsConfigLoader,
+          useFactory: () => new ClientConfigStsLoader(),
+        },
+      },
+      withAppInitializerAuthCheck(),
+    ),
+
     // primeng
     providePrimeNG({
       theme: {
@@ -52,7 +67,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideZonelessChangeDetection(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor()])),
     provideRouter(
       appRoutes,
       withPreloading(PreloadAllModules),
@@ -78,11 +93,6 @@ export const appConfig: ApplicationConfig = {
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),
-    }),
-
-    // oidc auth
-    provideAuth({
-      loader: ClientConfigStsLoader,
     }),
   ],
 };

@@ -49,3 +49,5 @@ Thumbs.db
 sbb-connections.json
 /extensions.json
 .claude
+
+openid-config.json

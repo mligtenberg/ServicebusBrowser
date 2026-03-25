@@ -8,7 +8,7 @@ import * as path from 'path';
 import { Server } from '@service-bus-browser/service-bus-server';
 import { ReadonlyConfigFileConnectionStorage } from './readonly-config-file-connection-store';
 import bp from 'body-parser';
-import { EXPECTED_AUDIENCE, OIDC_ISSUER, validateJWT } from './validate-tokens';
+import { getOidcConfig, validateJWT } from './validate-tokens';
 
 const serviceBusBrowserServer = new Server(new ReadonlyConfigFileConnectionStorage());
 
@@ -17,11 +17,10 @@ const app = express();
 app.use(bp.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.get('/api/client-config', (_, res) => {
-  res.status(200).json({
-    clientId: EXPECTED_AUDIENCE,
-    authority: OIDC_ISSUER,
-  })
+app.get('/api/client-config', async (_, res) => {
+  const oidcConfig = await getOidcConfig();
+
+  res.status(200).json(oidcConfig.clientConfig);
 });
 
 app.post('/api/messages/command', async (req, res) => {

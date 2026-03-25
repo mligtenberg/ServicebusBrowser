@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   loadTopologyRootNodes,
   refreshTopology,
@@ -13,16 +13,11 @@ import {
   topologyRefreshFailed,
   topologyRootNodesLoaded,
 } from './topology.internal-actions';
-import { Action } from '@ngrx/store';
 
 @Injectable({
   providedIn: 'root',
 })
-export class TopologyEffects implements OnInitEffects {
-  ngrxOnInitEffects(): Action {
-    return loadTopologyRootNodes();
-  }
-
+export class TopologyEffects {
   actions$ = inject(Actions);
   serviceBusClient = inject(ManagementFrontendClient);
 
