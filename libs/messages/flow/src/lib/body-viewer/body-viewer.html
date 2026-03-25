@@ -1,6 +1,16 @@
 <div class="editor-container">
   <div class="actions">
     <h2 class="title">{{header()}}</h2>
+    @if (isCsvTableVisible()) {
+      <p-select
+        [(ngModel)]="csvDelimiter"
+        [options]="csvDelimiterOptions"
+        optionLabel="label"
+        optionValue="value"
+        pTooltip="CSV delimiter"
+        tooltipPosition="bottom"
+      />
+    }
     <p-toggle-switch
       [(ngModel)]="showPrettyBody"
       pTooltip="Show pretty body"
@@ -28,6 +38,16 @@
 >
   <div class="editor-container">
     <div class="actions">
+      @if (isCsvTableVisible()) {
+        <p-select
+          [(ngModel)]="csvDelimiter"
+          [options]="csvDelimiterOptions"
+          optionLabel="label"
+          optionValue="value"
+          pTooltip="CSV delimiter"
+          tooltipPosition="bottom"
+        />
+      }
       <p-toggle-switch
         [(ngModel)]="showPrettyBody"
         pTooltip="Show pretty body"
