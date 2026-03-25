@@ -8,6 +8,7 @@ import { Dialog } from 'primeng/dialog';
 import { NgTemplateOutlet } from '@angular/common';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'lib-body-viewer',
@@ -20,6 +21,7 @@ import { Tooltip } from 'primeng/tooltip';
     NgTemplateOutlet,
     Button,
     Tooltip,
+    Select,
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',
@@ -32,6 +34,14 @@ export class BodyViewer {
   contentType = input.required<string>();
   showPrettyBody = model(false);
   displayBodyFullscreen = model(false);
+  csvDelimiter = model(',');
+
+  csvDelimiterOptions = [
+    { label: ',  Comma', value: ',' },
+    { label: ';  Semicolon', value: ';' },
+    { label: '|  Pipe', value: '|' },
+    { label: '→  Tab', value: '\t' },
+  ];
 
   bodyLanguage = computed(() => {
     const contentType = this.contentType().toLowerCase();
@@ -68,7 +78,7 @@ export class BodyViewer {
       return this.body();
     }
 
-    return this.prettyPrint(this.body() ?? '', this.bodyLanguage());
+    return this.prettyPrint(this.body() ?? '', this.bodyLanguage(), this.csvDelimiter());
   });
 
   isCsvTableVisible = computed(
@@ -80,7 +90,7 @@ export class BodyViewer {
       return [];
     }
 
-    const [headers = []] = this.parseCsvRows(this.body() ?? '');
+    const [headers = []] = this.parseCsvRows(this.body() ?? '', this.csvDelimiter());
     return headers;
   });
 
@@ -89,7 +99,7 @@ export class BodyViewer {
       return [] as Array<Record<string, string>>;
     }
 
-    const rows = this.parseCsvRows(this.body() ?? '');
+    const rows = this.parseCsvRows(this.body() ?? '', this.csvDelimiter());
     if (rows.length <= 1) {
       return [] as Array<Record<string, string>>;
     }
@@ -117,7 +127,7 @@ export class BodyViewer {
 
   prettyPrintAvailable = computed(() => this.bodyLanguage() !== 'text');
 
-  private prettyPrint(body: string, language: string): string {
+  private prettyPrint(body: string, language: string, csvDelimiter = ','): string {
     const normalized = body.replace(/\r\n/g, '\n').trim();
     if (!normalized) {
       return body;
@@ -141,7 +151,7 @@ export class BodyViewer {
       }
 
       if (language === 'csv') {
-        return this.prettyPrintCsv(normalized);
+        return this.prettyPrintCsv(normalized, csvDelimiter);
       }
     } catch {
       return body;
@@ -252,18 +262,18 @@ export class BodyViewer {
     return output.join('\n');
   }
 
-  private prettyPrintCsv(value: string): string {
-    const rows = this.parseCsvRows(value);
+  private prettyPrintCsv(value: string, delimiter = ','): string {
+    const rows = this.parseCsvRows(value, delimiter);
     if (rows.length === 0) {
       return value;
     }
 
     return rows
-      .map((row) => row.map((field) => this.toCsvField(field)).join(','))
+      .map((row) => row.map((field) => this.toCsvField(field, delimiter)).join(delimiter))
       .join('\n');
   }
 
-  private parseCsvRows(value: string): string[][] {
+  private parseCsvRows(value: string, delimiter = ','): string[][] {
     const rows: string[][] = [];
     let row: string[] = [];
     let field = '';
@@ -284,9 +294,10 @@ export class BodyViewer {
         continue;
       }
 
-      if (char === ',' && !inQuotes) {
+      if (value.startsWith(delimiter, i) && !inQuotes) {
         row.push(field.trim());
         field = '';
+        i += delimiter.length - 1;
         continue;
       }
 
@@ -309,9 +320,9 @@ export class BodyViewer {
     return rows.filter((currentRow) => currentRow.some((cell) => cell !== ''));
   }
 
-  private toCsvField(field: string): string {
+  private toCsvField(field: string, delimiter = ','): string {
     const escaped = field.replace(/"/g, '""');
-    if (/[,\n"]/.test(escaped)) {
+    if (escaped.includes(delimiter) || /[\n"]/.test(escaped)) {
       return `"${escaped}"`;
     }
 
