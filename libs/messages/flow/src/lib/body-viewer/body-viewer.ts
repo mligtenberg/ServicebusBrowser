@@ -37,10 +37,10 @@ export class BodyViewer {
   csvDelimiter = model(',');
 
   csvDelimiterOptions = [
-    { label: 'Comma (,)', value: ',' },
-    { label: 'Semicolon (;)', value: ';' },
-    { label: 'Tab (\\t)', value: '\t' },
-    { label: 'Pipe (|)', value: '|' },
+    { label: ',  Comma', value: ',' },
+    { label: ';  Semicolon', value: ';' },
+    { label: '|  Pipe', value: '|' },
+    { label: '→  Tab', value: '\t' },
   ];
 
   bodyLanguage = computed(() => {
