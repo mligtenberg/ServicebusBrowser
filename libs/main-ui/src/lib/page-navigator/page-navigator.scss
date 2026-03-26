@@ -103,6 +103,17 @@
       color: light-dark(hsl(0, 20%, 41%), hsl(0, 23%, 70%));
     }
   }
+
+  .page-name-input {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    min-width: 5rem;
+    padding: 0 0.35rem;
+    outline: none;
+  }
 }
 
 .cdk-drag-preview {

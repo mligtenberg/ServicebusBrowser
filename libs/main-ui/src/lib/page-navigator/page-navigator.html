@@ -9,8 +9,10 @@
     <div
       class="page"
       cdkDrag
+      [cdkDragDisabled]="page.blocked || editingPageId() === page.id"
       [cdkDragData]="page.id"
       [ngClass]="{'active': page === currentPage(), disabled: page.blocked }"
+      (dblclick)="!page.blocked && startRename(page.id, page.name)"
     >
       @if (page.blocked) {
         <span
@@ -20,10 +22,26 @@
         </button>
       }
       @else {
-        <span
-          [routerLink]="page.route"
-          tabindex="1"
-          [attr.aria-label]="page.name">{{ page.name }}</span>
+        @if (editingPageId() === page.id) {
+          <input
+            class="page-name-input"
+            [attr.data-page-rename-input]="page.id"
+            [ngModel]="editingPageName()"
+            (ngModelChange)="updateEditingPageName($event)"
+            (click)="$event.stopPropagation()"
+            (dblclick)="$event.stopPropagation()"
+            (blur)="commitRename(page.id)"
+            (keydown.enter)="commitRename(page.id)"
+            (keydown.escape)="cancelRename()"
+            tabindex="1"
+          />
+        }
+        @else {
+          <span
+            [routerLink]="page.route"
+            tabindex="1"
+            [attr.aria-label]="page.name">{{ page.name }}</span>
+        }
         <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
           <span class="pi pi-times"></span>
         </button>
