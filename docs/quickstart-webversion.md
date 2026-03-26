@@ -13,8 +13,12 @@ To do this:
 - In the "Properties" section, set "User assignment required?" to "Yes"
 
 ## Configure the app
-create a file called `sbb-connections.json`, this file contains a array with the connections provided in the web ui
-the different connections types are:
+Create a file called `sbb-connections.json`. This file contains an array with the connections provided in the web UI.
+Create a second file called `openid-config.json` and pass the Angular OIDC client configuration directly to the
+[`angular-auth-oidc-client`](https://angular-auth-oidc-client.com/docs/documentation/configuration) library.
+No auth environment variables are required for the container anymore.
+
+The different connection types are:
 
 connection string:
 
@@ -78,12 +82,29 @@ User assigned managed identity:
 ]
 ```
 
+RabbitMQ connection:
+```json
+[
+  {
+    "id": "<GUID>",
+    "type": "connectionString",
+    "name": "<NAME>",
+    "host": "<HOST>",
+    "managementPort": 15672,
+    "amqpPort": 5672,
+    "vhost": "/",
+    "userName": "<USERNAME>",
+    "password": "<PASSWORD>",
+    "target": "rabbitmq"
+  }
+]
+```
+
 ## run the application
-To run the web version run the following docker command:
+To run the web version, mount both configuration files into the container:
 ```bash
 docker run -p 8080:80\
-  -e "EXPECTED_AUDIENCE=<clientId>"\
-  -e "OIDC_ISSUER=<AUTHORITY>"\
+  --mount type=bind,src=./openid-config.json,dst=/app/openid-config.json\
   --mount type=bind,src=./sbb-connections.json,dst=/app/sbb-connections.json\
   ghcr.io/mligtenberg/servicebusbrowser:main
 ```
