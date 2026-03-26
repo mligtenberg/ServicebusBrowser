@@ -14,13 +14,36 @@ To do this:
 
 ## Configure the app
 Create a file called `sbb-connections.json`. This file contains an array with the connections provided in the web UI.
-Create a second file called `openid-config.json` and pass the Angular OIDC client configuration directly to the
-[`angular-auth-oidc-client`](https://angular-auth-oidc-client.com/docs/documentation/configuration) library.
-No auth environment variables are required for the container anymore.
+Create a second file called `openid-config.json`. This file is directly passed to the [`angular-auth-oidc-client`](https://angular-auth-oidc-client.com/) library.
+Reference their [documentation](https://angular-auth-oidc-client.com/docs/documentation/configuration) for information on how to configure the file.
+
+Use the following template if you want to use Microsoft Entra:
+```json
+{
+  "authority":
+  "https://login.microsoftonline.com/{tenantId}/v2.0",
+  "clientId": "{clientId}",
+  "scope": "openid profile api://{clientId}/access",
+  "responseType": "code",
+  "silentRenew": true,
+  "maxIdTokenIatOffsetAllowedInSeconds": 600,
+  "issValidationOff": true,
+  "autoUserInfo": false,
+  "strictIssuerValidationOnWellKnownRetrievalOff": true,
+  "useRefreshToken": true,
+  "customParamsAuthRequest": {
+    "prompt": "select_account"
+  }
+}
+
+```
+For this to work, make sure you configured the access permissions in the app registration.
+And make sure the `requestedAccessTokenVersion` in the app registration manifest is set to `2`.
+
 
 The different connection types are:
 
-connection string:
+Service Bus - connection string:
 
 ```json
 [
@@ -36,7 +59,7 @@ connection string:
 > [!IMPORTANT]
 > While possible, using connection strings in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
 
-Service principal client secret:
+Service Bus - Service principal client secret:
 ```json
 [
   {
@@ -55,7 +78,7 @@ Service principal client secret:
 > [!IMPORTANT]
 > While possible, using service principal secrets in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
 
-System assigned managed identity:
+Service Bus - System assigned managed identity:
 ```json
 [
   {
@@ -68,7 +91,7 @@ System assigned managed identity:
 ]
 ```
 
-User assigned managed identity:
+Service Bus - User assigned managed identity:
 ```json
 [
   {
@@ -82,7 +105,7 @@ User assigned managed identity:
 ]
 ```
 
-RabbitMQ connection:
+Service Bus - RabbitMQ connection:
 ```json
 [
   {
