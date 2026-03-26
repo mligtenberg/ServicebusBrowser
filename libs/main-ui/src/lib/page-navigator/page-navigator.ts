@@ -17,12 +17,14 @@ import { Actions, ofType } from '@ngrx/effects';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { delay } from 'rxjs';
 import { contentResize } from '@service-bus-browser/actions';
+import { messagePagesActions } from '@service-bus-browser/messages-store';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
-  imports: [NgClass, RouterLink, CdkDropList, CdkDrag],
+  imports: [NgClass, RouterLink, CdkDropList, CdkDrag, FormsModule],
 })
 export class PageNavigator {
   store = inject(Store);
@@ -31,6 +33,8 @@ export class PageNavigator {
   navigator = viewChild<ElementRef<HTMLDivElement>>('pageNavigator');
   scrollAtStart = signal(false);
   scrollAtEnd = signal(false);
+  editingPageId = signal<UUID | undefined>(undefined);
+  editingPageName = signal('');
 
   pages = this.store.selectSignal(selectPages);
   pages$ = toObservable(this.pages);
@@ -72,6 +76,46 @@ export class PageNavigator {
         newPosition: $event.currentIndex,
       }),
     );
+  }
+
+  protected startRename(pageId: UUID, pageName: string) {
+    this.editingPageId.set(pageId);
+    this.editingPageName.set(pageName);
+
+    queueMicrotask(() => {
+      const input = this.navigator()
+        ?.nativeElement.querySelector<HTMLInputElement>(
+          `[data-page-rename-input="${pageId}"]`,
+        );
+      input?.focus();
+      input?.select();
+    });
+  }
+
+  protected updateEditingPageName(pageName: string) {
+    this.editingPageName.set(pageName);
+  }
+
+  protected commitRename(pageId: UUID) {
+    const pageName = this.editingPageName().trim();
+    const page = this.pages().find((item) => item.id === pageId);
+    this.cancelRename();
+
+    if (!page || pageName.length === 0 || page.name === pageName) {
+      return;
+    }
+
+    this.store.dispatch(
+      messagePagesActions.renamePage({
+        pageId,
+        pageName,
+      }),
+    );
+  }
+
+  protected cancelRename() {
+    this.editingPageId.set(undefined);
+    this.editingPageName.set('');
   }
 
   protected scrollToStart(element: HTMLDivElement) {
