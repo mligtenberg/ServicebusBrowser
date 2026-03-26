@@ -110,6 +110,15 @@ export class MessagesEffects {
     { dispatch: false },
   )
 
+  importMessages$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(messagesActions.startImportMessages),
+        switchMap(() => this.exportMessagesUtil.importMessages())
+      ),
+    { dispatch: false },
+  )
+
   reloadOnMessagedReceived$ = createEffect(() =>
     this.actions$.pipe(
       ofType(messagePagesEffectActions.pageLoaded),

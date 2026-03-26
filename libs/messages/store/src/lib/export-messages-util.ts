@@ -100,14 +100,13 @@ export class ExportMessagesUtil {
 
     await zip.close();
 
+    this.store.dispatch(TasksActions.completeTask({ id: taskId }));
     if (isUfs) {
       return;
     }
 
     const file = await handle.getFile();
     await this.fileService.storeViaSyntaticFile(`${page.name}.zip`, file);
-
-    this.store.dispatch(TasksActions.completeTask({ id: taskId }));
   }
 
   private uint8ArrayToStream(uint8: Uint8Array) {
