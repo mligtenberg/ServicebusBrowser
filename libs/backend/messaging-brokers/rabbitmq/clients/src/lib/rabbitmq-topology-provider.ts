@@ -50,7 +50,6 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
     },
     modes: {
       peek: {},
-      receive: {},
     },
   };
 
