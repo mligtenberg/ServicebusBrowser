@@ -22,7 +22,7 @@ import { TableModule } from 'primeng/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
-import { Logger } from '@service-bus-browser/logs-services';
+import { SaveFeedbackService } from '../save-feedback.service';
 
 @Component({
   selector: 'lib-subscription-management',
@@ -49,7 +49,7 @@ export class SubscriptionManagementComponent {
   activeRoute = inject(ActivatedRoute);
   refreshUtil = inject(RefreshUtil);
   managementClient = inject(ServiceBusManagementFrontendClient);
-  logger = inject(Logger);
+  saveFeedback = inject(SaveFeedbackService);
 
   form = this.createForm();
   action = signal<'create' | 'modify'>('create');
@@ -187,30 +187,42 @@ export class SubscriptionManagementComponent {
 
     // save queue
     if (this.action() === 'create') {
-      await this.managementClient.createSubscription(
-        this.activeRoute.snapshot.params['connectionId'],
-        this.activeRoute.snapshot.params['topicId'],
-        subscription,
-      );
-      this.refreshUtil.refreshSubscriptions(
-        this.activeRoute.snapshot.params['connectionId'] as UUID,
-        this.activeRoute.snapshot.params['topicId'] as string,
-      );
-      this.logger.info(`Subscription ${subscription.name} created successfully`);
+      await this.saveFeedback.run({
+        entityType: 'Subscription',
+        entityName: subscription.name,
+        mode: 'create',
+        save: async () => {
+          await this.managementClient.createSubscription(
+            this.activeRoute.snapshot.params['connectionId'],
+            this.activeRoute.snapshot.params['topicId'],
+            subscription,
+          );
+          this.refreshUtil.refreshSubscriptions(
+            this.activeRoute.snapshot.params['connectionId'] as UUID,
+            this.activeRoute.snapshot.params['topicId'] as string,
+          );
+        },
+      });
       return;
     }
 
     // update queue
-    await this.managementClient.editSubscription(
-      this.activeRoute.snapshot.params['connectionId'],
-      this.activeRoute.snapshot.params['topicId'],
-      subscription,
-    );
-    this.refreshUtil.refreshSubscriptions(
-      this.activeRoute.snapshot.params['connectionId'] as UUID,
-      this.activeRoute.snapshot.params['topicId'] as string,
-    );
-    this.logger.info(`Subscription ${subscription.name} updated successfully`);
+    await this.saveFeedback.run({
+      entityType: 'Subscription',
+      entityName: subscription.name,
+      mode: 'update',
+      save: async () => {
+        await this.managementClient.editSubscription(
+          this.activeRoute.snapshot.params['connectionId'],
+          this.activeRoute.snapshot.params['topicId'],
+          subscription,
+        );
+        this.refreshUtil.refreshSubscriptions(
+          this.activeRoute.snapshot.params['connectionId'] as UUID,
+          this.activeRoute.snapshot.params['topicId'] as string,
+        );
+      },
+    });
   }
 
   private createForm() {
