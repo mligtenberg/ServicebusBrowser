@@ -19,7 +19,7 @@ import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
-import { Logger } from '@service-bus-browser/logs-services';
+import { SaveFeedbackService } from '../save-feedback.service';
 
 @Component({
   selector: 'lib-topic-management',
@@ -45,7 +45,7 @@ export class TopicManagementComponent {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
-  logger = inject(Logger);
+  saveFeedback = inject(SaveFeedbackService);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -206,26 +206,38 @@ export class TopicManagementComponent {
 
     // save queue
     if (this.action() === 'create') {
-      await this.managementClient.createTopic(
-        this.activeRoute.snapshot.params['connectionId'],
-        topic,
-      );
-      this.refreshUtil.refreshTopics(
-        this.activeRoute.snapshot.params['connectionId'] as UUID,
-      );
-      this.logger.info(`Topic ${topic.name} created successfully`);
+      await this.saveFeedback.run({
+        entityType: 'Topic',
+        entityName: topic.name,
+        mode: 'create',
+        save: async () => {
+          await this.managementClient.createTopic(
+            this.activeRoute.snapshot.params['connectionId'],
+            topic,
+          );
+          this.refreshUtil.refreshTopics(
+            this.activeRoute.snapshot.params['connectionId'] as UUID,
+          );
+        },
+      });
       return;
     }
 
     // update queue
-    await this.managementClient.editTopic(
-      this.activeRoute.snapshot.params['connectionId'],
-      topic,
-    );
-    this.refreshUtil.refreshTopics(
-      this.activeRoute.snapshot.params['connectionId'] as UUID,
-    );
-    this.logger.info(`Topic ${topic.name} updated successfully`);
+    await this.saveFeedback.run({
+      entityType: 'Topic',
+      entityName: topic.name,
+      mode: 'update',
+      save: async () => {
+        await this.managementClient.editTopic(
+          this.activeRoute.snapshot.params['connectionId'],
+          topic,
+        );
+        this.refreshUtil.refreshTopics(
+          this.activeRoute.snapshot.params['connectionId'] as UUID,
+        );
+      },
+    });
   }
 
   isDate(value: unknown): boolean {
