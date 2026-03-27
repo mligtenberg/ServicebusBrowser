@@ -17,6 +17,12 @@ import {
   ServiceBusMessagesSender,
   ServiceBusTopologyProvider,
 } from '@service-bus-browser/service-bus-backend-clients';
+import {
+  EventHubConnectionValidator,
+  EventHubMessagesReader,
+  EventHubMessagesSender,
+  EventHubTopologyProvider,
+} from '@service-bus-browser/event-hub';
 
 export class ConnectionClient {
   topologyProvider: TopologyProvider | undefined;
@@ -53,6 +59,10 @@ export class ConnectionClient {
       return new RabbitMqTopologyProvider(this.connection);
     }
 
+    if (this.connection.target === 'eventHub') {
+      return new EventHubTopologyProvider(this.connection);
+    }
+
     return undefined;
   }
 
@@ -63,6 +73,10 @@ export class ConnectionClient {
 
     if (this.connection.target === 'rabbitmq') {
       return new RabbitMqMessagesReader(this.connection);
+    }
+
+    if (this.connection.target === 'eventHub') {
+      return new EventHubMessagesReader(this.connection);
     }
 
     return undefined;
@@ -77,6 +91,10 @@ export class ConnectionClient {
       return new RabbitMqMessagesSender(this.connection);
     }
 
+    if (this.connection.target === 'eventHub') {
+      return new EventHubMessagesSender(this.connection);
+    }
+
     return undefined;
   }
 
@@ -87,6 +105,10 @@ export class ConnectionClient {
 
     if (this.connection.target === 'rabbitmq') {
       return new RabbitMqConnectionValidator(this.connection);
+    }
+
+    if (this.connection.target === 'eventHub') {
+      return new EventHubConnectionValidator(this.connection);
     }
 
     return undefined;
