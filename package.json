@@ -84,7 +84,7 @@
     "@types/node": "~22.13.17",
     "@typescript-eslint/utils": "8.46.3",
     "angular-eslint": "21.3.1",
-    "electron": "^40.6.1",
+    "electron": "^40.8.5",
     "electron-builder": "^26.8.1",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "10.1.5",
