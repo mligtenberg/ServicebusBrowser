@@ -7,6 +7,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Frontend-Backend Communication](./frontend-backend-communication.md): Details on how the Angular UI communicates with backends via the `ApiHandler` abstraction.
 - [Electron vs Browser Variants](./electron-vs-browser.md): Comparison between the desktop and web deployment targets.
 - [Desktop Build Process](./desktop-build-process.md): Instructions for building and packaging the Electron application.
+- [Web App Build Process](./web-app-build-process.md): Instructions for building, containerizing, and deploying the web application.
 
 ## Project Structure
 
