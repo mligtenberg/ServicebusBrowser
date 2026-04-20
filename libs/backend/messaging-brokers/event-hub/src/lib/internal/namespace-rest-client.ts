@@ -12,15 +12,21 @@ export interface ConsumerGroupInfo {
   name: string;
 }
 
-function isSasCredential(credential: EventHubCredential['credential']): credential is NamedKeyCredential {
+function isSasCredential(
+  credential: EventHubCredential['credential'],
+): credential is NamedKeyCredential {
   return 'name' in credential && 'key' in credential;
 }
 
-function generateSasToken(resourceUri: string, keyName: string, key: string): string {
-  const encoded = encodeURIComponent(resourceUri);
+function generateSasToken(
+  resourceUri: string,
+  keyName: string,
+  key: string,
+): string {
+  const encoded = encodeURIComponent(resourceUri.toLowerCase());
   const expiry = Math.floor(Date.now() / 1000) + 3600;
   const stringToSign = `${encoded}\n${expiry}`;
-  const hmac = crypto.createHmac('sha256', Buffer.from(key, 'base64'));
+  const hmac = crypto.createHmac('sha256', key);
   hmac.update(stringToSign);
   const signature = encodeURIComponent(hmac.digest('base64'));
   return `SharedAccessSignature sr=${encoded}&sig=${signature}&se=${expiry}&skn=${keyName}`;
@@ -36,8 +42,9 @@ async function getAuthHeader(
     return generateSasToken(resourceUri, sharedAccessKeyName, sharedAccessKey);
   }
 
-  const token = await (credential as { getToken(scope: string): Promise<{ token: string } | null> })
-    .getToken('https://servicebus.azure.net/.default');
+  const token = await (
+    credential as { getToken(scope: string): Promise<{ token: string } | null> }
+  ).getToken('https://servicebus.azure.net/.default');
 
   if (!token) {
     throw new Error('Failed to acquire access token');
@@ -62,7 +69,9 @@ function parseAtomTitles(xml: string): string[] {
 
 function parsePartitionIds(xml: string): string[] {
   const ids: string[] = [];
-  const sectionMatch = /<PartitionIds[^>]*>([\s\S]*?)<\/PartitionIds>/i.exec(xml);
+  const sectionMatch = /<PartitionIds[^>]*>([\s\S]*?)<\/PartitionIds>/i.exec(
+    xml,
+  );
   if (!sectionMatch) return ids;
   const stringRegex = /<[^:>]*:string>([^<]+)<\/[^:>]*:string>/gi;
   let match: RegExpExecArray | null;
@@ -74,7 +83,7 @@ function parsePartitionIds(xml: string): string[] {
 
 function parseEventHubs(xml: string): EventHubInfo[] {
   const hubs: EventHubInfo[] = [];
-  const entryRegex = /<entry>([\s\S]*?)<\/entry>/gi;
+  const entryRegex = /<entry.*>([\s\S]*?)<\/entry>/gi;
   let entryMatch: RegExpExecArray | null;
   while ((entryMatch = entryRegex.exec(xml)) !== null) {
     const entry = entryMatch[1];
@@ -83,7 +92,9 @@ function parseEventHubs(xml: string): EventHubInfo[] {
     const name = titleMatch[1].trim();
     const partitionIds = parsePartitionIds(entry);
     const countMatch = /<PartitionCount>(\d+)<\/PartitionCount>/i.exec(entry);
-    const partitionCount = countMatch ? parseInt(countMatch[1], 10) : partitionIds.length;
+    const partitionCount = countMatch
+      ? parseInt(countMatch[1], 10)
+      : partitionIds.length;
     hubs.push({ name, partitionIds, partitionCount });
   }
   return hubs;
@@ -103,9 +114,11 @@ function parseConsumerGroups(xml: string): ConsumerGroupInfo[] {
   return groups;
 }
 
-export async function listEventHubs(ehCredential: EventHubCredential): Promise<EventHubInfo[]> {
+export async function listEventHubs(
+  ehCredential: EventHubCredential,
+): Promise<EventHubInfo[]> {
   const resourceUri = `https://${ehCredential.hostName}`;
-  const url = `${resourceUri}/$Resources/EventHubs?$top=100`;
+  const url = `${resourceUri}/$Resources/EventHubs?api-version=2017-04&$top=100`;
   const authHeader = await getAuthHeader(ehCredential, resourceUri);
 
   const response = await fetch(url, {
@@ -116,7 +129,9 @@ export async function listEventHubs(ehCredential: EventHubCredential): Promise<E
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to list event hubs: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to list event hubs: ${response.status} ${response.statusText}`,
+    );
   }
 
   const xml = await response.text();
@@ -128,7 +143,7 @@ export async function listConsumerGroups(
   eventHubName: string,
 ): Promise<ConsumerGroupInfo[]> {
   const resourceUri = `https://${ehCredential.hostName}`;
-  const url = `${resourceUri}/${eventHubName}/ConsumerGroups?$top=100`;
+  const url = `${resourceUri}/${eventHubName}/ConsumerGroups?api-version=2017-04&$top=100`;
   const authHeader = await getAuthHeader(ehCredential, resourceUri);
 
   const response = await fetch(url, {
@@ -139,7 +154,9 @@ export async function listConsumerGroups(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to list consumer groups: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to list consumer groups: ${response.status} ${response.statusText}`,
+    );
   }
 
   const xml = await response.text();
@@ -151,7 +168,7 @@ export async function getEventHubInfo(
   eventHubName: string,
 ): Promise<EventHubInfo> {
   const resourceUri = `https://${ehCredential.hostName}`;
-  const url = `${resourceUri}/${eventHubName}`;
+  const url = `${resourceUri}/${eventHubName}?api-version=2017-04`;
   const authHeader = await getAuthHeader(ehCredential, resourceUri);
 
   const response = await fetch(url, {
@@ -162,7 +179,9 @@ export async function getEventHubInfo(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to get event hub info: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to get event hub info: ${response.status} ${response.statusText}`,
+    );
   }
 
   const xml = await response.text();

@@ -24,7 +24,7 @@ export class EventHubConnectionValidator implements ConnectionValidator {
       }
 
       return true;
-    } catch {
+    } catch (e) {
       return false;
     }
   }
