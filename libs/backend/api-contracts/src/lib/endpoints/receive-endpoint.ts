@@ -36,7 +36,16 @@ export interface RabbitMqQueueReceiveEndpoint extends ReceiveEndpointBase {
   queueType: 'classic' | 'quorum' | 'stream';
 }
 
+export interface EventHubConsumerGroupReceiveEndpoint extends ReceiveEndpointBase {
+  connectionId: UUID;
+  eventHubName: string;
+  consumerGroup: string;
+  target: 'eventHub';
+  type: 'consumerGroup';
+}
+
 export type ReceiveEndpoint =
   | ServiceBusQueueReceiveEndpoint
   | ServiceBusSubscriptionReceiveEndpoint
-  | RabbitMqQueueReceiveEndpoint;
+  | RabbitMqQueueReceiveEndpoint
+  | EventHubConsumerGroupReceiveEndpoint;

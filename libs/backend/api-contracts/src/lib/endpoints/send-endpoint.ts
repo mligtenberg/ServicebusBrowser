@@ -47,8 +47,18 @@ export interface RabbitMqExchangeSendEndpoint extends SendEndpointBase {
   type: 'exchange';
 }
 
+export interface EventHubSendEndpoint extends SendEndpointBase {
+  connectionId: UUID;
+  eventHubName: string;
+  endpoint: string;
+  endpointDisplay: string;
+  target: 'eventHub';
+  type: 'eventHub';
+}
+
 export type SendEndpoint =
   | ServiceBusQueueSendEndpoint
   | ServiceBusTopicSendEndpoint
   | RabbitMqQueueSendEndpoint
-  | RabbitMqExchangeSendEndpoint;
+  | RabbitMqExchangeSendEndpoint
+  | EventHubSendEndpoint;

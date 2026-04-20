@@ -16,6 +16,7 @@ import {
 import { Select } from 'primeng/select';
 import { ServiceBusConnectionTargetComponent } from './connection-targets/service-bus/service-bus-connection-target.component';
 import { RabbitmqConnectionTargetComponent } from './connection-targets/rabbitmq/rabbitmq-connection-target.component';
+import { EventHubConnectionTargetComponent } from './connection-targets/event-hub/event-hub-connection-target.component';
 
 @Component({
   selector: 'lib-add-connection',
@@ -28,6 +29,7 @@ import { RabbitmqConnectionTargetComponent } from './connection-targets/rabbitmq
     Select,
     ServiceBusConnectionTargetComponent,
     RabbitmqConnectionTargetComponent,
+    EventHubConnectionTargetComponent,
   ],
   templateUrl: './add-connection.component.html',
   styleUrl: './add-connection.component.scss',
@@ -48,6 +50,7 @@ export class AddConnectionComponent {
   connectionTargets: Array<{ label: string; value: MessageQueueTargetType }> = [
     { label: 'Service Bus', value: 'serviceBus' },
     { label: 'RabbitMQ', value: 'rabbitmq' },
+    { label: 'Event Hub', value: 'eventHub' },
   ];
   connection = model<Connection | undefined>();
 

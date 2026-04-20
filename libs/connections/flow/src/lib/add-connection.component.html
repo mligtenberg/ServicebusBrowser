@@ -40,6 +40,13 @@
       />
     }
 
+    @if (connectionTarget() === 'eventHub') {
+      <lib-event-hub-connection-target
+        [(connectionName)]="connectionName"
+        [(connection)]="connection"
+      />
+    }
+
     @if ((connectionTestStatus$ | async) !== 'none') {
       <section class="test-status">
         <div
