@@ -14,9 +14,12 @@ import {
   Subscription,
 } from '@azure/event-hubs';
 import { getCredential } from './internal/credential-helper';
+import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 
 type ContinuationTokenBody = {
   partitionOffsets: Record<string, string>;
+  exhaustedPartitions: string[];
+  partitionZeroCount: Record<string, number>;
   alreadyLoadedAmountOfMessages: number;
 };
 
@@ -36,7 +39,12 @@ export class EventHubMessagesReader implements MessagesReader {
     const fromSequenceNumber = options['fromSequenceNumber'] as string | undefined;
     const tokenBody = continuationToken
       ? this.decodeContinuationToken<ContinuationTokenBody>(continuationToken)
-      : ({ partitionOffsets: {}, alreadyLoadedAmountOfMessages: 0 } as ContinuationTokenBody);
+      : ({ partitionOffsets: {}, exhaustedPartitions: [], partitionZeroCount: {}, alreadyLoadedAmountOfMessages: 0 } as ContinuationTokenBody);
+
+    const remainingMessages = maxMessages - tokenBody.alreadyLoadedAmountOfMessages;
+    if (remainingMessages <= 0) {
+      return { messages: [] };
+    }
 
     const auth = getCredential(this.connection);
     const client = new EventHubConsumerClient(
@@ -48,11 +56,23 @@ export class EventHubMessagesReader implements MessagesReader {
 
     try {
       const partitionIds = await client.getPartitionIds();
-      const perPartitionMax = Math.max(1, Math.ceil(maxMessages / partitionIds.length));
+      const activePartitionIds = partitionIds.filter(
+        (id) => !tokenBody.exhaustedPartitions.includes(id),
+      );
+      const perPartitionMax = Math.max(
+        1,
+        Math.ceil(remainingMessages / Math.max(1, activePartitionIds.length)),
+      );
 
       const allMessages: ReceivedMessage[] = [];
 
-      for (const partitionId of partitionIds) {
+      for (const partitionId of activePartitionIds) {
+        const remainingForCurrentRead = remainingMessages - allMessages.length;
+        if (remainingForCurrentRead <= 0) {
+          break;
+        }
+
+        const requestedCount = Math.min(perPartitionMax, remainingForCurrentRead);
         const startingPosition = this.resolveStartingPosition(
           partitionId,
           tokenBody,
@@ -62,7 +82,7 @@ export class EventHubMessagesReader implements MessagesReader {
         const events = await this.readFromPartition(
           client,
           partitionId,
-          perPartitionMax,
+          requestedCount,
           startingPosition,
         );
 
@@ -70,12 +90,30 @@ export class EventHubMessagesReader implements MessagesReader {
           allMessages.push(this.mapReceivedEvent(event, partitionId));
           tokenBody.partitionOffsets[partitionId] = event.offset;
         }
+
+        if (events.length === 0) {
+          const zeroCount = (tokenBody.partitionZeroCount[partitionId] ?? 0) + 1;
+          tokenBody.partitionZeroCount[partitionId] = zeroCount;
+          if (zeroCount >= 3) {
+            tokenBody.exhaustedPartitions.push(partitionId);
+          }
+        } else {
+          tokenBody.partitionZeroCount[partitionId] = 0;
+        }
       }
 
       tokenBody.alreadyLoadedAmountOfMessages += allMessages.length;
 
-      const newContinuationToken =
-        allMessages.length > 0 ? this.makeContinuationToken(tokenBody) : undefined;
+      const allPartitionsExhausted = partitionIds.every((id) =>
+        tokenBody.exhaustedPartitions.includes(id),
+      );
+      const shouldReturnContinuationToken =
+        allMessages.length > 0 &&
+        tokenBody.alreadyLoadedAmountOfMessages < maxMessages &&
+        !allPartitionsExhausted;
+      const newContinuationToken = shouldReturnContinuationToken
+        ? this.makeContinuationToken(tokenBody)
+        : undefined;
 
       return {
         messages: allMessages,
@@ -116,7 +154,6 @@ export class EventHubMessagesReader implements MessagesReader {
   ): Promise<ReceivedEventData[]> {
     return new Promise<ReceivedEventData[]>((resolve, reject) => {
       const collected: ReceivedEventData[] = [];
-      let subscription: Subscription | undefined;
       let settled = false;
 
       const settle = (result: ReceivedEventData[] | Error) => {
@@ -129,7 +166,7 @@ export class EventHubMessagesReader implements MessagesReader {
         }
       };
 
-      subscription = client.subscribe(
+      const subscription: Subscription = client.subscribe(
         partitionId,
         {
           processEvents: async (events) => {
@@ -152,25 +189,7 @@ export class EventHubMessagesReader implements MessagesReader {
   }
 
   private mapReceivedEvent(event: ReceivedEventData, partitionId: string): ReceivedMessage {
-    const applicationProperties: Record<string, PropertyValue> = {};
-    if (event.properties) {
-      for (const [key, value] of Object.entries(event.properties)) {
-        if (value !== undefined && value !== null) {
-          applicationProperties[key] = value as PropertyValue;
-        }
-      }
-    }
-
-    const deliveryAnnotations: Record<string, PropertyValue> = {
-      'x-opt-partition-id': partitionId,
-      'x-opt-sequence-number': event.sequenceNumber,
-      'x-opt-offset': event.offset,
-      'x-opt-enqueued-time': event.enqueuedTimeUtc.toISOString(),
-    };
-
-    if (event.partitionKey) {
-      deliveryAnnotations['x-opt-partition-key'] = event.partitionKey;
-    }
+    const raw = event.getRawAmqpMessage();
 
     let body: Uint8Array;
     if (event.body instanceof Uint8Array) {
@@ -181,32 +200,92 @@ export class EventHubMessagesReader implements MessagesReader {
       body = Buffer.from(String(event.body ?? ''));
     }
 
-    const messageId =
-      event.messageId instanceof Buffer
-        ? event.messageId.toString()
-        : event.messageId?.toString();
-
-    const correlationId =
-      event.correlationId instanceof Buffer
-        ? event.correlationId.toString()
-        : event.correlationId?.toString();
-
     return {
-      key: `${partitionId}-${event.sequenceNumber}`,
-      messageId,
+      key: `${partitionId}-${sequenceNumberToKey(event.sequenceNumber.toString())}`,
+      messageId: event.messageId instanceof Buffer ? event.messageId.toString() : event.messageId?.toString(),
       body,
       contentType: event.contentType,
       sequence: String(event.sequenceNumber),
-      headers: undefined,
-      deliveryAnnotations,
-      messageAnnotations: undefined,
-      properties: {
-        'correlation-id': correlationId,
-        'content-type': event.contentType,
-      },
-      applicationProperties:
-        Object.keys(applicationProperties).length > 0 ? applicationProperties : undefined,
+      headers: this.mapAmqpHeader(raw),
+      deliveryAnnotations: this.mapDeliveryAnnotations(raw, partitionId),
+      messageAnnotations: this.mapMessageAnnotations(raw),
+      properties: this.mapAmqpProperties(raw),
+      applicationProperties: this.mapApplicationProperties(raw),
     };
+  }
+
+  private mapAmqpHeader(raw: ReturnType<ReceivedEventData['getRawAmqpMessage']>) {
+    const header = raw.header;
+    if (!header) return undefined;
+
+    const result: Record<string, PropertyValue> = {};
+    const set = (key: string, value: unknown) => {
+      if (value !== undefined && value !== null) result[key] = value as PropertyValue;
+    };
+
+    set('durable', header.durable);
+    set('priority', header.priority);
+    set('ttl', header.timeToLive);
+    set('first-acquirer', header.firstAcquirer);
+    set('delivery-count', header.deliveryCount);
+
+    return Object.keys(result).length > 0 ? result : undefined;
+  }
+
+  private mapAmqpProperties(raw: ReturnType<ReceivedEventData['getRawAmqpMessage']>) {
+    const props = raw.properties;
+    if (!props) return undefined;
+
+    const result: Record<string, PropertyValue> = {};
+    const set = (key: string, value: unknown) => {
+      if (value === undefined || value === null) return;
+      result[key] = (value instanceof Buffer ? value.toString() : value) as PropertyValue;
+    };
+
+    set('message-id', props.messageId);
+    set('to', props.to);
+    set('subject', props.subject);
+    set('reply-to', props.replyTo);
+    set('correlation-id', props.correlationId);
+    set('content-type', props.contentType);
+    set('content-encoding', props.contentEncoding);
+    set('absolute-expiry-time', props.absoluteExpiryTime);
+    set('creation-time', props.creationTime);
+    set('group-id', props.groupId);
+    set('group-sequence', props.groupSequence);
+    set('reply-to-group-id', props.replyToGroupId);
+
+    return Object.keys(result).length > 0 ? result : undefined;
+  }
+
+  private mapDeliveryAnnotations(
+    raw: ReturnType<ReceivedEventData['getRawAmqpMessage']>,
+    partitionId: string,
+  ) {
+    const annotations: Record<string, PropertyValue> = {
+      ...(raw.deliveryAnnotations as Record<string, PropertyValue> | undefined),
+      'x-opt-partition-id': partitionId,
+    };
+    return annotations;
+  }
+
+  private mapMessageAnnotations(raw: ReturnType<ReceivedEventData['getRawAmqpMessage']>) {
+    const annotations = raw.messageAnnotations as Record<string, PropertyValue> | undefined;
+    if (!annotations || Object.keys(annotations).length === 0) return undefined;
+    return annotations;
+  }
+
+  private mapApplicationProperties(raw: ReturnType<ReceivedEventData['getRawAmqpMessage']>) {
+    const props = raw.applicationProperties;
+    if (!props) return undefined;
+
+    const result: Record<string, PropertyValue> = {};
+    for (const [key, value] of Object.entries(props)) {
+      if (value !== undefined && value !== null) {
+        result[key] = value as PropertyValue;
+      }
+    }
+    return Object.keys(result).length > 0 ? result : undefined;
   }
 
   private makeContinuationToken<T>(tokenBody: T): string {

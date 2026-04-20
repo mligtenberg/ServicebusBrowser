@@ -187,7 +187,7 @@ export class EventHubTopologyProvider implements TopologyProvider {
       icon: faFolder,
       path: `/${this.connection.id}/event-hubs/${eventHubName}/${consumerGroupName}`,
       name: consumerGroupName,
-      refreshable: true,
+      refreshable: false,
       selectable: true,
       type: 'consumerGroup',
       receiveEndpoints: [

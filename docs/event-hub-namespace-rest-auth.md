@@ -21,3 +21,9 @@ Namespace management calls include `api-version=2017-04` query parameter:
 ## Implementation reference
 
 - `libs/backend/messaging-brokers/event-hub/src/lib/internal/namespace-rest-client.ts`
+
+## XML response parsing
+
+- Event Hub namespace management responses are Atom XML and are parsed with `fast-xml-parser` (not regex extraction).
+- Parser configuration removes namespace prefixes (`removeNSPrefix: true`) so fields can be read as plain keys like `feed.entry`, `content.properties.PartitionIds`, and `PartitionCount`.
+- Event hub and consumer group names are resolved from entry `title`; partition IDs are read from `PartitionIds.string`.

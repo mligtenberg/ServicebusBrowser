@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import { EventHubCredential } from './credential-helper';
 import { NamedKeyCredential } from '@azure/core-auth';
+import { XMLParser } from 'fast-xml-parser';
 
 export interface EventHubInfo {
   name: string;
@@ -53,65 +54,95 @@ async function getAuthHeader(
   return `Bearer ${token.token}`;
 }
 
-function parseAtomTitles(xml: string): string[] {
-  const titles: string[] = [];
-  const titleRegex = /<title[^>]*type="text"[^>]*>([^<]+)<\/title>/gi;
-  let match: RegExpExecArray | null;
-  while ((match = titleRegex.exec(xml)) !== null) {
-    const title = match[1].trim();
-    // Skip the feed-level title (first one is usually "Event Hubs" or similar)
-    if (title && !title.startsWith('Event Hub')) {
-      titles.push(title);
-    }
+const xmlParser = new XMLParser({
+  removeNSPrefix: true,
+  ignoreAttributes: false,
+  trimValues: true,
+  parseTagValue: false,
+});
+
+function toArray<T>(value: T | T[] | undefined): T[] {
+  if (value === undefined) {
+    return [];
   }
-  return titles;
+  return Array.isArray(value) ? value : [value];
 }
 
-function parsePartitionIds(xml: string): string[] {
-  const ids: string[] = [];
-  const sectionMatch = /<PartitionIds[^>]*>([\s\S]*?)<\/PartitionIds>/i.exec(
-    xml,
-  );
-  if (!sectionMatch) return ids;
-  const stringRegex = /<[^:>]*:string>([^<]+)<\/[^:>]*:string>/gi;
-  let match: RegExpExecArray | null;
-  while ((match = stringRegex.exec(sectionMatch[1])) !== null) {
-    ids.push(match[1].trim());
+function toText(value: unknown): string {
+  if (typeof value === 'string') {
+    return value.trim();
   }
-  return ids;
+  if (
+    value &&
+    typeof value === 'object' &&
+    '#text' in value &&
+    typeof (value as { '#text'?: unknown })['#text'] === 'string'
+  ) {
+    return (value as { '#text': string })['#text'].trim();
+  }
+  return '';
+}
+
+interface AtomEntry {
+  title?: unknown;
+  content?: {
+    properties?: {
+      PartitionIds?: {
+        string?: unknown | unknown[];
+      };
+      PartitionCount?: unknown;
+    };
+  };
+}
+
+interface AtomDocument {
+  feed?: {
+    entry?: AtomEntry | AtomEntry[];
+  };
+  entry?: AtomEntry;
+}
+
+function parseXml(xml: string): AtomDocument {
+  return xmlParser.parse(xml) as AtomDocument;
+}
+
+function parsePartitionIds(entry: AtomEntry): string[] {
+  const rawIds = toArray(entry.content?.properties?.PartitionIds?.string);
+  return rawIds.map((id) => toText(id)).filter((id) => id.length > 0);
 }
 
 function parseEventHubs(xml: string): EventHubInfo[] {
-  const hubs: EventHubInfo[] = [];
-  const entryRegex = /<entry.*>([\s\S]*?)<\/entry>/gi;
-  let entryMatch: RegExpExecArray | null;
-  while ((entryMatch = entryRegex.exec(xml)) !== null) {
-    const entry = entryMatch[1];
-    const titleMatch = /<title[^>]*>([^<]+)<\/title>/i.exec(entry);
-    if (!titleMatch) continue;
-    const name = titleMatch[1].trim();
-    const partitionIds = parsePartitionIds(entry);
-    const countMatch = /<PartitionCount>(\d+)<\/PartitionCount>/i.exec(entry);
-    const partitionCount = countMatch
-      ? parseInt(countMatch[1], 10)
-      : partitionIds.length;
-    hubs.push({ name, partitionIds, partitionCount });
-  }
-  return hubs;
+  const document = parseXml(xml);
+  const entries = toArray(document.feed?.entry ?? document.entry);
+
+  return entries
+    .map((entry) => {
+      const name = toText(entry.title);
+      if (!name) {
+        return null;
+      }
+
+      const partitionIds = parsePartitionIds(entry);
+      const partitionCountText = toText(
+        entry.content?.properties?.PartitionCount,
+      );
+      const parsedCount = Number.parseInt(partitionCountText, 10);
+      const partitionCount = Number.isNaN(parsedCount)
+        ? partitionIds.length
+        : parsedCount;
+
+      return { name, partitionIds, partitionCount };
+    })
+    .filter((hub): hub is EventHubInfo => hub !== null);
 }
 
 function parseConsumerGroups(xml: string): ConsumerGroupInfo[] {
-  const groups: ConsumerGroupInfo[] = [];
-  const entryRegex = /<entry>([\s\S]*?)<\/entry>/gi;
-  let entryMatch: RegExpExecArray | null;
-  while ((entryMatch = entryRegex.exec(xml)) !== null) {
-    const entry = entryMatch[1];
-    const titleMatch = /<title[^>]*>([^<]+)<\/title>/i.exec(entry);
-    if (!titleMatch) continue;
-    const name = titleMatch[1].trim();
-    groups.push({ name });
-  }
-  return groups;
+  const document = parseXml(xml);
+  const entries = toArray(document.feed?.entry ?? document.entry);
+
+  return entries
+    .map((entry) => ({ name: toText(entry.title) }))
+    .filter((group) => group.name.length > 0);
 }
 
 export async function listEventHubs(
