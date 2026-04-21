@@ -32,6 +32,9 @@
           [selectionMode]="nodeSelectionMode()"
         />
       </ng-template>
+      <ng-template let-node pTemplate="no-children">
+        <span class="children">No topology found</span>
+      </ng-template>
     </p-tree>
   </div>
 </div>

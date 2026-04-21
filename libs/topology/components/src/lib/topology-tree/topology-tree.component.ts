@@ -104,15 +104,28 @@ export class TopologyTreeComponent {
   }
 
   private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
-    const mapper = (node: TopologyNode): TreeNode<TopologyNode> => ({
-      key: node.path,
-      data: structuredClone(node),
-      expanded: this.opened().includes(node.path),
-      children: node.children?.map((node) => mapper(node)),
-      leaf: !node.children || node.children.length === 0,
-      selectable: node.selectable,
-    });
-    return mapper(node);
+    const mapper = (node: TopologyNode, isRoot: boolean): TreeNode<TopologyNode> => {
+      let children = (node.children?.map((node) => mapper(node, false))) ?? [];
+      if (isRoot && children.length === 0) {
+        children = [
+          {
+            type: 'no-children',
+            key: 'no-children',
+            label: 'No children',
+            leaf: true,
+          },
+        ];
+      }
+      return {
+        key: node.path,
+        data: structuredClone(node),
+        expanded: this.opened().includes(node.path),
+        children: children,
+        leaf: children.length === 0,
+        selectable: node.selectable,
+      };
+    };
+    return mapper(node, true);
   }
 
   onKeyDown(event: KeyboardEvent) {
