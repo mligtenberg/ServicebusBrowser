@@ -81,9 +81,50 @@ export class TopologyTreeComponent {
   topologyRootNodes = this.store.selectSignal(
     TopologySelectors.selectRootNodes,
   );
-  treeNodes = computed<TreeNode<TopologyNode>[]>(() =>
-    this.topologyRootNodes().map((node) => this.toTreeNode(node)),
-  );
+  treeNodes = computed<TreeNode<TopologyNode>[]>(() => {
+    const selectionMode = this.selectionMode();
+    const isSelectable = (node: TopologyNode) => {
+      if (selectionMode === 'send') {
+        return node.sendEndpoint !== undefined;
+      }
+
+      return true;
+    };
+    const hasSelectableChildren = (node: TopologyNode): boolean => {
+      if (node.children) {
+        return node.children.some(
+          (c) => isSelectable(c) || hasSelectableChildren(c),
+        );
+      }
+      return false;
+    };
+
+    const filter = (node: TopologyNode): TopologyNode | null => {
+      const selectable = isSelectable(node);
+      const selectableChildren = hasSelectableChildren(node);
+
+      if (!selectable && !selectableChildren) {
+        return null;
+      }
+
+      if (!selectableChildren) {
+        return {
+          ...node,
+          children: undefined,
+        };
+      }
+
+      return {
+        ...node,
+        children: node.children?.map(filter).filter((n) => n !== null),
+      };
+    };
+
+    return this.topologyRootNodes()
+      .map(filter)
+      .filter((node) => node !== null)
+      .map((node) => this.toTreeNode(node));
+  });
   flatTreeNodes = computed<TreeNode<TopologyNode>[]>(() => {
     const flatten = (
       nodes: TreeNode<TopologyNode>[],
@@ -104,8 +145,11 @@ export class TopologyTreeComponent {
   }
 
   private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
-    const mapper = (node: TopologyNode, isRoot: boolean): TreeNode<TopologyNode> => {
-      let children = (node.children?.map((node) => mapper(node, false))) ?? [];
+    const mapper = (
+      node: TopologyNode,
+      isRoot: boolean,
+    ): TreeNode<TopologyNode> => {
+      let children = node.children?.map((node) => mapper(node, false)) ?? [];
       if (isRoot && children.length === 0) {
         children = [
           {
