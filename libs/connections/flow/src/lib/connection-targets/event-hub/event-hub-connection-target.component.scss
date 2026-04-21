@@ -1,0 +1,29 @@
+.connection-type-option > *,
+.auth-method-option > * {
+  margin: 0 0 0 0.5em;
+}
+
+.connection-type-option,
+.auth-method-option {
+  margin-bottom: 0.5rem;
+}
+
+.heading {
+  font-size: 0.7rem;
+  font-weight: normal;
+  margin: 0 0 2rem 0;
+  color: var(--p-floatlabel-active-color);
+}
+
+section {
+  margin: 0 0 1rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.input-field,
+.auth-method-section {
+  margin-bottom: 1rem;
+}
