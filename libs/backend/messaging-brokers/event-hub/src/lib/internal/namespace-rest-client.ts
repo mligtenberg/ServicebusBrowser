@@ -45,7 +45,7 @@ async function getAuthHeader(
 
   const token = await (
     credential as { getToken(scope: string): Promise<{ token: string } | null> }
-  ).getToken('https://servicebus.azure.net/.default');
+  ).getToken('https://eventhubs.azure.net/');
 
   if (!token) {
     throw new Error('Failed to acquire access token');
