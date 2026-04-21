@@ -18,7 +18,7 @@ import { Textarea } from 'primeng/textarea';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
-import { Logger } from '@service-bus-browser/logs-services';
+import { SaveFeedbackService } from '../save-feedback.service';
 
 @Component({
   selector: 'lib-subscription-rule-management',
@@ -43,7 +43,7 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   activeRoute = inject(ActivatedRoute);
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
-  logger = inject(Logger);
+  saveFeedback = inject(SaveFeedbackService);
   form = this.createForm();
 
   destroy$ = new Subject<void>();
@@ -242,33 +242,45 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
 
     // Save the form
     if (this.action === 'create') {
-      await this.managementClient.createSubscriptionRule(
-        this.activeRoute.snapshot.params['connectionId'],
-        this.activeRoute.snapshot.params['topicId'],
-        this.activeRoute.snapshot.params['subscriptionId'],
-        subscriptionRule,
-      );
-      this.refreshUtil.refreshSubscriptionRules(
-        this.activeRoute.snapshot.params['connectionId'],
-        this.activeRoute.snapshot.params['topicId'],
-        this.activeRoute.snapshot.params['subscriptionId'],
-      );
-      this.logger.info(`Subscription rule ${subscriptionRule.name} created successfully`);
+      await this.saveFeedback.run({
+        entityType: 'Subscription rule',
+        entityName: subscriptionRule.name,
+        mode: 'create',
+        save: async () => {
+          await this.managementClient.createSubscriptionRule(
+            this.activeRoute.snapshot.params['connectionId'],
+            this.activeRoute.snapshot.params['topicId'],
+            this.activeRoute.snapshot.params['subscriptionId'],
+            subscriptionRule,
+          );
+          this.refreshUtil.refreshSubscriptionRules(
+            this.activeRoute.snapshot.params['connectionId'],
+            this.activeRoute.snapshot.params['topicId'],
+            this.activeRoute.snapshot.params['subscriptionId'],
+          );
+        },
+      });
       return;
     }
 
-    await this.managementClient.editSubscriptionRule(
-      this.activeRoute.snapshot.params['connectionId'],
-      this.activeRoute.snapshot.params['topicId'],
-      this.activeRoute.snapshot.params['subscriptionId'],
-      subscriptionRule,
-    );
-    this.refreshUtil.refreshSubscriptionRules(
-      this.activeRoute.snapshot.params['connectionId'],
-      this.activeRoute.snapshot.params['topicId'],
-      this.activeRoute.snapshot.params['subscriptionId'],
-    );
-    this.logger.info(`Subscription rule ${subscriptionRule.name} updated successfully`);
+    await this.saveFeedback.run({
+      entityType: 'Subscription rule',
+      entityName: subscriptionRule.name,
+      mode: 'update',
+      save: async () => {
+        await this.managementClient.editSubscriptionRule(
+          this.activeRoute.snapshot.params['connectionId'],
+          this.activeRoute.snapshot.params['topicId'],
+          this.activeRoute.snapshot.params['subscriptionId'],
+          subscriptionRule,
+        );
+        this.refreshUtil.refreshSubscriptionRules(
+          this.activeRoute.snapshot.params['connectionId'],
+          this.activeRoute.snapshot.params['topicId'],
+          this.activeRoute.snapshot.params['subscriptionId'],
+        );
+      },
+    });
   }
 
   ngOnDestroy(): void {

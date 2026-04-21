@@ -1,1 +1,1 @@
-export type MessageQueueTargetType = 'rabbitmq' | 'serviceBus';
+export type MessageQueueTargetType = 'rabbitmq' | 'serviceBus' | 'eventHub';

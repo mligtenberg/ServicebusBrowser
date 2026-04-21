@@ -103,6 +103,9 @@
       ],
       "@service-bus-browser/custom-icons": [
         "libs/shared/custom-icons/src/index.ts"
+      ],
+      "@service-bus-browser/event-hub": [
+        "libs/backend/messaging-brokers/event-hub/src/index.ts"
       ]
     }
   },
