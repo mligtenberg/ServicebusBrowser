@@ -36,7 +36,7 @@
     "@types/luxon": "^3.7.1",
     "@zip.js/zip.js": "^2.8.26",
     "angular-auth-oidc-client": "^21.0.1",
-    "axios": "^1.15.1",
+    "axios": "^1.15.2",
     "body-parser": "^2.2.2",
     "bson": "^7.2.0",
     "express": "^4.22.1",
