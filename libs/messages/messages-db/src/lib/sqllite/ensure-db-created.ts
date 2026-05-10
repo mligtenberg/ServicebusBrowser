@@ -16,6 +16,14 @@ export async function ensureMessagesDbCreated(database: Database) {
   await createDeliveryAnnotations(database);
   await createMessageAnnotations(database);
   await createApplicationProperties(database);
+  await createSettings(database);
+}
+
+async function createSettings(database: Database) {
+  await database.exec(`CREATE TABLE IF NOT EXISTS settings (
+    settingKey TEXT PRIMARY KEY,
+    settingValue TEXT
+  )`);
 }
 
 async function createMessages(database: Database) {

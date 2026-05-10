@@ -80,14 +80,40 @@
       <h2>Messages</h2>
       <div class="header-actions">
         @if (messagesHeader(); as ref) {
-        <ng-container *ngTemplateOutlet="ref"></ng-container>
+          <ng-container *ngTemplateOutlet="ref"></ng-container>
         }
+        <p-button
+          icon="pi pi-table"
+          text="true"
+          pTooltip="Select columns"
+          (click)="columnPickerPopover.toggle($event)"
+        />
       </div>
     </div>
+    <p-popover #columnPickerPopover appendTo="body">
+      <div class="column-picker">
+        <p-listbox
+          [options]="availableColumnGroups()"
+          [ngModel]="selectedColumnFields()"
+          (ngModelChange)="selectedColumnFields.set($event)"
+          [multiple]="true"
+          [checkbox]="true"
+          [filter]="true"
+          [group]="true"
+          optionLabel="header"
+          optionValue="field"
+          optionGroupLabel="label"
+          optionGroupChildren="items"
+          [listStyle]="{ 'max-height': '300px' }"
+          filterPlaceHolder="Search columns"
+          emptyMessage="No columns available"
+        />
+      </div>
+    </p-popover>
     <p-context-menu #cm appendTo="body" [model]="messagesContextMenu()" />
     <p-table
       #messagesTable
-      [columns]="cols"
+      [columns]="cols()"
       [rows]="100"
       [value]="currentPageMessages()"
       [scrollable]="true"

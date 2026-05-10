@@ -30,6 +30,9 @@ import { BodyViewer } from '../body-viewer/body-viewer';
 import { Splitter } from 'primeng/splitter';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import { Popover } from 'primeng/popover';
+import { Listbox } from 'primeng/listbox';
+import { Button } from 'primeng/button';
 
 const repository = await getMessagesRepository();
 
@@ -47,6 +50,9 @@ const repository = await getMessagesRepository();
     Splitter,
     ScrollPanel,
     NgClass,
+    Popover,
+    Listbox,
+    Button,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
@@ -240,17 +246,117 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   });
 
   // statics
-  cols = [
+  static readonly DEFAULT_COLUMN_FIELDS = [
+    'sequence',
+    'messageId',
+    'properties.subject',
+  ];
+  static readonly SYSTEM_COLUMNS: { field: string; header: string }[] = [
     { field: 'sequence', header: 'Sequence' },
     { field: 'messageId', header: 'Id' },
-    { field: 'properties.subject', header: 'Subject' },
+    { field: 'contentType', header: 'Content type' },
   ];
+
+  selectedColumnFields = signal<string[]>(
+    MessagesViewer.DEFAULT_COLUMN_FIELDS,
+  );
+  private columnsHydrated = signal(false);
+
+  private propertyLabelsTrigger = toSignal(
+    toObservable(this.pageId).pipe(
+      switchMap((pageId) =>
+        from(
+          Promise.all([
+            repository.getHeaderPropertyLabels(pageId),
+            repository.getPropertiesPropertyLabels(pageId),
+            repository.getDeliveryAnnotationsPropertyLabels(pageId),
+            repository.getMessageAnnotationsPropertyLabels(pageId),
+            repository.getApplicationPropertyLabels(pageId),
+          ]),
+        ).pipe(startWith(undefined)),
+      ),
+    ),
+    { initialValue: undefined },
+  );
+
+  availableColumnGroups = computed(() => {
+    const labels = this.propertyLabelsTrigger();
+    const [headers, properties, deliveryAnnotations, messageAnnotations, applicationProperties] =
+      labels ?? [[], [], [], [], []];
+
+    const toItems = (
+      prefix: string,
+      list: { label: string; type: string }[],
+    ) =>
+      list.map((l) => ({
+        field: `${prefix}.${l.label}`,
+        header: l.label,
+      }));
+
+    return [
+      { label: 'System', items: MessagesViewer.SYSTEM_COLUMNS },
+      { label: 'Headers', items: toItems('headers', headers) },
+      { label: 'Properties', items: toItems('properties', properties) },
+      {
+        label: 'Delivery annotations',
+        items: toItems('deliveryAnnotations', deliveryAnnotations),
+      },
+      {
+        label: 'Message annotations',
+        items: toItems('messageAnnotations', messageAnnotations),
+      },
+      {
+        label: 'Application properties',
+        items: toItems('applicationProperties', applicationProperties),
+      },
+    ].filter((g) => g.items.length > 0);
+  });
+
+  cols = computed(() => {
+    const fields = this.selectedColumnFields();
+    const allItems = this.availableColumnGroups().flatMap((g) => g.items);
+    const lookup = new Map(allItems.map((c) => [c.field, c]));
+    return fields
+      .map((field) => lookup.get(field))
+      .filter((col): col is { field: string; header: string } => !!col);
+  });
+
   propertiesCols = [
     { field: 'label', header: 'Key' },
     { field: 'value', header: 'Value' },
   ];
 
   constructor() {
+    effect((onCleanup) => {
+      const pageId = this.pageId();
+      let cancelled = false;
+      onCleanup(() => {
+        cancelled = true;
+      });
+
+      this.columnsHydrated.set(false);
+      repository.getVisibleColumns(pageId).then((stored) => {
+        if (cancelled) return;
+        untracked(() => {
+          this.selectedColumnFields.set(
+            stored ?? MessagesViewer.DEFAULT_COLUMN_FIELDS,
+          );
+          this.columnsHydrated.set(true);
+        });
+      });
+    });
+
+    effect(() => {
+      const fields = this.selectedColumnFields();
+      if (!this.columnsHydrated()) {
+        return;
+      }
+      const pageId = untracked(() => this.pageId());
+      repository.setVisibleColumns(pageId, fields).catch(() => {
+        // ignore persistence errors
+      });
+    });
+
     effect(() => {
       this.currentPageNumber();
       this.messagesTable().reset();

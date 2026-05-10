@@ -48,6 +48,18 @@ export class MessagesRepository {
     return await messagesDb.getApplicationPropertyLabels();
   }
 
+  async getVisibleColumns(pageId: UUID) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.getVisibleColumns();
+  }
+
+  async setVisibleColumns(pageId: UUID, fields: string[]) {
+    const page = await this.getPage(pageId);
+    const messagesDb = await this.getMessagesDb(page);
+    return await messagesDb.setVisibleColumns(fields);
+  }
+
   async countMessages(
     pageId: UUID,
     filter?: MessageFilter,

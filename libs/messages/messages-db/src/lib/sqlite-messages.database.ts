@@ -232,6 +232,36 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     return rows.map(([label, type]) => ({ label, type }));
   }
 
+  async getVisibleColumns(): Promise<string[] | null> {
+    const rows = await this.selectRows<[string]>(
+      "SELECT settingValue FROM settings WHERE settingKey = 'visibleColumns' LIMIT 1",
+    );
+    const raw = rows[0]?.[0];
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((f) => typeof f === 'string')
+      ) {
+        return parsed;
+      }
+    } catch {
+      // ignore parse errors and fall through
+    }
+    return null;
+  }
+
+  async setVisibleColumns(fields: string[]): Promise<void> {
+    await this.database.exec(
+      `INSERT OR REPLACE INTO settings (settingKey, settingValue) VALUES (?, ?)`,
+      ['visibleColumns', JSON.stringify(fields)],
+    );
+  }
+
   async getMessage(key: string): Promise<ReceivedMessage | undefined> {
     const rows = await this.selectRows<[Uint8Array]>(
       'SELECT message FROM messages WHERE id = ? LIMIT 1',

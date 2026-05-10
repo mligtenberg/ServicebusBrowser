@@ -32,5 +32,7 @@ export type MessagesDatabase = {
     ascending?: boolean,
     selectionKeys?: string[],
   ): Promise<void>;
+  getVisibleColumns(): Promise<string[] | null>;
+  setVisibleColumns(fields: string[]): Promise<void>;
   deleteDatabase(): Promise<void>;
 };
