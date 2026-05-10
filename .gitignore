@@ -53,3 +53,4 @@ sbb-connections.json
 openid-config.json
 
 .nx/polygraph
+.nx/self-healing
