@@ -1,8 +1,10 @@
 import {
+  afterNextRender,
   Component,
   ElementRef,
   HostListener,
   inject,
+  Injector,
   signal,
   viewChild,
 } from '@angular/core';
@@ -29,6 +31,7 @@ import { FormsModule } from '@angular/forms';
 export class PageNavigator {
   store = inject(Store);
   actions = inject(Actions);
+  private injector = inject(Injector);
 
   navigator = viewChild<ElementRef<HTMLDivElement>>('pageNavigator');
   scrollAtStart = signal(false);
@@ -82,14 +85,17 @@ export class PageNavigator {
     this.editingPageId.set(pageId);
     this.editingPageName.set(pageName);
 
-    queueMicrotask(() => {
-      const input = this.navigator()
-        ?.nativeElement.querySelector<HTMLInputElement>(
-          `[data-page-rename-input="${pageId}"]`,
-        );
-      input?.focus();
-      input?.select();
-    });
+    afterNextRender(
+      () => {
+        const input = this.navigator()
+          ?.nativeElement.querySelector<HTMLInputElement>(
+            `[data-page-rename-input="${pageId}"]`,
+          );
+        input?.focus();
+        input?.select();
+      },
+      { injector: this.injector },
+    );
   }
 
   protected updateEditingPageName(pageName: string) {

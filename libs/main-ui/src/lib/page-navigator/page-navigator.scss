@@ -104,6 +104,31 @@
     }
   }
 
+  .rename-action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 4px;
+    display: inline-flex;
+    align-items: center;
+
+    &.accept-button {
+      color: hsl(120, 50%, 45%);
+
+      &:hover {
+        color: hsl(120, 60%, 35%);
+      }
+    }
+
+    &.cancel-button {
+      color: hsl(0, 60%, 60%);
+
+      &:hover {
+        color: light-dark(hsl(0, 20%, 41%), hsl(0, 23%, 70%));
+      }
+    }
+  }
+
   .page-name-input {
     font: inherit;
     color: inherit;
