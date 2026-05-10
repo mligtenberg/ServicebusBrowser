@@ -51,3 +51,5 @@ sbb-connections.json
 .claude
 
 openid-config.json
+
+.nx/polygraph
