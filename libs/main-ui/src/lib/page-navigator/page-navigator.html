@@ -13,6 +13,7 @@
       [cdkDragData]="page.id"
       [ngClass]="{'active': page === currentPage(), disabled: page.blocked }"
       (dblclick)="!page.blocked && startRename(page.id, page.name)"
+      (contextmenu)="!page.blocked && openContextMenu($event, page.id, page.name, i)"
     >
       @if (page.blocked) {
         <span
@@ -85,3 +86,9 @@
   ><span
     class="pi pi-chevron-right"></span></button>
 }
+
+<p-context-menu
+  #contextMenu
+  [model]="contextMenuItems()"
+  appendTo="body"
+/>

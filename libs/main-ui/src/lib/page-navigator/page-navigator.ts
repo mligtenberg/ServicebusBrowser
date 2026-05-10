@@ -21,12 +21,14 @@ import { delay } from 'rxjs';
 import { contentResize } from '@service-bus-browser/actions';
 import { messagePagesActions } from '@service-bus-browser/messages-store';
 import { FormsModule } from '@angular/forms';
+import { ContextMenu } from 'primeng/contextmenu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
-  imports: [NgClass, RouterLink, CdkDropList, CdkDrag, FormsModule],
+  imports: [NgClass, RouterLink, CdkDropList, CdkDrag, FormsModule, ContextMenu],
 })
 export class PageNavigator {
   store = inject(Store);
@@ -34,10 +36,14 @@ export class PageNavigator {
   private injector = inject(Injector);
 
   navigator = viewChild<ElementRef<HTMLDivElement>>('pageNavigator');
+  contextMenuRef = viewChild<ContextMenu>('contextMenu');
   scrollAtStart = signal(false);
   scrollAtEnd = signal(false);
   editingPageId = signal<UUID | undefined>(undefined);
   editingPageName = signal('');
+  contextMenuPageId = signal<UUID | undefined>(undefined);
+  contextMenuPageIndex = signal<number>(0);
+  contextMenuItems = signal<MenuItem[]>([]);
 
   pages = this.store.selectSignal(selectPages);
   pages$ = toObservable(this.pages);
@@ -57,6 +63,25 @@ export class PageNavigator {
         takeUntilDestroyed()
       )
       .subscribe(() => this.onElementChange());
+  }
+
+  openContextMenu(event: MouseEvent, pageId: UUID, pageName: string, index: number) {
+    event.preventDefault();
+    this.contextMenuPageId.set(pageId);
+    this.contextMenuPageIndex.set(index);
+    this.contextMenuItems.set([
+      {
+        label: 'Rename',
+        icon: 'pi pi-pencil',
+        command: () => this.startRename(pageId, pageName),
+      },
+      {
+        label: 'Close',
+        icon: 'pi pi-times',
+        command: () => this.store.dispatch(pagesActions.closePage({ id: pageId, position: index })),
+      },
+    ]);
+    this.contextMenuRef()?.show(event);
   }
 
   closePage(pageId: UUID, event: Event, index: number) {
