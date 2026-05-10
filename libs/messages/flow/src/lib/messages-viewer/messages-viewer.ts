@@ -13,6 +13,7 @@ import {
   output,
   signal,
   TemplateRef,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { ContextMenu } from 'primeng/contextmenu';
@@ -53,6 +54,13 @@ const repository = await getMessagesRepository();
 class MessagesViewer implements AfterViewInit, OnDestroy {
   protected cdRef = inject(ChangeDetectorRef);
   protected resizeObserver?: ResizeObserver;
+  private rangeAnchorIndex: number | null = null;
+  protected pendingRange = signal<{ from: number; to: number } | null>(null);
+  private suppressIncomingSelectionChange = false;
+
+  protected showTableLoading = computed(
+    () => this.isLoading() || this.pendingRange() !== null,
+  );
 
   // template references
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
@@ -247,6 +255,24 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       this.currentPageNumber();
       this.messagesTable().reset();
     });
+
+    // Finalize a pending range selection once the table data has been
+    // updated and every row in the range is loaded.
+    effect(() => {
+      const msgs = this.messages();
+      const pending = this.pendingRange();
+      if (!pending) {
+        return;
+      }
+
+      for (let i = pending.from; i <= pending.to; i++) {
+        if (!msgs[i]) {
+          return;
+        }
+      }
+
+      untracked(() => this.finalizeRangeSelection(pending.from, pending.to, msgs));
+    });
   }
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
@@ -272,6 +298,10 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   }
 
   protected onSelectionChange($event: (string | ReceivedMessage)[] | string) {
+    if (this.pendingRange() !== null || this.suppressIncomingSelectionChange) {
+      return;
+    }
+
     if (typeof $event === 'string') {
       this.selection.set($event);
       return;
@@ -289,6 +319,99 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
     this.selection.set(selection);
     setTimeout(() => this.cdRef.detectChanges(), 100);
+  }
+
+  protected onRowMouseDown(event: MouseEvent) {
+    if (event.shiftKey && this.multiselect()) {
+      event.preventDefault();
+      // Set BEFORE PrimeNG's click handler runs so its synchronous
+      // selectionChange (which only sees the currently rendered subset of the
+      // range) gets ignored.
+      this.suppressIncomingSelectionChange = true;
+    }
+  }
+
+  protected onRowClick(event: MouseEvent, rowIndex: number) {
+    if (!this.multiselect()) {
+      this.suppressIncomingSelectionChange = false;
+      return;
+    }
+
+    const offset =
+      (this.currentPageNumber() - 1) * this.maxMessagesPerPage();
+    const absoluteIndex = offset + rowIndex;
+
+    if (!event.shiftKey) {
+      this.rangeAnchorIndex = absoluteIndex;
+      this.suppressIncomingSelectionChange = false;
+      return;
+    }
+
+    if (this.rangeAnchorIndex === null) {
+      this.rangeAnchorIndex = absoluteIndex;
+      this.suppressIncomingSelectionChange = false;
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const fromIdx = Math.min(this.rangeAnchorIndex, absoluteIndex);
+    const toIdx = Math.max(this.rangeAnchorIndex, absoluteIndex);
+    this.startRangeSelection(fromIdx, toIdx);
+  }
+
+  private startRangeSelection(absoluteFrom: number, absoluteTo: number) {
+    // Hand off from click-event suppression to the long-lived pendingRange
+    // flag (used as the "multiselect ongoing" indicator).
+    this.suppressIncomingSelectionChange = false;
+
+    const messages = this.messages();
+    let needsLoad = false;
+    for (let i = absoluteFrom; i <= absoluteTo; i++) {
+      if (!messages[i]) {
+        needsLoad = true;
+        break;
+      }
+    }
+
+    if (!needsLoad) {
+      // All rows already loaded — finalize immediately.
+      this.finalizeRangeSelection(absoluteFrom, absoluteTo, messages);
+      return;
+    }
+
+    // Mark multiselect as ongoing so any selectionChange events triggered by
+    // the upcoming table refresh are ignored. The constructor effect will
+    // finalize the selection as soon as messages() reports every row in the
+    // range as loaded.
+    this.pendingRange.set({ from: absoluteFrom, to: absoluteTo });
+
+    this.lazyLoadTriggered.emit({
+      first: absoluteFrom,
+      last: absoluteTo + 1,
+      rows: absoluteTo - absoluteFrom + 1,
+    } as TableLazyLoadEvent);
+  }
+
+  private finalizeRangeSelection(
+    from: number,
+    to: number,
+    messages: ReceivedMessage[],
+  ) {
+    const keys: string[] = [];
+    for (let i = from; i <= to; i++) {
+      const m = messages[i];
+      if (m?.key) {
+        keys.push(m.key);
+      }
+    }
+
+    // Clear the flag before we set the selection so the resulting model
+    // emission is allowed through onSelectionChange downstream paths.
+    this.pendingRange.set(null);
+    this.selection.set(keys);
+    this.cdRef.detectChanges();
   }
 
   protected onLazyLoad($event: TableLazyLoadEvent) {

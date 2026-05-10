@@ -92,7 +92,7 @@
       [value]="currentPageMessages()"
       [scrollable]="true"
       scrollHeight="flex"
-      [loading]="isLoading()"
+      [loading]="showTableLoading()"
       [virtualScroll]="true"
       [virtualScrollItemSize]="42"
       stripedRows
@@ -119,10 +119,12 @@
         let-columns="columns"
       >
         <tr
-          [pContextMenuRow]="rowData.key"
-          [pSelectableRow]="rowData.key"
+          [pContextMenuRow]="rowData?.key"
+          [pSelectableRow]="rowData?.key"
           [pContextMenuRowIndex]="rowIndex"
           [pSelectableRowIndex]="rowIndex"
+          (mousedown)="onRowMouseDown($event)"
+          (click)="onRowClick($event, rowIndex)"
         >
           @for (col of columns; track col) {
           <td>{{ getField(rowData, col.field) }}</td>
