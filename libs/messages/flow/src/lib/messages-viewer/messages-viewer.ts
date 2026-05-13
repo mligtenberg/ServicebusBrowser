@@ -31,8 +31,15 @@ import { Splitter } from 'primeng/splitter';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 import { Popover } from 'primeng/popover';
-import { Listbox } from 'primeng/listbox';
+import { Select } from 'primeng/select';
 import { Button } from 'primeng/button';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 
 const repository = await getMessagesRepository();
 
@@ -51,8 +58,11 @@ const repository = await getMessagesRepository();
     ScrollPanel,
     NgClass,
     Popover,
-    Listbox,
+    Select,
     Button,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
@@ -325,6 +335,67 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     { field: 'label', header: 'Key' },
     { field: 'value', header: 'Value' },
   ];
+
+  canAddColumn = computed(() => {
+    const used = new Set(this.selectedColumnFields());
+    return this.availableColumnGroups().some((g) =>
+      g.items.some((it) => !used.has(it.field)),
+    );
+  });
+
+  optionsForRow(index: number) {
+    const fields = this.selectedColumnFields();
+    const currentField = fields[index];
+    const usedElsewhere = new Set(
+      fields.filter((_, i) => i !== index),
+    );
+    return this.availableColumnGroups()
+      .map((g) => ({
+        ...g,
+        items: g.items.filter(
+          (it) => it.field === currentField || !usedElsewhere.has(it.field),
+        ),
+      }))
+      .filter((g) => g.items.length > 0);
+  }
+
+  protected addColumn() {
+    const used = new Set(this.selectedColumnFields());
+    for (const group of this.availableColumnGroups()) {
+      for (const item of group.items) {
+        if (!used.has(item.field)) {
+          this.selectedColumnFields.update((f) => [...f, item.field]);
+          return;
+        }
+      }
+    }
+  }
+
+  protected removeColumn(index: number) {
+    this.selectedColumnFields.update((f) =>
+      f.filter((_, i) => i !== index),
+    );
+  }
+
+  protected setColumn(index: number, field: string) {
+    if (!field) {
+      return;
+    }
+    this.selectedColumnFields.update((f) =>
+      f.map((v, i) => (i === index ? field : v)),
+    );
+  }
+
+  protected dropColumn(event: CdkDragDrop<string[]>) {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    this.selectedColumnFields.update((f) => {
+      const arr = [...f];
+      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      return arr;
+    });
+  }
 
   constructor() {
     effect((onCleanup) => {

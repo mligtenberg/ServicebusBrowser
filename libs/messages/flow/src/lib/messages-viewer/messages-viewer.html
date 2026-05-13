@@ -92,22 +92,52 @@
     </div>
     <p-popover #columnPickerPopover appendTo="body">
       <div class="column-picker">
-        <p-listbox
-          [options]="availableColumnGroups()"
-          [ngModel]="selectedColumnFields()"
-          (ngModelChange)="selectedColumnFields.set($event)"
-          [multiple]="true"
-          [checkbox]="true"
-          [filter]="true"
-          [group]="true"
-          optionLabel="header"
-          optionValue="field"
-          optionGroupLabel="label"
-          optionGroupChildren="items"
-          [listStyle]="{ 'max-height': '300px' }"
-          filterPlaceHolder="Search columns"
-          emptyMessage="No columns available"
-        />
+        <div
+          class="column-rows"
+          cdkDropList
+          (cdkDropListDropped)="dropColumn($event)"
+        >
+          @for (field of selectedColumnFields(); track $index; let i = $index) {
+            <div class="column-row" cdkDrag cdkDragLockAxis="y">
+              <i
+                class="pi pi-bars drag-handle"
+                cdkDragHandle
+                aria-label="Drag to reorder"
+              ></i>
+              <p-select
+                [options]="optionsForRow(i)"
+                [ngModel]="field"
+                (ngModelChange)="setColumn(i, $event)"
+                [group]="true"
+                optionLabel="header"
+                optionValue="field"
+                optionGroupLabel="label"
+                optionGroupChildren="items"
+                [filter]="true"
+                filterBy="header"
+                appendTo="body"
+                placeholder="Select column"
+                styleClass="column-select"
+              />
+              <p-button
+                icon="pi pi-times"
+                text="true"
+                severity="danger"
+                pTooltip="Remove column"
+                (click)="removeColumn(i)"
+              />
+            </div>
+          }
+        </div>
+        <div class="column-picker-footer">
+          <p-button
+            label="Add column"
+            icon="pi pi-plus"
+            text="true"
+            [disabled]="!canAddColumn()"
+            (click)="addColumn()"
+          />
+        </div>
       </div>
     </p-popover>
     <p-context-menu #cm appendTo="body" [model]="messagesContextMenu()" />
