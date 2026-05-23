@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { pagesActions } from './route.actions';
 import { Action, Store } from '@ngrx/store';
 import { featureSelector, selectPages } from './route.selectors';
-import { switchMap, tap } from 'rxjs';
+import { mergeMap, tap } from 'rxjs';
 import {
   messagePagesActions,
 } from '@service-bus-browser/messages-store';
@@ -32,7 +32,7 @@ export class PageEffects implements OnInitEffects {
   closeMessagePage$ = createEffect(() =>
     this.actions.pipe(
       ofType(pagesActions.closePage),
-      switchMap(({ id }) => {
+      mergeMap(({ id }) => {
         const page = this.pages().find((page) => page.id === id);
         switch (page?.type) {
           case 'messages':

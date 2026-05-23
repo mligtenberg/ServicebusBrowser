@@ -69,6 +69,7 @@ export class PageNavigator {
     event.preventDefault();
     this.contextMenuPageId.set(pageId);
     this.contextMenuPageIndex.set(index);
+    const pageCount = this.pages().length;
     this.contextMenuItems.set([
       {
         label: 'Rename',
@@ -80,8 +81,40 @@ export class PageNavigator {
         icon: 'pi pi-times',
         command: () => this.store.dispatch(pagesActions.closePage({ id: pageId, position: index })),
       },
+      {
+        separator: true,
+      },
+      {
+        label: 'Close tabs to the left',
+        icon: 'pi pi-angle-double-left',
+        disabled: index === 0,
+        command: () => this.closePagesInRange(0, index - 1),
+      },
+      {
+        label: 'Close tabs to the right',
+        icon: 'pi pi-angle-double-right',
+        disabled: index >= pageCount - 1,
+        command: () => this.closePagesInRange(index + 1, pageCount - 1),
+      },
+      {
+        label: 'Close all tabs',
+        icon: 'pi pi-times-circle',
+        disabled: pageCount === 0,
+        command: () => this.closePagesInRange(0, pageCount - 1),
+      },
     ]);
     this.contextMenuRef()?.show(event);
+  }
+
+  private closePagesInRange(fromIndex: number, toIndex: number) {
+    const pages = this.pages();
+    for (let i = toIndex; i >= fromIndex; i--) {
+      const page = pages[i];
+      if (!page) {
+        continue;
+      }
+      this.store.dispatch(pagesActions.closePage({ id: page.id, position: i }));
+    }
   }
 
   closePage(pageId: UUID, event: Event, index: number) {
