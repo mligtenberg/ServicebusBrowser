@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import {
   provideRouter,
+  withComponentInputBinding,
   withPreloading,
   PreloadAllModules, withRouterConfig,
 } from '@angular/router';
@@ -70,6 +71,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor()])),
     provideRouter(
       appRoutes,
+      withComponentInputBinding(),
       withPreloading(PreloadAllModules),
       withRouterConfig({
         onSameUrlNavigation: 'reload',

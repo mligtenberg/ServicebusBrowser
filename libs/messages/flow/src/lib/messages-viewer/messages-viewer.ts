@@ -180,13 +180,12 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     () => this.messageAnnotationsContextMenu().length > 0,
   );
 
-  body = computed(() => {
-    const message = this.selectedMessage();
-    if (!message) {
-      return '';
+  selectedMessageKey = computed(() => {
+    const selection = this.selection();
+    if (Array.isArray(selection)) {
+      return selection[0];
     }
-
-    return new TextDecoder().decode(message.body);
+    return selection;
   });
 
   headers = computed<Array<{ key: string; value: unknown }>>(() => {

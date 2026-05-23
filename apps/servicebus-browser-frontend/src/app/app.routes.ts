@@ -3,26 +3,50 @@ import { AboutComponent } from '@service-bus-browser/main-ui';
 
 export const appRoutes: Route[] = [
   {
-    path: 'connections',
-    loadChildren: () => import('@service-bus-browser/connections-flow').then(m => m.routes)
-  },
-  {
-    path: 'manage-service-bus',
-    loadChildren: () => import('@service-bus-browser/service-bus-management-flow').then(m => m.routes)
-  },
-  {
-    path: 'messages',
-    loadChildren: () => import('@service-bus-browser/messages-flow').then(m => m.routes({
-      baseRoute: 'messages'
-    }))
-  },
-  {
-    path: 'about',
-    component: AboutComponent
+    path: 'popups',
+    children: [
+      {
+        path: 'messages',
+        loadChildren: () =>
+          import('@service-bus-browser/messages-flow').then((m) => m.popups),
+      },
+    ],
   },
   {
     path: '',
-    redirectTo: 'connections',
-    pathMatch: 'full'
-  }
+    loadComponent: () =>
+      import('./main-shell/main-shell').then((m) => m.MainShell),
+    children: [
+      {
+        path: 'connections',
+        loadChildren: () =>
+          import('@service-bus-browser/connections-flow').then((m) => m.routes),
+      },
+      {
+        path: 'manage-service-bus',
+        loadChildren: () =>
+          import('@service-bus-browser/service-bus-management-flow').then(
+            (m) => m.routes,
+          ),
+      },
+      {
+        path: 'messages',
+        loadChildren: () =>
+          import('@service-bus-browser/messages-flow').then((m) =>
+            m.routes({
+              baseRoute: 'messages',
+            }),
+          ),
+      },
+      {
+        path: 'about',
+        component: AboutComponent,
+      },
+      {
+        path: '',
+        redirectTo: 'connections',
+        pathMatch: 'full',
+      },
+    ],
+  },
 ];

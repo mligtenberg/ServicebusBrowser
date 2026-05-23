@@ -5,6 +5,17 @@ import { OidcCallback } from './oidc-callback/oidc-callback';
 
 export const appRoutes: Route[] = [
   {
+    path: 'popups',
+    canActivate: [AutoLoginPartialRoutesGuard],
+    children: [
+      {
+        path: 'messages',
+        loadChildren: () =>
+          import('@service-bus-browser/messages-flow').then((m) => m.popups),
+      },
+    ],
+  },
+  {
     path: '',
     canActivate: [AutoLoginPartialRoutesGuard],
     loadComponent: () => import('./main-app/main-app').then((m) => m.MainApp),
@@ -33,7 +44,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'oidc-callback',
-    component: OidcCallback
+    component: OidcCallback,
   },
   {
     path: 'login-failed',

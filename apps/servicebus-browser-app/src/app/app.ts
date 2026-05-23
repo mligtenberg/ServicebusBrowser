@@ -48,6 +48,27 @@ export default class App {
     }
   }
 
+  private static isInternalUrl(url: string): boolean {
+    return (
+      url.startsWith('app://localhost') ||
+      url.startsWith(`http://localhost:${rendererAppPort}`)
+    );
+  }
+
+  private static isPopupUrl(url: string): boolean {
+    try {
+      const { pathname, hash } = new URL(url);
+      // Supports both path-based (/popups/...) and hash-based (#/popups/...) routing
+      return (
+        pathname.startsWith('/popups/') ||
+        hash.startsWith('#/popups/') ||
+        hash.startsWith('#popups/')
+      );
+    } catch {
+      return false;
+    }
+  }
+
   private static onReady() {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
@@ -242,6 +263,36 @@ export default class App {
 
     // handle all external redirects in a new browser window
     App.mainWindow.webContents.on('will-navigate', App.onRedirect);
+
+    App.mainWindow.webContents.on('did-create-window', (popupWindow) => {
+      if (App.isDevelopmentMode()) {
+        popupWindow.webContents.openDevTools();
+      }
+    });
+
+    App.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+      if (App.isInternalUrl(url) && App.isPopupUrl(url)) {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 900,
+            height: 700,
+            autoHideMenuBar: true,
+            webPreferences: {
+              contextIsolation: true,
+              preload: join(__dirname, 'main.preload.js'),
+            },
+          },
+        };
+      }
+
+      if (App.isInternalUrl(url)) {
+        return { action: 'deny' };
+      }
+
+      shell.openExternal(url);
+      return { action: 'deny' };
+    });
 
     // Emitted when the window is closed.
     App.mainWindow.on('closed', () => {

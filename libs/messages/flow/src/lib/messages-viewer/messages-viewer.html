@@ -203,8 +203,8 @@
 <ng-template #bodyTemplate>
   <lib-body-viewer
     header="Body"
-    [body]="body()"
-    [contentType]="selectedMessage()?.contentType ?? 'text/plain'"
+    [pageId]="pageId()"
+    [messageKey]="selectedMessageKey()"
   />
 </ng-template>
 
