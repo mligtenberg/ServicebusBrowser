@@ -42,7 +42,7 @@ export class MessagesDbEffects implements OnInitEffects {
     () =>
       this.actions$.pipe(
         ofType(messagePagesActions.closePage),
-        switchMap(({ pageId }) => {
+        mergeMap(({ pageId }) => {
           return from(repository.closePage(pageId)).pipe(
             map(() => messagePagesEffectActions.pageClosed({ pageId })),
           );
