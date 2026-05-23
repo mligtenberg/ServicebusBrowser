@@ -4,7 +4,6 @@ import { ColorThemeService } from '@service-bus-browser/services';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
-import { Dialog } from 'primeng/dialog';
 import { NgTemplateOutlet } from '@angular/common';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
@@ -14,6 +13,7 @@ import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 const repository = await getMessagesRepository();
 
@@ -24,7 +24,6 @@ const repository = await getMessagesRepository();
     ToggleSwitch,
     FormsModule,
     TableModule,
-    Dialog,
     NgTemplateOutlet,
     Button,
     Tooltip,
@@ -33,16 +32,39 @@ const repository = await getMessagesRepository();
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',
+  host: {
+    '[class.popup]': 'isPopup()',
+  },
 })
 export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
+  private route = inject(ActivatedRoute, { optional: true });
+  private router = inject(Router);
 
   header = input<string>('');
   pageId = input.required<UUID>();
   messageKey = input<string | undefined>(undefined);
   showPrettyBody = model(false);
-  displayBodyFullscreen = model(false);
   csvDelimiter = model(',');
+
+  isPopup = computed(() => this.route?.snapshot.data?.['popup'] === true);
+
+  canOpenInPopup = computed(() => !this.isPopup());
+
+  openInPopup(): void {
+    const messageKey = this.messageKey();
+    if (!messageKey) {
+      return;
+    }
+    const urlTree = this.router.createUrlTree([
+      '/popups/messages/body-viewer',
+      this.pageId(),
+      messageKey,
+    ]);
+    const serialized = this.router.serializeUrl(urlTree);
+    const url = new URL(serialized, window.location.href).toString();
+    window.open(url, '_blank', 'width=900,height=700');
+  }
 
   private loadedMessage = toSignal(
     combineLatest([

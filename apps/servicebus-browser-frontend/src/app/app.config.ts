@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import {
   provideRouter,
+  withComponentInputBinding,
   withHashLocation,
   withPreloading,
   PreloadAllModules, withRouterConfig,
@@ -52,6 +53,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       appRoutes,
       withHashLocation(),
+      withComponentInputBinding(),
       withPreloading(PreloadAllModules),
       withRouterConfig({
         onSameUrlNavigation: 'reload',

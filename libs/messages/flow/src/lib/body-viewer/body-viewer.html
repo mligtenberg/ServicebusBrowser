@@ -23,57 +23,22 @@
       tooltipPosition="bottom"
       [disabled]="!prettyPrintAvailable()"
     />
+    @if (canOpenInPopup()) {
     <p-button
       icon="pi pi-window-maximize"
-      (click)="displayBodyFullscreen.set(true)"
+      pTooltip="Open in new window"
+      tooltipPosition="bottom"
+      (click)="openInPopup()"
+      [disabled]="!messageKey()"
       [rounded]="true"
       [text]="true"
     ></p-button>
+    }
   </div>
   <div class="editor">
     <ng-container *ngTemplateOutlet="bodyView" />
   </div>
 </div>
-
-<p-dialog
-  header="Message body"
-  appendTo="body"
-  [(visible)]="displayBodyFullscreen"
-  [modal]="true"
-  [style]="{ width: '100%', height: '100%' }"
->
-  <div class="editor-container">
-    <div class="actions">
-      @if (isCsvTableVisible()) {
-      <div class="csv-delimiter-selector">
-        <p-floatlabel variant="over">
-          <p-select
-            inputId="csv-delimiter-fullscreen"
-            [(ngModel)]="csvDelimiter"
-            [options]="csvDelimiterOptions"
-            optionLabel="label"
-            optionValue="value"
-            [editable]="true"
-            appendTo="body"
-          />
-          <label for="csv-delimiter-fullscreen">Delimiter</label>
-        </p-floatlabel>
-      </div>
-      }
-      <p-toggle-switch
-        [(ngModel)]="showPrettyBody"
-        pTooltip="Show pretty body"
-        tooltipPosition="bottom"
-        [disabled]="!prettyPrintAvailable()"
-      />
-    </div>
-    @if (displayBodyFullscreen()) {
-    <div class="editor">
-      <ng-container *ngTemplateOutlet="bodyView" />
-    </div>
-    }
-  </div>
-</p-dialog>
 
 <ng-template #bodyView>
   @if (isCsvTableVisible()) {

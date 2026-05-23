@@ -34,6 +34,8 @@ export const routes = (options: { baseRoute: string }): Routes => [
 export const popups: Routes = [
   {
     path: 'body-viewer/:pageId/:messageKey',
-    loadComponent: () => import('./lib/body-viewer/body-viewer').then(m => m.BodyViewer),
-  }
+    loadComponent: () =>
+      import('./lib/body-viewer/body-viewer').then((m) => m.BodyViewer),
+    data: { popup: true },
+  },
 ];
