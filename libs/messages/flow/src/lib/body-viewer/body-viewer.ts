@@ -10,6 +10,12 @@ import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
+import { UUID } from '@service-bus-browser/shared-contracts';
+import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { combineLatest, from, startWith, switchMap } from 'rxjs';
+
+const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-body-viewer',
@@ -32,11 +38,39 @@ export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
 
   header = input<string>('');
-  body = input.required<string | undefined>();
-  contentType = input.required<string>();
+  pageId = input.required<UUID>();
+  messageKey = input<string | undefined>(undefined);
   showPrettyBody = model(false);
   displayBodyFullscreen = model(false);
   csvDelimiter = model(',');
+
+  private loadedMessage = toSignal(
+    combineLatest([
+      toObservable(this.pageId),
+      toObservable(this.messageKey),
+    ]).pipe(
+      switchMap(([pageId, messageKey]) => {
+        if (!messageKey) {
+          return [undefined];
+        }
+        return from(repository.getMessage(pageId, messageKey)).pipe(
+          startWith(undefined),
+        );
+      }),
+    ),
+  );
+
+  body = computed(() => {
+    const message = this.loadedMessage();
+    if (!message?.body) {
+      return undefined;
+    }
+    return new TextDecoder().decode(message.body);
+  });
+
+  contentType = computed(
+    () => this.loadedMessage()?.contentType ?? 'text/plain',
+  );
 
   csvDelimiterOptions = [
     { label: ',', value: ',' },
