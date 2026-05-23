@@ -42,11 +42,11 @@ export const appRoutes: Route[] = [
         path: 'about',
         component: AboutComponent,
       },
-      // {
-      //   path: '',
-      //   redirectTo: 'connections',
-      //   pathMatch: 'full',
-      // },
+      {
+        path: '',
+        redirectTo: 'connections',
+        pathMatch: 'full',
+      },
     ],
   },
 ];

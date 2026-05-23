@@ -14,6 +14,7 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, from, startWith, switchMap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 const repository = await getMessagesRepository();
 
@@ -40,6 +41,7 @@ export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
   private route = inject(ActivatedRoute, { optional: true });
   private router = inject(Router);
+  private location = inject(Location);
 
   header = input<string>('');
   pageId = input.required<UUID>();
@@ -62,7 +64,8 @@ export class BodyViewer {
       messageKey,
     ]);
     const serialized = this.router.serializeUrl(urlTree);
-    const url = new URL(serialized, window.location.href).toString();
+    const external = this.location.prepareExternalUrl(serialized);
+    const url = new URL(external, window.location.href).toString();
     window.open(url, '_blank', 'width=900,height=700');
   }
 

@@ -264,6 +264,12 @@ export default class App {
     // handle all external redirects in a new browser window
     App.mainWindow.webContents.on('will-navigate', App.onRedirect);
 
+    App.mainWindow.webContents.on('did-create-window', (popupWindow) => {
+      if (App.isDevelopmentMode()) {
+        popupWindow.webContents.openDevTools();
+      }
+    });
+
     App.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
       if (App.isInternalUrl(url) && App.isPopupUrl(url)) {
         return {
