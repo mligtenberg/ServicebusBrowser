@@ -38,6 +38,15 @@
   margin-bottom: .5rem;
   gap: .5rem;
   margin-top: .5rem;
+
+  p-select-button {
+    font-size: 0.75rem;
+
+    ::ng-deep .p-togglebutton.p-togglebutton-sm {
+      padding: 0.15rem 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
 }
 
 .csv-table-wrapper {

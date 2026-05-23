@@ -17,11 +17,13 @@
       </p-floatlabel>
     </div>
     }
-    <p-toggle-switch
+    <p-select-button
       [(ngModel)]="showPrettyBody"
-      pTooltip="Show pretty body"
-      tooltipPosition="bottom"
+      [options]="prettyPrintOptions"
       [disabled]="!prettyPrintAvailable()"
+      optionLabel="label"
+      optionValue="value"
+      size="small"
     />
     @if (canOpenInPopup()) {
     <p-button

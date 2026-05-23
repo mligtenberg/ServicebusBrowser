@@ -1,7 +1,7 @@
-import { Component, computed, inject, input, model } from '@angular/core';
+import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { Editor } from '@service-bus-browser/shared-components';
 import { ColorThemeService } from '@service-bus-browser/services';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import { SelectButton } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { NgTemplateOutlet } from '@angular/common';
@@ -22,7 +22,7 @@ const repository = await getMessagesRepository();
   selector: 'lib-body-viewer',
   imports: [
     Editor,
-    ToggleSwitch,
+    SelectButton,
     FormsModule,
     TableModule,
     NgTemplateOutlet,
@@ -46,8 +46,8 @@ export class BodyViewer {
   header = input<string>('');
   pageId = input.required<UUID>();
   messageKey = input<string | undefined>(undefined);
-  showPrettyBody = model(false);
-  csvDelimiter = model(',');
+  showPrettyBody = signal<'raw' | 'pretty'>('raw');
+  csvDelimiter = signal(',');
 
   isPopup = computed(() => this.route?.snapshot.data?.['popup'] === true);
 
@@ -97,6 +97,11 @@ export class BodyViewer {
     () => this.loadedMessage()?.contentType ?? 'text/plain',
   );
 
+  prettyPrintOptions = [
+    { label: 'Raw', value: 'raw' },
+    { label: 'Pretty', value: 'pretty' },
+  ];
+
   csvDelimiterOptions = [
     { label: ',', value: ',' },
     { label: ';', value: ';' },
@@ -135,7 +140,7 @@ export class BodyViewer {
   });
 
   shownBody = computed(() => {
-    if (!this.body() || !this.showPrettyBody()) {
+    if (!this.body() || this.showPrettyBody() !== 'pretty') {
       return this.body();
     }
 
@@ -147,7 +152,7 @@ export class BodyViewer {
   });
 
   isCsvTableVisible = computed(
-    () => this.showPrettyBody() && this.bodyLanguage() === 'csv',
+    () => this.showPrettyBody() === 'pretty' && this.bodyLanguage() === 'csv',
   );
 
   csvHeaders = computed(() => {
