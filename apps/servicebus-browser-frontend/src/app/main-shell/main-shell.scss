@@ -79,6 +79,11 @@
   border-right: 1px solid var(--p-menubar-border-color, var(--p-content-border-color));
   color: var(--p-menubar-item-color, var(--p-text-muted-color));
   -webkit-app-region: none;
+
+  &.with-window-controls {
+    padding-left: 14px;
+    margin-left: 4px;
+  }
 }
 
 .workspace-avatar {

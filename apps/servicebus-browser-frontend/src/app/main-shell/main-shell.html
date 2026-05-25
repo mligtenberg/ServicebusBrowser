@@ -5,7 +5,10 @@
 >
   @if (activeWorkspace(); as ws) {
     <ng-template #menuStart>
-      <div class="workspace-indicator">
+      <div
+        class="workspace-indicator"
+        [class.with-window-controls]="windowControlSpacing()"
+      >
         <span
           class="workspace-avatar"
           [ngStyle]="{ 'background-color': workspaceAvatarColor() }"
