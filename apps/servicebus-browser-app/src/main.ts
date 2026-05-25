@@ -3,7 +3,9 @@ import ElectronEvents from './app/events/electron.events';
 import { app, BrowserWindow, protocol, session } from 'electron';
 import App from './app/app';
 import ServiceBusEvents from './app/events/service-bus.events';
+import WorkspaceEvents from './app/events/workspace.events';
 import UpdateEvents from './app/events/update.events';
+import { runMigration } from './app/events/migration';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -59,6 +61,7 @@ export default class Main {
   static bootstrapAppEvents() {
     ElectronEvents.bootstrapElectronEvents();
     ServiceBusEvents.bootstrapServiceBusEvents();
+    WorkspaceEvents.bootstrapWorkspaceEvents();
 
     // initialize auto updater service
     UpdateEvents.initAutoUpdateService();
