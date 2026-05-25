@@ -5,11 +5,21 @@ import { PagesDatabase } from './pages-database';
 import { SqlitePagesDatabase } from './sqlite-pages.database';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
+// Resolved by initializeWorkspace(). Any caller that awaits
+// workspaceReadyPromise will suspend until the APP_INITIALIZER runs,
+// rather than throwing synchronously at module-load time (which would
+// happen before the initializer has a chance to run).
+let workspaceResolve!: (id: UUID) => void;
+const workspaceReadyPromise = new Promise<UUID>((resolve) => {
+  workspaceResolve = resolve;
+});
+
 let activeWorkspaceId: UUID | undefined;
 
-/** Called by the app initializer before any database is accessed. */
+/** Called by the APP_INITIALIZER before any database is accessed. */
 export function initializeWorkspace(workspaceId: UUID): void {
   activeWorkspaceId = workspaceId;
+  workspaceResolve(workspaceId);
 }
 
 export function getActiveWorkspaceId(): UUID {
@@ -22,7 +32,8 @@ export function getActiveWorkspaceId(): UUID {
 let db: PagesDatabase | undefined;
 
 export async function getPagesDb(): Promise<PagesDatabase> {
-  const workspaceId = getActiveWorkspaceId();
+  // Wait for the APP_INITIALIZER to call initializeWorkspace()
+  const workspaceId = await workspaceReadyPromise;
 
   if (db) {
     return db;
@@ -37,7 +48,7 @@ export async function getPagesDb(): Promise<PagesDatabase> {
 const dbs: Record<string, MessagesDatabase> = {};
 
 export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
-  const workspaceId = getActiveWorkspaceId();
+  const workspaceId = await workspaceReadyPromise;
   const dbKey = `${workspaceId}/${page.id}`;
 
   if (dbKey in dbs) {
@@ -48,10 +59,10 @@ export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
     return existing;
   }
 
-  const db = new SqliteMessagesDatabase(page.id, workspaceId);
-  dbs[dbKey] = db;
-  await db.initialize();
-  return db;
+  const messagesDb = new SqliteMessagesDatabase(page.id, workspaceId);
+  dbs[dbKey] = messagesDb;
+  await messagesDb.initialize();
+  return messagesDb;
 }
 
 /**
