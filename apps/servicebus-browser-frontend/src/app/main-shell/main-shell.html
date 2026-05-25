@@ -2,4 +2,16 @@
   [electronWindowControlSpacing]="windowControlSpacing()"
   [useLowProfileMenu]="isMac"
   [menuItems]="menuItems"
-/>
+>
+  @if (activeWorkspace(); as ws) {
+    <ng-template #menuStart>
+      <div class="workspace-indicator">
+        <span
+          class="workspace-avatar"
+          [ngStyle]="{ 'background-color': workspaceAvatarColor() }"
+        >{{ workspaceInitial() }}</span>
+        <span class="workspace-name">{{ ws.name }}</span>
+      </div>
+    </ng-template>
+  }
+</lib-main-ui>
