@@ -36,7 +36,7 @@ import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
-import { initializeWorkspace, migrateOpfsFiles, getPageIds } from '@service-bus-browser/messages-db';
+import { initializeWorkspace, migrateOpfsFiles } from '@service-bus-browser/messages-db';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 
 async function resolveWorkspace(): Promise<Workspace> {
@@ -61,15 +61,14 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (workspaceService: WorkspaceService) => async () => {
         const workspace = await resolveWorkspace();
-        workspaceService.initialize(workspace);
-        initializeWorkspace(workspace.id);
-
         try {
-          const pageIds = await getPageIds();
-          await migrateOpfsFiles(workspace.id, pageIds);
+          await migrateOpfsFiles(workspace.id);
         } catch (err) {
           console.warn('OPFS migration failed; will retry on next boot:', err);
         }
+
+        workspaceService.initialize(workspace);
+        initializeWorkspace(workspace.id);
       },
       deps: [WorkspaceService],
       multi: true,

@@ -29,20 +29,19 @@ export function getActiveWorkspaceId(): UUID {
   return activeWorkspaceId;
 }
 
-let db: PagesDatabase | undefined;
+// Single shared promise so concurrent callers all wait for the same
+// initialization rather than each racing to open the same SQLite file.
+let dbPromise: Promise<PagesDatabase> | undefined;
 
 export async function getPagesDb(): Promise<PagesDatabase> {
-  // Wait for the APP_INITIALIZER to call initializeWorkspace()
   const workspaceId = await workspaceReadyPromise;
 
-  if (db) {
-    return db;
+  if (!dbPromise) {
+    const pagesDb = new SqlitePagesDatabase();
+    dbPromise = pagesDb.initialize(workspaceId).then(() => pagesDb);
   }
 
-  const pagesDb = new SqlitePagesDatabase();
-  await pagesDb.initialize(workspaceId);
-  db = pagesDb;
-  return db;
+  return dbPromise;
 }
 
 const dbs: Record<string, MessagesDatabase> = {};
@@ -65,18 +64,20 @@ export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
   return messagesDb;
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Migrates per-page SQLite files from the flat OPFS layout used before
  * workspace support (sqlite/{pageId}.sqlite3) to the workspace-scoped layout
  * (sqlite/{workspaceId}/{pageId}.sqlite3).
  *
+ * Scans the OPFS sqlite/ directory directly — no page DB access needed —
+ * so it can safely run before any SQLite database is opened.
+ *
  * Idempotent: already-migrated files are skipped. On partial failure the
- * function returns normally — missing files are retried on the next call
- * (i.e. next boot).
+ * function returns normally — missing files are retried on the next call.
  */
-export async function migrateOpfsFiles(workspaceId: UUID, pageIds: UUID[]): Promise<void> {
-  if (!pageIds.length) return;
-
+export async function migrateOpfsFiles(workspaceId: UUID): Promise<void> {
   const opfsRoot = await navigator.storage.getDirectory();
   let sqliteRoot: FileSystemDirectoryHandle;
   try {
@@ -86,24 +87,26 @@ export async function migrateOpfsFiles(workspaceId: UUID, pageIds: UUID[]): Prom
   }
 
   const workspaceDir = await sqliteRoot.getDirectoryHandle(workspaceId, { create: true });
+  const toMove: string[] = [];
 
-  for (const pageId of pageIds) {
+  for await (const [name, handle] of (sqliteRoot as any).entries()) {
+    if (handle.kind !== 'file') continue;
+    if (!name.endsWith('.sqlite3')) continue;
+    const pageId = name.slice(0, -'.sqlite3'.length);
+    if (!UUID_REGEX.test(pageId)) continue; // skip pages.sqlite3 and other non-page files
+    toMove.push(pageId);
+  }
+
+  for (const pageId of toMove) {
     try {
-      // Already at the new location → skip
       await workspaceDir.getFileHandle(`${pageId}.sqlite3`);
-      continue;
+      continue; // already at the new location
     } catch {
       // not yet migrated
     }
 
-    let oldHandle: FileSystemFileHandle | undefined;
     try {
-      oldHandle = await sqliteRoot.getFileHandle(`${pageId}.sqlite3`);
-    } catch {
-      continue; // old file doesn't exist either — skip
-    }
-
-    try {
+      const oldHandle = await sqliteRoot.getFileHandle(`${pageId}.sqlite3`);
       const newHandle = await workspaceDir.getFileHandle(`${pageId}.sqlite3`, { create: true });
       const oldFile = await oldHandle.getFile();
       const buffer = await oldFile.arrayBuffer();
@@ -113,7 +116,6 @@ export async function migrateOpfsFiles(workspaceId: UUID, pageIds: UUID[]): Prom
       await sqliteRoot.removeEntry(`${pageId}.sqlite3`);
     } catch (err) {
       console.warn(`Failed to migrate OPFS file for page ${pageId}:`, err);
-      // continue with the next page — this one will be retried on next boot
     }
   }
 }

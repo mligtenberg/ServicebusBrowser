@@ -1,6 +1,5 @@
 import { MessagesRepository } from './lib/messages-repository';
 import { getPagesDb, initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles } from './lib/get-database';
-import { UUID } from '@service-bus-browser/shared-contracts';
 
 export { initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles };
 
@@ -12,10 +11,4 @@ export async function getMessagesRepository() {
   }
 
   return await repositoryPromise;
-}
-
-export async function getPageIds(): Promise<UUID[]> {
-  const db = await getPagesDb();
-  const pages = await db.getPages();
-  return pages.map((p) => p.id);
 }

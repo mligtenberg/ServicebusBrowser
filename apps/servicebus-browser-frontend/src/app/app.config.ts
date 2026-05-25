@@ -28,7 +28,7 @@ import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
-import { initializeWorkspace, migrateOpfsFiles, getPageIds } from '@service-bus-browser/messages-db';
+import { initializeWorkspace, migrateOpfsFiles } from '@service-bus-browser/messages-db';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 
 interface ElectronWindow {
@@ -115,17 +115,16 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (workspaceService: WorkspaceService) => async () => {
         const workspace = await resolveWorkspace();
-        workspaceService.initialize(workspace);
-        initializeWorkspace(workspace.id);
-
-        // Run OPFS migration: move flat sqlite/{pageId}.sqlite3 files into
-        // sqlite/{workspaceId}/{pageId}.sqlite3
+        // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
+        // when we move files. The migration scans the OPFS directory directly.
         try {
-          const pageIds = await getPageIds();
-          await migrateOpfsFiles(workspace.id, pageIds);
+          await migrateOpfsFiles(workspace.id);
         } catch (err) {
           console.warn('OPFS migration failed; will retry on next boot:', err);
         }
+
+        workspaceService.initialize(workspace);
+        initializeWorkspace(workspace.id);
       },
       deps: [WorkspaceService],
       multi: true,
