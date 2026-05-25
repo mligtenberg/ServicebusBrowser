@@ -109,10 +109,11 @@ export async function migrateOpfsFiles(workspaceId: UUID): Promise<void> {
       const oldHandle = await sqliteRoot.getFileHandle(`${pageId}.sqlite3`);
       const newHandle = await workspaceDir.getFileHandle(`${pageId}.sqlite3`, { create: true });
       const oldFile = await oldHandle.getFile();
-      const buffer = await oldFile.arrayBuffer();
-      const writable = await (newHandle as any).createWritable();
-      await writable.write(buffer);
-      await writable.close();
+      const writable: WritableStream = await (newHandle as any).createWritable();
+      // Stream the file rather than buffering the whole DB in memory — message
+      // page databases can be large. pipeTo handles backpressure and closes
+      // the writable when the source ends.
+      await oldFile.stream().pipeTo(writable);
       await sqliteRoot.removeEntry(`${pageId}.sqlite3`);
     } catch (err) {
       console.warn(`Failed to migrate OPFS file for page ${pageId}:`, err);
