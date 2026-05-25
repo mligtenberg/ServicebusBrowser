@@ -8,29 +8,17 @@ contextBridge.exposeInMainWorld('electron', {
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 });
 
-contextBridge.exposeInMainWorld('serviceBusApi', {
+contextBridge.exposeInMainWorld('backendApi', {
   managementDoRequest: (requestType: string, request: unknown) =>
-    ipcRenderer.invoke(
-      'management:do-request',
-      requestType,
-      request,
-    ),
+    ipcRenderer.invoke('management:do-request', requestType, request),
   serviceBusManagementDoRequest: (requestType: string, request: unknown) =>
     ipcRenderer.invoke(
       'service-bus-management:do-request',
       requestType,
       request,
     ),
-  messagesDoRequest: (requestType: string, request: unknown) => {
-    return ipcRenderer.invoke(
-      'messages:do-request',
-      requestType,
-      request,
-    );
-  },
-});
-
-contextBridge.exposeInMainWorld('workspacesApi', {
+  messagesDoRequest: (requestType: string, request: unknown) =>
+    ipcRenderer.invoke('messages:do-request', requestType, request),
   workspacesDoRequest: (requestType: string, request: unknown) =>
     ipcRenderer.invoke('workspaces:do-request', requestType, request),
 });

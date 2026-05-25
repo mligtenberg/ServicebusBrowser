@@ -1,11 +1,11 @@
 import { Workspace } from '@service-bus-browser/shared-contracts';
-import { WorkspacesApiHandler } from './workspaces-api-handler';
+import { BackendApi } from './backend-api';
 
 export class WorkspacesFrontendClient {
-  constructor(private workspacesApi: WorkspacesApiHandler) {}
+  constructor(private backendApi: BackendApi) {}
 
   async getActiveWorkspace(): Promise<Workspace | null> {
-    return (await this.workspacesApi.workspacesDoRequest(
+    return (await this.backendApi.workspacesDoRequest(
       'getActiveWorkspace',
       {},
     )) as Workspace | null;

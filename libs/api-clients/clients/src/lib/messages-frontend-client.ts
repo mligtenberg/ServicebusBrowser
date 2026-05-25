@@ -4,10 +4,10 @@ import {
   ReceiveEndpoint,
   SendEndpoint,
 } from '@service-bus-browser/api-contracts';
-import { ApiHandler } from './api-handler';
+import { BackendApi } from './backend-api';
 
 export class MessagesFrontendClient {
-  constructor(private serviceBusApi: ApiHandler) {}
+  constructor(private backendApi: BackendApi) {}
 
   async retrieveMessages(
     endpoint: ReceiveEndpoint,
@@ -18,7 +18,7 @@ export class MessagesFrontendClient {
     },
     continuationToken?: string,
   ) {
-    return (await this.serviceBusApi.messagesDoRequest('retrieveMessages', {
+    return (await this.backendApi.messagesDoRequest('retrieveMessages', {
       endpoint,
       options,
       continuationToken,
@@ -26,21 +26,21 @@ export class MessagesFrontendClient {
   }
 
   async clearMessages(endpoint: ReceiveEndpoint, continuationToken?: string) {
-    return (await this.serviceBusApi.messagesDoRequest('clearMessages', {
+    return (await this.backendApi.messagesDoRequest('clearMessages', {
       endpoint,
       continuationToken,
     })) as { continuationToken?: string };
   }
 
   async sendMessage(endpoint: SendEndpoint, message: Message) {
-    await this.serviceBusApi.messagesDoRequest('sendMessage', {
+    await this.backendApi.messagesDoRequest('sendMessage', {
       endpoint,
       message,
     });
   }
 
   async sendMessages(endpoint: SendEndpoint, messages: Message[]) {
-    await this.serviceBusApi.messagesDoRequest('sendMessages', {
+    await this.backendApi.messagesDoRequest('sendMessages', {
       endpoint,
       messages,
     });

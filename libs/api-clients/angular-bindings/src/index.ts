@@ -2,13 +2,11 @@ import { EnvironmentProviders, inject, Provider } from '@angular/core';
 import {
   ManagementFrontendClient,
   MessagesFrontendClient,
-  ApiHandler,
+  BackendApi,
   ServiceBusManagementFrontendClient,
   WorkspacesFrontendClient,
-  WorkspacesApiHandler,
 } from '@service-bus-browser/service-bus-frontend-clients';
-import { WebServiceBusApiHandler } from './web-service-bus-api-handler';
-import { LocalStorageWorkspacesApiHandler } from './local-storage-workspaces-api-handler';
+import { WebBackendApi } from './web-backend-api';
 import { HttpClient } from '@angular/common/http';
 
 export function provideServiceBusElectronClient(): (
@@ -16,29 +14,27 @@ export function provideServiceBusElectronClient(): (
   | EnvironmentProviders
 )[] {
   interface ElectronWindow {
-    serviceBusApi: ApiHandler;
-    workspacesApi: WorkspacesApiHandler;
+    backendApi: BackendApi;
   }
 
-  const typelessWindow = window as unknown;
-  const { serviceBusApi, workspacesApi } = typelessWindow as ElectronWindow;
+  const { backendApi } = window as unknown as ElectronWindow;
 
   return [
     {
       provide: ManagementFrontendClient,
-      useFactory: () => new ManagementFrontendClient(serviceBusApi),
+      useFactory: () => new ManagementFrontendClient(backendApi),
     },
     {
       provide: MessagesFrontendClient,
-      useFactory: () => new MessagesFrontendClient(serviceBusApi),
+      useFactory: () => new MessagesFrontendClient(backendApi),
     },
     {
       provide: ServiceBusManagementFrontendClient,
-      useFactory: () => new ServiceBusManagementFrontendClient(serviceBusApi),
+      useFactory: () => new ServiceBusManagementFrontendClient(backendApi),
     },
     {
       provide: WorkspacesFrontendClient,
-      useFactory: () => new WorkspacesFrontendClient(workspacesApi),
+      useFactory: () => new WorkspacesFrontendClient(backendApi),
     },
   ];
 }
@@ -48,33 +44,28 @@ export function provideServiceBusWebClient(
 ): (Provider | EnvironmentProviders)[] {
   return [
     {
-      provide: WebServiceBusApiHandler,
-      useFactory: () =>
-        new WebServiceBusApiHandler(baseAddress, inject(HttpClient)),
+      provide: WebBackendApi,
+      useFactory: () => new WebBackendApi(baseAddress, inject(HttpClient)),
     },
     {
       provide: ManagementFrontendClient,
       useClass: ManagementFrontendClient,
-      deps: [WebServiceBusApiHandler],
+      deps: [WebBackendApi],
     },
     {
       provide: MessagesFrontendClient,
       useClass: MessagesFrontendClient,
-      deps: [WebServiceBusApiHandler],
+      deps: [WebBackendApi],
     },
     {
       provide: ServiceBusManagementFrontendClient,
       useClass: ServiceBusManagementFrontendClient,
-      deps: [WebServiceBusApiHandler],
-    },
-    {
-      provide: LocalStorageWorkspacesApiHandler,
-      useClass: LocalStorageWorkspacesApiHandler,
+      deps: [WebBackendApi],
     },
     {
       provide: WorkspacesFrontendClient,
       useClass: WorkspacesFrontendClient,
-      deps: [LocalStorageWorkspacesApiHandler],
+      deps: [WebBackendApi],
     },
   ];
 }
