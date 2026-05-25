@@ -56,8 +56,13 @@ function migrateConnections(
     return;
   }
 
-  // Backup the current file before rewriting
-  fs.copyFileSync(storage.connectionsPath, backupPath);
+  // Preserve the original known-good file as a recovery artifact. On retry
+  // an existing backup is left untouched — the live file may already be
+  // partially or fully migrated, but the backup still reflects pre-migration
+  // state and must not be overwritten.
+  if (!fs.existsSync(backupPath)) {
+    fs.copyFileSync(storage.connectionsPath, backupPath);
+  }
 
   try {
     const connections = storage.readCurrentConnections();
@@ -70,12 +75,13 @@ function migrateConnections(
 
     storage.writeConnections(migrated);
 
-    // Migration complete — remove the backup
+    // Migration complete — only now is it safe to discard the backup.
     fs.unlinkSync(backupPath);
   } catch (error) {
-    // Restore from backup so the app stays functional on next boot
+    // Restore from backup so the app stays functional on next boot. Keep the
+    // backup in place: the next boot's retry will reuse it instead of
+    // overwriting (potentially-corrupted) live state.
     fs.copyFileSync(backupPath, storage.connectionsPath);
-    fs.unlinkSync(backupPath);
     throw error;
   }
 }
