@@ -29,7 +29,7 @@ import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
-import { initializeWorkspace, migrateOpfsFiles } from '@service-bus-browser/messages-db';
+import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 
 interface ElectronWindow {
@@ -126,6 +126,12 @@ export const appConfig: ApplicationConfig = {
 
       workspaceService.initialize(workspace);
       initializeWorkspace(workspace.id);
+
+      // Force the repository chain to fully resolve before the initializer
+      // returns. Every file that does `getMessagesRepository().then(r => repository = r)`
+      // at module load is awaiting on the same cached promise, so all of those
+      // module-level `repository` bindings are assigned before NgRx effects run.
+      await getMessagesRepository();
     }),
   ],
 };

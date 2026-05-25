@@ -1,5 +1,9 @@
 import { MessageFilter } from '@service-bus-browser/filtering';
 import { getMessagesRepository, getActiveWorkspaceId } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ZipReader, ZipWriter } from '@zip.js/zip.js';
 import { inject, Injectable } from '@angular/core';
@@ -9,7 +13,6 @@ import { FilesService } from '@service-bus-browser/services';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 import { messagePagesEffectActions } from './messages.effect-actions';
 
-const repository = await getMessagesRepository();
 
 @Injectable({
   providedIn: 'root',

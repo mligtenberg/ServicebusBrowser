@@ -40,6 +40,10 @@ import {
   AmqpPropertyKeys as AmqpPropertyKeysList,
 } from './form';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { NgTemplateOutlet } from '@angular/common';
 import { Splitter } from 'primeng/splitter';
 import { applyEach, form, FormField, required } from '@angular/forms/signals';
@@ -54,7 +58,6 @@ import {
 import { Actions, ofType } from '@ngrx/effects';
 import { routerNavigatedAction } from '@ngrx/router-store';
 
-const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-send-message',

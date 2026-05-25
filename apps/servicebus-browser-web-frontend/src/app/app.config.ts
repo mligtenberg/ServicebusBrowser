@@ -37,7 +37,7 @@ import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
-import { initializeWorkspace, migrateOpfsFiles } from '@service-bus-browser/messages-db';
+import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 
 async function resolveWorkspace(): Promise<Workspace> {
@@ -68,6 +68,9 @@ export const appConfig: ApplicationConfig = {
       }
       workspaceService.initialize(workspace);
       initializeWorkspace(workspace.id);
+      // Force module-level `repository` bindings (set via getMessagesRepository().then(...))
+      // to be assigned before NgRx effects run.
+      await getMessagesRepository();
     }),
 
     // oidc auth

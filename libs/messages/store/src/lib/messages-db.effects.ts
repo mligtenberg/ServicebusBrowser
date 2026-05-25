@@ -2,12 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { from, map, mergeMap, switchMap } from 'rxjs';
 import { messagePagesActions } from './messages.actions';
 import { messagePagesEffectActions } from './messages.effect-actions';
 
 
-const repository = await getMessagesRepository();
 
 @Injectable({
   providedIn: 'root',

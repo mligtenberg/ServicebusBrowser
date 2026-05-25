@@ -22,6 +22,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { PreviewBatch } from './components/preview-batch/preview-batch';
@@ -34,7 +38,6 @@ import {
   RemoveAction,
 } from '@service-bus-browser/message-modification-engine';
 
-const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-messages-batch-resend',

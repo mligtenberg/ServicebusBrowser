@@ -7,13 +7,16 @@ import {
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
 import { getMessagesRepository, getActiveWorkspaceId } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { TasksActions } from '@service-bus-browser/tasks-store';
 import { Logger } from '@service-bus-browser/logs-services';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { firstValueFrom } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
-const repository = await getMessagesRepository();
 
 @Injectable({
   providedIn: 'root',
