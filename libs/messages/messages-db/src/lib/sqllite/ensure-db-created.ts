@@ -22,13 +22,20 @@ async function getUserVersion(database: Database): Promise<number> {
   return rows[0]?.[0] ?? 0;
 }
 
+async function tableHasColumn(database: Database, table: string, column: string): Promise<boolean> {
+  const result = await database.exec(`PRAGMA table_info(${table})`) as any;
+  const rows: unknown[] = result?.result?.resultRows ?? result?.resultRows ?? [];
+  // PRAGMA table_info returns rows of [cid, name, type, notnull, dflt_value, pk]
+  return rows.some((row) => Array.isArray(row) && row[1] === column);
+}
+
 async function migrateToV1(database: Database, workspaceId: string): Promise<void> {
-  // Add workspaceId column if it doesn't exist (catches tables created before
-  // the column was part of CREATE TABLE). Swallow the "duplicate column" error.
-  try {
+  // CREATE TABLE IF NOT EXISTS above already includes the workspaceId column
+  // for fresh installs. For pre-existing tables that predate the column, add
+  // it only when it's actually missing — that way any real exec failure
+  // (lock contention, corruption, etc.) is no longer silently swallowed.
+  if (!(await tableHasColumn(database, 'pages', 'workspaceId'))) {
     await database.exec(`ALTER TABLE pages ADD COLUMN workspaceId TEXT`);
-  } catch {
-    // column already exists — no-op
   }
 
   // Backfill all rows that have no workspace yet
