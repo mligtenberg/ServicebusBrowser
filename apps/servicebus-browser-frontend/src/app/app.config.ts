@@ -30,34 +30,7 @@ import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
-import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
-
-interface ElectronWindow {
-  electron?: {
-    getActiveWorkspace?: () => Promise<Workspace>;
-  };
-}
-
-async function resolveWorkspace(): Promise<Workspace> {
-  const electronWorkspace = await (window as unknown as ElectronWindow).electron?.getActiveWorkspace?.();
-  if (electronWorkspace) {
-    return electronWorkspace;
-  }
-
-  // Web fallback: use a stable workspace id stored in localStorage
-  const stored = localStorage.getItem('sbb-workspace');
-  if (stored) {
-    return JSON.parse(stored) as Workspace;
-  }
-
-  const workspace: Workspace = {
-    id: crypto.randomUUID() as UUID,
-    name: 'Default',
-    createdAt: new Date().toISOString(),
-  };
-  localStorage.setItem('sbb-workspace', JSON.stringify(workspace));
-  return workspace;
-}
+import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -114,7 +87,12 @@ export const appConfig: ApplicationConfig = {
     // workspace initialization — must complete before NgRx effects start
     provideAppInitializer(async () => {
       const workspaceService = inject(WorkspaceService);
-      const workspace = await resolveWorkspace();
+      const workspacesClient = inject(WorkspacesFrontendClient);
+
+      const workspace = await workspacesClient.getActiveWorkspace();
+      if (!workspace) {
+        throw new Error('No active workspace returned by the backend');
+      }
 
       // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
       // when we move files. The migration scans the OPFS directory directly.

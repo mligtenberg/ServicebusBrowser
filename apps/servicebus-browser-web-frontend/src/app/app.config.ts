@@ -38,29 +38,20 @@ import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
-import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
-
-async function resolveWorkspace(): Promise<Workspace> {
-  const stored = localStorage.getItem('sbb-workspace');
-  if (stored) {
-    return JSON.parse(stored) as Workspace;
-  }
-
-  const workspace: Workspace = {
-    id: crypto.randomUUID() as UUID,
-    name: 'Default',
-    createdAt: new Date().toISOString(),
-  };
-  localStorage.setItem('sbb-workspace', JSON.stringify(workspace));
-  return workspace;
-}
+import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     // workspace initialization — must complete before NgRx effects start
     provideAppInitializer(async () => {
       const workspaceService = inject(WorkspaceService);
-      const workspace = await resolveWorkspace();
+      const workspacesClient = inject(WorkspacesFrontendClient);
+
+      const workspace = await workspacesClient.getActiveWorkspace();
+      if (!workspace) {
+        throw new Error('No active workspace returned by the backend');
+      }
+
       try {
         await migrateOpfsFiles(workspace.id);
       } catch (err) {
