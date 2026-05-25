@@ -18,13 +18,13 @@ export class SecureConnectionStorage implements ConnectionStore {
   addConnection(connection: Connection): void {
     const connections = this.readCurrentConnections();
     connections[connection.id] = connection;
-    this.writeSettings(connections);
+    this.writeConnections(connections);
   }
 
   removeConnection(connectionId: UUID): void {
     const connections = this.readCurrentConnections();
     delete connections[connectionId];
-    this.writeSettings(connections);
+    this.writeConnections(connections);
   }
 
   listConnections(): Array<{ connectionId: UUID; connectionName: string }> {
@@ -40,7 +40,7 @@ export class SecureConnectionStorage implements ConnectionStore {
     return connections[connectionId];
   }
 
-  private readCurrentConnections(): { [key: UUID]: Connection } {
+  readCurrentConnections(): { [key: UUID]: Connection } {
     if (fs.existsSync(this.connectionsPath)) {
       const fileContentBuffer = fs.readFileSync(this.connectionsPath);
       const fileContent = safeStorage.decryptString(fileContentBuffer);
@@ -67,7 +67,7 @@ export class SecureConnectionStorage implements ConnectionStore {
     return {};
   }
 
-  private writeSettings(connections: { [key: UUID]: Connection }) {
+  writeConnections(connections: { [key: UUID]: Connection }) {
     const connectionsJson = JSON.stringify(connections);
     const encryptedConnections = safeStorage.encryptString(connectionsJson);
     fs.writeFileSync(this.connectionsPath, encryptedConnections, {
