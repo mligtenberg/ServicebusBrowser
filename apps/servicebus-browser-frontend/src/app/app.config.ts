@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   isDevMode,
   provideZonelessChangeDetection,
@@ -26,6 +27,36 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
+import { WorkspaceService } from '@service-bus-browser/services';
+import { initializeWorkspace, migrateOpfsFiles, getPageIds } from '@service-bus-browser/messages-db';
+import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
+
+interface ElectronWindow {
+  electron?: {
+    getActiveWorkspace?: () => Promise<Workspace>;
+  };
+}
+
+async function resolveWorkspace(): Promise<Workspace> {
+  const electronWorkspace = await (window as unknown as ElectronWindow).electron?.getActiveWorkspace?.();
+  if (electronWorkspace) {
+    return electronWorkspace;
+  }
+
+  // Web fallback: use a stable workspace id stored in localStorage
+  const stored = localStorage.getItem('sbb-workspace');
+  if (stored) {
+    return JSON.parse(stored) as Workspace;
+  }
+
+  const workspace: Workspace = {
+    id: crypto.randomUUID() as UUID,
+    name: 'Default',
+    createdAt: new Date().toISOString(),
+  };
+  localStorage.setItem('sbb-workspace', JSON.stringify(workspace));
+  return workspace;
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -78,5 +109,26 @@ export const appConfig: ApplicationConfig = {
       maxAge: 25,
       logOnly: !isDevMode(),
     }),
+
+    // workspace initialization — must complete before NgRx effects start
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (workspaceService: WorkspaceService) => async () => {
+        const workspace = await resolveWorkspace();
+        workspaceService.initialize(workspace);
+        initializeWorkspace(workspace.id);
+
+        // Run OPFS migration: move flat sqlite/{pageId}.sqlite3 files into
+        // sqlite/{workspaceId}/{pageId}.sqlite3
+        try {
+          const pageIds = await getPageIds();
+          await migrateOpfsFiles(workspace.id, pageIds);
+        } catch (err) {
+          console.warn('OPFS migration failed; will retry on next boot:', err);
+        }
+      },
+      deps: [WorkspaceService],
+      multi: true,
+    },
   ],
 };

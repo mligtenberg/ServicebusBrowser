@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   isDevMode,
   provideZonelessChangeDetection,
@@ -34,9 +35,46 @@ import {
 import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
+import { WorkspaceService } from '@service-bus-browser/services';
+import { initializeWorkspace, migrateOpfsFiles, getPageIds } from '@service-bus-browser/messages-db';
+import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
+
+async function resolveWorkspace(): Promise<Workspace> {
+  const stored = localStorage.getItem('sbb-workspace');
+  if (stored) {
+    return JSON.parse(stored) as Workspace;
+  }
+
+  const workspace: Workspace = {
+    id: crypto.randomUUID() as UUID,
+    name: 'Default',
+    createdAt: new Date().toISOString(),
+  };
+  localStorage.setItem('sbb-workspace', JSON.stringify(workspace));
+  return workspace;
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // workspace initialization — must complete before NgRx effects start
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (workspaceService: WorkspaceService) => async () => {
+        const workspace = await resolveWorkspace();
+        workspaceService.initialize(workspace);
+        initializeWorkspace(workspace.id);
+
+        try {
+          const pageIds = await getPageIds();
+          await migrateOpfsFiles(workspace.id, pageIds);
+        } catch (err) {
+          console.warn('OPFS migration failed; will retry on next boot:', err);
+        }
+      },
+      deps: [WorkspaceService],
+      multi: true,
+    },
+
     // oidc auth
     provideAuth(
       {
