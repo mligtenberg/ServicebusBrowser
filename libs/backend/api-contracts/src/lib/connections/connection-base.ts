@@ -6,4 +6,5 @@ export interface ConnectionBase {
   type: string;
   name: string;
   target: MessageQueueTargetType;
+  workspaceId?: UUID;
 }
