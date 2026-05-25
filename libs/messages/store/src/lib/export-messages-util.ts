@@ -1,5 +1,5 @@
 import { MessageFilter } from '@service-bus-browser/filtering';
-import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { getMessagesRepository, getActiveWorkspaceId } from '@service-bus-browser/messages-db';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ZipReader, ZipWriter } from '@zip.js/zip.js';
 import { inject, Injectable } from '@angular/core';
@@ -192,6 +192,7 @@ export class ExportMessagesUtil {
         id: pageId,
         name: pageName,
         retrievedAt: new Date(),
+        workspaceId: getActiveWorkspaceId(),
       });
 
       this.store.dispatch(

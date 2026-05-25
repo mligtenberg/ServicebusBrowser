@@ -1,8 +1,8 @@
 import { MessagesRepository } from './lib/messages-repository';
-import { getPagesDb, initializeWorkspace, migrateOpfsFiles } from './lib/get-database';
+import { getPagesDb, initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles } from './lib/get-database';
 import { UUID } from '@service-bus-browser/shared-contracts';
 
-export { initializeWorkspace, migrateOpfsFiles };
+export { initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles };
 
 let repositoryPromise: Promise<MessagesRepository> | undefined;
 

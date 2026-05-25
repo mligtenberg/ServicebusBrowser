@@ -6,7 +6,7 @@ import {
 } from '@service-bus-browser/api-contracts';
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
-import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { getMessagesRepository, getActiveWorkspaceId } from '@service-bus-browser/messages-db';
 import { TasksActions } from '@service-bus-browser/tasks-store';
 import { Logger } from '@service-bus-browser/logs-services';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
@@ -52,6 +52,7 @@ export class LoadMessagesUtil {
       id: pageId,
       name: endpoint.longDisplayName,
       retrievedAt: new Date(),
+      workspaceId: getActiveWorkspaceId(),
     });
 
     this.store.dispatch(
