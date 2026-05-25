@@ -10,8 +10,9 @@ import { MessageFilter } from '@service-bus-browser/filtering';
 export class SqliteMessagesDatabase implements MessagesDatabase {
   private readonly database: Database;
   private initializePromise?: Promise<void>;
-  constructor(pageId: UUID) {
-    this.database = new Database(pageId);
+
+  constructor(pageId: UUID, workspaceId: UUID) {
+    this.database = new Database(`${workspaceId}/${pageId}`);
   }
 
   async initialize(): Promise<void> {
