@@ -6,6 +6,7 @@ import { PageEffects } from './lib/ngrx/page.effects';
 
 export * from './lib/main-ui/main-ui';
 export * from './lib/about/about.component';
+export { pagesActions } from './lib/ngrx/route.actions';
 
 export function provideMainUi() {
   return [

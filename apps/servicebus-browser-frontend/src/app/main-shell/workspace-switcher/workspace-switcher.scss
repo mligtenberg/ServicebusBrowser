@@ -1,0 +1,139 @@
+:host.with-window-controls .ws-trigger {
+  padding-left: 80px;
+}
+
+.ws-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 6px;
+  margin-right: 4px;
+  border: none;
+  border-right: 1px solid var(--p-menubar-border-color, var(--p-content-border-color));
+  background: transparent;
+  color: var(--p-menubar-item-color, var(--p-text-muted-color));
+  cursor: pointer;
+  height: 100%;
+  -webkit-app-region: none;
+
+  &:hover {
+    background: var(--p-menubar-item-focus-background, var(--p-content-hover-background));
+    color: var(--p-menubar-item-focus-color, var(--p-text-color));
+  }
+}
+
+.ws-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  opacity: 0.9;
+
+  &--sm {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+}
+
+.ws-name {
+  font-size: inherit;
+  font-weight: 400;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-chevron {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.ws-dropdown {
+  min-width: 220px;
+  padding: 4px 0;
+}
+
+.ws-new-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--p-primary-color);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-align: left;
+
+  &:hover {
+    background: var(--p-content-hover-background);
+  }
+
+  .pi {
+    font-size: 0.8rem;
+  }
+}
+
+.ws-separator {
+  height: 1px;
+  background: var(--p-content-border-color);
+  margin: 4px 0;
+}
+
+.ws-section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--p-text-muted-color);
+  padding: 4px 12px 2px;
+  font-weight: 600;
+}
+
+.ws-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+
+  &--active {
+    background: var(--p-highlight-background);
+    color: var(--p-highlight-color);
+    font-weight: 500;
+  }
+
+  &--inactive {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ws-row-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.create-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.create-input {
+  width: 100%;
+}

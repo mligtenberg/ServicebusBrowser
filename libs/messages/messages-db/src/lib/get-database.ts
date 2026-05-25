@@ -22,6 +22,16 @@ export function initializeWorkspace(workspaceId: UUID): void {
   workspaceResolve(workspaceId);
 }
 
+/**
+ * Switches the active workspace for database access. Resets the cached
+ * PagesDatabase promise so the next call to getPagesDb() opens a fresh
+ * connection scoped to the new workspace.
+ */
+export function switchDatabaseWorkspace(workspaceId: UUID): void {
+  activeWorkspaceId = workspaceId;
+  dbPromise = undefined;
+}
+
 export function getActiveWorkspaceId(): UUID {
   if (!activeWorkspaceId) {
     throw new Error('Workspace not initialized. Call initializeWorkspace() before accessing databases.');

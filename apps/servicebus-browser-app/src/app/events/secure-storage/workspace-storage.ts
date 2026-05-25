@@ -1,4 +1,4 @@
-import { Workspace } from '@service-bus-browser/shared-contracts';
+import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 import { safeStorage } from 'electron';
 import path from 'path';
 import * as fs from 'fs';
@@ -6,6 +6,7 @@ import * as fs from 'fs';
 interface WorkspacesFile {
   version: 1;
   workspaces: Workspace[];
+  activeWorkspaceId?: UUID;
 }
 
 export class WorkspaceStorage {
@@ -34,5 +35,15 @@ export class WorkspaceStorage {
 
   listWorkspaces(): Workspace[] {
     return this.read()?.workspaces ?? [];
+  }
+
+  createWorkspace(workspace: Workspace): void {
+    const current = this.read() ?? { version: 1, workspaces: [] };
+    this.write({ ...current, workspaces: [...current.workspaces, workspace] });
+  }
+
+  setActiveWorkspaceId(id: UUID): void {
+    const current = this.read() ?? { version: 1, workspaces: [] };
+    this.write({ ...current, activeWorkspaceId: id });
   }
 }

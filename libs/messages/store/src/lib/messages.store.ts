@@ -122,6 +122,7 @@ export const messagesReducer = createReducer(
       };
     },
   ),
+  on(messagePagesEffectActions.workspaceSwitched, () => initialState),
 );
 
 export const feature = createFeature({

@@ -1,0 +1,84 @@
+<button
+  class="ws-trigger"
+  (click)="togglePopover($event)"
+  [class.with-window-controls]="false"
+  type="button"
+>
+  @if (activeWorkspace(); as ws) {
+    <span class="ws-avatar" [ngStyle]="{ 'background-color': activeColor() }">
+      {{ activeInitials() }}
+    </span>
+    <span class="ws-name">{{ ws.name }}</span>
+    <span class="pi pi-chevron-down ws-chevron"></span>
+  }
+</button>
+
+<p-popover #op styleClass="ws-popover">
+  <div class="ws-dropdown">
+    <button class="ws-new-action" (click)="openCreateDialog()" type="button">
+      <span class="pi pi-plus"></span>
+      New Workspace…
+    </button>
+
+    <div class="ws-separator"></div>
+
+    <div class="ws-section-label">Active</div>
+    @if (activeWorkspace(); as ws) {
+      <div class="ws-row ws-row--active">
+        <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
+          {{ initials(ws) }}
+        </span>
+        <span class="ws-row-name">{{ ws.name }}</span>
+      </div>
+    }
+
+    @if (otherWorkspaces().length > 0) {
+      <div class="ws-separator"></div>
+      <div class="ws-section-label">Workspaces</div>
+      @for (ws of otherWorkspaces(); track ws.id) {
+        <div class="ws-row ws-row--inactive" title="Switching between workspaces coming soon">
+          <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
+            {{ initials(ws) }}
+          </span>
+          <span class="ws-row-name">{{ ws.name }}</span>
+        </div>
+      }
+    }
+  </div>
+</p-popover>
+
+<p-dialog
+  header="New Workspace"
+  [visible]="showCreateDialog()"
+  (visibleChange)="showCreateDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '360px' }"
+  [draggable]="false"
+>
+  <div class="create-form">
+    <label for="wsName" class="create-label">Workspace name</label>
+    <input
+      id="wsName"
+      pInputText
+      type="text"
+      placeholder="e.g. Production"
+      [ngModel]="newWorkspaceName()"
+      (ngModelChange)="newWorkspaceName.set($event)"
+      (keyup.enter)="submitCreate()"
+      class="create-input"
+    />
+  </div>
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (click)="cancelCreate()"
+    />
+    <p-button
+      label="Create"
+      [disabled]="!newWorkspaceName().trim() || creating()"
+      [loading]="creating()"
+      (click)="submitCreate()"
+    />
+  </ng-template>
+</p-dialog>
