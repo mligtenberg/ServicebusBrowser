@@ -1,7 +1,8 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
+  inject,
   isDevMode,
+  provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -111,23 +112,20 @@ export const appConfig: ApplicationConfig = {
     }),
 
     // workspace initialization — must complete before NgRx effects start
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (workspaceService: WorkspaceService) => async () => {
-        const workspace = await resolveWorkspace();
-        // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
-        // when we move files. The migration scans the OPFS directory directly.
-        try {
-          await migrateOpfsFiles(workspace.id);
-        } catch (err) {
-          console.warn('OPFS migration failed; will retry on next boot:', err);
-        }
+    provideAppInitializer(async () => {
+      const workspaceService = inject(WorkspaceService);
+      const workspace = await resolveWorkspace();
 
-        workspaceService.initialize(workspace);
-        initializeWorkspace(workspace.id);
-      },
-      deps: [WorkspaceService],
-      multi: true,
-    },
+      // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
+      // when we move files. The migration scans the OPFS directory directly.
+      try {
+        await migrateOpfsFiles(workspace.id);
+      } catch (err) {
+        console.warn('OPFS migration failed; will retry on next boot:', err);
+      }
+
+      workspaceService.initialize(workspace);
+      initializeWorkspace(workspace.id);
+    }),
   ],
 };

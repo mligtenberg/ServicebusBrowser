@@ -1,7 +1,8 @@
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
+  inject,
   isDevMode,
+  provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -57,22 +58,17 @@ async function resolveWorkspace(): Promise<Workspace> {
 export const appConfig: ApplicationConfig = {
   providers: [
     // workspace initialization — must complete before NgRx effects start
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (workspaceService: WorkspaceService) => async () => {
-        const workspace = await resolveWorkspace();
-        try {
-          await migrateOpfsFiles(workspace.id);
-        } catch (err) {
-          console.warn('OPFS migration failed; will retry on next boot:', err);
-        }
-
-        workspaceService.initialize(workspace);
-        initializeWorkspace(workspace.id);
-      },
-      deps: [WorkspaceService],
-      multi: true,
-    },
+    provideAppInitializer(async () => {
+      const workspaceService = inject(WorkspaceService);
+      const workspace = await resolveWorkspace();
+      try {
+        await migrateOpfsFiles(workspace.id);
+      } catch (err) {
+        console.warn('OPFS migration failed; will retry on next boot:', err);
+      }
+      workspaceService.initialize(workspace);
+      initializeWorkspace(workspace.id);
+    }),
 
     // oidc auth
     provideAuth(
