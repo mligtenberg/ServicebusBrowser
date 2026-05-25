@@ -30,7 +30,6 @@ export function runMigration(userDataFolder: string): MigrationResult {
     workspaceStorage.write({
       version: 1,
       workspaces: [{ id: workspaceId, name: 'Default', createdAt: now }],
-      activeWorkspaceId: workspaceId,
     });
 
     migrateConnections(connectionStorage, workspaceId, backupPath);
@@ -40,11 +39,12 @@ export function runMigration(userDataFolder: string): MigrationResult {
 
   // Already have workspace file — check if a prior connections migration was interrupted
   const data = workspaceStorage.read()!;
-  if (fs.existsSync(backupPath)) {
-    migrateConnections(connectionStorage, data.activeWorkspaceId, backupPath);
+  const firstWorkspaceId = data.workspaces[0]?.id;
+  if (fs.existsSync(backupPath) && firstWorkspaceId) {
+    migrateConnections(connectionStorage, firstWorkspaceId, backupPath);
   }
 
-  return { activeWorkspaceId: data.activeWorkspaceId };
+  return { activeWorkspaceId: firstWorkspaceId! };
 }
 
 function migrateConnections(

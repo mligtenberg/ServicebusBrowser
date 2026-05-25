@@ -89,10 +89,8 @@ export const appConfig: ApplicationConfig = {
       const workspaceService = inject(WorkspaceService);
       const workspacesClient = inject(WorkspacesFrontendClient);
 
-      const workspace = await workspacesClient.getActiveWorkspace();
-      if (!workspace) {
-        throw new Error('No active workspace returned by the backend');
-      }
+      const workspaces = await workspacesClient.listWorkspaces();
+      const workspace = workspaceService.initialize(workspaces);
 
       // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
       // when we move files. The migration scans the OPFS directory directly.
@@ -102,7 +100,6 @@ export const appConfig: ApplicationConfig = {
         console.warn('OPFS migration failed; will retry on next boot:', err);
       }
 
-      workspaceService.initialize(workspace);
       initializeWorkspace(workspace.id);
 
       // Force the repository chain to fully resolve before the initializer

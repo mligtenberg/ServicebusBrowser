@@ -47,17 +47,14 @@ export const appConfig: ApplicationConfig = {
       const workspaceService = inject(WorkspaceService);
       const workspacesClient = inject(WorkspacesFrontendClient);
 
-      const workspace = await workspacesClient.getActiveWorkspace();
-      if (!workspace) {
-        throw new Error('No active workspace returned by the backend');
-      }
+      const workspaces = await workspacesClient.listWorkspaces();
+      const workspace = workspaceService.initialize(workspaces);
 
       try {
         await migrateOpfsFiles(workspace.id);
       } catch (err) {
         console.warn('OPFS migration failed; will retry on next boot:', err);
       }
-      workspaceService.initialize(workspace);
       initializeWorkspace(workspace.id);
       // Force module-level `repository` bindings (set via getMessagesRepository().then(...))
       // to be assigned before NgRx effects run.

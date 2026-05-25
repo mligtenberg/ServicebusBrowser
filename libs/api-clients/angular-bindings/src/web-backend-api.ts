@@ -14,7 +14,7 @@ import { BSON } from 'bson';
  *   desktop variant's sbb-workspaces.json so callers stay platform-agnostic.
  */
 export class WebBackendApi implements BackendApi {
-  private static readonly WORKSPACE_STORAGE_KEY = 'sbb-workspace';
+  private static readonly WORKSPACES_STORAGE_KEY = 'sbb-workspaces';
 
   constructor(
     private readonly baseUrl: string,
@@ -80,29 +80,33 @@ export class WebBackendApi implements BackendApi {
     _request: unknown,
   ): Promise<unknown> {
     switch (requestType) {
-      case 'getActiveWorkspace':
-        return this.getActiveWorkspace();
+      case 'listWorkspaces':
+        return this.listWorkspaces();
       default:
         throw new Error(`Unknown workspaces request: ${requestType}`);
     }
   }
 
-  private getActiveWorkspace(): Workspace {
-    const stored = localStorage.getItem(WebBackendApi.WORKSPACE_STORAGE_KEY);
+  private listWorkspaces(): Workspace[] {
+    const stored = localStorage.getItem(WebBackendApi.WORKSPACES_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored) as Workspace;
+      return JSON.parse(stored) as Workspace[];
     }
 
-    const workspace: Workspace = {
-      id: crypto.randomUUID() as UUID,
-      name: 'Default',
-      createdAt: new Date().toISOString(),
-    };
+    // First boot on web — seed a Default workspace, mirroring desktop's
+    // migration step that writes a single-entry registry.
+    const workspaces: Workspace[] = [
+      {
+        id: crypto.randomUUID() as UUID,
+        name: 'Default',
+        createdAt: new Date().toISOString(),
+      },
+    ];
     localStorage.setItem(
-      WebBackendApi.WORKSPACE_STORAGE_KEY,
-      JSON.stringify(workspace),
+      WebBackendApi.WORKSPACES_STORAGE_KEY,
+      JSON.stringify(workspaces),
     );
-    return workspace;
+    return workspaces;
   }
 
   private async decodeResponse(response: Blob): Promise<any> {

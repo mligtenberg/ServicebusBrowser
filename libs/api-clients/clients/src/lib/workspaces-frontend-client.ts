@@ -4,10 +4,10 @@ import { BackendApi } from './backend-api';
 export class WorkspacesFrontendClient {
   constructor(private backendApi: BackendApi) {}
 
-  async getActiveWorkspace(): Promise<Workspace | null> {
+  async listWorkspaces(): Promise<Workspace[]> {
     return (await this.backendApi.workspacesDoRequest(
-      'getActiveWorkspace',
+      'listWorkspaces',
       {},
-    )) as Workspace | null;
+    )) as Workspace[];
   }
 }

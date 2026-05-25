@@ -1,9 +1,9 @@
 import { WorkspacesServerFunc } from './types';
 
-const getActiveWorkspace: WorkspacesServerFunc = async (_body, store) => {
-  return store.getActiveWorkspace();
+const listWorkspaces: WorkspacesServerFunc = async (_body, store) => {
+  return store.listWorkspaces();
 };
 
 export default new Map<string, WorkspacesServerFunc>([
-  ['getActiveWorkspace', getActiveWorkspace],
+  ['listWorkspaces', listWorkspaces],
 ]);

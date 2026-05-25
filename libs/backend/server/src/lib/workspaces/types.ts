@@ -1,7 +1,7 @@
 import { Workspace } from '@service-bus-browser/shared-contracts';
 
 export interface WorkspaceStore {
-  getActiveWorkspace(): Workspace | null;
+  listWorkspaces(): Workspace[];
 }
 
 export type WorkspacesServerFunc = (
