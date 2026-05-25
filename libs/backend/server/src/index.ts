@@ -6,6 +6,9 @@ import serviceBusManagementOperations from './lib/service-bus-management';
 import { ConnectionStore as _connectionStore } from './lib/clients/connection-store';
 export type ConnectionStore = _connectionStore;
 
+export { WorkspacesServer } from './lib/workspaces/workspaces-server';
+export type { WorkspaceStore } from './lib/workspaces/types';
+
 export class Server {
   private connectionManager: ConnectionManager;
 

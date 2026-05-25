@@ -4,4 +4,5 @@ export interface Page {
   id: UUID;
   name: string;
   retrievedAt: Date;
+  workspaceId: UUID;
 }

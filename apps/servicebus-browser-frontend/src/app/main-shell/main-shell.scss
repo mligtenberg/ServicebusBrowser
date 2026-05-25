@@ -70,6 +70,42 @@
   }
 }
 
+.workspace-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 6px;
+  margin-right: 4px;
+  border-right: 1px solid var(--p-menubar-border-color, var(--p-content-border-color));
+  color: var(--p-menubar-item-color, var(--p-text-muted-color));
+  -webkit-app-region: none;
+
+  &.with-window-controls {
+    padding-left: 14px;
+    margin-left: 4px;
+  }
+}
+
+.workspace-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.workspace-name {
+  font-size: inherit;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 .router-outlet {
   height: 100%;
   width: 100%;

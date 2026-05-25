@@ -7,38 +7,45 @@ import { ensurePagesDbCreated } from './sqllite/ensure-db-created';
 export class SqlitePagesDatabase implements PagesDatabase {
   database: Database = new Database('pages');
 
-  async initialize(): Promise<void> {
+  async initialize(workspaceId: UUID): Promise<void> {
     await this.database.initialize();
-    await ensurePagesDbCreated(this.database);
+    await ensurePagesDbCreated(this.database, workspaceId);
+    this.workspaceId = workspaceId;
   }
+
+  private workspaceId: UUID = '' as UUID;
 
   async addPage(page: Page): Promise<void> {
     await this.database.exec(
-      `INSERT INTO pages (id, name, retrievedAt) VALUES (?, ?, ?)`,
-      [page.id, page.name, page.retrievedAt.toISOString()],
+      `INSERT INTO pages (id, name, retrievedAt, workspaceId) VALUES (?, ?, ?, ?)`,
+      [page.id, page.name, page.retrievedAt.toISOString(), page.workspaceId],
     );
   }
 
   async getPages(): Promise<Page[]> {
-    const rows = await this.selectRows<[UUID, string, string]>(
-      'SELECT id, name, retrievedAt FROM pages ORDER BY retrievedAt ASC',
+    const rows = await this.selectRows<[UUID, string, string, UUID]>(
+      'SELECT id, name, retrievedAt, workspaceId FROM pages WHERE workspaceId = ? ORDER BY retrievedAt ASC',
+      [this.workspaceId],
     );
-    return rows
-      .map(([id, name, retrievedAt]) => ({ id, name, retrievedAt: new Date(retrievedAt) }));
+    return rows.map(([id, name, retrievedAt, workspaceId]) => ({
+      id,
+      name,
+      retrievedAt: new Date(retrievedAt),
+      workspaceId,
+    }));
   }
 
   async getPage(id: UUID): Promise<Page | undefined> {
-    const rows = await this.selectRows<[UUID, string, string]>(
-      'SELECT * FROM pages WHERE id = ? LIMIT 1',
+    const rows = await this.selectRows<[UUID, string, string, UUID]>(
+      'SELECT id, name, retrievedAt, workspaceId FROM pages WHERE id = ? LIMIT 1',
       [id],
     );
     if (!rows.length) {
       return undefined;
     }
 
-    const [_, name, retrievedAt] = rows[0];
-
-    return { id, name, retrievedAt: new Date(retrievedAt) };
+    const [pageId, name, retrievedAt, workspaceId] = rows[0];
+    return { id: pageId, name, retrievedAt: new Date(retrievedAt), workspaceId };
   }
 
   async updatePageName(id: UUID, name: string): Promise<void> {

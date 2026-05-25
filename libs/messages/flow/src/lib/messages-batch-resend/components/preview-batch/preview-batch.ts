@@ -8,6 +8,10 @@ import {
 import MessagesViewer from '../../../messages-viewer/messages-viewer';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -22,7 +26,6 @@ import {
   ToMessageToSend,
 } from '@service-bus-browser/api-contracts';
 
-const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-preview-batch',

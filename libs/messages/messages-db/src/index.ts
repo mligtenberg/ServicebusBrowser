@@ -1,5 +1,7 @@
 import { MessagesRepository } from './lib/messages-repository';
-import { getPagesDb } from './lib/get-database';
+import { getPagesDb, initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles } from './lib/get-database';
+
+export { initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles };
 
 let repositoryPromise: Promise<MessagesRepository> | undefined;
 
@@ -10,4 +12,3 @@ export async function getMessagesRepository() {
 
   return await repositoryPromise;
 }
-

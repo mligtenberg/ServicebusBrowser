@@ -7,22 +7,47 @@ import { mergeMap, tap } from 'rxjs';
 import {
   messagePagesActions,
 } from '@service-bus-browser/messages-store';
+import { WorkspaceService } from '@service-bus-browser/services';
+
+const PAGES_ORDER_KEY = 'pagesOrder';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PageEffects implements OnInitEffects {
+  workspaceService = inject(WorkspaceService);
+
   ngrxOnInitEffects(): Action {
-    const pagesOrderJson = localStorage.getItem('pagesOrder');
+    const workspaceId = this.workspaceService.activeWorkspace()?.id;
+    const pagesOrderJson = localStorage.getItem(PAGES_ORDER_KEY);
+
     if (pagesOrderJson) {
-      return pagesActions.loadPageOrderFromStorage({
-        orderOverrides: JSON.parse(pagesOrderJson),
-      });
+      const parsed = JSON.parse(pagesOrderJson);
+
+      if (workspaceId) {
+        // Detect old format: keys are numeric tab positions, not workspace UUIDs.
+        // A UUID always contains hyphens; numeric keys never do.
+        const firstKey = Object.keys(parsed)[0];
+        const isOldFormat = firstKey !== undefined && !firstKey.includes('-');
+
+        if (isOldFormat) {
+          // Migrate: wrap existing mapping under the current workspace id
+          const migrated = { [workspaceId]: parsed };
+          localStorage.setItem(PAGES_ORDER_KEY, JSON.stringify(migrated));
+          return pagesActions.loadPageOrderFromStorage({ orderOverrides: parsed });
+        }
+
+        const workspaceOrdering = parsed[workspaceId] ?? {};
+        return pagesActions.loadPageOrderFromStorage({ orderOverrides: workspaceOrdering });
+      }
+
+      // No workspace yet — fall back to whatever is stored (old or new format)
+      return pagesActions.loadPageOrderFromStorage({ orderOverrides: parsed });
     }
 
     return pagesActions.loadPageOrderFromStorage({
-      orderOverrides: {}
-    })
+      orderOverrides: {},
+    });
   }
 
   actions = inject(Actions);
@@ -49,11 +74,23 @@ export class PageEffects implements OnInitEffects {
       this.actions.pipe(
         ofType(pagesActions.movePage),
         tap(() => {
+          const workspaceId = this.workspaceService.activeWorkspace()?.id;
           const currentState = this.store.selectSignal(featureSelector)();
-          localStorage.setItem(
-            'pagesOrder',
-            JSON.stringify(currentState.pages),
+          const existing = JSON.parse(
+            localStorage.getItem(PAGES_ORDER_KEY) ?? '{}',
           );
+
+          if (workspaceId) {
+            localStorage.setItem(
+              PAGES_ORDER_KEY,
+              JSON.stringify({ ...existing, [workspaceId]: currentState.pages }),
+            );
+          } else {
+            localStorage.setItem(
+              PAGES_ORDER_KEY,
+              JSON.stringify(currentState.pages),
+            );
+          }
         }),
       ),
     { dispatch: false },

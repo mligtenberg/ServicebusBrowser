@@ -1,6 +1,8 @@
 import {
   ApplicationConfig,
+  inject,
   isDevMode,
+  provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -34,9 +36,31 @@ import {
 import { ClientConfigStsLoader } from './auth-config';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
+import { WorkspaceService } from '@service-bus-browser/services';
+import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
+import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // workspace initialization — must complete before NgRx effects start
+    provideAppInitializer(async () => {
+      const workspaceService = inject(WorkspaceService);
+      const workspacesClient = inject(WorkspacesFrontendClient);
+
+      const workspaces = await workspacesClient.listWorkspaces();
+      const workspace = workspaceService.initialize(workspaces);
+
+      try {
+        await migrateOpfsFiles(workspace.id);
+      } catch (err) {
+        console.warn('OPFS migration failed; will retry on next boot:', err);
+      }
+      initializeWorkspace(workspace.id);
+      // Force module-level `repository` bindings (set via getMessagesRepository().then(...))
+      // to be assigned before NgRx effects run.
+      await getMessagesRepository();
+    }),
+
     // oidc auth
     provideAuth(
       {

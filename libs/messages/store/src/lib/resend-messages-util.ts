@@ -2,6 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import { Message, SendEndpoint, ToMessageToSend } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { Store } from '@ngrx/store';
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { MessageModificationAction, MessageModificationEngine } from '@service-bus-browser/message-modification-engine';
@@ -10,7 +14,6 @@ import { TasksActions } from '@service-bus-browser/tasks-store';
 import { messagePagesEffectActions } from './messages.effect-actions';
 import { Logger } from '@service-bus-browser/logs-services';
 
-const repository = await getMessagesRepository();
 
 @Injectable({
   providedIn: 'root',

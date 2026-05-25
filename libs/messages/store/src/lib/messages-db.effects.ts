@@ -6,9 +6,6 @@ import { from, map, mergeMap, switchMap } from 'rxjs';
 import { messagePagesActions } from './messages.actions';
 import { messagePagesEffectActions } from './messages.effect-actions';
 
-
-const repository = await getMessagesRepository();
-
 @Injectable({
   providedIn: 'root',
 })
@@ -20,10 +17,18 @@ export class MessagesDbEffects implements OnInitEffects {
   store = inject(Store);
   actions$ = inject(Actions);
 
+  // NgRx initializes effects via ENVIRONMENT_INITIALIZER, which runs BEFORE
+  // APP_INITIALIZER. The action dispatched by ngrxOnInitEffects therefore
+  // fires before the workspace is set up. Each effect awaits
+  // getMessagesRepository() inline — its cached promise won't resolve until
+  // the workspace initializer calls initializeWorkspace(), so the effect
+  // simply queues and emits once everything's ready.
   loadPagesFromDb$ = createEffect(() =>
     this.actions$.pipe(
       ofType(messagePagesEffectActions.loadPagesFromDb),
-      switchMap(() => from(repository.getPages())),
+      switchMap(() =>
+        from(getMessagesRepository().then((r) => r.getPages())),
+      ),
       mergeMap((pages) =>
         pages
           .sort((a, b) => (a.retrievedAt > b.retrievedAt ? 1 : -1))
@@ -38,16 +43,15 @@ export class MessagesDbEffects implements OnInitEffects {
     ),
   );
 
-  closePage$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(messagePagesActions.closePage),
-        mergeMap(({ pageId }) => {
-          return from(repository.closePage(pageId)).pipe(
-            map(() => messagePagesEffectActions.pageClosed({ pageId })),
-          );
-        }),
+  closePage$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(messagePagesActions.closePage),
+      mergeMap(({ pageId }) =>
+        from(getMessagesRepository().then((r) => r.closePage(pageId))).pipe(
+          map(() => messagePagesEffectActions.pageClosed({ pageId })),
+        ),
       ),
+    ),
   );
 
   updatePageName$ = createEffect(
@@ -55,7 +59,11 @@ export class MessagesDbEffects implements OnInitEffects {
       this.actions$.pipe(
         ofType(messagePagesActions.renamePage),
         switchMap(({ pageId, pageName }) =>
-          from(repository.updatePageName(pageId, pageName)),
+          from(
+            getMessagesRepository().then((r) =>
+              r.updatePageName(pageId, pageName),
+            ),
+          ),
         ),
       ),
     { dispatch: false },

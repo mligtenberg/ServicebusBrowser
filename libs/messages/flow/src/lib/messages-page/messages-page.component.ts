@@ -53,10 +53,13 @@ import { Tooltip } from 'primeng/tooltip';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+
+// FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
+let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
+getMessagesRepository().then((r) => (repository = r));
 import { UUID } from '@service-bus-browser/shared-contracts';
 import MessagesViewer from '../messages-viewer/messages-viewer';
 
-const repository = await getMessagesRepository();
 
 @Component({
   selector: 'lib-messages-page',

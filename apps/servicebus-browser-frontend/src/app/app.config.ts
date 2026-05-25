@@ -1,6 +1,8 @@
 import {
   ApplicationConfig,
+  inject,
   isDevMode,
+  provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
@@ -26,6 +28,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { DialogService } from 'primeng/dynamicdialog';
+import { WorkspaceService } from '@service-bus-browser/services';
+import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
+import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -77,6 +82,31 @@ export const appConfig: ApplicationConfig = {
     provideStoreDevtools({
       maxAge: 25,
       logOnly: !isDevMode(),
+    }),
+
+    // workspace initialization — must complete before NgRx effects start
+    provideAppInitializer(async () => {
+      const workspaceService = inject(WorkspaceService);
+      const workspacesClient = inject(WorkspacesFrontendClient);
+
+      const workspaces = await workspacesClient.listWorkspaces();
+      const workspace = workspaceService.initialize(workspaces);
+
+      // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
+      // when we move files. The migration scans the OPFS directory directly.
+      try {
+        await migrateOpfsFiles(workspace.id);
+      } catch (err) {
+        console.warn('OPFS migration failed; will retry on next boot:', err);
+      }
+
+      initializeWorkspace(workspace.id);
+
+      // Force the repository chain to fully resolve before the initializer
+      // returns. Every file that does `getMessagesRepository().then(r => repository = r)`
+      // at module load is awaiting on the same cached promise, so all of those
+      // module-level `repository` bindings are assigned before NgRx effects run.
+      await getMessagesRepository();
     }),
   ],
 };

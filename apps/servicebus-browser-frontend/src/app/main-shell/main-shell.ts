@@ -1,9 +1,10 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
-import { ColorThemeService } from '@service-bus-browser/services';
+import { ColorThemeService, WorkspaceService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
+import { NgStyle } from '@angular/common';
 
 interface ElectronWindow {
   electron?: {
@@ -13,8 +14,21 @@ interface ElectronWindow {
   };
 }
 
+const AVATAR_COLORS = [
+  '#5B9BD5', '#ED7D31', '#A9D18E', '#FF0000',
+  '#FFC000', '#00B0F0', '#7030A0', '#70AD47',
+];
+
+function workspaceAvatarColor(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
 @Component({
-  imports: [MainUiComponent],
+  imports: [MainUiComponent, NgStyle],
   selector: 'app-main-shell',
   templateUrl: './main-shell.html',
   styleUrl: './main-shell.scss',
@@ -24,12 +38,23 @@ export class MainShell {
   isMac = this.electron?.platform === 'darwin';
 
   store = inject(Store);
+  workspaceService = inject(WorkspaceService);
 
   fullscreen = signal<boolean>(false);
   windowControlSpacing = computed(() => this.isMac && !this.fullscreen());
 
   themeService = inject(ColorThemeService);
   darkMode = this.themeService.darkMode;
+
+  activeWorkspace = this.workspaceService.activeWorkspace;
+  workspaceAvatarColor = computed(() => {
+    const ws = this.activeWorkspace();
+    return ws ? workspaceAvatarColor(ws.id) : '#888';
+  });
+  workspaceInitial = computed(() => {
+    const ws = this.activeWorkspace();
+    return ws ? ws.name.charAt(0).toUpperCase() : '?';
+  });
 
   menuItems: MenuItem[] = [
     {

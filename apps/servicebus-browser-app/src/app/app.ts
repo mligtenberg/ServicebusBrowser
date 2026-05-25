@@ -11,6 +11,7 @@ import { environment } from '../environments/environment';
 import path, { join } from 'path';
 import { getMenu } from './menu';
 import * as fs from 'fs';
+import { runMigration } from './events/migration';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
@@ -73,6 +74,12 @@ export default class App {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
+    try {
+      runMigration(App.application.getPath('userData'));
+    } catch (error) {
+      console.error('Workspace migration failed:', error);
+    }
+
     if (rendererAppName) {
       App.loadNetworkStack();
       App.initWindow();
