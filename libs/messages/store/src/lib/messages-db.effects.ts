@@ -68,4 +68,11 @@ export class MessagesDbEffects implements OnInitEffects {
       ),
     { dispatch: false },
   );
+
+  reloadAfterWorkspaceSwitch$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(messagePagesEffectActions.workspaceSwitched),
+      map(() => messagePagesEffectActions.loadPagesFromDb()),
+    ),
+  );
 }

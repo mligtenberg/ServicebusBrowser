@@ -48,5 +48,6 @@ export const messagePagesEffectActions = createActionGroup({
     'page closed': props<{
       pageId: UUID;
     }>(),
+    'workspace switched': emptyProps(),
   },
 });

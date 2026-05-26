@@ -22,6 +22,16 @@ export function initializeWorkspace(workspaceId: UUID): void {
   workspaceResolve(workspaceId);
 }
 
+/**
+ * Switches the active workspace for database access. Resets the cached
+ * PagesDatabase promise so the next call to getPagesDb() opens a fresh
+ * connection scoped to the new workspace.
+ */
+export function switchDatabaseWorkspace(workspaceId: UUID): void {
+  activeWorkspaceId = workspaceId;
+  dbPromise = undefined;
+}
+
 export function getActiveWorkspaceId(): UUID {
   if (!activeWorkspaceId) {
     throw new Error('Workspace not initialized. Call initializeWorkspace() before accessing databases.');
@@ -34,9 +44,10 @@ export function getActiveWorkspaceId(): UUID {
 let dbPromise: Promise<PagesDatabase> | undefined;
 
 export async function getPagesDb(): Promise<PagesDatabase> {
-  const workspaceId = await workspaceReadyPromise;
+  await workspaceReadyPromise;
 
   if (!dbPromise) {
+    const workspaceId = activeWorkspaceId!;
     const pagesDb = new SqlitePagesDatabase();
     dbPromise = pagesDb.initialize(workspaceId).then(() => pagesDb);
   }
@@ -47,7 +58,8 @@ export async function getPagesDb(): Promise<PagesDatabase> {
 const dbs: Record<string, MessagesDatabase> = {};
 
 export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
-  const workspaceId = await workspaceReadyPromise;
+  await workspaceReadyPromise;
+  const workspaceId = activeWorkspaceId!;
   const dbKey = `${workspaceId}/${page.id}`;
 
   if (dbKey in dbs) {

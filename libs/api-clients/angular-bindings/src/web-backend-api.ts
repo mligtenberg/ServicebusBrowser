@@ -77,11 +77,17 @@ export class WebBackendApi implements BackendApi {
 
   async workspacesDoRequest(
     requestType: string,
-    _request: unknown,
+    request: unknown,
   ): Promise<unknown> {
     switch (requestType) {
       case 'listWorkspaces':
         return this.listWorkspaces();
+      case 'createWorkspace':
+        return this.createWorkspace((request as { name: string }).name);
+      case 'setActiveWorkspace':
+        // On web the active workspace is tracked via WorkspaceService/localStorage;
+        // no separate persistence step is needed here.
+        return;
       default:
         throw new Error(`Unknown workspaces request: ${requestType}`);
     }
@@ -107,6 +113,30 @@ export class WebBackendApi implements BackendApi {
       JSON.stringify(workspaces),
     );
     return workspaces;
+  }
+
+  private createWorkspace(name: string): Workspace {
+    name = name.trim();
+    if (name === '') {
+      throw new Error('Workspace name cannot be empty');
+    }
+    const workspaces = this.listWorkspaces();
+    const duplicate = workspaces.some(
+      (w) => w.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) {
+      throw new Error(`A workspace named "${name}" already exists`);
+    }
+    const workspace: Workspace = {
+      id: crypto.randomUUID() as UUID,
+      name,
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem(
+      WebBackendApi.WORKSPACES_STORAGE_KEY,
+      JSON.stringify([...workspaces, workspace]),
+    );
+    return workspace;
   }
 
   private async decodeResponse(response: Blob): Promise<any> {

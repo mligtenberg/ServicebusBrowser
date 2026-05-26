@@ -1,4 +1,4 @@
-import { Workspace } from '@service-bus-browser/shared-contracts';
+import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 import { BackendApi } from './backend-api';
 
 export class WorkspacesFrontendClient {
@@ -9,5 +9,16 @@ export class WorkspacesFrontendClient {
       'listWorkspaces',
       {},
     )) as Workspace[];
+  }
+
+  async createWorkspace(name: string): Promise<Workspace> {
+    return (await this.backendApi.workspacesDoRequest(
+      'createWorkspace',
+      { name },
+    )) as Workspace;
+  }
+
+  async setActiveWorkspaceId(id: UUID): Promise<void> {
+    await this.backendApi.workspacesDoRequest('setActiveWorkspace', { id });
   }
 }
