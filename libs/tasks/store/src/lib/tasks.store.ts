@@ -58,7 +58,8 @@ export const reducer = createReducer(
 on(Actions.completeTask, (state, { id }) => ({
     ...state,
     tasks: state.tasks.filter((task) => task.id !== id),
-  }))
+  })),
+  on(Actions.cancelAllTasks, () => initialState)
 );
 
 export const feature = createFeature({

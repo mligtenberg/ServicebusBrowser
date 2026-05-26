@@ -28,3 +28,5 @@ export const completeTask = createAction(
     statusDescription?: string,
   }>()
 )
+
+export const cancelAllTasks = createAction('[Tasks] Cancel All Tasks')
