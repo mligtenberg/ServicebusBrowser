@@ -36,12 +36,12 @@
       <div class="ws-separator"></div>
       <div class="ws-section-label">Workspaces</div>
       @for (ws of otherWorkspaces(); track ws.id) {
-        <div class="ws-row ws-row--inactive" title="Switching between workspaces coming soon">
+        <button class="ws-row ws-row--clickable" type="button" (click)="selectWorkspace(ws)">
           <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
             {{ initials(ws) }}
           </span>
           <span class="ws-row-name">{{ ws.name }}</span>
-        </div>
+        </button>
       }
     }
   </div>
@@ -79,6 +79,32 @@
       [disabled]="!newWorkspaceName().trim() || creating()"
       [loading]="creating()"
       (click)="submitCreate()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="Switch Workspace"
+  [visible]="showConfirmDialog()"
+  (visibleChange)="!$event && cancelSwitch()"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+>
+  <p class="confirm-text">
+    One or more message loads are currently in progress. Switching workspaces
+    will cancel all active loads. Do you want to continue?
+  </p>
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (click)="cancelSwitch()"
+    />
+    <p-button
+      label="Continue"
+      severity="danger"
+      (click)="confirmSwitch()"
     />
   </ng-template>
 </p-dialog>

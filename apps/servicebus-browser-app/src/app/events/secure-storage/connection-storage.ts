@@ -4,11 +4,15 @@ import { safeStorage } from 'electron';
 import path from 'path';
 import * as fs from 'fs';
 import { ConnectionStore } from '@service-bus-browser/service-bus-server';
+import { WorkspaceStorage } from './workspace-storage';
 
 export class SecureConnectionStorage implements ConnectionStore {
   connectionsPath: string;
 
-  constructor(userDataMainFolder: string) {
+  constructor(
+    userDataMainFolder: string,
+    private readonly workspaceStorage?: WorkspaceStorage,
+  ) {
     this.connectionsPath = path.join(
       userDataMainFolder,
       'sbb-connections.json',
@@ -16,8 +20,11 @@ export class SecureConnectionStorage implements ConnectionStore {
   }
 
   addConnection(connection: Connection): void {
+    const activeWorkspaceId = this.workspaceStorage?.getActiveWorkspaceId();
     const connections = this.readCurrentConnections();
-    connections[connection.id] = connection;
+    connections[connection.id] = activeWorkspaceId
+      ? { ...connection, workspaceId: activeWorkspaceId }
+      : connection;
     this.writeConnections(connections);
   }
 
@@ -29,10 +36,17 @@ export class SecureConnectionStorage implements ConnectionStore {
 
   listConnections(): Array<{ connectionId: UUID; connectionName: string }> {
     const connections = this.readCurrentConnections();
-    return Object.entries(connections).map(([connectionId, connection]) => ({
-      connectionId: connectionId as UUID,
-      connectionName: connection.name,
-    }));
+    const activeWorkspaceId = this.workspaceStorage?.getActiveWorkspaceId();
+    return Object.entries(connections)
+      .filter(([_, connection]) =>
+        !activeWorkspaceId ||
+        !connection.workspaceId ||
+        connection.workspaceId === activeWorkspaceId,
+      )
+      .map(([connectionId, connection]) => ({
+        connectionId: connectionId as UUID,
+        connectionName: connection.name,
+      }));
   }
 
   getConnection(connectionId: UUID): Connection | undefined {
