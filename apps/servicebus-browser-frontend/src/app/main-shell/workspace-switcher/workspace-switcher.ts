@@ -14,6 +14,8 @@ import { InputText } from 'primeng/inputtext';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
+import { Store } from '@ngrx/store';
+import { TasksSelectors } from '@service-bus-browser/tasks-store';
 
 function workspaceAvatarColor(id: string): string {
   let hash = 0;
@@ -42,11 +44,15 @@ function workspaceInitials(name: string): string {
 export class WorkspaceSwitcherComponent {
   @ViewChild('op') popover!: Popover;
 
+  private readonly store = inject(Store);
   workspaceService = inject(WorkspaceService);
   switchService = inject(WorkspaceSwitchService);
 
   activeWorkspace = this.workspaceService.activeWorkspace;
   availableWorkspaces = this.workspaceService.availableWorkspaces;
+
+  activeTasks = this.store.selectSignal(TasksSelectors.selectTasks);
+  hasActiveTasks = computed(() => this.activeTasks().length > 0);
 
   activeColor = computed(() => {
     const ws = this.activeWorkspace();
@@ -68,6 +74,9 @@ export class WorkspaceSwitcherComponent {
   showCreateDialog = signal(false);
   newWorkspaceName = signal('');
   creating = signal(false);
+
+  showConfirmDialog = signal(false);
+  pendingWorkspace = signal<Workspace | null>(null);
 
   avatarColor(ws: Workspace): string {
     return workspaceAvatarColor(ws.id);
@@ -101,5 +110,28 @@ export class WorkspaceSwitcherComponent {
 
   cancelCreate(): void {
     this.showCreateDialog.set(false);
+  }
+
+  selectWorkspace(ws: Workspace): void {
+    this.popover.hide();
+    if (this.hasActiveTasks()) {
+      this.pendingWorkspace.set(ws);
+      this.showConfirmDialog.set(true);
+    } else {
+      this.switchService.switchTo(ws);
+    }
+  }
+
+  async confirmSwitch(): Promise<void> {
+    const ws = this.pendingWorkspace();
+    if (!ws) return;
+    this.showConfirmDialog.set(false);
+    this.pendingWorkspace.set(null);
+    await this.switchService.switchTo(ws);
+  }
+
+  cancelSwitch(): void {
+    this.showConfirmDialog.set(false);
+    this.pendingWorkspace.set(null);
   }
 }

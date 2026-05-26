@@ -111,9 +111,17 @@
     font-weight: 500;
   }
 
-  &--inactive {
-    opacity: 0.6;
-    cursor: not-allowed;
+  &--clickable {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      background: var(--p-content-hover-background);
+    }
   }
 }
 
@@ -136,4 +144,11 @@
 
 .create-input {
   width: 100%;
+}
+
+.confirm-text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--p-text-color);
 }
