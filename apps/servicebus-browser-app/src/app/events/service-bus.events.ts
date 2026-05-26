@@ -1,12 +1,15 @@
 import { ipcMain } from 'electron';
 import { Server } from '@service-bus-browser/service-bus-server';
 import { SecureConnectionStorage } from './secure-storage/connection-storage';
+import { WorkspaceStorage } from './secure-storage/workspace-storage';
 import App from '../app';
 
 let server: Server | undefined = undefined;
 export default class ServiceBusEvents {
   static bootstrapServiceBusEvents(): Electron.IpcMain {
-    server = new Server(new SecureConnectionStorage(App.application.getPath('userData')));
+    const userDataPath = App.application.getPath('userData');
+    const workspaceStorage = new WorkspaceStorage(userDataPath);
+    server = new Server(new SecureConnectionStorage(userDataPath, workspaceStorage));
     return ipcMain;
   }
 }

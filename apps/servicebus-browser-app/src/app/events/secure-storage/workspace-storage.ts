@@ -46,4 +46,8 @@ export class WorkspaceStorage {
     const current = this.read() ?? { version: 1, workspaces: [] };
     this.write({ ...current, activeWorkspaceId: id });
   }
+
+  getActiveWorkspaceId(): UUID | undefined {
+    return this.read()?.activeWorkspaceId;
+  }
 }
