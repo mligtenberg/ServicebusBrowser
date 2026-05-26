@@ -44,9 +44,10 @@ export function getActiveWorkspaceId(): UUID {
 let dbPromise: Promise<PagesDatabase> | undefined;
 
 export async function getPagesDb(): Promise<PagesDatabase> {
-  const workspaceId = await workspaceReadyPromise;
+  await workspaceReadyPromise;
 
   if (!dbPromise) {
+    const workspaceId = activeWorkspaceId!;
     const pagesDb = new SqlitePagesDatabase();
     dbPromise = pagesDb.initialize(workspaceId).then(() => pagesDb);
   }
@@ -57,7 +58,8 @@ export async function getPagesDb(): Promise<PagesDatabase> {
 const dbs: Record<string, MessagesDatabase> = {};
 
 export async function getMessagesDb(page: Page): Promise<MessagesDatabase> {
-  const workspaceId = await workspaceReadyPromise;
+  await workspaceReadyPromise;
+  const workspaceId = activeWorkspaceId!;
   const dbKey = `${workspaceId}/${page.id}`;
 
   if (dbKey in dbs) {

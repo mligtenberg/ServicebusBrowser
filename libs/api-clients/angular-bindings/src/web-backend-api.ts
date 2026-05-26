@@ -116,7 +116,17 @@ export class WebBackendApi implements BackendApi {
   }
 
   private createWorkspace(name: string): Workspace {
+    name = name.trim();
+    if (name === '') {
+      throw new Error('Workspace name cannot be empty');
+    }
     const workspaces = this.listWorkspaces();
+    const duplicate = workspaces.some(
+      (w) => w.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) {
+      throw new Error(`A workspace named "${name}" already exists`);
+    }
     const workspace: Workspace = {
       id: crypto.randomUUID() as UUID,
       name,
