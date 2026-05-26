@@ -1,5 +1,6 @@
 :host.with-window-controls .ws-trigger {
-  padding-left: 80px;
+  margin-left: 1em;
+
 }
 
 .ws-trigger {
@@ -9,7 +10,6 @@
   padding: 0 8px 0 6px;
   margin-right: 4px;
   border: none;
-  border-right: 1px solid var(--p-menubar-border-color, var(--p-content-border-color));
   background: transparent;
   color: var(--p-menubar-item-color, var(--p-text-muted-color));
   cursor: pointer;
