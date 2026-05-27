@@ -21,4 +21,19 @@ export class WorkspacesFrontendClient {
   async setActiveWorkspaceId(id: UUID): Promise<void> {
     await this.backendApi.workspacesDoRequest('setActiveWorkspace', { id });
   }
+
+  async renameWorkspace(id: UUID, name: string): Promise<void> {
+    await this.backendApi.workspacesDoRequest('renameWorkspace', { id, name });
+  }
+
+  async deleteWorkspace(id: UUID): Promise<void> {
+    await this.backendApi.workspacesDoRequest('deleteWorkspace', { id });
+  }
+
+  async countConnectionsByWorkspace(id: UUID): Promise<number> {
+    return (await this.backendApi.workspacesDoRequest(
+      'countConnectionsByWorkspace',
+      { id },
+    )) as number;
+  }
 }

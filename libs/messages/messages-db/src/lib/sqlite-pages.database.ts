@@ -62,6 +62,21 @@ export class SqlitePagesDatabase implements PagesDatabase {
     );
   }
 
+  async countPagesByWorkspace(workspaceId: UUID): Promise<number> {
+    const rows = await this.selectRows<[number]>(
+      'SELECT COUNT(*) FROM pages WHERE workspaceId = ?',
+      [workspaceId],
+    );
+    return rows[0]?.[0] ?? 0;
+  }
+
+  async deletePagesByWorkspace(workspaceId: UUID): Promise<void> {
+    await this.database.exec(
+      `DELETE FROM pages WHERE workspaceId = ?`,
+      [workspaceId],
+    );
+  }
+
   private async selectRows<T>(sql: string, args: unknown[] = []): Promise<T[]> {
     const response = await this.database.exec(sql, args);
     const responseAsRecord = response as {

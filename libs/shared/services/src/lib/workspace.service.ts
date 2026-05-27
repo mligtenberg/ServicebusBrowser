@@ -64,4 +64,23 @@ export class WorkspaceService {
     this.addWorkspace(workspace);
     return workspace;
   }
+
+  async renameWorkspace(id: UUID, name: string): Promise<void> {
+    await this.workspacesClient.renameWorkspace(id, name);
+    this._availableWorkspaces.update((ws) =>
+      ws.map((w) => (w.id === id ? { ...w, name } : w)),
+    );
+    if (this._activeWorkspace()?.id === id) {
+      this._activeWorkspace.update((w) => (w ? { ...w, name } : w));
+    }
+  }
+
+  async deleteWorkspace(id: UUID): Promise<void> {
+    await this.workspacesClient.deleteWorkspace(id);
+    this._availableWorkspaces.update((ws) => ws.filter((w) => w.id !== id));
+  }
+
+  async countConnectionsByWorkspace(id: UUID): Promise<number> {
+    return this.workspacesClient.countConnectionsByWorkspace(id);
+  }
 }

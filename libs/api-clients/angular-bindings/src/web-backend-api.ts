@@ -88,6 +88,16 @@ export class WebBackendApi implements BackendApi {
         // On web the active workspace is tracked via WorkspaceService/localStorage;
         // no separate persistence step is needed here.
         return;
+      case 'renameWorkspace':
+        return this.renameWorkspace(
+          (request as { id: UUID; name: string }).id,
+          (request as { id: UUID; name: string }).name,
+        );
+      case 'deleteWorkspace':
+        return this.deleteWorkspaceFromStorage((request as { id: UUID }).id);
+      case 'countConnectionsByWorkspace':
+        // Web has no server-side connection tracking per workspace.
+        return 0;
       default:
         throw new Error(`Unknown workspaces request: ${requestType}`);
     }
@@ -113,6 +123,26 @@ export class WebBackendApi implements BackendApi {
       JSON.stringify(workspaces),
     );
     return workspaces;
+  }
+
+  private renameWorkspace(id: UUID, name: string): void {
+    name = name.trim();
+    if (name === '') throw new Error('Workspace name cannot be empty');
+    const workspaces = this.listWorkspaces().map((w) =>
+      w.id === id ? { ...w, name } : w,
+    );
+    localStorage.setItem(
+      WebBackendApi.WORKSPACES_STORAGE_KEY,
+      JSON.stringify(workspaces),
+    );
+  }
+
+  private deleteWorkspaceFromStorage(id: UUID): void {
+    const workspaces = this.listWorkspaces().filter((w) => w.id !== id);
+    localStorage.setItem(
+      WebBackendApi.WORKSPACES_STORAGE_KEY,
+      JSON.stringify(workspaces),
+    );
   }
 
   private createWorkspace(name: string): Workspace {
