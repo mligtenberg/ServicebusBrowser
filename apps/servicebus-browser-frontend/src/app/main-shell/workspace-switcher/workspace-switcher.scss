@@ -126,9 +126,46 @@
 }
 
 .ws-row-name {
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ws-action-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--p-text-muted-color);
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+
+  .pi {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    background: var(--p-content-hover-background);
+    color: var(--p-text-color);
+  }
+
+  &--danger:hover {
+    background: var(--p-red-100, rgba(239, 68, 68, 0.1));
+    color: var(--p-red-500, #ef4444);
+  }
+}
+
+.ws-row:hover .ws-action-btn,
+.ws-row--active .ws-action-btn {
+  opacity: 1;
 }
 
 .create-form {

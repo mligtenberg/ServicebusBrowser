@@ -29,6 +29,15 @@
           {{ initials(ws) }}
         </span>
         <span class="ws-row-name">{{ ws.name }}</span>
+        <button
+          class="ws-action-btn"
+          type="button"
+          pTooltip="Rename workspace"
+          tooltipPosition="top"
+          (click)="openRenameDialog()"
+        >
+          <span class="pi pi-pencil"></span>
+        </button>
       </div>
     }
 
@@ -41,6 +50,15 @@
             {{ initials(ws) }}
           </span>
           <span class="ws-row-name">{{ ws.name }}</span>
+          <button
+            class="ws-action-btn ws-action-btn--danger"
+            type="button"
+            pTooltip="Delete workspace"
+            tooltipPosition="top"
+            (click)="$event.stopPropagation(); openDeleteDialog(ws)"
+          >
+            <span class="pi pi-trash"></span>
+          </button>
         </button>
       }
     }
@@ -84,6 +102,41 @@
 </p-dialog>
 
 <p-dialog
+  header="Rename Workspace"
+  [visible]="showRenameDialog()"
+  (visibleChange)="!$event && cancelRename()"
+  [modal]="true"
+  [style]="{ width: '360px' }"
+  [draggable]="false"
+>
+  <div class="create-form">
+    <label for="wsRenameName" class="create-label">Workspace name</label>
+    <input
+      id="wsRenameName"
+      pInputText
+      type="text"
+      [ngModel]="renameWorkspaceName()"
+      (ngModelChange)="renameWorkspaceName.set($event)"
+      (keyup.enter)="submitRename()"
+      class="create-input"
+    />
+  </div>
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (click)="cancelRename()"
+    />
+    <p-button
+      label="Rename"
+      [disabled]="!renameWorkspaceName().trim() || renaming()"
+      [loading]="renaming()"
+      (click)="submitRename()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
   header="Switch Workspace"
   [visible]="showConfirmDialog()"
   (visibleChange)="!$event && cancelSwitch()"
@@ -105,6 +158,41 @@
       label="Continue"
       severity="danger"
       (click)="confirmSwitch()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="'Delete ' + (deleteTarget()?.name ?? 'Workspace')"
+  [visible]="showDeleteDialog()"
+  (visibleChange)="!$event && cancelDelete()"
+  [modal]="true"
+  [style]="{ width: '440px' }"
+  [draggable]="false"
+>
+  @if (deleteStats(); as stats) {
+    <p class="confirm-text">
+      This will permanently destroy
+      <strong>{{ stats.connectionCount }} connection{{ stats.connectionCount !== 1 ? 's' : '' }}</strong>,
+      <strong>{{ stats.pageCount }} message page{{ stats.pageCount !== 1 ? 's' : '' }}</strong>,
+      and all stored messages for this workspace.
+      <strong>This cannot be undone.</strong>
+    </p>
+  } @else {
+    <p class="confirm-text">Loading workspace details…</p>
+  }
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (click)="cancelDelete()"
+    />
+    <p-button
+      label="Delete"
+      severity="danger"
+      [disabled]="!deleteStats() || deleting()"
+      [loading]="deleting()"
+      (click)="confirmDelete()"
     />
   </ng-template>
 </p-dialog>

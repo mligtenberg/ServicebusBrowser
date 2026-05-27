@@ -8,4 +8,6 @@ export type PagesDatabase = {
   getPage(id: UUID): Promise<Page | undefined>;
   updatePageName(id: UUID, name: string): Promise<void>;
   closePage(id: UUID): Promise<void>;
+  countPagesByWorkspace(workspaceId: UUID): Promise<number>;
+  deletePagesByWorkspace(workspaceId: UUID): Promise<void>;
 }
