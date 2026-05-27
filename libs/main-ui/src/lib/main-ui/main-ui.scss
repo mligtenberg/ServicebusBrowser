@@ -24,6 +24,28 @@
     }
   }
 
+  .menu-item-selected > .p-menubar-item-content {
+    background: var(--p-menubar-item-focus-background, var(--p-content-hover-background));
+    color: var(--p-menubar-item-focus-color, inherit);
+    font-weight: 600;
+
+    .p-menubar-item-link {
+      width: 100%;
+    }
+
+    .p-menubar-item-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .menu-item-selected-check {
+    margin-left: auto;
+    padding-left: 1rem;
+    opacity: 0.85;
+  }
+
   .main-splitter {
     z-index: 1;
     flex: 1;

@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { Editor } from '@service-bus-browser/shared-components';
-import { ColorThemeService } from '@service-bus-browser/services';
+import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
 import { SelectButton } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -42,6 +42,7 @@ import { Location } from '@angular/common';
 })
 export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
+  private messagePreferences = inject(MessagePreferencesService);
   private route = inject(ActivatedRoute, { optional: true });
   private router = inject(Router);
   private location = inject(Location);
@@ -49,8 +50,16 @@ export class BodyViewer {
   header = input<string>('');
   pageId = input.required<UUID>();
   messageKey = input<string | undefined>(undefined);
-  showPrettyBody = signal<'raw' | 'pretty'>('raw');
-  csvDelimiter = signal(',');
+  showPrettyBody = signal<'raw' | 'pretty'>(this.initialBodyView());
+  csvDelimiter = signal(this.route?.snapshot.queryParamMap.get('csv') ?? ',');
+
+  private initialBodyView(): 'raw' | 'pretty' {
+    const fromQuery = this.route?.snapshot.queryParamMap.get('view');
+    if (fromQuery === 'raw' || fromQuery === 'pretty') {
+      return fromQuery;
+    }
+    return this.messagePreferences.defaultBodyView();
+  }
 
   isPopup = computed(() => this.route?.snapshot.data?.['popup'] === true);
 
@@ -61,11 +70,15 @@ export class BodyViewer {
     if (!messageKey) {
       return;
     }
-    const urlTree = this.router.createUrlTree([
-      '/popups/messages/body-viewer',
-      this.pageId(),
-      messageKey,
-    ]);
+    const urlTree = this.router.createUrlTree(
+      ['/popups/messages/body-viewer', this.pageId(), messageKey],
+      {
+        queryParams: {
+          view: this.showPrettyBody(),
+          csv: this.csvDelimiter(),
+        },
+      },
+    );
     const serialized = this.router.serializeUrl(urlTree);
     const external = this.location.prepareExternalUrl(serialized);
     const url = new URL(external, window.location.href).toString();

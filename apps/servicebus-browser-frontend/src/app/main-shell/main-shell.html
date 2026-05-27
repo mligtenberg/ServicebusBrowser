@@ -1,7 +1,7 @@
 <lib-main-ui
   [electronWindowControlSpacing]="windowControlSpacing()"
   [useLowProfileMenu]="isMac"
-  [menuItems]="menuItems"
+  [menuItems]="menuItems()"
 >
   <ng-template #menuStart>
     <app-workspace-switcher

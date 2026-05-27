@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
-import { ColorThemeService } from '@service-bus-browser/services';
+import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
@@ -30,73 +30,103 @@ export class MainShell {
   windowControlSpacing = computed(() => this.isMac && !this.fullscreen());
 
   themeService = inject(ColorThemeService);
+  messagePreferences = inject(MessagePreferencesService);
   darkMode = this.themeService.darkMode;
 
-  menuItems: MenuItem[] = [
-    {
-      label: 'Connections',
-      items: [
-        {
-          label: 'Add Connection',
-          icon: 'pi pi-plus',
-          routerLink: '/connections/add',
-        },
-      ],
-    },
-    {
-      label: 'Messages',
-      items: [
-        {
-          label: 'Send',
-          icon: 'pi pi-send',
-          routerLink: '/messages/send',
-        },
-        {
-          label: 'Import',
-          icon: 'pi pi-upload',
-          command: () => {
-            this.importMessages();
+  menuItems = computed<MenuItem[]>(() => {
+    const themePref = this.themeService.preference();
+    const bodyView = this.messagePreferences.defaultBodyView();
+    const selectionMarks = (selected: boolean, label: string) =>
+      selected
+        ? {
+            label: `${label}<i class="pi pi-check menu-item-selected-check"></i>`,
+            escape: false,
+            styleClass: 'menu-item-selected',
+          }
+        : { label };
+
+    return [
+      {
+        label: 'Connections',
+        items: [
+          {
+            label: 'Add Connection',
+            icon: 'pi pi-plus',
+            routerLink: '/connections/add',
           },
-        },
-      ],
-    },
-    {
-      label: 'Settings',
-      items: [
-        {
-          label: 'Application Theme',
-          icon: 'pi pi-desktop',
-          items: [
-            {
-              label: 'Sync with OS',
-              icon: 'pi pi-desktop',
-              command: () => this.themeService.setPreference('sync'),
+        ],
+      },
+      {
+        label: 'Messages',
+        items: [
+          {
+            label: 'Send',
+            icon: 'pi pi-send',
+            routerLink: '/messages/send',
+          },
+          {
+            label: 'Import',
+            icon: 'pi pi-upload',
+            command: () => {
+              this.importMessages();
             },
-            {
-              label: 'Light theme',
-              icon: 'pi pi-sun',
-              command: () => this.themeService.setPreference('light'),
-            },
-            {
-              label: 'Dark theme',
-              icon: 'pi pi-moon',
-              command: () => this.themeService.setPreference('dark'),
-            },
-          ],
-        },
-        {
-          label: 'Search for Updates',
-          icon: 'pi pi-refresh',
-          command: () => this.electron?.checkForUpdates?.(),
-        },
-        {
-          label: 'About',
-          icon: 'pi pi-info-circle',
-          routerLink: '/about',
-        },
-      ],
-    },
-  ];
+          },
+        ],
+      },
+      {
+        label: 'Settings',
+        items: [
+          {
+            label: 'Application Theme',
+            icon: 'pi pi-desktop',
+            items: [
+              {
+                ...selectionMarks(themePref === 'sync', 'Sync with OS'),
+                icon: 'pi pi-desktop',
+                command: () => this.themeService.setPreference('sync'),
+              },
+              {
+                ...selectionMarks(themePref === 'light', 'Light theme'),
+                icon: 'pi pi-sun',
+                command: () => this.themeService.setPreference('light'),
+              },
+              {
+                ...selectionMarks(themePref === 'dark', 'Dark theme'),
+                icon: 'pi pi-moon',
+                command: () => this.themeService.setPreference('dark'),
+              },
+            ],
+          },
+          {
+            label: 'Default Body View',
+            icon: 'pi pi-eye',
+            items: [
+              {
+                ...selectionMarks(bodyView === 'raw', 'Raw'),
+                icon: 'pi pi-file',
+                command: () => this.messagePreferences.setDefaultBodyView('raw'),
+              },
+              {
+                ...selectionMarks(bodyView === 'pretty', 'Pretty'),
+                icon: 'pi pi-sparkles',
+                command: () => this.messagePreferences.setDefaultBodyView('pretty'),
+              },
+            ],
+          },
+          {
+            label: 'Search for Updates',
+            icon: 'pi pi-refresh',
+            command: () => this.electron?.checkForUpdates?.(),
+          },
+          {
+            label: 'About',
+            icon: 'pi pi-info-circle',
+            routerLink: '/about',
+          },
+        ],
+      },
+    ];
+  });
 
   constructor() {
     this.electron?.onFullScreenChanged?.((full) => {

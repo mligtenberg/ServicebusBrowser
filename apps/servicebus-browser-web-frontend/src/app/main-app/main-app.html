@@ -1,6 +1,6 @@
 @defer (when workspacesInitialized()) {
   <lib-main-ui
-    [menuItems]="menuItems"
+    [menuItems]="menuItems()"
   >
     <ng-template #menuStart>
       <app-workspace-switcher />
