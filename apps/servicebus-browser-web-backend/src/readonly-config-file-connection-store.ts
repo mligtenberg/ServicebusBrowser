@@ -1,47 +1,37 @@
 import { Connection } from '@service-bus-browser/api-contracts';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import * as fs from 'fs';
 import { ConnectionStore } from '@service-bus-browser/service-bus-server';
+import { ParsedConfig } from './web-config-loader';
 
 export class ReadonlyConfigFileConnectionStorage implements ConnectionStore {
-  connectionsPath: string;
+  constructor(
+    private readonly config: ParsedConfig,
+    private readonly activeWorkspaceHolder: { id: UUID },
+  ) {}
 
-  constructor() {
-    this.connectionsPath = `${process.cwd()}/sbb-connections.json`;
-  }
-
-  addConnection(connection: Connection): void {
+  addConnection(_connection: Connection): void {
     throw new Error('Method not implemented. This class is read-only.');
   }
 
-  removeConnection(connectionId: UUID): void {
+  removeConnection(_connectionId: UUID): void {
     throw new Error('Method not implemented. This class is read-only.');
   }
 
   listConnections(): Array<{ connectionId: UUID; connectionName: string }> {
-    const connections = this.readCurrentConnections();
-    return Object.entries(connections).map(([connectionId, connection]) => ({
-      connectionId: connectionId as UUID,
-      connectionName: connection.name,
+    return this.activeWorkspaceConnections().map((c) => ({
+      connectionId: c.id,
+      connectionName: c.name,
     }));
   }
 
   getConnection(connectionId: UUID): Connection | undefined {
-    const connections = this.readCurrentConnections();
-    return connections[connectionId];
+    return this.activeWorkspaceConnections().find((c) => c.id === connectionId);
   }
 
-  private readCurrentConnections(): Record<UUID, Connection> {
-    if (fs.existsSync(this.connectionsPath)) {
-      const fileContent = fs.readFileSync(this.connectionsPath, 'utf8');
-      const connections: Connection[] = JSON.parse(fileContent);
-
-      return connections.reduce<Record<UUID, Connection>>((acc, connection) => {
-        acc[connection.id] = connection;
-        return acc;
-      }, {});
-    }
-
-    return {};
+  private activeWorkspaceConnections(): Connection[] {
+    const ws = this.config.workspaces.find(
+      (w) => w.id === this.activeWorkspaceHolder.id,
+    );
+    return ws?.connections ?? [];
   }
 }
