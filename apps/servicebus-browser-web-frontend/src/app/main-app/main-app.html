@@ -1,17 +1,23 @@
-<lib-main-ui
-  [menuItems]="menuItems"
->
-  <ng-template #menuEnd>
-    <div class="account">
-      <p-button
-        [text]="true"
-        class="name-button"
-        severity="secondary"
-        icon="pi pi-user"
-        [label]="userName()"
-        (click)="accountMenu.toggle($event)"/>
+@defer (when workspacesInitialized()) {
+  <lib-main-ui
+    [menuItems]="menuItems"
+  >
+    <ng-template #menuStart>
+      <app-workspace-switcher />
+    </ng-template>
 
-      <p-menu #accountMenu [model]="accountMenuItems" [popup]="true" />
-    </div>
-  </ng-template>
-</lib-main-ui>
+    <ng-template #menuEnd>
+      <div class="account">
+        <p-button
+          [text]="true"
+          class="name-button"
+          severity="secondary"
+          icon="pi pi-user"
+          [label]="userName()"
+          (click)="accountMenu.toggle($event)"/>
+
+        <p-menu #accountMenu [model]="accountMenuItems" [popup]="true" />
+      </div>
+    </ng-template>
+  </lib-main-ui>
+}
