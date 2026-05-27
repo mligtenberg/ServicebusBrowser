@@ -28,13 +28,7 @@
       [isLoading]="isLoading()"
       #messagesViewer
     >
-      <ng-template #messagesHeader>
-        <p-menu
-          #menu
-          [model]="allMessagesMenu()"
-          [popup]="true"
-          appendTo="body"
-        />
+      <ng-template #messagesHeaderStatus>
         <div
           class="status-widget"
           [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }"
@@ -73,18 +67,24 @@
             }
           </div>
         </div>
-        <div class="header-buttons">
-          <p-button
-            (click)="openFilterDialog()"
-            [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
-            text="true"
-          />
-          <p-button
-            (click)="menu.show($event)"
-            icon="pi pi-ellipsis-v"
-            text="true"
-          />
-        </div>
+      </ng-template>
+      <ng-template #messagesHeaderActions>
+        <p-menu
+          #menu
+          [model]="allMessagesMenu()"
+          [popup]="true"
+          appendTo="body"
+        />
+        <p-button
+          (click)="openFilterDialog()"
+          [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
+          text="true"
+        />
+        <p-button
+          (click)="menu.show($event)"
+          icon="pi pi-ellipsis-v"
+          text="true"
+        />
       </ng-template>
     </lib-messages-viewer>
   }

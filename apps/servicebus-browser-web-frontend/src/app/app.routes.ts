@@ -7,6 +7,8 @@ export const appRoutes: Route[] = [
   {
     path: 'popups',
     canActivate: [AutoLoginPartialRoutesGuard],
+    loadComponent: () =>
+      import('./dialog-shell/dialog-shell').then((m) => m.DialogShell),
     children: [
       {
         path: 'messages',

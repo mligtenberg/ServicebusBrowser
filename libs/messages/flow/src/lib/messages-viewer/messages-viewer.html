@@ -78,7 +78,13 @@
   <div class="messages-container">
     <div class="messages-header header">
       <h2>Messages</h2>
+      @if (messagesHeaderStatus(); as ref) {
+        <ng-container *ngTemplateOutlet="ref"></ng-container>
+      }
       <div class="header-actions">
+        @if (messagesHeaderActions(); as ref) {
+          <ng-container *ngTemplateOutlet="ref"></ng-container>
+        }
         @if (messagesHeader(); as ref) {
           <ng-container *ngTemplateOutlet="ref"></ng-container>
         }

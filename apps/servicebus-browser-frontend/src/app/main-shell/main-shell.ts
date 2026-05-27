@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { MenuItem } from 'primeng/api';
@@ -99,8 +99,6 @@ export class MainShell {
   ];
 
   constructor() {
-    this.setDarkMode(this.darkMode());
-    effect(() => this.setDarkMode(this.darkMode()));
     this.electron?.onFullScreenChanged?.((full) => {
       this.fullscreen.set(full);
     });
@@ -108,17 +106,5 @@ export class MainShell {
 
   importMessages(): void {
     this.store.dispatch(messagesActions.startImportMessages());
-  }
-
-  setDarkMode(darkMode: boolean) {
-    const element = document.querySelector('html');
-    const darkModeSet = element?.classList.contains('darkMode');
-    if (darkMode && !darkModeSet) {
-      element?.classList.add('darkMode');
-    }
-
-    if (!darkMode && darkModeSet) {
-      element?.classList.remove('darkMode');
-    }
   }
 }

@@ -71,7 +71,14 @@ td {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   width: 100%;
+  gap: 0.25rem;
+
+  ::ng-deep .status-widget {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
 }
 
 .header {
@@ -80,8 +87,11 @@ td {
 
 .header-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.15rem;
   align-items: center;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .properties {
@@ -120,7 +130,6 @@ td {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    background: var(--p-content-background);
 
     .drag-handle {
       cursor: grab;
@@ -152,7 +161,8 @@ td {
     0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14),
     0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  background: var(--p-content-background);
+  background: var(--p-overlay-popover-background, var(--p-content-background));
+  color: var(--p-overlay-popover-color, var(--p-content-color));
   border-radius: var(--p-border-radius);
   padding: 0.25rem;
 }

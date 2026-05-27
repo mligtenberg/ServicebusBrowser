@@ -83,6 +83,8 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
   // template references
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
+  messagesHeaderStatus = contentChild('messagesHeaderStatus', { read: TemplateRef });
+  messagesHeaderActions = contentChild('messagesHeaderActions', { read: TemplateRef });
   messagesTable = viewChild.required('messagesTable', { read: Table });
   messagesPaginator = viewChild('messagesPaginator', { read: Paginator });
   container = viewChild.required('container', { read: ElementRef });

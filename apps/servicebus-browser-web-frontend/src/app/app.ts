@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ColorThemeService } from '@service-bus-browser/services';
@@ -11,8 +11,8 @@ import { ColorThemeService } from '@service-bus-browser/services';
 })
 export class App {
   private oidcSecurityService = inject(OidcSecurityService);
+  // Eagerly instantiate so the service's dark-mode effect attaches to <html>.
   private themeService = inject(ColorThemeService);
-  darkMode = this.themeService.darkMode;
   initialized = signal<boolean>(false);
 
   constructor() {
@@ -20,20 +20,5 @@ export class App {
       next: () => this.initialized.set(true),
       error: () => this.initialized.set(true),
     });
-
-    this.setDarkMode(this.darkMode());
-    effect(() => this.setDarkMode(this.darkMode()));
-  }
-
-  setDarkMode(darkMode: boolean) {
-    const element = document.querySelector('html');
-    const darkModeSet = element?.classList.contains('darkMode');
-    if (darkMode && !darkModeSet) {
-      element?.classList.add('darkMode');
-    }
-
-    if (!darkMode && darkModeSet) {
-      element?.classList.remove('darkMode');
-    }
   }
 }

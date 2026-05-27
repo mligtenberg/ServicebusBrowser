@@ -39,6 +39,12 @@ export class ColorThemeService {
     effect(() => {
       localStorage.setItem(this.storageKey, this.userPreference());
     });
+
+    effect(() => {
+      const html = document.querySelector('html');
+      if (!html) return;
+      html.classList.toggle('darkMode', this.darkMode());
+    });
   }
 
   setPreference(pref: 'sync' | 'light' | 'dark') {

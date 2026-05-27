@@ -4,6 +4,8 @@ import { AboutComponent } from '@service-bus-browser/main-ui';
 export const appRoutes: Route[] = [
   {
     path: 'popups',
+    loadComponent: () =>
+      import('./dialog-shell/dialog-shell').then((m) => m.DialogShell),
     children: [
       {
         path: 'messages',
