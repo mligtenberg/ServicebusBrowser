@@ -1,0 +1,111 @@
+.ws-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: inherit;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.ws-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+
+  &.ws-avatar--sm {
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+    border-radius: 4px;
+  }
+}
+
+.ws-name {
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ws-chevron {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+:host ::ng-deep .ws-popover .p-popover-content {
+  padding: 6px 0;
+  min-width: 220px;
+}
+
+.ws-dropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+  padding: 4px 12px 2px;
+}
+
+.ws-separator {
+  height: 1px;
+  background: rgba(128, 128, 128, 0.2);
+  margin: 4px 0;
+}
+
+.ws-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+
+  &.ws-row--active {
+    background: rgba(128, 128, 128, 0.08);
+  }
+
+  &.ws-row--clickable {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+
+    &:hover {
+      background: rgba(128, 128, 128, 0.1);
+    }
+  }
+}
+
+.ws-row-name {
+  flex: 1;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.confirm-text {
+  margin: 0;
+  line-height: 1.5;
+}

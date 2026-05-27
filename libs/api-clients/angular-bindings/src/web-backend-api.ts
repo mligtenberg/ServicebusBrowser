@@ -1,21 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom, map } from 'rxjs';
 import { BackendApi } from '@service-bus-browser/service-bus-frontend-clients';
-import { Workspace, UUID } from '@service-bus-browser/shared-contracts';
 import { BSON } from 'bson';
 
 /**
  * Single backend handler for the web variant.
  *
- * - management / serviceBusManagement / messages requests are POSTed to the
- *   web backend, which executes them via the shared Server instance.
- * - workspaces requests are handled locally against localStorage, because the
- *   web variant has no server-side workspace registry. The shape mirrors the
- *   desktop variant's sbb-workspaces.json so callers stay platform-agnostic.
+ * All four request categories (management, serviceBusManagement, messages,
+ * workspaces) are POSTed to the web backend. The workspaces endpoint exposes
+ * the operator-configured workspace list; workspace mutations (create/rename/
+ * delete) are not supported on web — the operator edits the config file.
  */
 export class WebBackendApi implements BackendApi {
-  private static readonly WORKSPACES_STORAGE_KEY = 'sbb-workspaces';
-
   constructor(
     private readonly baseUrl: string,
     private readonly httpClient: HttpClient,
@@ -79,94 +75,18 @@ export class WebBackendApi implements BackendApi {
     requestType: string,
     request: unknown,
   ): Promise<unknown> {
-    switch (requestType) {
-      case 'listWorkspaces':
-        return this.listWorkspaces();
-      case 'createWorkspace':
-        return this.createWorkspace((request as { name: string }).name);
-      case 'setActiveWorkspace':
-        // On web the active workspace is tracked via WorkspaceService/localStorage;
-        // no separate persistence step is needed here.
-        return;
-      case 'renameWorkspace':
-        return this.renameWorkspace(
-          (request as { id: UUID; name: string }).id,
-          (request as { id: UUID; name: string }).name,
-        );
-      case 'deleteWorkspace':
-        return this.deleteWorkspaceFromStorage((request as { id: UUID }).id);
-      case 'countConnectionsByWorkspace':
-        // Web has no server-side connection tracking per workspace.
-        return 0;
-      default:
-        throw new Error(`Unknown workspaces request: ${requestType}`);
-    }
-  }
-
-  private listWorkspaces(): Workspace[] {
-    const stored = localStorage.getItem(WebBackendApi.WORKSPACES_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored) as Workspace[];
-    }
-
-    // First boot on web — seed a Default workspace, mirroring desktop's
-    // migration step that writes a single-entry registry.
-    const workspaces: Workspace[] = [
-      {
-        id: crypto.randomUUID() as UUID,
-        name: 'Default',
-        createdAt: new Date().toISOString(),
-      },
-    ];
-    localStorage.setItem(
-      WebBackendApi.WORKSPACES_STORAGE_KEY,
-      JSON.stringify(workspaces),
+    return await firstValueFrom(
+      this.httpClient
+        .post(
+          `${this.baseUrl}workspaces/command`,
+          { requestType, body: request },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            responseType: 'blob',
+          },
+        )
+        .pipe(map((response) => this.decodeResponse(response))),
     );
-    return workspaces;
-  }
-
-  private renameWorkspace(id: UUID, name: string): void {
-    name = name.trim();
-    if (name === '') throw new Error('Workspace name cannot be empty');
-    const workspaces = this.listWorkspaces().map((w) =>
-      w.id === id ? { ...w, name } : w,
-    );
-    localStorage.setItem(
-      WebBackendApi.WORKSPACES_STORAGE_KEY,
-      JSON.stringify(workspaces),
-    );
-  }
-
-  private deleteWorkspaceFromStorage(id: UUID): void {
-    const workspaces = this.listWorkspaces().filter((w) => w.id !== id);
-    localStorage.setItem(
-      WebBackendApi.WORKSPACES_STORAGE_KEY,
-      JSON.stringify(workspaces),
-    );
-  }
-
-  private createWorkspace(name: string): Workspace {
-    name = name.trim();
-    if (name === '') {
-      throw new Error('Workspace name cannot be empty');
-    }
-    const workspaces = this.listWorkspaces();
-    const duplicate = workspaces.some(
-      (w) => w.name.toLowerCase() === name.toLowerCase(),
-    );
-    if (duplicate) {
-      throw new Error(`A workspace named "${name}" already exists`);
-    }
-    const workspace: Workspace = {
-      id: crypto.randomUUID() as UUID,
-      name,
-      createdAt: new Date().toISOString(),
-    };
-    localStorage.setItem(
-      WebBackendApi.WORKSPACES_STORAGE_KEY,
-      JSON.stringify([...workspaces, workspace]),
-    );
-    return workspace;
   }
 
   private async decodeResponse(response: Blob): Promise<any> {

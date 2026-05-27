@@ -1,27 +1,29 @@
 # Quickstart Guide for Web Version
 
 ## Creating the app registration
-create a new app registration in the Azure portal with the following settings:
+Create a new app registration in the Azure portal with the following settings:
 - Authentication:
-  - platform type: Single-page application
+  - Platform type: Single-page application
   - Redirect URI: `https://<service-bus-browser-hostname>`
 
-It is recommended to enable the "assignment required" in the connected enterprise applications settings.
+It is recommended to enable "Assignment required" in the connected enterprise application settings.
 To do this:
-- navigate to the enterprise application via the overview page of the app registration.  
-- Select the link under the "Managed application in local directory" header
-- In the "Properties" section, set "User assignment required?" to "Yes"
+- Navigate to the enterprise application via the overview page of the app registration.
+- Select the link under the "Managed application in local directory" header.
+- In the "Properties" section, set "User assignment required?" to "Yes".
 
 ## Configure the app
-Create a file called `sbb-connections.json`. This file contains an array with the connections provided in the web UI.
-Create a second file called `openid-config.json`. This file is directly passed to the [`angular-auth-oidc-client`](https://angular-auth-oidc-client.com/) library.
-Reference their [documentation](https://angular-auth-oidc-client.com/docs/documentation/configuration) for information on how to configure the file.
 
-Use the following template if you want to use Microsoft Entra:
+Create two files before running the container:
+
+### `openid-config.json`
+Passed directly to the [`angular-auth-oidc-client`](https://angular-auth-oidc-client.com/) library.
+See their [configuration docs](https://angular-auth-oidc-client.com/docs/documentation/configuration) for all options.
+
+Template for Microsoft Entra:
 ```json
 {
-  "authority":
-  "https://login.microsoftonline.com/{tenantId}/v2.0",
+  "authority": "https://login.microsoftonline.com/{tenantId}/v2.0",
   "clientId": "{clientId}",
   "scope": "openid profile api://{clientId}/access",
   "responseType": "code",
@@ -35,99 +37,120 @@ Use the following template if you want to use Microsoft Entra:
     "prompt": "select_account"
   }
 }
-
 ```
-For this to work, make sure you configured the access permissions in the app registration.
-And make sure the `requestedAccessTokenVersion` in the app registration manifest is set to `2`.
+Make sure the `requestedAccessTokenVersion` in the app registration manifest is set to `2`.
 
+### `sbb-connections.json`
+Defines the workspaces and connections shown in the UI. The operator owns this file — the web frontend is read-only and cannot create, rename, or delete workspaces.
 
-The different connection types are:
-
-Service Bus - connection string:
+#### Format (version 1)
 
 ```json
-[
-  {
-    "id": "<GUID>",
-    "type": "connectionString",
-    "name": "<NAME>",
-    "connectionString": "<CONNECTION_STRING>",
-    "target": "serviceBus"
-  }
-]
+{
+  "version": 1,
+  "workspaces": [
+    {
+      "id": "<GUID>",
+      "name": "Production",
+      "connections": [
+        {
+          "id": "<GUID>",
+          "type": "systemAssignedManagedIdentity",
+          "name": "My Service Bus",
+          "fullyQualifiedNamespace": "<NAMESPACE>",
+          "target": "serviceBus"
+        }
+      ]
+    }
+  ]
+}
+```
+
+> [!NOTE]
+> All `id` fields must be valid UUIDs, unique across the entire file (workspace IDs must be unique among workspaces; connection IDs must be unique across **all** workspaces).
+
+> [!NOTE]
+> **Legacy format**: if your `sbb-connections.json` is still a flat array (the old format), the backend will automatically wrap it in a single "Default" workspace and log a deprecation warning. Migrate by wrapping your connections in the versioned format above.
+
+#### Connection types
+
+**Service Bus — system-assigned managed identity** *(recommended)*
+```json
+{
+  "id": "<GUID>",
+  "type": "systemAssignedManagedIdentity",
+  "name": "<NAME>",
+  "fullyQualifiedNamespace": "<NAMESPACE>",
+  "target": "serviceBus"
+}
+```
+
+**Service Bus — user-assigned managed identity** *(recommended)*
+```json
+{
+  "id": "<GUID>",
+  "type": "userAssignedManagedIdentity",
+  "name": "<NAME>",
+  "fullyQualifiedNamespace": "<NAMESPACE>",
+  "clientId": "<CLIENT_ID>",
+  "target": "serviceBus"
+}
+```
+
+**Service Bus — connection string**
+```json
+{
+  "id": "<GUID>",
+  "type": "connectionString",
+  "name": "<NAME>",
+  "connectionString": "<CONNECTION_STRING>",
+  "target": "serviceBus"
+}
 ```
 > [!IMPORTANT]
-> While possible, using connection strings in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
+> Using connection strings in the web version is strongly discouraged for deployments beyond your local machine. Prefer a secretless option such as managed identities.
 
-Service Bus - Service principal client secret:
+**Service Bus — service principal client secret**
 ```json
-[
-  {
-    "id": "<GUID>",
-    "type": "ServicePrincipalClientSecret",
-    "name": "<NAME>",
-    "fullyQualifiedNamespace": "<NAMESPACE>",
-    "clientId": "<CLIENT_ID>",
-    "clientSecret": "<CLIENT_SECRET>",
-    "tenantId": "<TENANT_ID>",
-    "authority": "<AUTHORITY>",
-    "target": "serviceBus"
-  }
-]
+{
+  "id": "<GUID>",
+  "type": "ServicePrincipalClientSecret",
+  "name": "<NAME>",
+  "fullyQualifiedNamespace": "<NAMESPACE>",
+  "clientId": "<CLIENT_ID>",
+  "clientSecret": "<CLIENT_SECRET>",
+  "tenantId": "<TENANT_ID>",
+  "authority": "<AUTHORITY>",
+  "target": "serviceBus"
+}
 ```
 > [!IMPORTANT]
-> While possible, using service principal secrets in the web version of Service Bus Browser is strongly discouraged due to security concerns. This primarily applies when running the container beyond your local machine; in those scenarios, a secretless option such as managed identities is strongly recommended.
+> Using service principal secrets in the web version is strongly discouraged for deployments beyond your local machine. Prefer a secretless option such as managed identities.
 
-Service Bus - System assigned managed identity:
+**RabbitMQ**
 ```json
-[
-  {
-    "id": "<GUID>",
-    "type": "systemAssignedManagedIdentity",
-    "name": "<NAME>",
-    "fullyQualifiedNamespace": "<NAMESPACE>",
-    "target": "serviceBus"
-  }
-]
+{
+  "id": "<GUID>",
+  "type": "connectionString",
+  "name": "<NAME>",
+  "host": "<HOST>",
+  "managementPort": 15672,
+  "amqpPort": 5672,
+  "vhost": "/",
+  "userName": "<USERNAME>",
+  "password": "<PASSWORD>",
+  "target": "rabbitmq"
+}
 ```
 
-Service Bus - User assigned managed identity:
-```json
-[
-  {
-    "id": "<GUID>",
-    "type": "userAssignedManagedIdentity",
-    "name": "<NAME>",
-    "fullyQualifiedNamespace": "<NAMESPACE>",
-    "clientId": "<CLIENT_ID>",
-    "target": "serviceBus"
-  }
-]
-```
+## Run the application
 
-Service Bus - RabbitMQ connection:
-```json
-[
-  {
-    "id": "<GUID>",
-    "type": "connectionString",
-    "name": "<NAME>",
-    "host": "<HOST>",
-    "managementPort": 15672,
-    "amqpPort": 5672,
-    "vhost": "/",
-    "userName": "<USERNAME>",
-    "password": "<PASSWORD>",
-    "target": "rabbitmq"
-  }
-]
-```
-
-## run the application
-To run the web version, mount both configuration files into the container:
+Mount both configuration files into the container:
 ```bash
-docker run -p 8080:80\
-  --mount type=bind,src=./openid-config.json,dst=/app/openid-config.json\
-  --mount type=bind,src=./sbb-connections.json,dst=/app/sbb-connections.json\
+docker run -p 8080:80 \
+  --mount type=bind,src=./openid-config.json,dst=/app/openid-config.json \
+  --mount type=bind,src=./sbb-connections.json,dst=/app/sbb-connections.json \
   ghcr.io/mligtenberg/servicebusbrowser:main
 ```
+
+The active workspace the user last selected is stored in browser `localStorage` and restored on the next visit. If the stored workspace no longer exists in the config (e.g. it was removed by the operator), the first workspace in the array becomes active automatically.

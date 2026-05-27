@@ -2,6 +2,10 @@
 
 Welcome to the documentation for Servicebus Browser. This repository contains information about the architecture, development workflows, and technical details of the project.
 
+## Getting Started
+
+- [Quickstart: Web Version](./quickstart-webversion.md): Step-by-step guide to configure and run the web variant, including the `sbb-connections.json` workspace/connection format and Docker run command.
+
 ## Architecture & Design
 
 - [Frontend-Backend Communication](./frontend-backend-communication.md): Details on how the Angular UI communicates with backends via the `ApiHandler` abstraction.
@@ -10,6 +14,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Web App Build Process](./web-app-build-process.md): Instructions for building, containerizing, and deploying the web application.
 - [Event Hub Namespace REST Authentication](./event-hub-namespace-rest-auth.md): SAS token generation and API versioning for Event Hub namespace management calls.
 - [Messages Reader Continuation Token Behavior](./messages-reader-continuation-token-behavior.md): Cross-broker continuation-token rules to stop message loading exactly at requested limits.
+- [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 
 ## Architecture Decision Records
 
