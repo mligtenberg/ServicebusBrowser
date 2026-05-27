@@ -8,6 +8,14 @@ import UpdateEvents from './app/events/update.events';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+if (App.isDevelopmentMode()) {
+  // Prevent GPU process crashes in dev/sandbox environments (exit_code=15)
+  // in-process-gpu keeps rendering working unlike disable-gpu which causes blank screens on reload
+  app.commandLine.appendSwitch('in-process-gpu');
+  // Run network service in-process to prevent out-of-process crashes
+  app.commandLine.appendSwitch('enable-features', 'NetworkServiceInProcess2');
+}
+
 protocol.registerSchemesAsPrivileged([
   {
     scheme: 'app',

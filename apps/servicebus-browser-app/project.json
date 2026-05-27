@@ -38,7 +38,8 @@
 //        }
       ],
       "options": {
-        "buildTarget": "servicebus-browser-app:build"
+        "buildTarget": "servicebus-browser-app:build",
+        "port": 0
       }
     },
     "package": {

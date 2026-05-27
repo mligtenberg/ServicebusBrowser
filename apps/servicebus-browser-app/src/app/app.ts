@@ -308,6 +308,15 @@ export default class App {
       // when you should delete the corresponding element.
       App.mainWindow = null;
     });
+
+    // When the renderer crashes, destroy the stale window and open a fresh one
+    // so the app recovers cleanly instead of showing a blank screen.
+    App.mainWindow.webContents.on('render-process-gone', (_event, details) => {
+      console.error('Renderer process gone:', details.reason);
+      App.mainWindow?.destroy();
+      App.mainWindow = null;
+      App.initWindow();
+    });
   }
 
   static setTheme(source: 'system' | 'dark' | 'light') {
