@@ -2,6 +2,10 @@
 
 Welcome to the documentation for Servicebus Browser. This repository contains information about the architecture, development workflows, and technical details of the project.
 
+## Getting Started
+
+- [Quickstart: Web Version](./quickstart-webversion.md): Step-by-step guide to configure and run the web variant, including the `sbb-connections.json` workspace/connection format and Docker run command.
+
 ## Architecture & Design
 
 - [Frontend-Backend Communication](./frontend-backend-communication.md): Details on how the Angular UI communicates with backends via the `ApiHandler` abstraction.
