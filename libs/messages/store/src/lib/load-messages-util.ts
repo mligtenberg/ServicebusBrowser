@@ -81,6 +81,11 @@ export class LoadMessagesUtil {
 
       if (await this.isTaskCanceled(taskId)) {
         await this.handleTaskCancelled(pageId, endpoint);
+        if (continuationToken) {
+          await this.messagesClient
+            .retrieveMessages(endpoint, { ...options, maxAmountOfMessagesToReceive: 0 }, continuationToken)
+            .catch(() => undefined);
+        }
         return;
       }
 
