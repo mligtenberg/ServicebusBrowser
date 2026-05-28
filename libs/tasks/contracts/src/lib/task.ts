@@ -6,4 +6,5 @@ export type Task = {
   status: 'in-progress' | 'completed';
   hasProgress?: boolean;
   progress?: number;
+  cancelable?: boolean;
 };

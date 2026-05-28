@@ -29,4 +29,9 @@ export const completeTask = createAction(
   }>()
 )
 
+export const cancelTask = createAction(
+  '[Tasks] Cancel Task',
+  props<{ id: string }>()
+)
+
 export const cancelAllTasks = createAction('[Tasks] Cancel All Tasks')

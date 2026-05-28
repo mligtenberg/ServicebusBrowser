@@ -1,18 +1,31 @@
-<div>
-  <div class="description">{{ task().description }}</div>
-  @if (task().statusDescription) {
-    <div class="status">{{ task().statusDescription }}</div>
-  }
-  @if (task().hasProgress) {
-    <p-progress-bar [value]="task().progress" [style]="{'height': '6px'}">
-      <ng-template #content>
-      </ng-template>
-    </p-progress-bar>
-  } @else {
-    @if (task().status === 'completed') {
-      <p-progress-bar mode="determinate" [value]="100" [style]="{'height': '6px'}" />
-    } @else {
-      <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}" />
+<div class="task-card">
+  <div class="task-card-content">
+    <div class="description">{{ task().description }}</div>
+    @if (task().statusDescription) {
+      <div class="status">{{ task().statusDescription }}</div>
     }
+    @if (task().hasProgress) {
+      <p-progress-bar [value]="task().progress" [style]="{'height': '6px'}">
+        <ng-template #content>
+        </ng-template>
+      </p-progress-bar>
+    } @else {
+      @if (task().status === 'completed') {
+        <p-progress-bar mode="determinate" [value]="100" [style]="{'height': '6px'}" />
+      } @else {
+        <p-progress-bar mode="indeterminate" [style]="{'height': '6px'}" />
+      }
+    }
+  </div>
+  @if (task().cancelable) {
+    <p-button
+      icon="pi pi-times"
+      severity="danger"
+      [text]="true"
+      [rounded]="true"
+      size="small"
+      aria-label="Cancel task"
+      (onClick)="cancelTask.emit()"
+    />
   }
 </div>

@@ -18,7 +18,7 @@ export const reducer = createReducer(
     Actions.createTask,
     (
       state,
-      { id, description, statusDescription, hasProgress, initialProgress }
+      { id, description, statusDescription, hasProgress, initialProgress, cancelable }
     ) => {
       const existingTask = state.tasks.find((task) => task.id === id);
       if (existingTask) {
@@ -34,6 +34,7 @@ export const reducer = createReducer(
             description,
             statusDescription,
             hasProgress,
+            cancelable,
             createdAt: new Date(),
             status: 'in-progress',
             progress: initialProgress ?? 0,
@@ -56,6 +57,10 @@ export const reducer = createReducer(
     }),
   })),
 on(Actions.completeTask, (state, { id }) => ({
+    ...state,
+    tasks: state.tasks.filter((task) => task.id !== id),
+  })),
+  on(Actions.cancelTask, (state, { id }) => ({
     ...state,
     tasks: state.tasks.filter((task) => task.id !== id),
   })),

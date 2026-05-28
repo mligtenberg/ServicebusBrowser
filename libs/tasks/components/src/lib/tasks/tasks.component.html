@@ -9,7 +9,7 @@
 <p-popover #op appendTo="body">
   @for(task of tasks(); track task.id) {
     <div class="task">
-      <sbb-task-card [task]="task"/>
+      <sbb-task-card [task]="task" (cancelTask)="cancelTask(task)"/>
     </div>
   }
   @if(tasks().length === 0) {
