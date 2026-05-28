@@ -54,6 +54,23 @@ export class RabbitMqMessagesReader implements MessagesReader {
     );
   }
 
+  async cancelSession(
+    receiveEndpoint: ReceiveEndpoint,
+    continuationToken: string,
+  ): Promise<void> {
+    const tokenBody = this.decodeContinuationToken<ContinuationTokenBody>(continuationToken);
+    if (!tokenBody.peekTempQueueName || !tokenBody.peekTempExchangeName) {
+      return;
+    }
+    const managementClient = new RabbitMqManagementClient(this.connection);
+    await this.cleanupTempResources(
+      managementClient,
+      (receiveEndpoint as RabbitMqQueueReceiveEndpoint).vhostName,
+      tokenBody.peekTempQueueName,
+      tokenBody.peekTempExchangeName,
+    );
+  }
+
   async clear(
     receiveEndpoint: ReceiveEndpoint,
   ): Promise<{ continuationToken?: string }> {

@@ -125,6 +125,13 @@ export class ServiceBusMessagesReader implements MessagesReader {
     };
   }
 
+  async cancelSession(
+    _receiveEndpoint: ReceiveEndpoint,
+    _continuationToken: string,
+  ): Promise<void> {
+    // Service Bus has no server-side temporary resources to clean up
+  }
+
   async clear(
     endpoint: ReceiveEndpoint,
     continuationToken?: string,

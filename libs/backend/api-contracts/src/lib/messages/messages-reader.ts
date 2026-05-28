@@ -12,4 +12,8 @@ export type MessagesReader = {
     receiveEndpoint: ReceiveEndpoint,
     continuationToken?: string,
   ): Promise<{ continuationToken?: string }>;
+  cancelSession(
+    receiveEndpoint: ReceiveEndpoint,
+    continuationToken: string,
+  ): Promise<void>;
 };

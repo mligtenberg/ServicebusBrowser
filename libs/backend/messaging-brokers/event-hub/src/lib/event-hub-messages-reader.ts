@@ -124,6 +124,13 @@ export class EventHubMessagesReader implements MessagesReader {
     }
   }
 
+  async cancelSession(
+    _receiveEndpoint: ReceiveEndpoint,
+    _continuationToken: string,
+  ): Promise<void> {
+    // Event Hub has no server-side temporary resources to clean up
+  }
+
   async clear(
     _endpoint: ReceiveEndpoint,
     _continuationToken?: string,

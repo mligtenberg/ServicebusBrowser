@@ -81,6 +81,11 @@ export class LoadMessagesUtil {
 
       if (await this.isTaskCanceled(taskId)) {
         await this.handleTaskCancelled(pageId, endpoint);
+        if (continuationToken) {
+          await this.messagesClient
+            .cancelSession(endpoint, continuationToken)
+            .catch(() => undefined);
+        }
         return;
       }
 
