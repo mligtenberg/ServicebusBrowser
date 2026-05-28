@@ -37,7 +37,21 @@ async function clearMessages(body: { endpoint: ReceiveEndpoint, continuationToke
   return await client.clear(body.endpoint, body.continuationToken);
 }
 
+async function cancelSession(body: { endpoint: ReceiveEndpoint; continuationToken: string }, connectionManager: ConnectionManager) {
+  const client = connectionManager
+    .getConnectionClient({ id: body.endpoint.connectionId })
+    .getMessagesReader();
+
+  if (client === undefined) {
+    return {};
+  }
+
+  await client.cancelSession(body.endpoint, body.continuationToken);
+  return {};
+}
+
 export default new Map<string, ServiceBusServerFunc>([
   ['retrieveMessages', retrieveMessages],
   ['clearMessages', clearMessages],
+  ['cancelSession', cancelSession],
 ]);

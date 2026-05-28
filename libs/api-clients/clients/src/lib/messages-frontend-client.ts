@@ -25,6 +25,13 @@ export class MessagesFrontendClient {
     })) as {messages: ReceivedMessage[], continuationToken: string};
   }
 
+  async cancelSession(endpoint: ReceiveEndpoint, continuationToken: string) {
+    await this.backendApi.messagesDoRequest('cancelSession', {
+      endpoint,
+      continuationToken,
+    });
+  }
+
   async clearMessages(endpoint: ReceiveEndpoint, continuationToken?: string) {
     return (await this.backendApi.messagesDoRequest('clearMessages', {
       endpoint,
