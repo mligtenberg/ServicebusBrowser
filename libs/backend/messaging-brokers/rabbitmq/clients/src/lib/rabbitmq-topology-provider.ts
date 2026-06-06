@@ -178,7 +178,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
       name: vhostName,
       refreshable: true,
       selectable: false,
-      type: 'operational-grouping',
+      type: 'vhost',
       children: [queuesNode, exchangesNode],
     };
   }
