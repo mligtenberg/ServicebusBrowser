@@ -1,7 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild, model } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
 import {
   messagePagesActions,
@@ -9,11 +16,10 @@ import {
 } from '@service-bus-browser/messages-store';
 import { ButtonModule } from 'primeng/button';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { DrawerModule } from 'primeng/drawer';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { MessageService, MenuItem } from 'primeng/api';
 import {
   SendEndpoint,
   ToMessageToSend,
@@ -22,6 +28,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { Popover } from 'primeng/popover';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 
 // FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
@@ -37,6 +45,8 @@ import {
   MessageModificationAction,
   RemoveAction,
 } from '@service-bus-browser/message-modification-engine';
+import { Splitter } from 'primeng/splitter';
+import { SplitButton } from 'primeng/splitbutton';
 
 
 @Component({
@@ -48,12 +58,17 @@ import {
     ActionComponent,
     ButtonModule,
     ScrollPanelModule,
-    DrawerModule,
     DividerModule,
     ToastModule,
     TooltipModule,
     EndpointSelectorInputComponent,
     PreviewBatch,
+    Splitter,
+    SplitButton,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    Popover,
   ],
   providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
@@ -99,20 +114,37 @@ export class MessagesBatchResendComponent {
   );
 
   actionEditor = viewChild<ActionComponent>('actionEditor');
+  actionPopover = viewChild<Popover>('actionPopover');
+  addActionBtn = viewChild('addActionBtn', { read: ElementRef });
 
   private store = inject(Store);
   private messageService = inject(MessageService);
   private router = inject(Router);
   private fileService = inject(FilesService);
 
+  // Exposed in the preview body editor's right-click menu: select text in the
+  // body, then turn the selection into a search & replace body action.
+  protected bodyContextActions: EditorContextAction[] = [
+    {
+      id: 'add-search-replace-body-action',
+      label: 'Add search & replace action',
+      run: (selectedText) => this.openSearchReplaceBodyAction(selectedText),
+    },
+  ];
+
   protected actions = signal<MessageModificationAction[]>([]);
-  protected previewDrawerVisible = signal(false);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
-  protected selectedEndpointForPreview = model<SendEndpoint | null>(null);
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
   protected currentAction = model<MessageModificationAction | undefined>();
   protected selectedMessageSequence = model<string | undefined>(undefined);
+
+  // Context menu selection tracking — one per property table in the preview
+  protected propertiesContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
+  protected applicationPropertiesContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
+  protected headersContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
+  protected deliveryAnnotationsContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
+  protected messageAnnotationsContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
 
   protected previewMessage = toSignal(
     combineLatest([
@@ -128,6 +160,237 @@ export class MessagesBatchResendComponent {
       }),
     ),
   );
+
+  protected sendBatchDisabled = computed(
+    () => !this.selectedEndpoint() || !this.messageCount(),
+  );
+
+  protected sendSelectionDisabled = computed(
+    () => !this.selectedMessageSequence(),
+  );
+
+  protected splitButtonItems = computed<MenuItem[]>(() => [
+    {
+      label: 'Send selection',
+      icon: 'pi pi-send',
+      disabled: this.sendSelectionDisabled(),
+      command: () => this.resendSelectedMessage(),
+    },
+  ]);
+
+  // Context menus for the five property tables in the preview panel
+  private actionMenuItems(key: string, target: BatchActionTarget): MenuItem[] {
+    return [
+      {
+        label: `Alter ${key}`,
+        icon: 'pi pi-pencil',
+        command: () => this.openDraftActionPopover(key, target),
+      },
+      {
+        label: `Remove ${key}`,
+        icon: 'pi pi-trash',
+        // A remove action is fully defined by its target and field name, so add
+        // it directly without opening the editor.
+        command: () => this.addRemoveAction(key, target),
+      },
+    ];
+  }
+
+  private emptyFilter(): MessageFilter {
+    return {
+      body: [],
+      headers: [],
+      properties: [],
+      deliveryAnnotations: [],
+      messageAnnotations: [],
+      applicationProperties: [],
+    };
+  }
+
+  addRemoveAction(key: string, target: BatchActionTarget): void {
+    const removeAction: MessageModificationAction = {
+      type: 'remove',
+      target: target as 'properties' | 'applicationProperties',
+      fieldName: key,
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
+
+    this.actions.update((currentActions) => [...currentActions, removeAction]);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Action Added',
+      detail: `Remove action for ${key} added successfully`,
+    });
+  }
+
+  openSearchReplaceBodyAction(searchValue: string): void {
+    const prefilled: MessageModificationAction = {
+      type: 'alter',
+      target: 'body',
+      alterType: 'searchAndReplace',
+      searchValue,
+      value: '',
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
+
+    // Open a prefilled Add dialog — nothing is added to the list until Save.
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(prefilled);
+    this.showDraftPopover();
+  }
+
+  protected propertiesContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.propertiesContextMenuSelection() ?? { key: 'subject', value: '' };
+    return this.actionMenuItems(selection.key, 'properties');
+  });
+
+  protected applicationPropertiesContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.applicationPropertiesContextMenuSelection() ?? { key: 'contentType', value: '' };
+    return this.actionMenuItems(selection.key, 'applicationProperties');
+  });
+
+  protected headersContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.headersContextMenuSelection() ?? { key: 'durable', value: '' };
+    return this.actionMenuItems(selection.key, 'properties');
+  });
+
+  protected deliveryAnnotationsContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.deliveryAnnotationsContextMenuSelection() ?? { key: 'x-opt-enqueued-time', value: '' };
+    return this.actionMenuItems(selection.key, 'properties');
+  });
+
+  protected messageAnnotationsContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.messageAnnotationsContextMenuSelection() ?? { key: 'x-opt-sequence-number', value: '' };
+    return this.actionMenuItems(selection.key, 'properties');
+  });
+
+  private document = inject(DOCUMENT);
+  private destroyRef = inject(DestroyRef);
+  // The pointer coordinates of the last right-click, captured in the capture
+  // phase so it is recorded even though PrimeNG's context menu (and Monaco) stop
+  // the event from bubbling. Used to anchor the draft popover at the click.
+  private lastContextMenuPosition: { x: number; y: number } | undefined;
+  private popoverAnchorEl: HTMLElement | undefined;
+
+  constructor() {
+    const onContextMenu = (event: MouseEvent) => {
+      this.lastContextMenuPosition = { x: event.clientX, y: event.clientY };
+    };
+    this.document.addEventListener('contextmenu', onContextMenu, true);
+    this.destroyRef.onDestroy(() =>
+      this.document.removeEventListener('contextmenu', onContextMenu, true),
+    );
+  }
+
+  openAddActionPopover(event: Event): void {
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(undefined);
+    this.actionEditor()?.clear();
+    this.actionPopover()?.show(event);
+  }
+
+  openEditActionPopover(event: Event, index: number): void {
+    const actions = this.actions();
+    const action = actions[index];
+
+    if (!action) {
+      return;
+    }
+    this.editMode.set(true);
+    this.editModeIndex.set(index);
+    this.currentAction.set(action);
+    this.actionPopover()?.show(event);
+  }
+
+  openDraftActionPopover(key: string, target: BatchActionTarget): void {
+    const prefilled: MessageModificationAction = {
+      type: 'alter',
+      target: target as 'properties' | 'applicationProperties',
+      fieldName: key,
+      value: '',
+      alterType: 'fullReplace',
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
+
+    // Open a prefilled Add dialog — nothing is added to the list until Save.
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(prefilled);
+    this.showDraftPopover();
+  }
+
+  /**
+   * Anchor the draft popover at the location that was right-clicked. The menu
+   * item's own event target is detached by the time the command runs, so use a
+   * tiny absolutely-positioned anchor placed at the recorded pointer position.
+   * Fall back to the "Add action" button if no position was recorded.
+   */
+  private showDraftPopover(): void {
+    const position = this.lastContextMenuPosition;
+    if (!position) {
+      this.actionPopover()?.show(
+        new Event('click'),
+        this.addActionBtn()?.nativeElement,
+      );
+      return;
+    }
+
+    const anchor = this.document.createElement('div');
+    anchor.style.position = 'fixed';
+    anchor.style.left = `${position.x}px`;
+    anchor.style.top = `${position.y}px`;
+    anchor.style.width = '1px';
+    anchor.style.height = '1px';
+    anchor.style.pointerEvents = 'none';
+    this.document.body.appendChild(anchor);
+    this.popoverAnchorEl = anchor;
+
+    this.actionPopover()?.show(new Event('click'), anchor);
+  }
+
+  private removePopoverAnchor(): void {
+    this.popoverAnchorEl?.remove();
+    this.popoverAnchorEl = undefined;
+  }
+
+  savePopoverAction(): void {
+    const action = this.currentAction();
+
+    if (action) {
+      if (this.editMode()) {
+        this.actions.update((currentActions) => {
+          return currentActions.map((a, i) =>
+            i === this.editModeIndex() ? action : a,
+          );
+        });
+      } else {
+        this.actions.update((currentActions) => [...currentActions, action]);
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Action Saved',
+        detail: `${this.getActionTypeLabel(action.type)} action saved successfully`,
+      });
+    }
+
+    this.actionPopover()?.hide();
+  }
+
+  cancelPopoverAction(): void {
+    this.actionPopover()?.hide();
+  }
+
+  onPopoverHide(): void {
+    this.removePopoverAnchor();
+    this.currentAction.set(undefined);
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.actionEditor()?.clear();
+  }
 
   storeAction(): void {
     const action = this.currentAction();
@@ -226,10 +489,6 @@ export class MessagesBatchResendComponent {
     ]);
   }
 
-  previewChanges() {
-    this.previewDrawerVisible.set(true);
-  }
-
   resendSelectedMessage() {
     const selectedMessage = this.previewMessage();
     const selectedEndpoint = this.selectedEndpoint();
@@ -282,8 +541,6 @@ export class MessagesBatchResendComponent {
         detail: 'Failed to send modified message. Check the logs for details.',
       });
     }
-
-    this.previewDrawerVisible.set(false);
   }
 
   async resendMessages() {
@@ -309,9 +566,6 @@ export class MessagesBatchResendComponent {
         modificationActions: this.actions(),
       }),
     );
-
-    // Close the preview drawer if it's open
-    this.previewDrawerVisible.set(false);
 
     // Navigate back to messages page
     this.router.navigate(['/']);
@@ -365,41 +619,14 @@ export class MessagesBatchResendComponent {
     }
   }
 
-  moveActionUp(index: number) {
-    const actions = this.actions();
-    const action = actions[index];
-
-    if (!action) {
+  dropAction(event: CdkDragDrop<MessageModificationAction[]>) {
+    if (event.previousIndex === event.currentIndex) {
       return;
     }
-
     this.actions.update((currentActions) => {
-      const newActions = [...currentActions];
-      const actionIndex = newActions.indexOf(action);
-      if (actionIndex > 0) {
-        newActions.splice(actionIndex, 1);
-        newActions.splice(actionIndex - 1, 0, action);
-      }
-      return newActions;
-    });
-  }
-
-  moveActionDown(index: number) {
-    const actions = this.actions();
-    const action = actions[index];
-
-    if (!action) {
-      return;
-    }
-
-    this.actions.update((currentActions) => {
-      const newActions = [...currentActions];
-      const actionIndex = newActions.indexOf(action);
-      if (actionIndex >= 0 && actionIndex < newActions.length - 1) {
-        newActions.splice(actionIndex, 1);
-        newActions.splice(actionIndex + 1, 0, action);
-      }
-      return newActions;
+      const arr = [...currentActions];
+      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      return arr;
     });
   }
 

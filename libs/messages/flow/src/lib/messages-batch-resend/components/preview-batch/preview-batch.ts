@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   inject,
   input,
   linkedSignal,
@@ -21,10 +22,11 @@ import {
   MessageModificationEngine,
 } from '@service-bus-browser/message-modification-engine';
 import {
-  Message,
+  ClearNonResendableProperties,
   ReceivedMessage,
-  ToMessageToSend,
 } from '@service-bus-browser/api-contracts';
+import { MenuItem } from 'primeng/api';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 
 
 @Component({
@@ -40,7 +42,20 @@ export class PreviewBatch {
   messageFilter = input<MessageFilter>();
   selection = input<string[]>();
   batchModificationActions = input<MessageModificationAction[]>();
+  bodyContextActions = input<EditorContextAction[]>([]);
   selectedMessageSequence = model<string>();
+
+  propertiesContextMenu = input<MenuItem[]>([]);
+  applicationPropertiesContextMenu = input<MenuItem[]>([]);
+  headersContextMenu = input<MenuItem[]>([]);
+  deliveryAnnotationsContextMenu = input<MenuItem[]>([]);
+  messageAnnotationsContextMenu = input<MenuItem[]>([]);
+
+  propertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  applicationPropertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  headersContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  deliveryAnnotationsContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  messageAnnotationsContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
 
   messageCount = toSignal(
     combineLatest([
@@ -54,9 +69,25 @@ export class PreviewBatch {
     ),
   );
 
-  messages = linkedSignal<ReceivedMessage[]>(() => {
+  // Raw messages as loaded from the repository, with headers/annotations cleared
+  // but no modification actions applied yet.
+  private rawMessages = linkedSignal<ReceivedMessage[]>(() => {
     const messageCount = this.messageCount();
     return messageCount ? Array.from({ length: messageCount }) : [];
+  });
+
+  // Apply the modification actions reactively so the viewer refreshes whenever
+  // the action list changes, without re-fetching from the repository.
+  messages = computed<ReceivedMessage[]>(() => {
+    const actions = this.batchModificationActions() ?? [];
+    return this.rawMessages().map((message) =>
+      message
+        ? this.messageModificationEngine.applyBatchActionsToMessage(
+            message,
+            actions,
+          )
+        : message,
+    );
   });
 
   protected async loadMessages($event: TableLazyLoadEvent) {
@@ -72,11 +103,14 @@ export class PreviewBatch {
   private async loadRows(first: number, rows: number, pageId: UUID) {
     let messages = await repository.getMessages(pageId, this.messageFilter(), first, rows);
 
-
-    messages = this.messageModificationEngine.applyBatchActions(messages, this.batchModificationActions() ?? []);
+    // Mirror the resend path: outgoing messages have headers and annotations
+    // cleared. Modification actions are applied reactively in the `messages`
+    // computed so the preview refreshes when the action list changes.
+    // key/sequence are preserved for row selection.
+    messages = messages.map((message) => ClearNonResendableProperties(message));
 
       //populate page of virtual cars
-    this.messages.update((vm) => {
+    this.rawMessages.update((vm) => {
       const newMessages = [
         ...vm.slice(0, first),
         ...messages.slice(0, rows),

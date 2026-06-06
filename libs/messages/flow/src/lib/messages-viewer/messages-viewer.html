@@ -1,5 +1,5 @@
 <div class="container" #container>
-  @if (containerWidth() >= 600) {
+  @if (containerWidth() >= 600 && !forceNarrow()) {
   <div class="wide">
     <p-splitter
       [panelSizes]="[75, 25]"
@@ -27,18 +27,22 @@
           [ngClass]="{'hide-scrollbar': isResizing()}"
         >
           <div class="properties">
+            @if (!sendMode()) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="headersTemplate" />
             </div>
+            }
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="propertiesTemplate" />
             </div>
+            @if (!sendMode()) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
             </div>
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
             </div>
+            }
             <div class="application-properties">
               <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
             </div>
@@ -55,18 +59,22 @@
     <div class="card body">
       <ng-template *ngTemplateOutlet="bodyTemplate" />
     </div>
+    @if (!sendMode()) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="headersTemplate" />
     </div>
+    }
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="propertiesTemplate" />
     </div>
+    @if (!sendMode()) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
     </div>
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
     </div>
+    }
     <div class="application-properties">
       <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
     </div>
@@ -211,6 +219,8 @@
     header="Body"
     [pageId]="pageId()"
     [messageKey]="selectedMessageKey()"
+    [contextActions]="bodyContextActions()"
+    [modificationActions]="bodyModificationActions()"
   />
 </ng-template>
 

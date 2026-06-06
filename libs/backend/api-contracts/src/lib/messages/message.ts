@@ -49,15 +49,26 @@ export interface ReceivedMessage extends Message {
 export type MessagePropertyTypes = Exclude<keyof Message, 'body' | 'messageId' | 'contentType'>;
 
 
-export function ToMessageToSend(message: ReceivedMessage): Message {
+/**
+ * Headers and broker-set annotations belong to the original delivery and must
+ * not be carried over when a message is resent. Clearing happens here so the
+ * resend path and the batch-resend preview stay in sync about what is dropped.
+ */
+export function ClearNonResendableProperties<T extends Message>(message: T): T {
   return {
-    body: message.body,
-    messageId: message.messageId,
-    contentType: message.contentType,
+    ...message,
     headers: {},
     deliveryAnnotations: {},
     messageAnnotations: {},
+  };
+}
+
+export function ToMessageToSend(message: ReceivedMessage): Message {
+  return ClearNonResendableProperties({
+    body: message.body,
+    messageId: message.messageId,
+    contentType: message.contentType,
     properties: message.properties,
     applicationProperties: message.applicationProperties,
-  };
+  });
 }
