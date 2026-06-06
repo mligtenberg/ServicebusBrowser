@@ -373,10 +373,10 @@ export class MessageModificationEngine {
   }
 
   private replaceByRegex(value: string, regex: string, replacement: string) {
-    return (value as any).replaceAll(new RegExp(regex, 'g'), replacement);
+    return value.replaceAll(new RegExp(regex, 'g'), replacement);
   }
 
   private searchAndReplace(value: string, search: string, replacement: string) {
-    return value.replace(search, replacement);
+    return value.replaceAll(search, replacement);
   }
 }
