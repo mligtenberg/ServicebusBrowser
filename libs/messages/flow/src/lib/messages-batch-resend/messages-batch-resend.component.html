@@ -60,7 +60,12 @@
                 class="action-drop-list"
               >
                 @for (action of currentActions; track action; let i = $index) {
-                  <div class="action-card" cdkDrag cdkDragLockAxis="y">
+                  <div
+                    class="action-card"
+                    cdkDrag
+                    cdkDragLockAxis="y"
+                    cdkDragPreviewContainer="parent"
+                  >
                     <i
                       class="pi pi-th-large action-drag-handle"
                       cdkDragHandle
