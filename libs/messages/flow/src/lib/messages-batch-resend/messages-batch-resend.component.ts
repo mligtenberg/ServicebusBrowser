@@ -171,59 +171,56 @@ export class MessagesBatchResendComponent {
   ]);
 
   // Context menus for the five property tables in the preview panel
-  protected propertiesContextMenu = computed<MenuItem[]>(() => {
-    const selection = this.propertiesContextMenuSelection() ?? { key: 'subject', value: '' };
+  private actionMenuItems(key: string, target: BatchActionTarget): MenuItem[] {
     return [
       {
-        label: `Add action for ${selection.key}`,
-        icon: 'pi pi-plus',
-        command: (e) => this.openDraftActionPopover(e.originalEvent ?? new Event('click'), selection.key, 'properties'),
+        label: `Alter ${key}`,
+        icon: 'pi pi-pencil',
+        command: (e) =>
+          this.openDraftActionPopover(
+            e.originalEvent ?? new Event('click'),
+            key,
+            target,
+            'alter',
+          ),
+      },
+      {
+        label: `Remove ${key}`,
+        icon: 'pi pi-trash',
+        command: (e) =>
+          this.openDraftActionPopover(
+            e.originalEvent ?? new Event('click'),
+            key,
+            target,
+            'remove',
+          ),
       },
     ];
+  }
+
+  protected propertiesContextMenu = computed<MenuItem[]>(() => {
+    const selection = this.propertiesContextMenuSelection() ?? { key: 'subject', value: '' };
+    return this.actionMenuItems(selection.key, 'properties');
   });
 
   protected applicationPropertiesContextMenu = computed<MenuItem[]>(() => {
     const selection = this.applicationPropertiesContextMenuSelection() ?? { key: 'contentType', value: '' };
-    return [
-      {
-        label: `Add action for ${selection.key}`,
-        icon: 'pi pi-plus',
-        command: (e) => this.openDraftActionPopover(e.originalEvent ?? new Event('click'), selection.key, 'applicationProperties'),
-      },
-    ];
+    return this.actionMenuItems(selection.key, 'applicationProperties');
   });
 
   protected headersContextMenu = computed<MenuItem[]>(() => {
     const selection = this.headersContextMenuSelection() ?? { key: 'durable', value: '' };
-    return [
-      {
-        label: `Add action for ${selection.key}`,
-        icon: 'pi pi-plus',
-        command: (e) => this.openDraftActionPopover(e.originalEvent ?? new Event('click'), selection.key, 'properties'),
-      },
-    ];
+    return this.actionMenuItems(selection.key, 'properties');
   });
 
   protected deliveryAnnotationsContextMenu = computed<MenuItem[]>(() => {
     const selection = this.deliveryAnnotationsContextMenuSelection() ?? { key: 'x-opt-enqueued-time', value: '' };
-    return [
-      {
-        label: `Add action for ${selection.key}`,
-        icon: 'pi pi-plus',
-        command: (e) => this.openDraftActionPopover(e.originalEvent ?? new Event('click'), selection.key, 'properties'),
-      },
-    ];
+    return this.actionMenuItems(selection.key, 'properties');
   });
 
   protected messageAnnotationsContextMenu = computed<MenuItem[]>(() => {
     const selection = this.messageAnnotationsContextMenuSelection() ?? { key: 'x-opt-sequence-number', value: '' };
-    return [
-      {
-        label: `Add action for ${selection.key}`,
-        icon: 'pi pi-plus',
-        command: (e) => this.openDraftActionPopover(e.originalEvent ?? new Event('click'), selection.key, 'properties'),
-      },
-    ];
+    return this.actionMenuItems(selection.key, 'properties');
   });
 
   private popoverSaving = false;
@@ -252,22 +249,39 @@ export class MessagesBatchResendComponent {
     this.actionPopover()?.show(event);
   }
 
-  openDraftActionPopover(event: Event, key: string, target: BatchActionTarget): void {
-    const draft: MessageModificationAction = {
-      type: 'alter',
-      target: target as 'properties' | 'applicationProperties',
-      fieldName: key,
-      value: '',
-      alterType: 'fullReplace',
-      applyOnFilter: {
-        body: [],
-        headers: [],
-        properties: [],
-        deliveryAnnotations: [],
-        messageAnnotations: [],
-        applicationProperties: [],
-      },
-    } as MessageModificationAction;
+  openDraftActionPopover(
+    event: Event,
+    key: string,
+    target: BatchActionTarget,
+    type: 'alter' | 'remove',
+  ): void {
+    const propertyTarget = target as 'properties' | 'applicationProperties';
+    const emptyFilter = {
+      body: [],
+      headers: [],
+      properties: [],
+      deliveryAnnotations: [],
+      messageAnnotations: [],
+      applicationProperties: [],
+    };
+
+    const draft: MessageModificationAction = (
+      type === 'remove'
+        ? {
+            type: 'remove',
+            target: propertyTarget,
+            fieldName: key,
+            applyOnFilter: emptyFilter,
+          }
+        : {
+            type: 'alter',
+            target: propertyTarget,
+            fieldName: key,
+            value: '',
+            alterType: 'fullReplace',
+            applyOnFilter: emptyFilter,
+          }
+    ) as MessageModificationAction;
 
     this.actions.update((currentActions) => [...currentActions, draft]);
     const draftIdx = this.actions().length - 1;
