@@ -43,11 +43,15 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
 
   lib-preview-batch {
     flex: 1;
     min-height: 0;
+    // In wide mode the viewer's internal splitters fit at 100% height, so no
+    // scrollbar shows. In narrow mode the viewer stacks fixed-height sections
+    // taller than the panel — allow scrolling so they remain reachable.
+    overflow-y: auto;
   }
 }
 
