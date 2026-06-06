@@ -45,3 +45,27 @@ A tab in the message-viewing UI representing one retrieved set of messages from
 a queue/topic/subscription. Each Message Page has its own SQLite store
 (OPFS-backed), row selection state, and column ordering. Message Pages are
 owned by a single Workspace.
+
+## Topology
+
+The live tree of entities reachable through the active Workspace's
+**Connections**, derived on demand from each broker (never persisted). Its nodes
+are typed: structural nodes (`connection`, the vhost, and grouping folders such
+as "Queues"/"Topics") and addressable entity nodes (queue, topic, subscription,
+rule, exchange, event hub, consumer group). The **Topology Navigator** is the
+sidebar tree that renders it.
+
+## Search Tag
+
+An exact, type-scoped filter token in the Topology Navigator search, rendered as
+a chip and serialized as `[type: value]`. A Tag binds one value to one entity
+node type (e.g. `connection`, `exchange`) and can only be created by selecting a
+suggestion — never typed raw. Tags of different types combine by narrowing down
+the topology hierarchy (logical AND); at most one Tag per type exists at a time.
+_Avoid_: filter, facet, token (in user-facing language, prefer "tag").
+
+## Free Text
+
+The untagged remainder of a Topology Navigator search query: a case-insensitive
+substring matched against entity node names, applied within the scope the Tags
+establish. The fuzzy counterpart to the exact **Search Tag**.

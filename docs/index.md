@@ -23,6 +23,8 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [ADR-0001: Single active Workspace at a time](./adr/0001-single-active-workspace.md)
 - [ADR-0002: Workspace persistence via foreign-key namespacing](./adr/0002-workspace-persistence-foreign-key-namespacing.md)
 - [ADR-0003: Hard-cancel active receivers on Workspace switch](./adr/0003-hard-cancel-receivers-on-workspace-switch.md)
+- [ADR-0004: Topology Navigator search uses an autosuggest-only chip model](./adr/0004-topology-search-chip-model.md)
+- [ADR-0005: RabbitMQ vhost gets a dedicated topology node type](./adr/0005-vhost-dedicated-node-type.md)
 
 ## Project Structure
 
