@@ -58,7 +58,9 @@ sidebar tree that renders it.
 ## Search Tag
 
 An exact, type-scoped filter token in the Topology Navigator search, rendered as
-a chip and serialized as `[type: value]`. A Tag binds one value to one entity
+a chip showing `type: value`. (The `[type: value]` bracket form is only a
+notation for describing tags in writing — it is never shown in the UI.) A Tag
+binds one value to one entity
 node type (e.g. `connection`, `exchange`) and can only be created by selecting a
 suggestion — never typed raw. Tags of different types combine by narrowing down
 the topology hierarchy (logical AND); at most one Tag per type exists at a time.

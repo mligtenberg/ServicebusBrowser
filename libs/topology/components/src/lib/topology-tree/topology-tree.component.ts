@@ -39,7 +39,6 @@ import {
   resolveAcceleratorType,
   SearchChip,
   SearchQuery,
-  serializeChip,
   SUGGESTION_TOTAL_CAP,
   SuggestionGroup,
   SuggestionItem,
@@ -565,9 +564,9 @@ export class TopologyTreeComponent {
     }));
   }
 
-  /** Serialize a chip for display in the chip token label. */
+  /** Human-readable label shown inside the chip pill (no brackets). */
   chipLabel(chip: SearchChip): string {
-    return serializeChip(chip);
+    return `${chip.type}: ${chip.value}`;
   }
 
   // ── Tree helpers ──────────────────────────────────────────────────────────
