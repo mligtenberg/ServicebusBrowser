@@ -1,0 +1,23 @@
+@if (message()) {
+  <div class="message">
+    <p>{{ message() }}</p>
+  </div>
+}
+<div class="input">
+  <input
+    #input
+    pInputText
+    type="text"
+    [(ngModel)]="value"
+    (keyup.enter)="confirm()" />
+</div>
+<div class="buttons">
+  <p-button
+    [label]="cancelLabel()"
+    severity="secondary"
+    (click)="cancel()" />
+  <p-button
+    [label]="okLabel()"
+    [disabled]="!value().trim()"
+    (click)="confirm()" />
+</div>

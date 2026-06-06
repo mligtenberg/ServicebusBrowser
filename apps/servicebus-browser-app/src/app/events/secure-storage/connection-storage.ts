@@ -28,6 +28,25 @@ export class SecureConnectionStorage implements ConnectionStore {
     this.writeConnections(connections);
   }
 
+  renameConnection(connectionId: UUID, name: string): void {
+    // Only rename connections visible in the active workspace to prevent
+    // renaming connections that belong to another workspace.
+    const isInActiveWorkspace = this.listConnections().some(
+      (connection) => connection.connectionId === connectionId,
+    );
+    if (!isInActiveWorkspace) {
+      return;
+    }
+
+    const connections = this.readCurrentConnections();
+    const connection = connections[connectionId];
+    if (!connection) {
+      return;
+    }
+    connections[connectionId] = { ...connection, name };
+    this.writeConnections(connections);
+  }
+
   removeConnection(connectionId: UUID): void {
     const connections = this.readCurrentConnections();
     delete connections[connectionId];

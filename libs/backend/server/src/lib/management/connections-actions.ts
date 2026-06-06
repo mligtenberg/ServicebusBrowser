@@ -11,6 +11,14 @@ const addConnection = (
   return Promise.resolve();
 };
 
+const renameConnection = (
+  body: { connectionId: UUID; name: string },
+  connectionManager: ConnectionManager,
+) => {
+  connectionManager.renameConnection(body.connectionId, body.name);
+  return Promise.resolve();
+};
+
 const removeConnection = (
   body: { connectionId: UUID },
   connectionManager: ConnectionManager,
@@ -38,6 +46,7 @@ const checkConnection = async (
 
 export default new Map<string, ServiceBusServerFunc>([
   ['addConnection', addConnection],
+  ['renameConnection', renameConnection],
   ['removeConnection', removeConnection],
   ['listConnections', listConnections],
   ['checkConnection', checkConnection],

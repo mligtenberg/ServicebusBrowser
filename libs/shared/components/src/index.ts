@@ -3,3 +3,4 @@ export * from './lib/duration-input/duration-input.component';
 export * from './lib/editor/editor';
 export * from './lib/form-editor/form-editor';
 export * from './lib/confirmation-dialog-body/confirmation-service';
+export * from './lib/prompt-dialog-body/prompt-service';

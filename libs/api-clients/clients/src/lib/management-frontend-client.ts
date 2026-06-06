@@ -9,6 +9,13 @@ export class ManagementFrontendClient {
     await this.backendApi.managementDoRequest('addConnection', connection);
   }
 
+  async renameConnection(connectionId: UUID, name: string): Promise<void> {
+    await this.backendApi.managementDoRequest('renameConnection', {
+      connectionId,
+      name,
+    });
+  }
+
   async removeConnection(connectionId: UUID): Promise<void> {
     await this.backendApi.managementDoRequest('removeConnection', {
       connectionId,

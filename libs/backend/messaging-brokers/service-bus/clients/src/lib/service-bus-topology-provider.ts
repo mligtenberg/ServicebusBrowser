@@ -95,6 +95,16 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           },
         },
         {
+          icon: 'pi pi-pencil',
+          displayName: `Rename ${this.connection.name}`,
+          actionGroup: 'connection',
+          actionType: 'connection:rename',
+          parameters: {
+            connectionId: this.connection.id,
+            connectionName: this.connection.name,
+          },
+        },
+        {
           icon: 'pi pi-trash',
           displayName: `Remove ${this.connection.name}`,
           actionGroup: 'connection',
