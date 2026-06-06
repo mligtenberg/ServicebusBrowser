@@ -2,13 +2,15 @@ import {
   ApplicationRef,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
   linkedSignal,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { Store } from '@ngrx/store';
 import {
   messagePagesActions,
@@ -32,7 +34,7 @@ import {
   toSignal,
 } from '@angular/core/rxjs-interop';
 import { MessagePage } from '@service-bus-browser/messages-contracts';
-import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
+import { BodyFilter, MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
@@ -50,6 +52,11 @@ import {
 import { Menu } from 'primeng/menu';
 import { MessageFilterEditorComponent } from '../message-filter-editor/message-filter-editor.component';
 import { Tooltip } from 'primeng/tooltip';
+import { Popover } from 'primeng/popover';
+import { SystemPropertyForm } from '../message-filter-editor/system-property-form/system-property-form';
+import { ApplicationPropertyForm } from '../message-filter-editor/application-property-form/application-property-form';
+import { BodyPropertyForm } from '../message-filter-editor/body-property-form/body-property-form';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -76,6 +83,10 @@ import MessagesViewer from '../messages-viewer/messages-viewer';
     MessageFilterEditorComponent,
     Tooltip,
     MessagesViewer,
+    Popover,
+    SystemPropertyForm,
+    ApplicationPropertyForm,
+    BodyPropertyForm,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -285,6 +296,70 @@ export class MessagesPageComponent {
     { key: string; value: unknown } | undefined
   >(undefined);
 
+  filterPopover = viewChild<Popover>('filterPopover');
+  currentFilterSection = signal<
+    | 'headers'
+    | 'properties'
+    | 'deliveryAnnotations'
+    | 'messageAnnotations'
+    | 'applicationProperties'
+    | 'body'
+  >('properties');
+  currentFilterDraft = signal<PropertyFilter>({
+    isActive: true,
+    fieldName: '',
+    fieldType: 'string',
+    filterType: 'equals',
+    value: '',
+  });
+  currentBodyFilterDraft = signal<BodyFilter>({
+    isActive: true,
+    filterType: 'contains',
+    value: '',
+  });
+  filterPopoverVisible = signal(false);
+
+  protected bodyContextActions: EditorContextAction[] = [
+    {
+      id: 'add-body-contains-filter',
+      label: 'Add body contains filter',
+      run: (selectedText) => this.openDraftBodyFilterPopover(selectedText),
+    },
+  ];
+
+  filterFormProperties = computed(() => {
+    const section = this.currentFilterSection();
+    const draft = this.currentFilterDraft();
+    let known: { label: string; type: string }[] = [];
+    switch (section) {
+      case 'headers': known = [...this.knownHeaders()]; break;
+      case 'properties': known = [...this.knownProperties()]; break;
+      case 'deliveryAnnotations': known = [...this.knownDeliveryAnnotations()]; break;
+      case 'messageAnnotations': known = [...this.knownMessageAnnotations()]; break;
+      case 'applicationProperties': known = [...this.knownApplicationProperties()]; break;
+    }
+    if (draft.fieldName && !known.find((k) => k.label === draft.fieldName)) {
+      known = [{ label: draft.fieldName, type: draft.fieldType }, ...known];
+    }
+    return known;
+  });
+
+  filterSectionLabel = computed(() => {
+    switch (this.currentFilterSection()) {
+      case 'headers': return 'Header';
+      case 'properties': return 'Property';
+      case 'deliveryAnnotations': return 'Delivery Annotation';
+      case 'messageAnnotations': return 'Message Annotation';
+      case 'applicationProperties': return 'Application Property';
+      case 'body': return 'Body';
+    }
+  });
+
+  private document = inject(DOCUMENT);
+  private destroyRef = inject(DestroyRef);
+  private lastContextMenuPosition: { x: number; y: number } | undefined;
+  private filterPopoverAnchorEl: HTMLElement | undefined;
+
   headersContextMenu = computed(() => {
     let selection = this.headersContextMenuSelection();
     if (!selection) {
@@ -463,6 +538,15 @@ export class MessagesPageComponent {
   });
 
   constructor() {
+    const onContextMenu = (event: MouseEvent) => {
+      this.lastContextMenuPosition = { x: event.clientX, y: event.clientY };
+    };
+    this.document.addEventListener('contextmenu', onContextMenu, true);
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('contextmenu', onContextMenu, true);
+      this.removeFilterPopoverAnchor();
+    });
+
     this.activatedRoute.params
       .pipe(
         map((params) => params['pageId']),
@@ -653,128 +737,105 @@ export class MessagesPageComponent {
     );
   }
 
-  protected filterOnProperty(
-    key: string,
-    value: string | number | boolean | Date,
-  ) {
-    this.displayFilterEditor.set(false);
-    const fieldType = this.toFilterPropertyType(key, value);
-
-    let currentFilter = this.messageFilter();
-    currentFilter = {
-      ...currentFilter,
-      properties: [
-        ...currentFilter.properties,
-        {
-          fieldName: key,
-          filterType: 'equals',
-          value: value,
-          fieldType: fieldType,
-          isActive: true,
-        } as PropertyFilter,
-      ],
-    };
-
-    this.onFiltersUpdated(currentFilter);
+  protected filterOnProperty(key: string, value: string | number | boolean | Date) {
+    this.openDraftFilterPopover(key, value, 'properties');
   }
 
-  protected filterOnHeader(
-    key: string,
-    value: string | number | boolean | Date,
-  ) {
-    this.displayFilterEditor.set(false);
-    const fieldType = this.toFilterPropertyType(key, value);
-
-    let currentFilter = this.messageFilter();
-    currentFilter = {
-      ...currentFilter,
-      headers: [
-        ...currentFilter.headers,
-        {
-          fieldName: key,
-          filterType: 'equals',
-          value: value,
-          fieldType: fieldType,
-          isActive: true,
-        } as PropertyFilter,
-      ],
-    };
-
-    this.onFiltersUpdated(currentFilter);
+  protected filterOnHeader(key: string, value: string | number | boolean | Date) {
+    this.openDraftFilterPopover(key, value, 'headers');
   }
 
-  protected filterOnDeliveryAnnotation(
-    key: string,
-    value: string | number | boolean | Date,
-  ) {
-    this.displayFilterEditor.set(false);
-    const fieldType = this.toFilterPropertyType(key, value);
-
-    let currentFilter = this.messageFilter();
-    currentFilter = {
-      ...currentFilter,
-      deliveryAnnotations: [
-        ...currentFilter.deliveryAnnotations,
-        {
-          fieldName: key,
-          filterType: 'equals',
-          value: value,
-          fieldType: fieldType,
-          isActive: true,
-        } as PropertyFilter,
-      ],
-    };
-
-    this.onFiltersUpdated(currentFilter);
+  protected filterOnDeliveryAnnotation(key: string, value: string | number | boolean | Date) {
+    this.openDraftFilterPopover(key, value, 'deliveryAnnotations');
   }
 
-  protected filterOnMessageAnnotation(
-    key: string,
-    value: string | number | boolean | Date,
-  ) {
-    this.displayFilterEditor.set(false);
-    const fieldType = this.toFilterPropertyType(key, value);
-
-    let currentFilter = this.messageFilter();
-    currentFilter = {
-      ...currentFilter,
-      messageAnnotations: [
-        ...currentFilter.messageAnnotations,
-        {
-          fieldName: key,
-          filterType: 'equals',
-          value: value,
-          fieldType: fieldType,
-          isActive: true,
-        } as PropertyFilter,
-      ],
-    };
-
-    this.onFiltersUpdated(currentFilter);
+  protected filterOnMessageAnnotation(key: string, value: string | number | boolean | Date) {
+    this.openDraftFilterPopover(key, value, 'messageAnnotations');
   }
 
-  protected filterOnApplicationProperty(
+  protected filterOnApplicationProperty(key: string, value: string | number | boolean | Date) {
+    this.openDraftFilterPopover(key, value, 'applicationProperties');
+  }
+
+  openDraftBodyFilterPopover(selectedText: string): void {
+    this.currentFilterSection.set('body');
+    this.currentBodyFilterDraft.set({
+      isActive: true,
+      filterType: 'contains',
+      value: selectedText,
+    });
+    this.filterPopoverVisible.set(true);
+    this.showDraftFilterPopover();
+  }
+
+  private openDraftFilterPopover(
     key: string,
     value: string | number | boolean | Date,
+    section: 'headers' | 'properties' | 'deliveryAnnotations' | 'messageAnnotations' | 'applicationProperties',
   ) {
-    this.displayFilterEditor.set(false);
+    this.currentFilterSection.set(section);
+    this.currentFilterDraft.set({
+      fieldName: key,
+      filterType: 'equals',
+      value: value,
+      fieldType: this.toFilterPropertyType(key, value),
+      isActive: true,
+    } as PropertyFilter);
+    this.filterPopoverVisible.set(true);
+    this.showDraftFilterPopover();
+  }
 
-    let currentFilter = this.messageFilter();
-    currentFilter = {
-      ...currentFilter,
-      applicationProperties: [
-        ...currentFilter.applicationProperties,
-        {
-          fieldName: key,
-          filterType: 'equals',
-          value: value,
-          fieldType: this.toFilterPropertyType(key, value),
-          isActive: true,
-        } as PropertyFilter,
-      ],
-    };
+  private showDraftFilterPopover(): void {
+    this.removeFilterPopoverAnchor();
+    const position = this.lastContextMenuPosition;
+    if (!position) {
+      this.filterPopover()?.show(new Event('click'));
+      return;
+    }
 
-    this.onFiltersUpdated(currentFilter);
+    const anchor = this.document.createElement('div');
+    anchor.style.position = 'fixed';
+    anchor.style.left = `${position.x}px`;
+    anchor.style.top = `${position.y}px`;
+    anchor.style.width = '1px';
+    anchor.style.height = '1px';
+    anchor.style.pointerEvents = 'none';
+    this.document.body.appendChild(anchor);
+    this.filterPopoverAnchorEl = anchor;
+    this.filterPopover()?.show(new Event('click'), anchor);
+  }
+
+  private removeFilterPopoverAnchor(): void {
+    this.filterPopoverAnchorEl?.remove();
+    this.filterPopoverAnchorEl = undefined;
+  }
+
+  saveFilterPopover(): void {
+    const section = this.currentFilterSection();
+    const currentFilter = this.messageFilter();
+
+    if (section === 'body') {
+      this.onFiltersUpdated({
+        ...currentFilter,
+        body: [...currentFilter.body, this.currentBodyFilterDraft()],
+      });
+    } else {
+      this.onFiltersUpdated({
+        ...currentFilter,
+        [section]: [...currentFilter[section], this.currentFilterDraft()],
+      });
+    }
+
+    this.filterPopover()?.hide();
+  }
+
+  cancelFilterPopover(): void {
+    this.filterPopover()?.hide();
+  }
+
+  onFilterPopoverHide(): void {
+    this.removeFilterPopoverAnchor();
+    this.filterPopoverVisible.set(false);
   }
 
   private toFilterPropertyType(

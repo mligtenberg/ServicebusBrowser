@@ -52,6 +52,27 @@
   height: 100cqh;
 }
 
+.filter-popover-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 360px;
+
+  .filter-popover-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .filter-popover-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--p-content-border-color);
+  }
+}
+
 lib-messages-viewer {
   flex: 1;
 }
