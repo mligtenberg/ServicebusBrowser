@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, DestroyRef, effect, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import {
@@ -132,6 +132,7 @@ export class MessagesBatchResendComponent {
     },
   ];
 
+  protected readonly sessionActionsKey = crypto.randomUUID();
   protected actions = signal<MessageModificationAction[]>([]);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
   protected editMode = signal(false);
@@ -280,9 +281,19 @@ export class MessagesBatchResendComponent {
       this.lastContextMenuPosition = { x: event.clientX, y: event.clientY };
     };
     this.document.addEventListener('contextmenu', onContextMenu, true);
-    this.destroyRef.onDestroy(() =>
-      this.document.removeEventListener('contextmenu', onContextMenu, true),
-    );
+    const channel = new BroadcastChannel(this.sessionActionsKey);
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('contextmenu', onContextMenu, true);
+      sessionStorage.removeItem(this.sessionActionsKey);
+      channel.close();
+    });
+
+    sessionStorage.setItem(this.sessionActionsKey, '[]');
+    effect(() => {
+      const actions = this.actions();
+      sessionStorage.setItem(this.sessionActionsKey, JSON.stringify(actions));
+      channel.postMessage(actions);
+    });
   }
 
   openAddActionPopover(event: Event): void {

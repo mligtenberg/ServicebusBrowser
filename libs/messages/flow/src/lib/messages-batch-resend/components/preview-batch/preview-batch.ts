@@ -43,6 +43,7 @@ export class PreviewBatch {
   selection = input<string[]>();
   batchModificationActions = input<MessageModificationAction[]>();
   bodyContextActions = input<EditorContextAction[]>([]);
+  sessionActionsKey = input<string | undefined>(undefined);
   selectedMessageSequence = model<string>();
 
   propertiesContextMenu = input<MenuItem[]>([]);

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, model, signal } from '@angular/core';
 import { Editor, EditorContextAction } from '@service-bus-browser/shared-components';
 import {
   MessageModificationAction,
@@ -51,6 +51,7 @@ export class BodyViewer {
   private route = inject(ActivatedRoute, { optional: true });
   private router = inject(Router);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
   header = input<string>('');
   pageId = input.required<UUID>();
@@ -59,6 +60,9 @@ export class BodyViewer {
   // When set, the body reflects these modification actions — used by the
   // batch-resend preview so a body alter action is visible immediately.
   modificationActions = input<MessageModificationAction[]>([]);
+  // When set to a GUID, the popup reads modification actions from session
+  // storage under that key instead of using the modificationActions input.
+  sessionActionsKey = input<string | undefined>(undefined);
 
   private modificationEngine = inject(MessageModificationEngine);
   showPrettyBody = signal<'raw' | 'pretty'>(this.initialBodyView());
@@ -74,6 +78,39 @@ export class BodyViewer {
 
   isPopup = computed(() => this.route?.snapshot.data?.['popup'] === true);
 
+  // Non-null when this instance is a popup with an applyActionList key — holds
+  // the action list received from the opener via BroadcastChannel (or the
+  // initial session-storage snapshot). null means "use the input instead".
+  private liveSessionActions = signal<MessageModificationAction[] | null>(null);
+
+  private effectiveModificationActions = computed(() => {
+    const live = this.liveSessionActions();
+    return live !== null ? live : this.modificationActions();
+  });
+
+  constructor() {
+    const isPopup = this.route?.snapshot.data?.['popup'] === true;
+    const key = isPopup
+      ? (this.route?.snapshot.queryParamMap.get('applyActionList') ?? undefined)
+      : undefined;
+
+    if (!key) return;
+
+    try {
+      this.liveSessionActions.set(
+        JSON.parse(sessionStorage.getItem(key) ?? '[]') as MessageModificationAction[],
+      );
+    } catch {
+      this.liveSessionActions.set([]);
+    }
+
+    const channel = new BroadcastChannel(key);
+    channel.addEventListener('message', (event) => {
+      this.liveSessionActions.set(event.data as MessageModificationAction[]);
+    });
+    this.destroyRef.onDestroy(() => channel.close());
+  }
+
   canOpenInPopup = computed(() => !this.isPopup());
 
   openInPopup(): void {
@@ -87,6 +124,7 @@ export class BodyViewer {
         queryParams: {
           view: this.showPrettyBody(),
           csv: this.csvDelimiter(),
+          ...(this.sessionActionsKey() ? { applyActionList: this.sessionActionsKey() } : {}),
         },
       },
     );
@@ -118,7 +156,7 @@ export class BodyViewer {
       return undefined;
     }
 
-    const actions = this.modificationActions() ?? [];
+    const actions = this.effectiveModificationActions() ?? [];
     const effectiveMessage = actions.length
       ? this.modificationEngine.applyBatchActionsToMessage(
           ClearNonResendableProperties(message),
