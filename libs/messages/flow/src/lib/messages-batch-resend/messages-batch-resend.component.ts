@@ -187,12 +187,7 @@ export class MessagesBatchResendComponent {
       {
         label: `Alter ${key}`,
         icon: 'pi pi-pencil',
-        command: (e) =>
-          this.openDraftActionPopover(
-            e.originalEvent ?? new Event('click'),
-            key,
-            target,
-          ),
+        command: () => this.openDraftActionPopover(key, target),
       },
       {
         label: `Remove ${key}`,
@@ -250,10 +245,7 @@ export class MessagesBatchResendComponent {
     this.editMode.set(true);
     this.editModeIndex.set(draftIdx);
     this.currentAction.set(draft);
-    this.actionPopover()?.show(
-      new Event('click'),
-      this.addActionBtn()?.nativeElement,
-    );
+    this.showDraftPopover();
   }
 
   protected propertiesContextMenu = computed<MenuItem[]>(() => {
@@ -282,6 +274,7 @@ export class MessagesBatchResendComponent {
   });
 
   private popoverSaving = false;
+  private lastContextMenuEvent: MouseEvent | undefined;
 
   openAddActionPopover(event: Event): void {
     this.popoverSaving = false;
@@ -307,7 +300,7 @@ export class MessagesBatchResendComponent {
     this.actionPopover()?.show(event);
   }
 
-  openDraftActionPopover(event: Event, key: string, target: BatchActionTarget): void {
+  openDraftActionPopover(key: string, target: BatchActionTarget): void {
     const draft: MessageModificationAction = {
       type: 'alter',
       target: target as 'properties' | 'applicationProperties',
@@ -325,11 +318,29 @@ export class MessagesBatchResendComponent {
     this.editMode.set(true);
     this.editModeIndex.set(draftIdx);
     this.currentAction.set(draft);
-    // The context-menu item that fired this command is detached from the DOM by
-    // the time it runs, so its event target has a zeroed bounding rect and the
-    // popover would anchor at the top-left. Anchor to the stable "Add action"
-    // button instead.
-    this.actionPopover()?.show(event, this.addActionBtn()?.nativeElement);
+    this.showDraftPopover();
+  }
+
+  /**
+   * Anchor the draft popover to the property row / body location that was
+   * right-clicked. The menu item's own event target is detached by the time the
+   * command runs, so use the originating contextmenu event captured on the
+   * preview panel. Fall back to the "Add action" button if none was recorded.
+   */
+  private showDraftPopover(): void {
+    const contextMenuEvent = this.lastContextMenuEvent;
+    if (contextMenuEvent) {
+      this.actionPopover()?.show(contextMenuEvent);
+    } else {
+      this.actionPopover()?.show(
+        new Event('click'),
+        this.addActionBtn()?.nativeElement,
+      );
+    }
+  }
+
+  onPreviewContextMenu(event: MouseEvent): void {
+    this.lastContextMenuEvent = event;
   }
 
   savePopoverAction(): void {
