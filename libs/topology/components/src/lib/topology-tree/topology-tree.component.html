@@ -1,56 +1,89 @@
 <div class="main-container">
   <div class="search-container">
-    <input
-      pInputText
-      [(ngModel)]="searchTerm"
-      placeholder="Search"
-      class="search-input"
-      [pTooltip]="searchTooltip"
-      [tooltipOptions]="{
-       tooltipEvent: 'focus',
-       appendTo: 'body',
-       disabled: searchTerm() !== ''
-       }"
-    />
-  </div>
-  <div class="tree-wrapper">
-    <p-tree
-      [value]="treeNodes()"
-      (onNodeExpand)="onNodeExpand($event)"
-      (onNodeCollapse)="onNodeCollapse($event)"
-      selectionMode="multiple"
-      [selection]="treeSelection()"
-      (selectionChange)="onSelectionChange($event)"
+    <!-- Chip display area (chips are managed manually, above the autocomplete) -->
+    @if (currentChips().length > 0) {
+      <div class="chip-list">
+        @for (chip of currentChips(); track chip.type) {
+          <span class="search-chip">
+            <span class="chip-label">{{ chipLabel(chip) }}</span>
+            <button
+              class="chip-remove"
+              type="button"
+              aria-label="Remove filter"
+              (click)="removeChip(chip)"
+            >×</button>
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Blended autosuggest input -->
+    <p-autocomplete
+      class="search-autocomplete"
+      [ngModel]="autocompleteValue()"
+      [suggestions]="suggestions()"
+      [group]="true"
+      optionGroupLabel="groupLabel"
+      optionGroupChildren="items"
+      [minLength]="0"
+      [completeOnFocus]="true"
+      [showEmptyMessage]="false"
+      [forceSelection]="false"
+      [delay]="0"
+      [placeholder]="currentChips().length === 0 ? 'Search' : 'Add filter…'"
+      appendTo="body"
+      (completeMethod)="onComplete($event)"
+      (onSelect)="onSuggestionSelect($event)"
+      (onClear)="onSearchCleared()"
     >
-      <ng-template let-node pTemplate="default">
-        <sbb-tpl-generic-tree-node
-          [node]="node.data"
-          (actionSelected)="onActionSelected($event)"
-          (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
-          (sendEndpointSelected)="onSendEndpointSelected($event)"
-          (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
-          [selectionMode]="nodeSelectionMode()"
-        />
+      <!-- Item template: entity row or truncation hint -->
+      <ng-template let-item pTemplate="item">
+        @if (item.kind === 'entity') {
+          <span class="suggestion-entity">{{ item.label }}</span>
+        } @else if (item.kind === 'truncation') {
+          <span class="suggestion-truncation">{{ item.label }}</span>
+        }
       </ng-template>
-      <ng-template let-node pTemplate="no-children">
-        <span class="children">No topology found</span>
+
+      <!-- Group header template -->
+      <ng-template let-group pTemplate="group">
+        <span class="suggestion-group-label">{{ group.groupLabel }}</span>
       </ng-template>
-    </p-tree>
+    </p-autocomplete>
+  </div>
+
+  <div class="tree-wrapper">
+    @if (hasNoResults()) {
+      <div class="no-results">No results</div>
+    } @else {
+      <p-tree
+        [value]="treeNodes()"
+        (onNodeExpand)="onNodeExpand($event)"
+        (onNodeCollapse)="onNodeCollapse($event)"
+        selectionMode="multiple"
+        [selection]="treeSelection()"
+        (selectionChange)="onSelectionChange($event)"
+      >
+        <ng-template let-node pTemplate="default">
+          <sbb-tpl-generic-tree-node
+            [node]="node.data"
+            (actionSelected)="onActionSelected($event)"
+            (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
+            (sendEndpointSelected)="onSendEndpointSelected($event)"
+            (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
+            [selectionMode]="nodeSelectionMode()"
+            [searchTerm]="debouncedFreeText()"
+            [exactMatch]="isExactChipMatch(node.data)"
+          />
+        </ng-template>
+        <ng-template let-node pTemplate="no-children">
+          <span class="children">No topology found</span>
+        </ng-template>
+      </p-tree>
+    }
   </div>
 </div>
-
-<ng-template #searchTooltip>
-  <div>
-    <p>Search for a namespace, queue, topic or subscription by name</p>
-    <p>You can specify the type be prependinging your search term with the type name</p>
-    <p>e.g. <b>namespace:my-namespace</b></p>
-    <p>e.g. <b>queue:my-queue</b></p>
-    <p>e.g. <b>topic:my-topic</b></p>
-    <p>e.g. <b>subscription:my-subscription</b></p>
-  </div>
-</ng-template>
 
 <lib-receive-messages-dialog
   [(receiveEndpoint)]="selectedReceiveEndpoint"
 />
-
