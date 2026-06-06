@@ -107,6 +107,9 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   messages = input.required<ReceivedMessage[]>();
   bodyContextActions = input<EditorContextAction[]>([]);
   bodyModificationActions = input<MessageModificationAction[]>([]);
+  // Hide the sections cleared on resend (headers, delivery/message annotations)
+  // so the sidebar only shows what is actually sent.
+  sendMode = input<boolean>(false);
   maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 

@@ -27,18 +27,22 @@
           [ngClass]="{'hide-scrollbar': isResizing()}"
         >
           <div class="properties">
+            @if (!sendMode()) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="headersTemplate" />
             </div>
+            }
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="propertiesTemplate" />
             </div>
+            @if (!sendMode()) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
             </div>
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
             </div>
+            }
             <div class="application-properties">
               <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
             </div>
@@ -55,18 +59,22 @@
     <div class="card body">
       <ng-template *ngTemplateOutlet="bodyTemplate" />
     </div>
+    @if (!sendMode()) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="headersTemplate" />
     </div>
+    }
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="propertiesTemplate" />
     </div>
+    @if (!sendMode()) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
     </div>
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
     </div>
+    }
     <div class="application-properties">
       <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
     </div>
