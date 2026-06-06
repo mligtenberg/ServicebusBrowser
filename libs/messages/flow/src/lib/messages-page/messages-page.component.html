@@ -121,3 +121,41 @@
   [knownDeliveryAnnotations]="knownDeliveryAnnotations()"
   [knownMessageAnnotations]="knownMessageAnnotations()"
 ></lib-message-filter-editor>
+
+<p-popover
+  #filterPopover
+  appendTo="body"
+  (onHide)="onFilterPopoverHide()"
+>
+  <div class="filter-popover-content">
+    <h3 class="filter-popover-title">Add {{ filterSectionLabel() }} Filter</h3>
+    @if (filterPopoverVisible()) {
+      @if (currentFilterSection() === 'applicationProperties') {
+        <lib-application-property-form
+          [(value)]="currentFilterDraft"
+          [availableApplicationProperties]="filterFormProperties()"
+          [required]="true"
+        />
+      } @else {
+        <lib-system-property-form
+          [(value)]="currentFilterDraft"
+          [availableSystemProperties]="filterFormProperties()"
+          [required]="true"
+        />
+      }
+    }
+    <div class="filter-popover-footer">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        icon="pi pi-times"
+        (click)="cancelFilterPopover()"
+      ></p-button>
+      <p-button
+        label="Add Filter"
+        icon="pi pi-filter"
+        (click)="saveFilterPopover()"
+      ></p-button>
+    </div>
+  </div>
+</p-popover>
