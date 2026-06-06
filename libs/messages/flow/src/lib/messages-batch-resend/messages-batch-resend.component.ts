@@ -237,6 +237,7 @@ export class MessagesBatchResendComponent {
     // Open a prefilled Add dialog — nothing is added to the list until Save.
     this.editMode.set(false);
     this.editModeIndex.set(-1);
+    this.actionEditor()?.clear(prefilled);
     this.currentAction.set(prefilled);
     this.showDraftPopover();
   }
@@ -301,6 +302,7 @@ export class MessagesBatchResendComponent {
     }
     this.editMode.set(true);
     this.editModeIndex.set(index);
+    this.actionEditor()?.clear(action);
     this.currentAction.set(action);
     this.actionPopover()?.show(event);
   }
@@ -318,6 +320,7 @@ export class MessagesBatchResendComponent {
     // Open a prefilled Add dialog — nothing is added to the list until Save.
     this.editMode.set(false);
     this.editModeIndex.set(-1);
+    this.actionEditor()?.clear(prefilled);
     this.currentAction.set(prefilled);
     this.showDraftPopover();
   }

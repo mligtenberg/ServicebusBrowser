@@ -83,17 +83,21 @@ export class ActionComponent {
     applicationProperties: [],
   });
 
-  clear() {
-    this.currentActionType.set(undefined);
-    this.target.set(undefined);
-    this.messageFilter.set({
+  private emptyFilter(): MessageFilter {
+    return {
       body: [],
       headers: [],
       properties: [],
       deliveryAnnotations: [],
       messageAnnotations: [],
       applicationProperties: [],
-    });
+    };
+  }
+
+  clear(initialAction?: Partial<MessageModificationAction>) {
+    this.currentActionType.set(initialAction?.type ?? undefined);
+    this.target.set(initialAction?.target ?? undefined);
+    this.messageFilter.set(initialAction?.applyOnFilter ?? this.emptyFilter());
   }
 
   isFilterActive = computed(() => hasActiveFilters(this.messageFilter()));
@@ -105,6 +109,12 @@ export class ActionComponent {
       }
     });
 
+    // Sync type and target when a sub-component updates the action.
+    // messageFilter is intentionally NOT set here — doing so creates a
+    // reactive cycle: sub-components include applyOnFilter: messageFilter()
+    // in their emitted actions, so writing messageFilter from the action
+    // causes the sub-component computeds to re-run and re-emit endlessly.
+    // messageFilter is initialised imperatively via clear(initialAction).
     effect(() => {
       const action = this.action() as
         | Partial<MessageModificationAction>
@@ -116,16 +126,6 @@ export class ActionComponent {
 
       this.currentActionType.set(action.type);
       this.target.set(action.target);
-      this.messageFilter.set(
-        action.applyOnFilter ?? {
-          body: [],
-          applicationProperties: [],
-          headers: [],
-          properties: [],
-          deliveryAnnotations: [],
-          messageAnnotations: [],
-        },
-      );
     });
   }
 

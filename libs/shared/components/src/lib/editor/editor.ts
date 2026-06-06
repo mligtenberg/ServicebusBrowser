@@ -5,6 +5,7 @@ import {
   input,
   model,
   OnDestroy,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
@@ -65,7 +66,7 @@ export class Editor implements OnDestroy, FormValueControl<string> {
 
       this.editor = monaco.editor.create(editorRef, {
         ...this.editorOptions(),
-        value: this.value(),
+        value: untracked(() => this.value()),
       });
 
       this.editor.onDidBlurEditorText((event) => {
