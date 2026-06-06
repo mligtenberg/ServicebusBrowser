@@ -542,9 +542,10 @@ export class MessagesPageComponent {
       this.lastContextMenuPosition = { x: event.clientX, y: event.clientY };
     };
     this.document.addEventListener('contextmenu', onContextMenu, true);
-    this.destroyRef.onDestroy(() =>
-      this.document.removeEventListener('contextmenu', onContextMenu, true),
-    );
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('contextmenu', onContextMenu, true);
+      this.removeFilterPopoverAnchor();
+    });
 
     this.activatedRoute.params
       .pipe(
@@ -785,6 +786,7 @@ export class MessagesPageComponent {
   }
 
   private showDraftFilterPopover(): void {
+    this.removeFilterPopoverAnchor();
     const position = this.lastContextMenuPosition;
     if (!position) {
       this.filterPopover()?.show(new Event('click'));
