@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   inject,
   input,
   linkedSignal,
@@ -66,9 +67,25 @@ export class PreviewBatch {
     ),
   );
 
-  messages = linkedSignal<ReceivedMessage[]>(() => {
+  // Raw messages as loaded from the repository, with headers/annotations cleared
+  // but no modification actions applied yet.
+  private rawMessages = linkedSignal<ReceivedMessage[]>(() => {
     const messageCount = this.messageCount();
     return messageCount ? Array.from({ length: messageCount }) : [];
+  });
+
+  // Apply the modification actions reactively so the viewer refreshes whenever
+  // the action list changes, without re-fetching from the repository.
+  messages = computed<ReceivedMessage[]>(() => {
+    const actions = this.batchModificationActions() ?? [];
+    return this.rawMessages().map((message) =>
+      message
+        ? this.messageModificationEngine.applyBatchActionsToMessage(
+            message,
+            actions,
+          )
+        : message,
+    );
   });
 
   protected async loadMessages($event: TableLazyLoadEvent) {
@@ -85,14 +102,13 @@ export class PreviewBatch {
     let messages = await repository.getMessages(pageId, this.messageFilter(), first, rows);
 
     // Mirror the resend path: outgoing messages have headers and annotations
-    // cleared before modification actions are applied, so the preview reflects
-    // what will actually be sent. key/sequence are preserved for row selection.
+    // cleared. Modification actions are applied reactively in the `messages`
+    // computed so the preview refreshes when the action list changes.
+    // key/sequence are preserved for row selection.
     messages = messages.map((message) => ClearNonResendableProperties(message));
 
-    messages = this.messageModificationEngine.applyBatchActions(messages, this.batchModificationActions() ?? []);
-
       //populate page of virtual cars
-    this.messages.update((vm) => {
+    this.rawMessages.update((vm) => {
       const newMessages = [
         ...vm.slice(0, first),
         ...messages.slice(0, rows),
