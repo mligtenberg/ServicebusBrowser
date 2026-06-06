@@ -2,6 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { Store } from '@ngrx/store';
 import {
   messagePagesActions,
@@ -56,6 +63,9 @@ import { SplitButton } from 'primeng/splitbutton';
     PreviewBatch,
     Splitter,
     SplitButton,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
   ],
   providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
@@ -373,41 +383,14 @@ export class MessagesBatchResendComponent {
     }
   }
 
-  moveActionUp(index: number) {
-    const actions = this.actions();
-    const action = actions[index];
-
-    if (!action) {
+  dropAction(event: CdkDragDrop<MessageModificationAction[]>) {
+    if (event.previousIndex === event.currentIndex) {
       return;
     }
-
     this.actions.update((currentActions) => {
-      const newActions = [...currentActions];
-      const actionIndex = newActions.indexOf(action);
-      if (actionIndex > 0) {
-        newActions.splice(actionIndex, 1);
-        newActions.splice(actionIndex - 1, 0, action);
-      }
-      return newActions;
-    });
-  }
-
-  moveActionDown(index: number) {
-    const actions = this.actions();
-    const action = actions[index];
-
-    if (!action) {
-      return;
-    }
-
-    this.actions.update((currentActions) => {
-      const newActions = [...currentActions];
-      const actionIndex = newActions.indexOf(action);
-      if (actionIndex >= 0 && actionIndex < newActions.length - 1) {
-        newActions.splice(actionIndex, 1);
-        newActions.splice(actionIndex + 1, 0, action);
-      }
-      return newActions;
+      const arr = [...currentActions];
+      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      return arr;
     });
   }
 

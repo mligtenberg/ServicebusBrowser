@@ -5,9 +5,6 @@
   --batch-resend-action-item-hover: #f0f2f5;
   --batch-resend-empty-state-bg: #f5f5f5;
   --batch-resend-empty-state-text: #777;
-  --batch-resend-preview-bg: #fff;
-  --batch-resend-property-name: #555;
-  --batch-resend-title: #343a40;
   --batch-resend-subtitle: #6c757d;
   --batch-action-title: #00336e;
 }
@@ -19,9 +16,6 @@
   --batch-resend-action-item-hover: #3a3a3a;
   --batch-resend-empty-state-bg: #28282e;
   --batch-resend-empty-state-text: #bbb;
-  --batch-resend-preview-bg: #1e1e1e;
-  --batch-resend-property-name: #bbb;
-  --batch-resend-title: #e0e0e0;
   --batch-resend-subtitle: #bbb;
   --batch-action-title: #4789d4;
 }
@@ -72,22 +66,13 @@
     display: flex;
     flex-direction: column;
 
-    h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-    }
-
     .empty-state {
       padding: 2rem;
-      background-color: var(--batch-resend-action-item-bg);
+      background-color: var(--batch-resend-empty-state-bg);
       border-radius: 4px;
-      text-align: center;
-      color: var(--batch-resend-text);
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: var(--batch-resend-empty-state-bg);
-      border-radius: 4px;
 
       p {
         color: var(--batch-resend-empty-state-text);
@@ -102,65 +87,79 @@
       align-items: center;
       margin-bottom: 0.5rem;
 
-      h3 {
-        margin-bottom: 0;
+      .actions-title {
+        font-weight: 600;
       }
 
       .actions-header-buttons {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.25rem;
+        align-items: center;
       }
     }
 
-    .action-item {
+    .action-drop-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.25rem 0.25rem 0.5rem;
+    }
+
+    .action-card {
       background-color: var(--batch-resend-action-item-bg);
       border: 1px solid var(--batch-resend-border);
-      border-radius: 4px;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      display: grid;
-      justify-content: space-between;
+      border-radius: 6px;
+      padding: 0.5rem 0.5rem 0.5rem 0;
+      display: flex;
       align-items: center;
+      gap: 0.25rem;
       transition: background-color 0.2s;
-      grid-template-areas:
-        'type position'
-        'target buttons'
-        'details buttons';
 
       &:hover {
         background-color: var(--batch-resend-action-item-hover);
       }
 
-      .action-type {
-        grid-area: type;
-        font-weight: bold;
-        min-width: 50px;
-        color: var(--batch-action-title);
-      }
-
-      .action-target {
-        grid-area: target;
-        color: var(--batch-resend-property-name);
-        min-width: 150px;
-      }
-
-      .action-details {
-        grid-area: details;
+      .action-drag-handle {
+        cursor: grab;
         color: var(--batch-resend-subtitle);
-        font-size: 0.9rem;
+        padding: 0 0.5rem;
+        flex-shrink: 0;
+
+        &:active { cursor: grabbing; }
       }
 
-      .action-position {
-        grid-area: position;
+      .action-card-content {
+        flex: 1;
+        min-width: 0;
         display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
+        flex-direction: column;
+
+        .action-card-line1 {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.9rem;
+
+          strong { color: var(--batch-action-title); }
+          .action-separator { color: var(--batch-resend-subtitle); }
+        }
+
+        .action-card-line2 {
+          font-size: 0.8rem;
+          color: var(--batch-resend-subtitle);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
 
-      .action-buttons {
-        grid-area: buttons;
+      .action-card-buttons {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
       }
     }
+
   }
 
   .action-editor {
@@ -183,7 +182,6 @@
 .bottom-bar {
   flex-shrink: 0;
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
