@@ -60,7 +60,7 @@ export class ResendMessagesUtil {
           if (modificationActions?.length) {
             messageToSend =
               this.messageModificationEngine.applyBatchActionsToMessage(
-                message,
+                messageToSend,
                 modificationActions,
               );
           }
