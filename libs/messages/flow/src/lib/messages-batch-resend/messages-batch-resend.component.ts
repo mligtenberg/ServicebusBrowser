@@ -287,10 +287,23 @@ export class MessagesBatchResendComponent {
   }
 
   onPopoverShow(): void {
-    if (this.focusValueOnShow) {
-      this.focusValueOnShow = false;
-      this.actionEditor()?.focusValueField();
+    if (!this.focusValueOnShow) {
+      return;
     }
+    this.focusValueOnShow = false;
+    // The popover content and the value control render asynchronously after the
+    // action's type/target signals propagate, so retry across a few frames
+    // until the value input exists, then focus it.
+    this.focusValueFieldWithRetry(10);
+  }
+
+  private focusValueFieldWithRetry(attempts: number): void {
+    setTimeout(() => {
+      const focused = this.actionEditor()?.focusValueField() ?? false;
+      if (!focused && attempts > 0) {
+        this.focusValueFieldWithRetry(attempts - 1);
+      }
+    });
   }
 
   savePopoverAction(): void {
