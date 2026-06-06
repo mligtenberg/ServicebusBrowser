@@ -33,6 +33,7 @@
       appendTo="body"
       (completeMethod)="onComplete($event)"
       (onSelect)="onSuggestionSelect($event)"
+      (onClear)="onSearchCleared()"
     >
       <!-- Item template: entity row or truncation hint -->
       <ng-template let-item pTemplate="item">

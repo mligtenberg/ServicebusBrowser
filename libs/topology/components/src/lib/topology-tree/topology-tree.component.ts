@@ -381,6 +381,17 @@ export class TopologyTreeComponent {
    * - At most SUGGESTION_TOTAL_CAP entity rows are shown in total across all groups.
    * - Suggestions are only shown when the typed query is >= 3 characters.
    */
+  /**
+   * PrimeNG emits (onClear) when the input is emptied (including via backspace),
+   * and in that case it does NOT call completeMethod — so we must reset the
+   * free-text filter here, otherwise the last term keeps filtering/highlighting.
+   */
+  onSearchCleared() {
+    this.searchInputText.set('');
+    this.freeText$.next('');
+    this.suggestions.set([]);
+  }
+
   onComplete(event: AutoCompleteCompleteEvent) {
     const typed = event.query.trim();
 
