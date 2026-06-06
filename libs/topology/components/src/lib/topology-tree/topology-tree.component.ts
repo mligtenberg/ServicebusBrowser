@@ -1,11 +1,13 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   model,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +30,8 @@ import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 import { ActionManager } from '@service-bus-browser/actions-framework';
 import { ConfirmationService } from '@service-bus-browser/shared-components';
 import { TopologyActions } from '@service-bus-browser/topology-store';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -81,13 +85,29 @@ export class TopologyTreeComponent {
   topologyRootNodes = this.store.selectSignal(
     TopologySelectors.selectRootNodes,
   );
-  treeNodes = computed<TreeNode<TopologyNode>[]>(() => {
+
+  // Raw search term updated on every keystroke (drives the input binding)
+  searchTerm = signal('');
+
+  // Debounced search term (~150 ms) used for actual filtering
+  private readonly searchTerm$ = new Subject<string>();
+  debouncedSearchTerm = toSignal(
+    this.searchTerm$.pipe(debounceTime(150)),
+    { initialValue: '' },
+  );
+
+  opened = signal<string[]>([]);
+
+  // Whether search is currently active (non-empty debounced term)
+  private searchActive = computed(() => this.debouncedSearchTerm().trim() !== '');
+
+  // Selectability-filtered nodes (stage 1)
+  private selectabilityFilteredNodes = computed<TopologyNode[]>(() => {
     const selectionMode = this.selectionMode();
     const isSelectable = (node: TopologyNode) => {
       if (selectionMode === 'send') {
         return node.sendEndpoint !== undefined;
       }
-
       return true;
     };
     const hasSelectableChildren = (node: TopologyNode): boolean => {
@@ -122,9 +142,105 @@ export class TopologyTreeComponent {
 
     return this.topologyRootNodes()
       .map(filter)
-      .filter((node) => node !== null)
-      .map((node) => this.toTreeNode(node));
+      .filter((node) => node !== null);
   });
+
+  treeNodes = computed<TreeNode<TopologyNode>[]>(() => {
+    const term = this.debouncedSearchTerm().trim().toLowerCase();
+    const isSearchActive = term !== '';
+    const opened = this.opened();
+
+    if (!isSearchActive) {
+      // No search: render normally using user's opened state
+      return this.selectabilityFilteredNodes().map((node) =>
+        this.toTreeNode(node, false, opened),
+      );
+    }
+
+    // Search active: filter nodes, collect survivor paths, force-expand ancestors
+    const matchedPaths = new Set<string>();
+    const ancestorPaths = new Set<string>();
+
+    const nodeMatches = (node: TopologyNode): boolean =>
+      node.name.toLowerCase().includes(term);
+
+    // Determine which nodes survive the search
+    const collectSurvivors = (
+      node: TopologyNode,
+      ancestors: string[],
+    ): boolean => {
+      const selfMatches = nodeMatches(node);
+
+      // If self matches, add all ancestors and self; all descendants are visible (not filtered further)
+      if (selfMatches) {
+        matchedPaths.add(node.path);
+        for (const a of ancestors) ancestorPaths.add(a);
+        return true;
+      }
+
+      // Check children
+      let anyChildSurvives = false;
+      if (node.children) {
+        for (const child of node.children) {
+          if (collectSurvivors(child, [...ancestors, node.path])) {
+            anyChildSurvives = true;
+          }
+        }
+      }
+
+      if (anyChildSurvives) {
+        ancestorPaths.add(node.path);
+        for (const a of ancestors) ancestorPaths.add(a);
+      }
+
+      return anyChildSurvives;
+    };
+
+    for (const root of this.selectabilityFilteredNodes()) {
+      collectSurvivors(root, []);
+    }
+
+    // Build filtered tree: keep matched nodes (with full subtree) and ancestors
+    const buildFilteredTree = (
+      node: TopologyNode,
+    ): TreeNode<TopologyNode> | null => {
+      const selfMatches = matchedPaths.has(node.path);
+      const isAncestor = ancestorPaths.has(node.path);
+
+      if (!selfMatches && !isAncestor) {
+        return null;
+      }
+
+      // Self matches: show full subtree (no further filtering)
+      if (selfMatches) {
+        return this.toTreeNode(node, true, opened);
+      }
+
+      // Ancestor: filter children, force expanded
+      const filteredChildren = (node.children ?? [])
+        .map(buildFilteredTree)
+        .filter((n): n is TreeNode<TopologyNode> => n !== null);
+
+      return {
+        key: node.path,
+        data: structuredClone(node),
+        expanded: true, // force-open ancestors
+        children: filteredChildren,
+        leaf: filteredChildren.length === 0,
+        selectable: node.selectable,
+      };
+    };
+
+    return this.selectabilityFilteredNodes()
+      .map(buildFilteredTree)
+      .filter((n): n is TreeNode<TopologyNode> => n !== null);
+  });
+
+  // Whether the current search has no results
+  hasNoResults = computed(
+    () => this.searchActive() && this.treeNodes().length === 0,
+  );
+
   flatTreeNodes = computed<TreeNode<TopologyNode>[]>(() => {
     const flatten = (
       nodes: TreeNode<TopologyNode>[],
@@ -137,14 +253,32 @@ export class TopologyTreeComponent {
     return flatten(this.treeNodes());
   });
 
-  searchTerm = signal('');
-  opened = signal<string[]>([]);
-
   constructor() {
     this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+
+    // Push search term changes into the debounce subject
+    effect(() => {
+      const term = this.searchTerm();
+      untracked(() => this.searchTerm$.next(term));
+    });
+
+    // Clear search term when topology root nodes identity changes (workspace switch)
+    let previousRootNodes = this.topologyRootNodes();
+    effect(() => {
+      const rootNodes = this.topologyRootNodes();
+      if (rootNodes !== previousRootNodes) {
+        previousRootNodes = rootNodes;
+        untracked(() => this.searchTerm.set(''));
+        untracked(() => this.searchTerm$.next(''));
+      }
+    });
   }
 
-  private toTreeNode(node: TopologyNode): TreeNode<TopologyNode> {
+  private toTreeNode(
+    node: TopologyNode,
+    forceExpand = false,
+    opened: string[] = this.opened(),
+  ): TreeNode<TopologyNode> {
     const mapper = (
       node: TopologyNode,
       isRoot: boolean,
@@ -163,7 +297,7 @@ export class TopologyTreeComponent {
       return {
         key: node.path,
         data: structuredClone(node),
-        expanded: this.opened().includes(node.path),
+        expanded: forceExpand || opened.includes(node.path),
         children: children,
         leaf: children.length === 0,
         selectable: node.selectable,

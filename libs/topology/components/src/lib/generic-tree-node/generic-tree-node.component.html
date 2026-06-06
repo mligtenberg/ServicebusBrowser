@@ -9,7 +9,13 @@
     @if (node().icon; as icon) {
       <fa-icon [icon]="icon"></fa-icon>
     }
-    {{ node().name }}
+    @for (part of highlightParts(); track $index) {
+      @if (part.highlight) {
+        <mark class="search-highlight">{{ part.text }}</mark>
+      } @else {
+        {{ part.text }}
+      }
+    }
   </span>
   @if (showMessageCounts()) {
     <span [pTooltip]="messageCountToolTip">{{messageCountSummary()}}</span>

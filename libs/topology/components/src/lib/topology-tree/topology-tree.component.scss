@@ -67,6 +67,13 @@ p-tree {
   border-right: none;
 }
 
+.no-results {
+  padding: 1rem;
+  color: var(--p-text-muted-color, #6c757d);
+  font-style: italic;
+  text-align: center;
+}
+
 
 @keyframes spin {
   from {transform:rotate(0deg);}

@@ -31,11 +31,35 @@ export class GenericTreeNodeComponent {
 
   node = input.required<TopologyNode>();
   selectionMode = input.required<'actions' | 'send' | 'none'>();
+  searchTerm = input<string>('');
 
   actionSelected = output<TopologyAction>();
   sendEndpointSelected = output<SendEndpoint>();
   receiveEndpointSelected = output<ReceiveEndpoint>();
   clearReceiveEndpointSelected = output<ReceiveEndpoint>();
+
+  // Breaks node.name into [{text, highlight}] segments for substring highlight rendering
+  highlightParts = computed<{ text: string; highlight: boolean }[]>(() => {
+    const name = this.node().name;
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) {
+      return [{ text: name, highlight: false }];
+    }
+    const lowerName = name.toLowerCase();
+    const idx = lowerName.indexOf(term);
+    if (idx === -1) {
+      return [{ text: name, highlight: false }];
+    }
+    const parts: { text: string; highlight: boolean }[] = [];
+    if (idx > 0) {
+      parts.push({ text: name.slice(0, idx), highlight: false });
+    }
+    parts.push({ text: name.slice(idx, idx + term.length), highlight: true });
+    if (idx + term.length < name.length) {
+      parts.push({ text: name.slice(idx + term.length), highlight: false });
+    }
+    return parts;
+  });
 
   isLoading = toSignal(
     toObservable(this.node).pipe(

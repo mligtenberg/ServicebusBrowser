@@ -14,28 +14,33 @@
     />
   </div>
   <div class="tree-wrapper">
-    <p-tree
-      [value]="treeNodes()"
-      (onNodeExpand)="onNodeExpand($event)"
-      (onNodeCollapse)="onNodeCollapse($event)"
-      selectionMode="multiple"
-      [selection]="treeSelection()"
-      (selectionChange)="onSelectionChange($event)"
-    >
-      <ng-template let-node pTemplate="default">
-        <sbb-tpl-generic-tree-node
-          [node]="node.data"
-          (actionSelected)="onActionSelected($event)"
-          (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
-          (sendEndpointSelected)="onSendEndpointSelected($event)"
-          (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
-          [selectionMode]="nodeSelectionMode()"
-        />
-      </ng-template>
-      <ng-template let-node pTemplate="no-children">
-        <span class="children">No topology found</span>
-      </ng-template>
-    </p-tree>
+    @if (hasNoResults()) {
+      <div class="no-results">No results for "{{ debouncedSearchTerm() }}"</div>
+    } @else {
+      <p-tree
+        [value]="treeNodes()"
+        (onNodeExpand)="onNodeExpand($event)"
+        (onNodeCollapse)="onNodeCollapse($event)"
+        selectionMode="multiple"
+        [selection]="treeSelection()"
+        (selectionChange)="onSelectionChange($event)"
+      >
+        <ng-template let-node pTemplate="default">
+          <sbb-tpl-generic-tree-node
+            [node]="node.data"
+            (actionSelected)="onActionSelected($event)"
+            (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
+            (sendEndpointSelected)="onSendEndpointSelected($event)"
+            (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
+            [selectionMode]="nodeSelectionMode()"
+            [searchTerm]="debouncedSearchTerm()"
+          />
+        </ng-template>
+        <ng-template let-node pTemplate="no-children">
+          <span class="children">No topology found</span>
+        </ng-template>
+      </p-tree>
+    }
   </div>
 </div>
 
