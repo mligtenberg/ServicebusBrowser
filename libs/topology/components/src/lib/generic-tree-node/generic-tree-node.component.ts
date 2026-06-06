@@ -32,15 +32,33 @@ export class GenericTreeNodeComponent {
   node = input.required<TopologyNode>();
   selectionMode = input.required<'actions' | 'send' | 'none'>();
   searchTerm = input<string>('');
+  /**
+   * When true the entire node name is highlighted as an exact-match chip hit.
+   * Takes precedence over the substring highlight from `searchTerm`.
+   */
+  exactMatch = input<boolean>(false);
 
   actionSelected = output<TopologyAction>();
   sendEndpointSelected = output<SendEndpoint>();
   receiveEndpointSelected = output<ReceiveEndpoint>();
   clearReceiveEndpointSelected = output<ReceiveEndpoint>();
 
-  // Breaks node.name into [{text, highlight}] segments for substring highlight rendering
+  /**
+   * Breaks node.name into [{text, highlight}] segments for rendering.
+   *
+   * Priority:
+   *  1. exactMatch=true  → whole name is one highlighted segment (chip hit).
+   *  2. searchTerm set   → substring highlight as before.
+   *  3. Neither          → plain text.
+   */
   highlightParts = computed<{ text: string; highlight: boolean }[]>(() => {
     const name = this.node().name;
+
+    // Exact-match (chip hit): highlight the entire name
+    if (this.exactMatch()) {
+      return [{ text: name, highlight: true }];
+    }
+
     const term = this.searchTerm().trim().toLowerCase();
     if (!term) {
       return [{ text: name, highlight: false }];

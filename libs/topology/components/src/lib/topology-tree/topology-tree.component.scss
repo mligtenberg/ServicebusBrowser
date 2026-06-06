@@ -50,22 +50,101 @@ p-tree {
   color: red;
 }
 
+// ── Search container ──────────────────────────────────────────────────────
+
 .search-container {
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: stretch;
-  input {
-    flex: 1;
-    --p-inputtext-border-radius: 0;
+  flex-direction: column;
+  border-bottom: 1px solid var(--p-inputtext-border-color, #ced4da);
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.35rem 0.5rem 0;
+}
+
+.search-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: var(--p-highlight-background, #e9ecef);
+  color: var(--p-highlight-color, #212529);
+  border-radius: 1rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  max-width: 100%;
+
+  .chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+
+  .chip-remove {
+    all: unset;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 1rem;
+    opacity: 0.6;
+    padding: 0 0.1rem;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 
-.search-input {
-  border-top: none;
-  border-left: none;
-  border-right: none;
+// ── AutoComplete input ─────────────────────────────────────────────────────
+
+.search-autocomplete {
+  width: 100%;
+
+  ::ng-deep .p-autocomplete {
+    width: 100%;
+  }
+
+  ::ng-deep .p-autocomplete-input {
+    width: 100%;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
 }
+
+// ── Suggestion dropdown ────────────────────────────────────────────────────
+
+.suggestion-group-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--p-text-muted-color, #6c757d);
+}
+
+.suggestion-entity {
+  font-size: 0.9rem;
+}
+
+.suggestion-freetext {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--p-text-muted-color, #6c757d);
+}
+
+// ── No results ─────────────────────────────────────────────────────────────
 
 .no-results {
   padding: 1rem;
@@ -73,7 +152,6 @@ p-tree {
   font-style: italic;
   text-align: center;
 }
-
 
 @keyframes spin {
   from {transform:rotate(0deg);}

@@ -13,8 +13,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
 import { PrimeTemplate, TreeNode } from 'primeng/api';
-import { InputText } from 'primeng/inputtext';
-import { Tooltip } from 'primeng/tooltip';
 import { Store } from '@ngrx/store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
@@ -32,6 +30,17 @@ import { ConfirmationService } from '@service-bus-browser/shared-components';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, Subject } from 'rxjs';
+import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primeng/autocomplete';
+import {
+  EMPTY_QUERY,
+  EXCLUDED_TAG_TYPES,
+  isQueryEmpty,
+  SearchChip,
+  SearchQuery,
+  serializeChip,
+  SuggestionGroup,
+  SuggestionItem,
+} from '../search/search-query.model';
 
 @Component({
   selector: 'sbb-tpl-topology-tree',
@@ -40,10 +49,9 @@ import { debounceTime, Subject } from 'rxjs';
     FormsModule,
     Tree,
     PrimeTemplate,
-    InputText,
-    Tooltip,
     GenericTreeNodeComponent,
     ReceiveMessagesDialog,
+    AutoComplete,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
@@ -86,20 +94,46 @@ export class TopologyTreeComponent {
     TopologySelectors.selectRootNodes,
   );
 
-  // Raw search term updated on every keystroke (drives the input binding)
-  searchTerm = signal('');
+  // ── Search query ──────────────────────────────────────────────────────────
 
-  // Debounced search term (~150 ms) used for actual filtering
-  private readonly searchTerm$ = new Subject<string>();
-  debouncedSearchTerm = toSignal(
-    this.searchTerm$.pipe(debounceTime(150)),
+  /** The full structured query (chips + free text). */
+  searchQuery = signal<SearchQuery>(EMPTY_QUERY);
+
+  /**
+   * The raw string currently in the AutoComplete text field (the part the user
+   * is typing right now, AFTER existing chips).  This drives the debounce and
+   * the suggestion list.
+   */
+  searchInputText = signal('');
+
+  // Debounced free-text term (~150 ms) — used for actual tree filtering
+  private readonly freeText$ = new Subject<string>();
+  debouncedFreeText = toSignal(
+    this.freeText$.pipe(debounceTime(150)),
     { initialValue: '' },
   );
 
+  /** The list of chips from the current query (convenience accessor for the template). */
+  currentChips = computed(() => this.searchQuery().chips);
+
+  /** True when any filtering is active (chips or free text). */
+  private searchActive = computed(() => !isQueryEmpty({
+    chips: this.searchQuery().chips,
+    freeText: this.debouncedFreeText(),
+  }));
+
+  // The autocomplete value binding — we only ever use the chip model internally;
+  // PrimeNG multiple mode needs the chip objects bound, so we bind currentChips.
+  // We use a fake ngModel value (not chips) since our chips are managed manually.
+  autocompleteValue = signal<SuggestionItem[]>([]);
+
+  // ── Suggestion state ──────────────────────────────────────────────────────
+
+  suggestions = signal<SuggestionGroup[]>([]);
+
   opened = signal<string[]>([]);
 
-  // Whether search is currently active (non-empty debounced term)
-  private searchActive = computed(() => this.debouncedSearchTerm().trim() !== '');
+  // ── Stage 1: selectability filter ────────────────────────────────────────
 
   // Selectability-filtered nodes (stage 1)
   private selectabilityFilteredNodes = computed<TopologyNode[]>(() => {
@@ -145,44 +179,75 @@ export class TopologyTreeComponent {
       .filter((node) => node !== null);
   });
 
+  // ── Stage 2: chip + free-text filter ─────────────────────────────────────
+
   treeNodes = computed<TreeNode<TopologyNode>[]>(() => {
-    const term = this.debouncedSearchTerm().trim().toLowerCase();
-    const isSearchActive = term !== '';
+    const chips = this.searchQuery().chips;
+    const term = this.debouncedFreeText().trim().toLowerCase();
+    const isFilterActive = chips.length > 0 || term !== '';
     const opened = this.opened();
 
-    if (!isSearchActive) {
-      // No search: render normally using user's opened state
+    if (!isFilterActive) {
       return this.selectabilityFilteredNodes().map((node) =>
         this.toTreeNode(node, false, opened),
       );
     }
 
-    // Search active: filter nodes, collect survivor paths, force-expand ancestors
     const matchedPaths = new Set<string>();
     const ancestorPaths = new Set<string>();
 
-    const nodeMatches = (node: TopologyNode): boolean =>
-      node.name.toLowerCase().includes(term);
+    /**
+     * A node is a PRIMARY MATCH when:
+     *  - For every chip c: the path root → node contains a node of type c.type
+     *    whose name equals c.value (exact, case-insensitive).
+     *  - AND (term empty) OR (node.name contains term, case-insensitive).
+     */
+    const nodeMatchesChips = (
+      node: TopologyNode,
+      ancestorPath: TopologyNode[],
+    ): boolean => {
+      if (chips.length === 0) return true;
+      const allNodes = [...ancestorPath, node];
+      return chips.every((chip) =>
+        allNodes.some(
+          (n) =>
+            n.type === chip.type &&
+            n.name.toLowerCase() === chip.value.toLowerCase(),
+        ),
+      );
+    };
 
-    // Determine which nodes survive the search
+    const nodeMatchesFreeText = (node: TopologyNode): boolean =>
+      term === '' || node.name.toLowerCase().includes(term);
+
+    const nodeIsPrimaryMatch = (
+      node: TopologyNode,
+      ancestorPath: TopologyNode[],
+    ): boolean =>
+      nodeMatchesChips(node, ancestorPath) && nodeMatchesFreeText(node);
+
     const collectSurvivors = (
       node: TopologyNode,
-      ancestors: string[],
+      ancestors: TopologyNode[],
+      ancestorPaths_: string[],
     ): boolean => {
-      const selfMatches = nodeMatches(node);
+      const selfMatches = nodeIsPrimaryMatch(node, ancestors);
 
-      // If self matches, add all ancestors and self; all descendants are visible (not filtered further)
       if (selfMatches) {
         matchedPaths.add(node.path);
-        for (const a of ancestors) ancestorPaths.add(a);
+        for (const a of ancestorPaths_) ancestorPaths.add(a);
         return true;
       }
 
-      // Check children
       let anyChildSurvives = false;
       if (node.children) {
         for (const child of node.children) {
-          if (collectSurvivors(child, [...ancestors, node.path])) {
+          if (
+            collectSurvivors(child, [...ancestors, node], [
+              ...ancestorPaths_,
+              node.path,
+            ])
+          ) {
             anyChildSurvives = true;
           }
         }
@@ -190,17 +255,17 @@ export class TopologyTreeComponent {
 
       if (anyChildSurvives) {
         ancestorPaths.add(node.path);
-        for (const a of ancestors) ancestorPaths.add(a);
+        for (const a of ancestorPaths_) ancestorPaths.add(a);
       }
 
       return anyChildSurvives;
     };
 
     for (const root of this.selectabilityFilteredNodes()) {
-      collectSurvivors(root, []);
+      collectSurvivors(root, [], []);
     }
 
-    // Build filtered tree: keep matched nodes (with full subtree) and ancestors
+    // Build filtered tree: keep matched nodes (full subtree) and ancestors
     const buildFilteredTree = (
       node: TopologyNode,
     ): TreeNode<TopologyNode> | null => {
@@ -211,7 +276,6 @@ export class TopologyTreeComponent {
         return null;
       }
 
-      // Self matches: show full subtree (no further filtering)
       if (selfMatches) {
         return this.toTreeNode(node, true, opened);
       }
@@ -224,7 +288,7 @@ export class TopologyTreeComponent {
       return {
         key: node.path,
         data: structuredClone(node),
-        expanded: true, // force-open ancestors
+        expanded: true,
         children: filteredChildren,
         leaf: filteredChildren.length === 0,
         selectable: node.selectable,
@@ -253,26 +317,185 @@ export class TopologyTreeComponent {
     return flatten(this.treeNodes());
   });
 
+  // ── Chip exact-match set (for highlight) ─────────────────────────────────
+
+  /**
+   * A set of `"type\0value"` strings for O(1) lookup in the tree template.
+   * (Using null byte as a delimiter that can never appear in type/value.)
+   */
+  chipMatchKeys = computed<Set<string>>(() => {
+    const keys = new Set<string>();
+    for (const chip of this.searchQuery().chips) {
+      keys.add(`${chip.type}\0${chip.value.toLowerCase()}`);
+    }
+    return keys;
+  });
+
   constructor() {
     this.store.dispatch(TopologyActions.loadTopologyRootNodes());
 
-    // Push search term changes into the debounce subject
+    // Push free-text changes into the debounce subject
     effect(() => {
-      const term = this.searchTerm();
-      untracked(() => this.searchTerm$.next(term));
+      const text = this.searchInputText();
+      untracked(() => this.freeText$.next(text));
     });
 
-    // Clear search term when topology root nodes identity changes (workspace switch)
+    // Clear search when topology root nodes identity changes (workspace switch)
     let previousRootNodes = this.topologyRootNodes();
     effect(() => {
       const rootNodes = this.topologyRootNodes();
       if (rootNodes !== previousRootNodes) {
         previousRootNodes = rootNodes;
-        untracked(() => this.searchTerm.set(''));
-        untracked(() => this.searchTerm$.next(''));
+        untracked(() => {
+          this.searchQuery.set(EMPTY_QUERY);
+          this.searchInputText.set('');
+          this.freeText$.next('');
+        });
       }
     });
   }
+
+  // ── Autosuggest ───────────────────────────────────────────────────────────
+
+  /**
+   * Called by PrimeNG AutoComplete on every keystroke.
+   * Builds a blended list of entity suggestions + a free-text row.
+   */
+  onComplete(event: AutoCompleteCompleteEvent) {
+    const typed = event.query.trim();
+    const chips = this.searchQuery().chips;
+
+    // Types that already have a chip — never offered again
+    const usedTypes = new Set(chips.map((c) => c.type));
+
+    // Collect entity suggestions, scoped by current chips
+    const grouped = new Map<string, string[]>(); // type → matching names
+
+    const walkForSuggestions = (
+      node: TopologyNode,
+      ancestorPath: TopologyNode[],
+    ) => {
+      if (EXCLUDED_TAG_TYPES.has(node.type)) {
+        // Still descend to find children
+        node.children?.forEach((c) =>
+          walkForSuggestions(c, [...ancestorPath, node]),
+        );
+        return;
+      }
+
+      if (!usedTypes.has(node.type)) {
+        // Check whether this node satisfies the current chips in its ancestor path
+        const allNodes = [...ancestorPath, node];
+        const satisfiesChips = chips.every((chip) =>
+          allNodes.some(
+            (n) =>
+              n.type === chip.type &&
+              n.name.toLowerCase() === chip.value.toLowerCase(),
+          ),
+        );
+
+        if (satisfiesChips) {
+          const nameLower = node.name.toLowerCase();
+          const typedLower = typed.toLowerCase();
+          if (typed === '' || nameLower.includes(typedLower)) {
+            const list = grouped.get(node.type) ?? [];
+            // Deduplicate by name within the type group
+            if (!list.includes(node.name)) {
+              list.push(node.name);
+              grouped.set(node.type, list);
+            }
+          }
+        }
+      }
+
+      node.children?.forEach((c) =>
+        walkForSuggestions(c, [...ancestorPath, node]),
+      );
+    };
+
+    this.selectabilityFilteredNodes().forEach((root) =>
+      walkForSuggestions(root, []),
+    );
+
+    const groups: SuggestionGroup[] = [];
+
+    for (const [type, names] of grouped) {
+      groups.push({
+        groupLabel: type,
+        items: names.map((name) => ({
+          kind: 'entity' as const,
+          type,
+          label: name,
+          groupLabel: type,
+        })),
+      });
+    }
+
+    // Always-present free-text row
+    const freeTextLabel = typed
+      ? `Search for "${typed}"`
+      : 'Type to search…';
+    groups.push({
+      groupLabel: 'free text',
+      items: [
+        {
+          kind: 'freeText' as const,
+          text: typed,
+          label: freeTextLabel,
+        },
+      ],
+    });
+
+    this.suggestions.set(groups);
+  }
+
+  /**
+   * Called when the user selects an item from the suggestion dropdown.
+   * Entity suggestions → create a chip; free-text row → set trailing free text.
+   *
+   * We use `onSelect` from the AutoComplete (not `(ngModelChange)`) so we can
+   * distinguish entity vs. free-text choices.
+   */
+  onSuggestionSelect(event: AutoCompleteSelectEvent) {
+    const item = event.value as SuggestionItem;
+
+    if (item.kind === 'entity') {
+      const newChip: SearchChip = { type: item.type, value: item.label };
+      this.searchQuery.update((q) => ({
+        chips: [...q.chips, newChip],
+        freeText: q.freeText,
+      }));
+      // Clear the text field after chip creation
+      this.searchInputText.set('');
+    } else {
+      // Free-text row
+      this.searchInputText.set(item.text);
+      this.searchQuery.update((q) => ({ ...q, freeText: item.text }));
+    }
+
+    // Reset the autocomplete's visible value back to empty so the field is clear
+    this.autocompleteValue.set([]);
+  }
+
+  /**
+   * Called when the user removes a chip via the AutoComplete's × button.
+   * We ignore the PrimeNG ngModel update and manage chips manually.
+   */
+  removeChip(chip: SearchChip) {
+    this.searchQuery.update((q) => ({
+      ...q,
+      chips: q.chips.filter(
+        (c) => !(c.type === chip.type && c.value === chip.value),
+      ),
+    }));
+  }
+
+  /** Serialize a chip for display in the chip token label. */
+  chipLabel(chip: SearchChip): string {
+    return serializeChip(chip);
+  }
+
+  // ── Tree helpers ──────────────────────────────────────────────────────────
 
   private toTreeNode(
     node: TopologyNode,
@@ -414,5 +637,15 @@ export class TopologyTreeComponent {
     }
 
     this.treeSelection.set(event);
+  }
+
+  /**
+   * Returns true if a tree node's data should be highlighted as an exact chip match.
+   * Used by the template to set [exactMatch] on GenericTreeNodeComponent.
+   */
+  protected isExactChipMatch(node: TopologyNode | undefined): boolean {
+    if (!node) return false;
+    const keys = this.chipMatchKeys();
+    return keys.has(`${node.type}\0${node.name.toLowerCase()}`);
   }
 }
