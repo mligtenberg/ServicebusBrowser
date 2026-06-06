@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, ElementRef, NgZone, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import {
@@ -29,6 +29,7 @@ import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-co
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { Popover } from 'primeng/popover';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 
 // FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
@@ -120,6 +121,18 @@ export class MessagesBatchResendComponent {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private fileService = inject(FilesService);
+  private zone = inject(NgZone);
+
+  // Exposed in the preview body editor's right-click menu: select text in the
+  // body, then turn the selection into a search & replace body action.
+  protected bodyContextActions: EditorContextAction[] = [
+    {
+      id: 'add-search-replace-body-action',
+      label: 'Add search & replace action',
+      run: (selectedText) =>
+        this.zone.run(() => this.openSearchReplaceBodyAction(selectedText)),
+    },
+  ];
 
   protected actions = signal<MessageModificationAction[]>([]);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
@@ -219,6 +232,30 @@ export class MessagesBatchResendComponent {
       summary: 'Action Added',
       detail: `Remove action for ${key} added successfully`,
     });
+  }
+
+  openSearchReplaceBodyAction(searchValue: string): void {
+    const draft: MessageModificationAction = {
+      type: 'alter',
+      target: 'body',
+      alterType: 'searchAndReplace',
+      searchValue,
+      value: '',
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
+
+    this.actions.update((currentActions) => [...currentActions, draft]);
+    const draftIdx = this.actions().length - 1;
+    this.draftActionIndex.set(draftIdx);
+
+    this.popoverSaving = false;
+    this.editMode.set(true);
+    this.editModeIndex.set(draftIdx);
+    this.currentAction.set(draft);
+    this.actionPopover()?.show(
+      new Event('click'),
+      this.addActionBtn()?.nativeElement,
+    );
   }
 
   protected propertiesContextMenu = computed<MenuItem[]>(() => {

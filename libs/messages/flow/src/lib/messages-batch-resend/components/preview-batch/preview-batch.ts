@@ -26,6 +26,7 @@ import {
   ReceivedMessage,
 } from '@service-bus-browser/api-contracts';
 import { MenuItem } from 'primeng/api';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 
 
 @Component({
@@ -41,6 +42,7 @@ export class PreviewBatch {
   messageFilter = input<MessageFilter>();
   selection = input<string[]>();
   batchModificationActions = input<MessageModificationAction[]>();
+  bodyContextActions = input<EditorContextAction[]>([]);
   selectedMessageSequence = model<string>();
 
   propertiesContextMenu = input<MenuItem[]>([]);

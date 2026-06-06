@@ -22,6 +22,16 @@ export function provideMonacoConfig(config: { urlPrefix?: string }) {
   };
 }
 
+/**
+ * A custom action exposed in the editor's right-click context menu. `run`
+ * receives the currently selected text (empty string when nothing is selected).
+ */
+export interface EditorContextAction {
+  id: string;
+  label: string;
+  run: (selectedText: string) => void;
+}
+
 @Component({
   selector: 'sbb-editor',
   imports: [],
@@ -32,6 +42,7 @@ export class Editor implements OnDestroy, FormValueControl<string> {
   editorRef = viewChild<ElementRef<HTMLDivElement>>('editor');
   editorOptions =
     input.required<monaco.editor.IStandaloneEditorConstructionOptions>();
+  contextActions = input<EditorContextAction[]>([]);
   editor: monaco.editor.IStandaloneCodeEditor | undefined;
   value = model<string>('');
   monacoConfig = inject(MONACO_CONFIG);
@@ -61,6 +72,23 @@ export class Editor implements OnDestroy, FormValueControl<string> {
         const newValue = this.editor?.getValue();
         this.value.set(newValue ?? '');
       });
+
+      for (const action of this.contextActions()) {
+        this.editor.addAction({
+          id: action.id,
+          label: action.label,
+          contextMenuGroupId: 'navigation',
+          contextMenuOrder: 1.5,
+          run: (ed) => {
+            const selection = ed.getSelection();
+            const selectedText =
+              selection && !selection.isEmpty()
+                ? (ed.getModel()?.getValueInRange(selection) ?? '')
+                : '';
+            action.run(selectedText);
+          },
+        });
+      }
     });
 
     effect(() => {

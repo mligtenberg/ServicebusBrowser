@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, model, signal } from '@angular/core';
-import { Editor } from '@service-bus-browser/shared-components';
+import { Editor, EditorContextAction } from '@service-bus-browser/shared-components';
 import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
 import { SelectButton } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
@@ -50,6 +50,7 @@ export class BodyViewer {
   header = input<string>('');
   pageId = input.required<UUID>();
   messageKey = input<string | undefined>(undefined);
+  contextActions = input<EditorContextAction[]>([]);
   showPrettyBody = signal<'raw' | 'pretty'>(this.initialBodyView());
   csvDelimiter = signal(this.route?.snapshot.queryParamMap.get('csv') ?? ',');
 

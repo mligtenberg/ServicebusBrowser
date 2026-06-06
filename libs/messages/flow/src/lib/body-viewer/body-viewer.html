@@ -64,6 +64,10 @@
     </p-table>
   </div>
   } @else { @let body = shownBody(); @if (body !== undefined) {
-  <sbb-editor [editorOptions]="editorOptions()" [value]="body"></sbb-editor>
+  <sbb-editor
+    [editorOptions]="editorOptions()"
+    [value]="body"
+    [contextActions]="contextActions()"
+  ></sbb-editor>
   } }
 </ng-template>

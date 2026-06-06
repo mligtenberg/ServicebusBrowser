@@ -31,6 +31,7 @@ let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
 getMessagesRepository().then((r) => (repository = r));
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 import { Splitter } from 'primeng/splitter';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
@@ -103,6 +104,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   messageAnnotationsContextMenu = input<MenuItem[]>([]);
 
   messages = input.required<ReceivedMessage[]>();
+  bodyContextActions = input<EditorContextAction[]>([]);
   maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 
