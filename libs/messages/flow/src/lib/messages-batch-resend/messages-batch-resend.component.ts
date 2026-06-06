@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import {
@@ -114,6 +114,7 @@ export class MessagesBatchResendComponent {
 
   actionEditor = viewChild<ActionComponent>('actionEditor');
   actionPopover = viewChild<Popover>('actionPopover');
+  addActionBtn = viewChild('addActionBtn', { read: ElementRef });
 
   private store = inject(Store);
   private messageService = inject(MessageService);
@@ -276,7 +277,11 @@ export class MessagesBatchResendComponent {
     this.editMode.set(true);
     this.editModeIndex.set(draftIdx);
     this.currentAction.set(draft);
-    this.actionPopover()?.show(event);
+    // The context-menu item that fired this command is detached from the DOM by
+    // the time it runs, so its event target has a zeroed bounding rect and the
+    // popover would anchor at the top-left. Anchor to the stable "Add action"
+    // button instead.
+    this.actionPopover()?.show(event, this.addActionBtn()?.nativeElement);
   }
 
   savePopoverAction(): void {
