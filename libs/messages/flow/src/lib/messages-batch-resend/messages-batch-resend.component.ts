@@ -28,6 +28,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
+import { Popover } from 'primeng/popover';
 
 // FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
@@ -66,6 +67,7 @@ import { SplitButton } from 'primeng/splitbutton';
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
+    Popover,
   ],
   providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
@@ -111,6 +113,7 @@ export class MessagesBatchResendComponent {
   );
 
   actionEditor = viewChild<ActionComponent>('actionEditor');
+  actionPopover = viewChild<Popover>('actionPopover');
 
   private store = inject(Store);
   private messageService = inject(MessageService);
@@ -155,6 +158,70 @@ export class MessagesBatchResendComponent {
       command: () => this.resendSelectedMessage(),
     },
   ]);
+
+  private popoverSaving = false;
+
+  openAddActionPopover(event: Event): void {
+    this.popoverSaving = false;
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(undefined);
+    this.actionEditor()?.clear();
+    this.actionPopover()?.show(event);
+  }
+
+  openEditActionPopover(event: Event, index: number): void {
+    const actions = this.actions();
+    const action = actions[index];
+
+    if (!action) {
+      return;
+    }
+
+    this.popoverSaving = false;
+    this.editMode.set(true);
+    this.editModeIndex.set(index);
+    this.currentAction.set(action);
+    this.actionPopover()?.show(event);
+  }
+
+  savePopoverAction(): void {
+    const action = this.currentAction();
+
+    if (action) {
+      this.popoverSaving = true;
+
+      if (this.editMode()) {
+        this.actions.update((currentActions) => {
+          return currentActions.map((a, i) =>
+            i === this.editModeIndex() ? action : a,
+          );
+        });
+      } else {
+        this.actions.update((currentActions) => [...currentActions, action]);
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Action Saved',
+        detail: `${this.getActionTypeLabel(action.type)} action saved successfully`,
+      });
+    }
+
+    this.actionPopover()?.hide();
+  }
+
+  cancelPopoverAction(): void {
+    this.actionPopover()?.hide();
+  }
+
+  onPopoverHide(): void {
+    this.popoverSaving = false;
+    this.currentAction.set(undefined);
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.actionEditor()?.clear();
+  }
 
   storeAction(): void {
     const action = this.currentAction();

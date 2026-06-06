@@ -34,10 +34,11 @@
                 (click)="exportActions()"
               ></p-button>
               <p-button
+                #addActionBtn
                 label="Add action"
                 icon="pi pi-plus"
                 severity="primary"
-                (click)="editAction(-1)"
+                (click)="openAddActionPopover($event)"
               ></p-button>
             </div>
           </div>
@@ -71,7 +72,7 @@
                         severity="primary"
                         text="true"
                         pTooltip="Edit action"
-                        (click)="editAction(i)"
+                        (click)="openEditActionPopover($event, i)"
                       ></p-button>
                       <p-button
                         icon="pi pi-trash"
@@ -95,30 +96,6 @@
             </div>
           }
         </div>
-
-        <div class="action-editor">
-          @if (editMode()) {
-            <h3>Edit Action</h3>
-          } @else {
-            <h3>Add Action</h3>
-          }
-          <lib-action #actionEditor [(action)]="currentAction" [applicationPropertyLabels]="applicationPropertyLabels()"></lib-action>
-
-          <div class="action-editor-buttons">
-            <p-button
-              [label]="editMode() ? 'Cancel' : 'Clear'"
-              severity="danger"
-              icon="pi pi-times"
-              (click)="clearAction()"
-            ></p-button>
-            <p-button
-              [label]="editMode() ? 'Save Action' : 'Add Action'"
-              icon="pi pi-plus"
-              [disabled]="!canAddAction()"
-              (click)="storeAction()"
-            ></p-button>
-          </div>
-        </div>
       </div>
     </ng-template>
   </p-splitter>
@@ -135,5 +112,30 @@
     ></p-split-button>
   </div>
 </div>
+
+<p-popover #actionPopover appendTo="body" (onHide)="onPopoverHide()">
+  <div class="action-popover-content">
+    <h3 class="action-popover-title">{{ editMode() ? 'Edit Action' : 'Add Action' }}</h3>
+    <lib-action
+      #actionEditor
+      [(action)]="currentAction"
+      [applicationPropertyLabels]="applicationPropertyLabels()"
+    ></lib-action>
+    <div class="action-popover-footer">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        icon="pi pi-times"
+        (click)="cancelPopoverAction()"
+      ></p-button>
+      <p-button
+        label="Save"
+        icon="pi pi-check"
+        [disabled]="!canAddAction()"
+        (click)="savePopoverAction()"
+      ></p-button>
+    </div>
+  </div>
+</p-popover>
 
 <p-toast position="bottom-center"></p-toast>
