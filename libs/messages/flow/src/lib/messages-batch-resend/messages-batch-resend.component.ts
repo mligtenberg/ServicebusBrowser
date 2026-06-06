@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, viewChild, model } from '@angular/core';
+import { Component, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import { Store } from '@ngrx/store';
@@ -9,11 +9,10 @@ import {
 } from '@service-bus-browser/messages-store';
 import { ButtonModule } from 'primeng/button';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { DrawerModule } from 'primeng/drawer';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { MessageService, MenuItem } from 'primeng/api';
 import {
   SendEndpoint,
   ToMessageToSend,
@@ -37,6 +36,8 @@ import {
   MessageModificationAction,
   RemoveAction,
 } from '@service-bus-browser/message-modification-engine';
+import { Splitter } from 'primeng/splitter';
+import { SplitButton } from 'primeng/splitbutton';
 
 
 @Component({
@@ -48,12 +49,13 @@ import {
     ActionComponent,
     ButtonModule,
     ScrollPanelModule,
-    DrawerModule,
     DividerModule,
     ToastModule,
     TooltipModule,
     EndpointSelectorInputComponent,
     PreviewBatch,
+    Splitter,
+    SplitButton,
   ],
   providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
@@ -106,9 +108,7 @@ export class MessagesBatchResendComponent {
   private fileService = inject(FilesService);
 
   protected actions = signal<MessageModificationAction[]>([]);
-  protected previewDrawerVisible = signal(false);
   protected selectedEndpoint = model<SendEndpoint | null>(null);
-  protected selectedEndpointForPreview = model<SendEndpoint | null>(null);
   protected editMode = signal(false);
   protected editModeIndex = signal(-1);
   protected currentAction = model<MessageModificationAction | undefined>();
@@ -128,6 +128,23 @@ export class MessagesBatchResendComponent {
       }),
     ),
   );
+
+  protected sendBatchDisabled = computed(
+    () => !this.selectedEndpoint() || !this.messageCount(),
+  );
+
+  protected sendSelectionDisabled = computed(
+    () => !this.selectedMessageSequence(),
+  );
+
+  protected splitButtonItems = computed<MenuItem[]>(() => [
+    {
+      label: 'Send selection',
+      icon: 'pi pi-send',
+      disabled: this.sendSelectionDisabled(),
+      command: () => this.resendSelectedMessage(),
+    },
+  ]);
 
   storeAction(): void {
     const action = this.currentAction();
@@ -226,10 +243,6 @@ export class MessagesBatchResendComponent {
     ]);
   }
 
-  previewChanges() {
-    this.previewDrawerVisible.set(true);
-  }
-
   resendSelectedMessage() {
     const selectedMessage = this.previewMessage();
     const selectedEndpoint = this.selectedEndpoint();
@@ -282,8 +295,6 @@ export class MessagesBatchResendComponent {
         detail: 'Failed to send modified message. Check the logs for details.',
       });
     }
-
-    this.previewDrawerVisible.set(false);
   }
 
   async resendMessages() {
@@ -309,9 +320,6 @@ export class MessagesBatchResendComponent {
         modificationActions: this.actions(),
       }),
     );
-
-    // Close the preview drawer if it's open
-    this.previewDrawerVisible.set(false);
 
     // Navigate back to messages page
     this.router.navigate(['/']);
