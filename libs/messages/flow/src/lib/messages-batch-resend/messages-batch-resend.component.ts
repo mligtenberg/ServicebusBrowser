@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import {
@@ -274,7 +274,23 @@ export class MessagesBatchResendComponent {
   });
 
   private popoverSaving = false;
-  private lastContextMenuEvent: MouseEvent | undefined;
+  private document = inject(DOCUMENT);
+  private destroyRef = inject(DestroyRef);
+  // The pointer coordinates of the last right-click, captured in the capture
+  // phase so it is recorded even though PrimeNG's context menu (and Monaco) stop
+  // the event from bubbling. Used to anchor the draft popover at the click.
+  private lastContextMenuPosition: { x: number; y: number } | undefined;
+  private popoverAnchorEl: HTMLElement | undefined;
+
+  constructor() {
+    const onContextMenu = (event: MouseEvent) => {
+      this.lastContextMenuPosition = { x: event.clientX, y: event.clientY };
+    };
+    this.document.addEventListener('contextmenu', onContextMenu, true);
+    this.destroyRef.onDestroy(() =>
+      this.document.removeEventListener('contextmenu', onContextMenu, true),
+    );
+  }
 
   openAddActionPopover(event: Event): void {
     this.popoverSaving = false;
@@ -322,25 +338,37 @@ export class MessagesBatchResendComponent {
   }
 
   /**
-   * Anchor the draft popover to the property row / body location that was
-   * right-clicked. The menu item's own event target is detached by the time the
-   * command runs, so use the originating contextmenu event captured on the
-   * preview panel. Fall back to the "Add action" button if none was recorded.
+   * Anchor the draft popover at the location that was right-clicked. The menu
+   * item's own event target is detached by the time the command runs, so use a
+   * tiny absolutely-positioned anchor placed at the recorded pointer position.
+   * Fall back to the "Add action" button if no position was recorded.
    */
   private showDraftPopover(): void {
-    const contextMenuEvent = this.lastContextMenuEvent;
-    if (contextMenuEvent) {
-      this.actionPopover()?.show(contextMenuEvent);
-    } else {
+    const position = this.lastContextMenuPosition;
+    if (!position) {
       this.actionPopover()?.show(
         new Event('click'),
         this.addActionBtn()?.nativeElement,
       );
+      return;
     }
+
+    const anchor = this.document.createElement('div');
+    anchor.style.position = 'fixed';
+    anchor.style.left = `${position.x}px`;
+    anchor.style.top = `${position.y}px`;
+    anchor.style.width = '1px';
+    anchor.style.height = '1px';
+    anchor.style.pointerEvents = 'none';
+    this.document.body.appendChild(anchor);
+    this.popoverAnchorEl = anchor;
+
+    this.actionPopover()?.show(new Event('click'), anchor);
   }
 
-  onPreviewContextMenu(event: MouseEvent): void {
-    this.lastContextMenuEvent = event;
+  private removePopoverAnchor(): void {
+    this.popoverAnchorEl?.remove();
+    this.popoverAnchorEl = undefined;
   }
 
   savePopoverAction(): void {
@@ -375,6 +403,8 @@ export class MessagesBatchResendComponent {
   }
 
   onPopoverHide(): void {
+    this.removePopoverAnchor();
+
     // If the popover was dismissed without saving (Cancel, Escape, outside click)
     // and there is an active draft action, remove it from the list.
     if (!this.popoverSaving) {

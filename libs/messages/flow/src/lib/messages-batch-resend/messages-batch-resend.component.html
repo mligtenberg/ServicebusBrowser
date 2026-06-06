@@ -1,7 +1,7 @@
 <div class="batch-resend-container" [ngClass]="{ darkMode: darkMode() }">
   <p-splitter [panelSizes]="[60, 40]" class="batch-resend-splitter">
     <ng-template pTemplate="panel">
-      <div class="preview-panel" (contextmenu)="onPreviewContextMenu($event)">
+      <div class="preview-panel">
         <lib-preview-batch
           [pageId]="pageId()"
           [messageFilter]="messageFilter()"
