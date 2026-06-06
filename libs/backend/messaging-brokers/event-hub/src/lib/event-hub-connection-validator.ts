@@ -10,22 +10,20 @@ export class EventHubConnectionValidator implements ConnectionValidator {
   constructor(private readonly connection: EventHubConnection) {}
 
   async validateConnection(): Promise<boolean> {
-    try {
-      const credential = getCredential(this.connection);
+    // Let errors propagate so the caller can surface the actual reason the
+    // connection failed (auth, networking, permissions, ...).
+    const credential = getCredential(this.connection);
 
-      if (
-        this.connection.type === 'connectionString' &&
-        getEntityPathFromConnectionString(this.connection.connectionString)
-      ) {
-        const entityPath = getEntityPathFromConnectionString(this.connection.connectionString)!;
-        await getEventHubInfo(credential, entityPath);
-      } else {
-        await listEventHubs(credential);
-      }
-
-      return true;
-    } catch (e) {
-      return false;
+    if (
+      this.connection.type === 'connectionString' &&
+      getEntityPathFromConnectionString(this.connection.connectionString)
+    ) {
+      const entityPath = getEntityPathFromConnectionString(this.connection.connectionString)!;
+      await getEventHubInfo(credential, entityPath);
+    } else {
+      await listEventHubs(credential);
     }
+
+    return true;
   }
 }

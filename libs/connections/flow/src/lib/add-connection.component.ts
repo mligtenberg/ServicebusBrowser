@@ -44,6 +44,9 @@ export class AddConnectionComponent {
   connectionTested$ = this.store.select(
     ConnectionsSelectors.selectConnectionTested,
   );
+  connectionTestError$ = this.store.select(
+    ConnectionsSelectors.selectConnectionTestError,
+  );
 
   connectionName = model<string>();
   connectionTarget = model<MessageQueueTargetType>('serviceBus');

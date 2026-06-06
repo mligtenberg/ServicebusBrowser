@@ -13,6 +13,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Desktop Build Process](./desktop-build-process.md): Instructions for building and packaging the Electron application.
 - [Web App Build Process](./web-app-build-process.md): Instructions for building, containerizing, and deploying the web application.
 - [Event Hub Namespace REST Authentication](./event-hub-namespace-rest-auth.md): SAS token generation and API versioning for Event Hub namespace management calls.
+- [Integrated Authentication](./integrated-authentication.md): Interactive Azure sign-in (popup) for Service Bus/Event Hub in the desktop app, using the Azure CLI client id with per-email MSAL token-cache reuse.
 - [Messages Reader Continuation Token Behavior](./messages-reader-continuation-token-behavior.md): Cross-broker continuation-token rules to stop message loading exactly at requested limits.
 - [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 

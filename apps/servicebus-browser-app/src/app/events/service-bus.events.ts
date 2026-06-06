@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { Server } from '@service-bus-browser/service-bus-server';
 import { SecureConnectionStorage } from './secure-storage/connection-storage';
 import { WorkspaceStorage } from './secure-storage/workspace-storage';
+import { registerIntegratedAuth } from './integrated-auth';
 import App from '../app';
 
 let server: Server | undefined = undefined;
@@ -10,6 +11,7 @@ export default class ServiceBusEvents {
     const userDataPath = App.application.getPath('userData');
     const workspaceStorage = new WorkspaceStorage(userDataPath);
     server = new Server(new SecureConnectionStorage(userDataPath, workspaceStorage));
+    registerIntegratedAuth(userDataPath);
     return ipcMain;
   }
 }

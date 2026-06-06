@@ -37,9 +37,18 @@ export interface ServiceBusUserAssignedManagedIdentityConnection
   clientId: string;
 }
 
+export interface ServiceBusIntegratedAuthConnection
+  extends ServiceBusAzureADConnection {
+  authMethod: 'integratedAuth';
+  email: string;
+  /** Optional directory (tenant) id. Required for guest (B2B) accounts. */
+  tenantId?: string;
+}
+
 export type ServiceBusConnection =
   | ServiceBusConnectionStringConnection
   | ServiceBusAzureCliAuthConnection
   | ServiceBusAzureServicePrincipalConnection
   | ServiceBusSystemAssignedManagedIdentityConnection
-  | ServiceBusUserAssignedManagedIdentityConnection;
+  | ServiceBusUserAssignedManagedIdentityConnection
+  | ServiceBusIntegratedAuthConnection;

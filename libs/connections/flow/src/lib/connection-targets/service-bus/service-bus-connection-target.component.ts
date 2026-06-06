@@ -27,12 +27,15 @@ export class ServiceBusConnectionTargetComponent {
     | 'ServicePrincipalClientSecret'
     | 'systemAssignedManagedIdentity'
     | 'userAssignedManagedIdentity'
-  >('azureCli');
+    | 'integratedAuth'
+  >('integratedAuth');
 
   clientId = model<string>();
   clientSecret = model<string>();
   tenantId = model<string>();
   authority = model<string>();
+  email = model<string>();
+  integratedTenantId = model<string>();
 
   private resolvedConnection = computed<ServiceBusConnection | undefined>(
     () => {
@@ -105,6 +108,22 @@ export class ServiceBusConnectionTargetComponent {
         };
       }
 
+      if (authMethod === 'integratedAuth') {
+        const email = this.email();
+        return !email
+          ? undefined
+          : {
+              id: crypto.randomUUID(),
+              name,
+              type: 'azureAD',
+              fullyQualifiedNamespace,
+              authMethod: 'integratedAuth',
+              email,
+              tenantId: this.integratedTenantId() || undefined,
+              target: 'serviceBus',
+            };
+      }
+
       const clientId = this.clientId();
       return !clientId
         ? undefined
@@ -134,11 +153,13 @@ export class ServiceBusConnectionTargetComponent {
 
       if (connectionType !== 'azureAD') {
         this.fullyQualifiedNamespace.set(undefined);
-        this.authMethod.set('azureCli');
+        this.authMethod.set('integratedAuth');
         this.clientId.set(undefined);
         this.clientSecret.set(undefined);
         this.tenantId.set(undefined);
         this.authority.set(undefined);
+        this.email.set(undefined);
+        this.integratedTenantId.set(undefined);
       }
 
       if (connectionType === 'connectionString') {

@@ -6,6 +6,7 @@ import {
   ClientSecretCredential,
 } from '@azure/identity';
 import { AzureNamedKeyCredential, NamedKeyCredential } from '@azure/core-auth';
+import { IntegratedAuthCredential } from '@service-bus-browser/integrated-auth';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { parseConnectionString } from '@azure/core-amqp';
 
@@ -76,6 +77,14 @@ export function getCredential(connection: EventHubConnection): EventHubCredentia
         namespaceId: connection.id,
         hostName: connection.fullyQualifiedNamespace,
         credential: new ManagedIdentityCredential(connection.clientId),
+      };
+    case 'integratedAuth':
+      return {
+        namespaceId: connection.id,
+        hostName: connection.fullyQualifiedNamespace,
+        credential: new IntegratedAuthCredential(connection.email, {
+          tenantId: connection.tenantId,
+        }),
       };
     default:
       throw new Error(`Unsupported auth method: ${(authMethod as string)}`);

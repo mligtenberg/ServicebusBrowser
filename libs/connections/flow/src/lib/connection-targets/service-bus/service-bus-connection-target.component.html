@@ -55,6 +55,15 @@
       <div class="auth-method-option full-width">
         <p-radiobutton
           name="authMethod"
+          value="integratedAuth"
+          inputId="integratedAuth"
+          [(ngModel)]="authMethod"
+        ></p-radiobutton>
+        <label for="integratedAuth">Integrated Authentication</label>
+      </div>
+      <div class="auth-method-option full-width">
+        <p-radiobutton
+          name="authMethod"
           value="azureCli"
           inputId="azureCliAuth"
           [(ngModel)]="authMethod"
@@ -151,6 +160,34 @@
             [(ngModel)]="clientId"
           />
           <label for="clientId">Client ID</label>
+        </p-floatlabel>
+      </div>
+    }
+
+    @if (authMethod() === 'integratedAuth') {
+      <div class="input-field">
+        <p-floatlabel variant="on">
+          <input
+            id="email"
+            class="full-width"
+            type="email"
+            pInputText
+            [(ngModel)]="email"
+          />
+          <label for="email">Email</label>
+        </p-floatlabel>
+      </div>
+      <div class="input-field">
+        <p-floatlabel variant="on">
+          <input
+            id="integratedTenantId"
+            class="full-width"
+            pInputText
+            [(ngModel)]="integratedTenantId"
+          />
+          <label for="integratedTenantId"
+            >Tenant ID (required for guest accounts)</label
+          >
         </p-floatlabel>
       </div>
     }

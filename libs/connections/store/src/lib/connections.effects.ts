@@ -47,8 +47,24 @@ export class ConnectionsEffects {
               });
             }
 
-            return internalActions.connectionCheckFailed({ connection });
-          })
+            return internalActions.connectionCheckFailed({
+              connection,
+              error: {
+                title: 'Connection test failed',
+                detail:
+                  'The connection could not be validated. Please check your connection details and try again.',
+              },
+            });
+          }),
+          catchError((error) => [
+            internalActions.connectionCheckFailed({
+              connection,
+              error: {
+                title: 'Connection test failed',
+                detail: error?.message ?? String(error),
+              },
+            }),
+          ])
         )
       )
     )

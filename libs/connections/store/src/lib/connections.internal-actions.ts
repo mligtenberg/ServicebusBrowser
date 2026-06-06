@@ -19,5 +19,5 @@ export const connectionCheckedSuccessfully = createAction(
 
 export const connectionCheckFailed = createAction(
   '[Connections] Connection Check Failed',
-  props<{ connection: Connection }>(),
+  props<{ connection: Connection; error: Problem }>(),
 );

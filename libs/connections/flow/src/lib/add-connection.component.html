@@ -63,10 +63,15 @@
             >
           }
           @if ((connectionTestStatus$ | async) === 'error') {
-            <span
-              >Connection test failed. Please check your connection details and
-              try again.</span
-            >
+            @if (connectionTestError$ | async; as error) {
+              <span class="error-title">{{ error.title }}</span>
+              <span class="error-detail">{{ error.detail }}</span>
+            } @else {
+              <span
+                >Connection test failed. Please check your connection details and
+                try again.</span
+              >
+            }
           }
         </div>
       </section>

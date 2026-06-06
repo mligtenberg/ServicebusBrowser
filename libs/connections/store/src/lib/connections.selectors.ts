@@ -12,3 +12,8 @@ export const selectConnectionTested = createSelector(
   selectConnectionTestStatus,
   (status) => status === 'success'
 )
+
+export const selectConnectionTestError = createSelector(
+  featureSelector,
+  (state) => state.connectionTestError
+)

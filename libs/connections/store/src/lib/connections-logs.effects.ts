@@ -26,4 +26,12 @@ export class ConnectionsLogsEffects {
     ),
     { dispatch: false },
   )
+
+  logConnectionCheckFailed$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(internalActions.connectionCheckFailed),
+      tap(({ connection, error }) => this.logger.error(`Connection test failed for "${connection.name}": ${error.detail}`)),
+    ),
+    { dispatch: false },
+  )
 }

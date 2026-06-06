@@ -33,9 +33,17 @@ export interface EventHubUserAssignedManagedIdentityConnection extends EventHubA
   clientId: string;
 }
 
+export interface EventHubIntegratedAuthConnection extends EventHubAzureADConnection {
+  authMethod: 'integratedAuth';
+  email: string;
+  /** Optional directory (tenant) id. Required for guest (B2B) accounts. */
+  tenantId?: string;
+}
+
 export type EventHubConnection =
   | EventHubConnectionStringConnection
   | EventHubAzureCliAuthConnection
   | EventHubAzureServicePrincipalConnection
   | EventHubSystemAssignedManagedIdentityConnection
-  | EventHubUserAssignedManagedIdentityConnection;
+  | EventHubUserAssignedManagedIdentityConnection
+  | EventHubIntegratedAuthConnection;

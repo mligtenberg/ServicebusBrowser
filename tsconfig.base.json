@@ -83,6 +83,9 @@
       "@service-bus-browser/api-contracts": [
         "libs/backend/api-contracts/src/index.ts"
       ],
+      "@service-bus-browser/integrated-auth": [
+        "libs/backend/integrated-auth/src/index.ts"
+      ],
       "@service-bus-browser/message-modification-engine": [
         "libs/messages/modification-engine/src/index.ts"
       ],

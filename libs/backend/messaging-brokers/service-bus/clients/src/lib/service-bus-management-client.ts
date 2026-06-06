@@ -26,15 +26,13 @@ export class ServiceBusManagementClient {
   constructor(private connection: ServiceBusConnection) {}
 
   async checkConnection(): Promise<boolean> {
-    try {
-      const administrationClient = this.getAdministrationClient();
-      const queuesPages = administrationClient.listQueues();
-      await queuesPages.next();
+    // Let errors propagate so the caller can surface the actual reason the
+    // connection failed (auth, networking, permissions, ...).
+    const administrationClient = this.getAdministrationClient();
+    const queuesPages = administrationClient.listQueues();
+    await queuesPages.next();
 
-      return true;
-    } catch {
-      return false;
-    }
+    return true;
   }
 
   async getQueues(): Promise<QueueWithMetaData[]> {

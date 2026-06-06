@@ -55,6 +55,19 @@ section {
       color: #e74c3c;
       border: 1px solid rgba(231, 76, 60, 0.3);
     }
+
+    .error-title {
+      display: block;
+    }
+
+    .error-detail {
+      display: block;
+      margin-top: 0.25rem;
+      font-weight: 400;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
   }
 }
 
