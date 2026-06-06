@@ -32,6 +32,7 @@ getMessagesRepository().then((r) => (repository = r));
 import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
 import { EditorContextAction } from '@service-bus-browser/shared-components';
+import { MessageModificationAction } from '@service-bus-browser/message-modification-engine';
 import { Splitter } from 'primeng/splitter';
 import { ScrollPanel } from 'primeng/scrollpanel';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
@@ -105,6 +106,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
   messages = input.required<ReceivedMessage[]>();
   bodyContextActions = input<EditorContextAction[]>([]);
+  bodyModificationActions = input<MessageModificationAction[]>([]);
   maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 

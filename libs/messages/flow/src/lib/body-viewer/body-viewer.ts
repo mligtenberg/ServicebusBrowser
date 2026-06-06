@@ -1,5 +1,10 @@
 import { Component, computed, inject, input, model, signal } from '@angular/core';
 import { Editor, EditorContextAction } from '@service-bus-browser/shared-components';
+import {
+  MessageModificationAction,
+  MessageModificationEngine,
+} from '@service-bus-browser/message-modification-engine';
+import { ClearNonResendableProperties } from '@service-bus-browser/api-contracts';
 import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
 import { SelectButton } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
@@ -51,6 +56,11 @@ export class BodyViewer {
   pageId = input.required<UUID>();
   messageKey = input<string | undefined>(undefined);
   contextActions = input<EditorContextAction[]>([]);
+  // When set, the body reflects these modification actions — used by the
+  // batch-resend preview so a body alter action is visible immediately.
+  modificationActions = input<MessageModificationAction[]>([]);
+
+  private modificationEngine = inject(MessageModificationEngine);
   showPrettyBody = signal<'raw' | 'pretty'>(this.initialBodyView());
   csvDelimiter = signal(this.route?.snapshot.queryParamMap.get('csv') ?? ',');
 
@@ -107,7 +117,16 @@ export class BodyViewer {
     if (!message?.body) {
       return undefined;
     }
-    return new TextDecoder().decode(message.body);
+
+    const actions = this.modificationActions();
+    const effectiveMessage = actions.length
+      ? this.modificationEngine.applyBatchActionsToMessage(
+          ClearNonResendableProperties(message),
+          actions,
+        )
+      : message;
+
+    return new TextDecoder().decode(effectiveMessage.body);
   });
 
   contentType = computed(
