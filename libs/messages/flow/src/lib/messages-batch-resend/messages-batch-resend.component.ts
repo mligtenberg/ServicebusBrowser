@@ -181,21 +181,44 @@ export class MessagesBatchResendComponent {
             e.originalEvent ?? new Event('click'),
             key,
             target,
-            'alter',
           ),
       },
       {
         label: `Remove ${key}`,
         icon: 'pi pi-trash',
-        command: (e) =>
-          this.openDraftActionPopover(
-            e.originalEvent ?? new Event('click'),
-            key,
-            target,
-            'remove',
-          ),
+        // A remove action is fully defined by its target and field name, so add
+        // it directly without opening the editor.
+        command: () => this.addRemoveAction(key, target),
       },
     ];
+  }
+
+  private emptyFilter(): MessageFilter {
+    return {
+      body: [],
+      headers: [],
+      properties: [],
+      deliveryAnnotations: [],
+      messageAnnotations: [],
+      applicationProperties: [],
+    };
+  }
+
+  addRemoveAction(key: string, target: BatchActionTarget): void {
+    const removeAction: MessageModificationAction = {
+      type: 'remove',
+      target: target as 'properties' | 'applicationProperties',
+      fieldName: key,
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
+
+    this.actions.update((currentActions) => [...currentActions, removeAction]);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Action Added',
+      detail: `Remove action for ${key} added successfully`,
+    });
   }
 
   protected propertiesContextMenu = computed<MenuItem[]>(() => {
@@ -249,39 +272,15 @@ export class MessagesBatchResendComponent {
     this.actionPopover()?.show(event);
   }
 
-  openDraftActionPopover(
-    event: Event,
-    key: string,
-    target: BatchActionTarget,
-    type: 'alter' | 'remove',
-  ): void {
-    const propertyTarget = target as 'properties' | 'applicationProperties';
-    const emptyFilter = {
-      body: [],
-      headers: [],
-      properties: [],
-      deliveryAnnotations: [],
-      messageAnnotations: [],
-      applicationProperties: [],
-    };
-
-    const draft: MessageModificationAction = (
-      type === 'remove'
-        ? {
-            type: 'remove',
-            target: propertyTarget,
-            fieldName: key,
-            applyOnFilter: emptyFilter,
-          }
-        : {
-            type: 'alter',
-            target: propertyTarget,
-            fieldName: key,
-            value: '',
-            alterType: 'fullReplace',
-            applyOnFilter: emptyFilter,
-          }
-    ) as MessageModificationAction;
+  openDraftActionPopover(event: Event, key: string, target: BatchActionTarget): void {
+    const draft: MessageModificationAction = {
+      type: 'alter',
+      target: target as 'properties' | 'applicationProperties',
+      fieldName: key,
+      value: '',
+      alterType: 'fullReplace',
+      applyOnFilter: this.emptyFilter(),
+    } as MessageModificationAction;
 
     this.actions.update((currentActions) => [...currentActions, draft]);
     const draftIdx = this.actions().length - 1;
