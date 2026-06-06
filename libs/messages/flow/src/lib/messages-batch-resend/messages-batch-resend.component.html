@@ -68,11 +68,26 @@
                     cdkDragLockAxis="y"
                     cdkDragPreviewContainer="parent"
                   >
-                    <i
-                      class="pi pi-th-large action-drag-handle"
+                    <span
                       cdkDragHandle
+                      class="action-drag-handle"
                       aria-label="Drag to reorder"
-                    ></i>
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                      >
+                        <circle cx="5" cy="3" r="1.5" />
+                        <circle cx="11" cy="3" r="1.5" />
+                        <circle cx="5" cy="8" r="1.5" />
+                        <circle cx="11" cy="8" r="1.5" />
+                        <circle cx="5" cy="13" r="1.5" />
+                        <circle cx="11" cy="13" r="1.5" />
+                      </svg>
+                    </span>
                     <div class="action-card-content">
                       <div class="action-card-line1">
                         <strong>{{ getActionTypeLabel(action.type) }}</strong>
