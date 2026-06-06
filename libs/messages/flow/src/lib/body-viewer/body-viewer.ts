@@ -118,13 +118,17 @@ export class BodyViewer {
       return undefined;
     }
 
-    const actions = this.modificationActions();
+    const actions = this.modificationActions() ?? [];
     const effectiveMessage = actions.length
       ? this.modificationEngine.applyBatchActionsToMessage(
           ClearNonResendableProperties(message),
           actions,
         )
       : message;
+
+    if (!effectiveMessage.body) {
+      return undefined;
+    }
 
     return new TextDecoder().decode(effectiveMessage.body);
   });
