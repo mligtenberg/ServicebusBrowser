@@ -34,7 +34,7 @@ import {
   toSignal,
 } from '@angular/core/rxjs-interop';
 import { MessagePage } from '@service-bus-browser/messages-contracts';
-import { MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
+import { BodyFilter, MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
@@ -55,6 +55,8 @@ import { Tooltip } from 'primeng/tooltip';
 import { Popover } from 'primeng/popover';
 import { SystemPropertyForm } from '../message-filter-editor/system-property-form/system-property-form';
 import { ApplicationPropertyForm } from '../message-filter-editor/application-property-form/application-property-form';
+import { BodyPropertyForm } from '../message-filter-editor/body-property-form/body-property-form';
+import { EditorContextAction } from '@service-bus-browser/shared-components';
 import { hasActiveFilters as hasActiveFilterFunc } from '@service-bus-browser/filtering';
 import { Actions } from '@ngrx/effects';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -84,6 +86,7 @@ import MessagesViewer from '../messages-viewer/messages-viewer';
     Popover,
     SystemPropertyForm,
     ApplicationPropertyForm,
+    BodyPropertyForm,
   ],
   templateUrl: './messages-page.component.html',
   styleUrl: './messages-page.component.scss',
@@ -300,6 +303,7 @@ export class MessagesPageComponent {
     | 'deliveryAnnotations'
     | 'messageAnnotations'
     | 'applicationProperties'
+    | 'body'
   >('properties');
   currentFilterDraft = signal<PropertyFilter>({
     isActive: true,
@@ -308,7 +312,20 @@ export class MessagesPageComponent {
     filterType: 'equals',
     value: '',
   });
+  currentBodyFilterDraft = signal<BodyFilter>({
+    isActive: true,
+    filterType: 'contains',
+    value: '',
+  });
   filterPopoverVisible = signal(false);
+
+  protected bodyContextActions: EditorContextAction[] = [
+    {
+      id: 'add-body-contains-filter',
+      label: 'Add body contains filter',
+      run: (selectedText) => this.openDraftBodyFilterPopover(selectedText),
+    },
+  ];
 
   filterFormProperties = computed(() => {
     const section = this.currentFilterSection();
@@ -334,6 +351,7 @@ export class MessagesPageComponent {
       case 'deliveryAnnotations': return 'Delivery Annotation';
       case 'messageAnnotations': return 'Message Annotation';
       case 'applicationProperties': return 'Application Property';
+      case 'body': return 'Body';
     }
   });
 
@@ -738,6 +756,17 @@ export class MessagesPageComponent {
     this.openDraftFilterPopover(key, value, 'applicationProperties');
   }
 
+  openDraftBodyFilterPopover(selectedText: string): void {
+    this.currentFilterSection.set('body');
+    this.currentBodyFilterDraft.set({
+      isActive: true,
+      filterType: 'contains',
+      value: selectedText,
+    });
+    this.filterPopoverVisible.set(true);
+    this.showDraftFilterPopover();
+  }
+
   private openDraftFilterPopover(
     key: string,
     value: string | number | boolean | Date,
@@ -780,14 +809,20 @@ export class MessagesPageComponent {
   }
 
   saveFilterPopover(): void {
-    const draft = this.currentFilterDraft();
     const section = this.currentFilterSection();
     const currentFilter = this.messageFilter();
 
-    this.onFiltersUpdated({
-      ...currentFilter,
-      [section]: [...currentFilter[section], draft],
-    });
+    if (section === 'body') {
+      this.onFiltersUpdated({
+        ...currentFilter,
+        body: [...currentFilter.body, this.currentBodyFilterDraft()],
+      });
+    } else {
+      this.onFiltersUpdated({
+        ...currentFilter,
+        [section]: [...currentFilter[section], this.currentFilterDraft()],
+      });
+    }
 
     this.filterPopover()?.hide();
   }

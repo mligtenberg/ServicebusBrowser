@@ -26,6 +26,7 @@
       [(selection)]="selection"
       (selectionChange)="onSelectionChange($event)"
       [isLoading]="isLoading()"
+      [bodyContextActions]="bodyContextActions"
       #messagesViewer
     >
       <ng-template #messagesHeaderStatus>
@@ -130,7 +131,12 @@
   <div class="filter-popover-content">
     <h3 class="filter-popover-title">Add {{ filterSectionLabel() }} Filter</h3>
     @if (filterPopoverVisible()) {
-      @if (currentFilterSection() === 'applicationProperties') {
+      @if (currentFilterSection() === 'body') {
+        <lib-body-property-form
+          [(value)]="currentBodyFilterDraft"
+          [required]="true"
+        />
+      } @else if (currentFilterSection() === 'applicationProperties') {
         <lib-application-property-form
           [(value)]="currentFilterDraft"
           [availableApplicationProperties]="filterFormProperties()"
