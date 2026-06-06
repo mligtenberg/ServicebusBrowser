@@ -1,5 +1,5 @@
 <div class="container" #container>
-  @if (containerWidth() >= 600) {
+  @if (containerWidth() >= 600 && !forceNarrow()) {
   <div class="wide">
     <p-splitter
       [panelSizes]="[75, 25]"
