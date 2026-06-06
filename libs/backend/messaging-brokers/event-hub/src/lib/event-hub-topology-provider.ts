@@ -50,6 +50,16 @@ export class EventHubTopologyProvider implements TopologyProvider {
       type: 'connection',
       actions: [
         {
+          icon: 'pi pi-pencil',
+          displayName: `Rename ${this.connection.name}`,
+          actionGroup: 'connection',
+          actionType: 'connection:rename',
+          parameters: {
+            connectionId: this.connection.id,
+            connectionName: this.connection.name,
+          },
+        },
+        {
           icon: 'pi pi-trash',
           displayName: `Remove ${this.connection.name}`,
           actionGroup: 'connection',

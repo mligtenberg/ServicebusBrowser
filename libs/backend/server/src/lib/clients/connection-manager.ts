@@ -10,8 +10,19 @@ export class ConnectionManager {
 
   constructor(private connectionStore: ConnectionStore) {}
 
+  /** Whether the underlying store forbids mutating connections (add/rename/remove). */
+  get connectionsReadonly(): boolean {
+    return this.connectionStore.isReadonly ?? false;
+  }
+
   addConnection(connection: Connection) {
     this.connectionStore.addConnection(connection);
+  }
+
+  renameConnection(connectionId: UUID, name: string) {
+    this.connectionStore.renameConnection(connectionId, name);
+    // Drop any cached client so it is rebuilt with the updated connection.
+    this.connectionClients.delete(connectionId);
   }
 
   removeConnection(connectionId: UUID) {

@@ -4,12 +4,18 @@ import { ConnectionStore } from '@service-bus-browser/service-bus-server';
 import { ParsedConfig } from './web-config-loader';
 
 export class ReadonlyConfigFileConnectionStorage implements ConnectionStore {
+  readonly isReadonly = true;
+
   constructor(
     private readonly config: ParsedConfig,
     private readonly activeWorkspaceHolder: { id: UUID },
   ) {}
 
   addConnection(_connection: Connection): void {
+    throw new Error('Method not implemented. This class is read-only.');
+  }
+
+  renameConnection(_connectionId: UUID, _name: string): void {
     throw new Error('Method not implemented. This class is read-only.');
   }
 
