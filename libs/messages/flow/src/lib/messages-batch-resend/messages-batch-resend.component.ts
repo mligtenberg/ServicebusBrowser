@@ -227,7 +227,6 @@ export class MessagesBatchResendComponent {
   });
 
   private popoverSaving = false;
-  private focusValueOnShow = false;
 
   openAddActionPopover(event: Event): void {
     this.popoverSaving = false;
@@ -275,7 +274,6 @@ export class MessagesBatchResendComponent {
     this.draftActionIndex.set(draftIdx);
 
     this.popoverSaving = false;
-    this.focusValueOnShow = true;
     this.editMode.set(true);
     this.editModeIndex.set(draftIdx);
     this.currentAction.set(draft);
@@ -284,26 +282,28 @@ export class MessagesBatchResendComponent {
     // popover would anchor at the top-left. Anchor to the stable "Add action"
     // button instead.
     this.actionPopover()?.show(event, this.addActionBtn()?.nativeElement);
-  }
-
-  onPopoverShow(): void {
-    if (!this.focusValueOnShow) {
-      return;
-    }
-    this.focusValueOnShow = false;
-    // The popover content and the value control render asynchronously after the
-    // action's type/target signals propagate, so retry across a few frames
-    // until the value input exists, then focus it.
-    this.focusValueFieldWithRetry(10);
+    // The field name is already known, so focus the value input to let the user
+    // start typing. The popover overlay and its value control render across a
+    // few frames after the action signals propagate, so poll the popover's own
+    // container element until the input appears, then focus and select it.
+    this.focusValueFieldWithRetry(30);
   }
 
   private focusValueFieldWithRetry(attempts: number): void {
     setTimeout(() => {
-      const focused = this.actionEditor()?.focusValueField() ?? false;
-      if (!focused && attempts > 0) {
+      const container = this.actionPopover()?.container as
+        | HTMLElement
+        | undefined;
+      const input = container?.querySelector<HTMLInputElement>(
+        'input[placeholder="Value"]',
+      );
+      if (input) {
+        input.focus();
+        input.select();
+      } else if (attempts > 0) {
         this.focusValueFieldWithRetry(attempts - 1);
       }
-    });
+    }, 16);
   }
 
   savePopoverAction(): void {
@@ -352,7 +352,6 @@ export class MessagesBatchResendComponent {
     }
 
     this.popoverSaving = false;
-    this.focusValueOnShow = false;
     this.draftActionIndex.set(-1);
     this.currentAction.set(undefined);
     this.editMode.set(false);
