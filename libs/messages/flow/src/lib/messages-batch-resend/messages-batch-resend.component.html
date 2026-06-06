@@ -8,6 +8,16 @@
           [batchModificationActions]="actions()"
           [selection]="selection()"
           [(selectedMessageSequence)]="selectedMessageSequence"
+          [propertiesContextMenu]="propertiesContextMenu()"
+          [applicationPropertiesContextMenu]="applicationPropertiesContextMenu()"
+          [headersContextMenu]="headersContextMenu()"
+          [deliveryAnnotationsContextMenu]="deliveryAnnotationsContextMenu()"
+          [messageAnnotationsContextMenu]="messageAnnotationsContextMenu()"
+          [(propertiesContextMenuSelection)]="propertiesContextMenuSelection"
+          [(applicationPropertiesContextMenuSelection)]="applicationPropertiesContextMenuSelection"
+          [(headersContextMenuSelection)]="headersContextMenuSelection"
+          [(deliveryAnnotationsContextMenuSelection)]="deliveryAnnotationsContextMenuSelection"
+          [(messageAnnotationsContextMenuSelection)]="messageAnnotationsContextMenuSelection"
         />
       </div>
     </ng-template>

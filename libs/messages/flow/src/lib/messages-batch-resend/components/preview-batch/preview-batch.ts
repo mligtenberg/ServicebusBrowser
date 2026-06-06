@@ -20,11 +20,8 @@ import {
   MessageModificationAction,
   MessageModificationEngine,
 } from '@service-bus-browser/message-modification-engine';
-import {
-  Message,
-  ReceivedMessage,
-  ToMessageToSend,
-} from '@service-bus-browser/api-contracts';
+import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import { MenuItem } from 'primeng/api';
 
 
 @Component({
@@ -41,6 +38,18 @@ export class PreviewBatch {
   selection = input<string[]>();
   batchModificationActions = input<MessageModificationAction[]>();
   selectedMessageSequence = model<string>();
+
+  propertiesContextMenu = input<MenuItem[]>([]);
+  applicationPropertiesContextMenu = input<MenuItem[]>([]);
+  headersContextMenu = input<MenuItem[]>([]);
+  deliveryAnnotationsContextMenu = input<MenuItem[]>([]);
+  messageAnnotationsContextMenu = input<MenuItem[]>([]);
+
+  propertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  applicationPropertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  headersContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  deliveryAnnotationsContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
+  messageAnnotationsContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
 
   messageCount = toSignal(
     combineLatest([
