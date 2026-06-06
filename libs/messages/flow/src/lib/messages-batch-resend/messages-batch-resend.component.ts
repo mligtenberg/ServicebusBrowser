@@ -146,9 +146,6 @@ export class MessagesBatchResendComponent {
   protected deliveryAnnotationsContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
   protected messageAnnotationsContextMenuSelection = signal<{ key: string; value: unknown } | undefined>(undefined);
 
-  // Index of a draft action appended via context menu; -1 means no active draft
-  private draftActionIndex = signal(-1);
-
   protected previewMessage = toSignal(
     combineLatest([
       toObservable(this.selectedMessageSequence),
@@ -228,7 +225,7 @@ export class MessagesBatchResendComponent {
   }
 
   openSearchReplaceBodyAction(searchValue: string): void {
-    const draft: MessageModificationAction = {
+    const prefilled: MessageModificationAction = {
       type: 'alter',
       target: 'body',
       alterType: 'searchAndReplace',
@@ -237,14 +234,10 @@ export class MessagesBatchResendComponent {
       applyOnFilter: this.emptyFilter(),
     } as MessageModificationAction;
 
-    this.actions.update((currentActions) => [...currentActions, draft]);
-    const draftIdx = this.actions().length - 1;
-    this.draftActionIndex.set(draftIdx);
-
-    this.popoverSaving = false;
-    this.editMode.set(true);
-    this.editModeIndex.set(draftIdx);
-    this.currentAction.set(draft);
+    // Open a prefilled Add dialog — nothing is added to the list until Save.
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(prefilled);
     this.showDraftPopover();
   }
 
@@ -273,7 +266,6 @@ export class MessagesBatchResendComponent {
     return this.actionMenuItems(selection.key, 'properties');
   });
 
-  private popoverSaving = false;
   private document = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   // The pointer coordinates of the last right-click, captured in the capture
@@ -293,7 +285,6 @@ export class MessagesBatchResendComponent {
   }
 
   openAddActionPopover(event: Event): void {
-    this.popoverSaving = false;
     this.editMode.set(false);
     this.editModeIndex.set(-1);
     this.currentAction.set(undefined);
@@ -308,8 +299,6 @@ export class MessagesBatchResendComponent {
     if (!action) {
       return;
     }
-
-    this.popoverSaving = false;
     this.editMode.set(true);
     this.editModeIndex.set(index);
     this.currentAction.set(action);
@@ -317,7 +306,7 @@ export class MessagesBatchResendComponent {
   }
 
   openDraftActionPopover(key: string, target: BatchActionTarget): void {
-    const draft: MessageModificationAction = {
+    const prefilled: MessageModificationAction = {
       type: 'alter',
       target: target as 'properties' | 'applicationProperties',
       fieldName: key,
@@ -326,14 +315,10 @@ export class MessagesBatchResendComponent {
       applyOnFilter: this.emptyFilter(),
     } as MessageModificationAction;
 
-    this.actions.update((currentActions) => [...currentActions, draft]);
-    const draftIdx = this.actions().length - 1;
-    this.draftActionIndex.set(draftIdx);
-
-    this.popoverSaving = false;
-    this.editMode.set(true);
-    this.editModeIndex.set(draftIdx);
-    this.currentAction.set(draft);
+    // Open a prefilled Add dialog — nothing is added to the list until Save.
+    this.editMode.set(false);
+    this.editModeIndex.set(-1);
+    this.currentAction.set(prefilled);
     this.showDraftPopover();
   }
 
@@ -375,9 +360,6 @@ export class MessagesBatchResendComponent {
     const action = this.currentAction();
 
     if (action) {
-      this.popoverSaving = true;
-      this.draftActionIndex.set(-1);
-
       if (this.editMode()) {
         this.actions.update((currentActions) => {
           return currentActions.map((a, i) =>
@@ -404,22 +386,6 @@ export class MessagesBatchResendComponent {
 
   onPopoverHide(): void {
     this.removePopoverAnchor();
-
-    // If the popover was dismissed without saving (Cancel, Escape, outside click)
-    // and there is an active draft action, remove it from the list.
-    if (!this.popoverSaving) {
-      const draftIdx = this.draftActionIndex();
-      if (draftIdx >= 0) {
-        this.actions.update((currentActions) => {
-          const newActions = [...currentActions];
-          newActions.splice(draftIdx, 1);
-          return newActions;
-        });
-      }
-    }
-
-    this.popoverSaving = false;
-    this.draftActionIndex.set(-1);
     this.currentAction.set(undefined);
     this.editMode.set(false);
     this.editModeIndex.set(-1);
