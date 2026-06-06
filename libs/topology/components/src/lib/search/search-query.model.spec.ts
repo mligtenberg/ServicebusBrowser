@@ -3,6 +3,7 @@ import {
   rankByPrefix,
   resolveAcceleratorType,
   SUGGESTION_GROUP_CAP,
+  SUGGESTION_TOTAL_CAP,
 } from './search-query.model';
 
 describe('flattenTypeKey', () => {
@@ -96,13 +97,19 @@ describe('rankByPrefix', () => {
   });
 });
 
-describe('SUGGESTION_GROUP_CAP', () => {
+describe('SUGGESTION_TOTAL_CAP', () => {
   it('is a positive integer', () => {
-    expect(SUGGESTION_GROUP_CAP).toBeGreaterThan(0);
-    expect(Number.isInteger(SUGGESTION_GROUP_CAP)).toBe(true);
+    expect(SUGGESTION_TOTAL_CAP).toBeGreaterThan(0);
+    expect(Number.isInteger(SUGGESTION_TOTAL_CAP)).toBe(true);
   });
 
   it('is 10', () => {
-    expect(SUGGESTION_GROUP_CAP).toBe(10);
+    expect(SUGGESTION_TOTAL_CAP).toBe(10);
+  });
+});
+
+describe('SUGGESTION_GROUP_CAP (deprecated alias)', () => {
+  it('equals SUGGESTION_TOTAL_CAP for backward compatibility', () => {
+    expect(SUGGESTION_GROUP_CAP).toBe(SUGGESTION_TOTAL_CAP);
   });
 });

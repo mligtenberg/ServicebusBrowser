@@ -40,7 +40,7 @@ import {
   SearchChip,
   SearchQuery,
   serializeChip,
-  SUGGESTION_GROUP_CAP,
+  SUGGESTION_TOTAL_CAP,
   SuggestionGroup,
   SuggestionItem,
 } from '../search/search-query.model';
@@ -376,18 +376,28 @@ export class TopologyTreeComponent {
    * behaviour, unchanged).
    *
    * In both modes:
+   * - Typed text drives live free-text tree filtering on every keystroke.
    * - Suggestions are chip-scoped (nodes must satisfy existing chips).
    * - Prefix matches rank above substring matches within each type group.
-   * - Each type group is capped at SUGGESTION_GROUP_CAP items; a
-   *   non-selectable truncation hint row is appended when the cap is reached.
-   * - The always-present free-text row is appended last.
+   * - At most SUGGESTION_TOTAL_CAP entity rows are shown in total across all groups.
+   * - Suggestions are only shown when the typed query is >= 3 characters.
    */
   onComplete(event: AutoCompleteCompleteEvent) {
     const typed = event.query.trim();
+
+    // Point 1: drive live free-text filtering from every keystroke
+    this.searchInputText.set(typed);
+
     const chips = this.searchQuery().chips;
 
     // Types that already have a chip — never offered again
     const usedTypes = new Set(chips.map((c) => c.type));
+
+    // Point 3: only build and show tag suggestions when >=3 chars are typed
+    if (typed.length < 3) {
+      this.suggestions.set([]);
+      return;
+    }
 
     // ── Accelerator detection ──────────────────────────────────────────────
     // Determine the set of runtime tag keys (non-excluded, non-structural types
@@ -465,18 +475,23 @@ export class TopologyTreeComponent {
       walkForSuggestions(root, []),
     );
 
-    // ── Build suggestion groups ────────────────────────────────────────────
+    // ── Build suggestion groups with a TOTAL cap of SUGGESTION_TOTAL_CAP ──
+    // Point 4: at most SUGGESTION_TOTAL_CAP entity rows in total across all groups.
     const groups: SuggestionGroup[] = [];
 
     // Determine the fragment used for ranking inside each group
     const rankFragment = acceleratorType !== null ? valueFragment : typed;
 
+    let remaining = SUGGESTION_TOTAL_CAP;
+
     for (const [type, names] of grouped) {
+      if (remaining <= 0) break;
+
       // Rank: prefix matches first, then substring; alphabetical within tiers
       const ranked = rankByPrefix(names, rankFragment);
 
-      const totalCount = ranked.length;
-      const capped = ranked.slice(0, SUGGESTION_GROUP_CAP);
+      const capped = ranked.slice(0, remaining);
+      remaining -= capped.length;
 
       const items: SuggestionItem[] = capped.map((name) => ({
         kind: 'entity' as const,
@@ -485,23 +500,10 @@ export class TopologyTreeComponent {
         groupLabel: type,
       }));
 
-      // Non-silent truncation hint
-      if (totalCount > SUGGESTION_GROUP_CAP) {
-        items.push({
-          kind: 'truncation' as const,
-          label: `showing ${SUGGESTION_GROUP_CAP} of ${totalCount}`,
-        });
-      }
-
       groups.push({ groupLabel: type, items });
     }
 
-    // Always-present free-text row
-    const freeTextLabel = typed ? `Search for "${typed}"` : 'Type to search…';
-    groups.push({
-      groupLabel: 'free text',
-      items: [{ kind: 'freeText' as const, text: typed, label: freeTextLabel }],
-    });
+    // Point 2: NO free-text row is ever added to the dropdown.
 
     this.suggestions.set(groups);
   }
@@ -536,15 +538,13 @@ export class TopologyTreeComponent {
     if (item.kind === 'entity') {
       const newChip: SearchChip = { type: item.type, value: item.label };
       this.searchQuery.update((q) => ({
+        // Point 5: clear freeText when a chip is created
         chips: [...q.chips, newChip],
-        freeText: q.freeText,
+        freeText: '',
       }));
-      // Clear the text field after chip creation
+      // Point 5: reset live free-text signal and push empty through debounce
       this.searchInputText.set('');
-    } else if (item.kind === 'freeText') {
-      // Free-text row
-      this.searchInputText.set(item.text);
-      this.searchQuery.update((q) => ({ ...q, freeText: item.text }));
+      this.freeText$.next('');
     }
     // 'truncation' items are informational only — clicking them is a no-op.
 

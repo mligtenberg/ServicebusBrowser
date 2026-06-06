@@ -38,12 +38,10 @@ export const EXCLUDED_TAG_TYPES = new Set(['operational-grouping', 'no-children'
  * A blended suggestion item shown in the autocomplete dropdown.
  *
  * `kind === 'entity'`     — selecting this creates a chip {type, value}.
- * `kind === 'freeText'`   — selecting this commits the text as trailing free text.
  * `kind === 'truncation'` — non-selectable informational row ("showing N of M").
  */
 export type SuggestionItem =
   | { kind: 'entity'; type: string; label: string; groupLabel: string }
-  | { kind: 'freeText'; text: string; label: string }
   | { kind: 'truncation'; label: string };
 
 /**
@@ -56,8 +54,14 @@ export interface SuggestionGroup {
 
 // ── Suggestion helpers ────────────────────────────────────────────────────────
 
-/** Maximum entity items shown per type group before a truncation hint appears. */
-export const SUGGESTION_GROUP_CAP = 10;
+/** Maximum total entity items shown across ALL type groups in the dropdown. */
+export const SUGGESTION_TOTAL_CAP = 10;
+
+/**
+ * @deprecated Use SUGGESTION_TOTAL_CAP. Kept for any external references.
+ * @internal
+ */
+export const SUGGESTION_GROUP_CAP = SUGGESTION_TOTAL_CAP;
 
 /**
  * Ranks a list of entity names by relevance to `fragment`:
