@@ -35,9 +35,12 @@ import {
   EMPTY_QUERY,
   EXCLUDED_TAG_TYPES,
   isQueryEmpty,
+  rankByPrefix,
+  resolveAcceleratorType,
   SearchChip,
   SearchQuery,
   serializeChip,
+  SUGGESTION_GROUP_CAP,
   SuggestionGroup,
   SuggestionItem,
 } from '../search/search-query.model';
@@ -359,7 +362,25 @@ export class TopologyTreeComponent {
 
   /**
    * Called by PrimeNG AutoComplete on every keystroke.
-   * Builds a blended list of entity suggestions + a free-text row.
+   *
+   * Two modes:
+   *
+   * **Accelerator mode** — the typed fragment starts with a known tag-key
+   * immediately followed by a colon (e.g. `exchange:`, `eventHub:rabbit`).
+   * Only entity suggestions of that single type are shown, filtered by the
+   * value portion after the colon.  If that type already has a chip, no
+   * entity rows are emitted (one-chip-per-type still applies).
+   *
+   * **Blended mode** — the fragment does NOT start with `key:`.  All eligible
+   * entity types are shown, each filtered by the full fragment (existing
+   * behaviour, unchanged).
+   *
+   * In both modes:
+   * - Suggestions are chip-scoped (nodes must satisfy existing chips).
+   * - Prefix matches rank above substring matches within each type group.
+   * - Each type group is capped at SUGGESTION_GROUP_CAP items; a
+   *   non-selectable truncation hint row is appended when the cap is reached.
+   * - The always-present free-text row is appended last.
    */
   onComplete(event: AutoCompleteCompleteEvent) {
     const typed = event.query.trim();
@@ -368,41 +389,68 @@ export class TopologyTreeComponent {
     // Types that already have a chip — never offered again
     const usedTypes = new Set(chips.map((c) => c.type));
 
-    // Collect entity suggestions, scoped by current chips
-    const grouped = new Map<string, string[]>(); // type → matching names
+    // ── Accelerator detection ──────────────────────────────────────────────
+    // Determine the set of runtime tag keys (non-excluded, non-structural types
+    // present in selectabilityFilteredNodes).
+    const availableTypes = this.collectAvailableTypes();
+
+    // Does the typed fragment start with "<key>:" (key is a known type)?
+    let acceleratorType: string | null = null;
+    let valueFragment = '';
+    const colonIdx = typed.indexOf(':');
+    if (colonIdx > 0) {
+      const keyPart = typed.slice(0, colonIdx);
+      const resolved = resolveAcceleratorType(keyPart, availableTypes);
+      if (resolved !== null) {
+        acceleratorType = resolved;
+        valueFragment = typed.slice(colonIdx + 1).trimStart();
+      }
+    }
+
+    // ── Collect matching names per type ────────────────────────────────────
+    // In accelerator mode we only collect for the resolved type;
+    // in blended mode we collect for all non-used types.
+    const grouped = new Map<string, string[]>(); // type → de-duped names (unranked)
 
     const walkForSuggestions = (
       node: TopologyNode,
       ancestorPath: TopologyNode[],
     ) => {
       if (EXCLUDED_TAG_TYPES.has(node.type)) {
-        // Still descend to find children
         node.children?.forEach((c) =>
           walkForSuggestions(c, [...ancestorPath, node]),
         );
         return;
       }
 
-      if (!usedTypes.has(node.type)) {
-        // Check whether this node satisfies the current chips in its ancestor path
-        const allNodes = [...ancestorPath, node];
-        const satisfiesChips = chips.every((chip) =>
-          allNodes.some(
-            (n) =>
-              n.type === chip.type &&
-              n.name.toLowerCase() === chip.value.toLowerCase(),
-          ),
-        );
+      const isTargetType = acceleratorType !== null
+        ? node.type === acceleratorType
+        : !usedTypes.has(node.type);
 
-        if (satisfiesChips) {
-          const nameLower = node.name.toLowerCase();
-          const typedLower = typed.toLowerCase();
-          if (typed === '' || nameLower.includes(typedLower)) {
-            const list = grouped.get(node.type) ?? [];
-            // Deduplicate by name within the type group
-            if (!list.includes(node.name)) {
-              list.push(node.name);
-              grouped.set(node.type, list);
+      if (isTargetType) {
+        // Skip if type already has a chip (one-chip-per-type)
+        if (!usedTypes.has(node.type)) {
+          // Check chip scoping
+          const allNodes = [...ancestorPath, node];
+          const satisfiesChips = chips.every((chip) =>
+            allNodes.some(
+              (n) =>
+                n.type === chip.type &&
+                n.name.toLowerCase() === chip.value.toLowerCase(),
+            ),
+          );
+
+          if (satisfiesChips) {
+            // In accelerator mode filter by valueFragment; in blended mode by typed
+            const filterFragment = acceleratorType !== null ? valueFragment : typed;
+            const nameLower = node.name.toLowerCase();
+            const fragmentLower = filterFragment.toLowerCase();
+            if (filterFragment === '' || nameLower.includes(fragmentLower)) {
+              const list = grouped.get(node.type) ?? [];
+              if (!list.includes(node.name)) {
+                list.push(node.name);
+                grouped.set(node.type, list);
+              }
             }
           }
         }
@@ -417,36 +465,62 @@ export class TopologyTreeComponent {
       walkForSuggestions(root, []),
     );
 
+    // ── Build suggestion groups ────────────────────────────────────────────
     const groups: SuggestionGroup[] = [];
 
+    // Determine the fragment used for ranking inside each group
+    const rankFragment = acceleratorType !== null ? valueFragment : typed;
+
     for (const [type, names] of grouped) {
-      groups.push({
+      // Rank: prefix matches first, then substring; alphabetical within tiers
+      const ranked = rankByPrefix(names, rankFragment);
+
+      const totalCount = ranked.length;
+      const capped = ranked.slice(0, SUGGESTION_GROUP_CAP);
+
+      const items: SuggestionItem[] = capped.map((name) => ({
+        kind: 'entity' as const,
+        type,
+        label: name,
         groupLabel: type,
-        items: names.map((name) => ({
-          kind: 'entity' as const,
-          type,
-          label: name,
-          groupLabel: type,
-        })),
-      });
+      }));
+
+      // Non-silent truncation hint
+      if (totalCount > SUGGESTION_GROUP_CAP) {
+        items.push({
+          kind: 'truncation' as const,
+          label: `showing ${SUGGESTION_GROUP_CAP} of ${totalCount}`,
+        });
+      }
+
+      groups.push({ groupLabel: type, items });
     }
 
     // Always-present free-text row
-    const freeTextLabel = typed
-      ? `Search for "${typed}"`
-      : 'Type to search…';
+    const freeTextLabel = typed ? `Search for "${typed}"` : 'Type to search…';
     groups.push({
       groupLabel: 'free text',
-      items: [
-        {
-          kind: 'freeText' as const,
-          text: typed,
-          label: freeTextLabel,
-        },
-      ],
+      items: [{ kind: 'freeText' as const, text: typed, label: freeTextLabel }],
     });
 
     this.suggestions.set(groups);
+  }
+
+  /**
+   * Collect the set of distinct node types present in selectabilityFilteredNodes,
+   * excluding structural / excluded types.  Used by onComplete() to derive the
+   * runtime accelerator key set.
+   */
+  private collectAvailableTypes(): string[] {
+    const types = new Set<string>();
+    const walk = (node: TopologyNode) => {
+      if (!EXCLUDED_TAG_TYPES.has(node.type)) {
+        types.add(node.type);
+      }
+      node.children?.forEach(walk);
+    };
+    this.selectabilityFilteredNodes().forEach(walk);
+    return [...types];
   }
 
   /**
@@ -467,11 +541,12 @@ export class TopologyTreeComponent {
       }));
       // Clear the text field after chip creation
       this.searchInputText.set('');
-    } else {
+    } else if (item.kind === 'freeText') {
       // Free-text row
       this.searchInputText.set(item.text);
       this.searchQuery.update((q) => ({ ...q, freeText: item.text }));
     }
+    // 'truncation' items are informational only — clicking them is a no-op.
 
     // Reset the autocomplete's visible value back to empty so the field is clear
     this.autocompleteValue.set([]);

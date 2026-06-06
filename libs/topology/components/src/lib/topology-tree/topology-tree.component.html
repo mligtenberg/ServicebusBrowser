@@ -34,10 +34,12 @@
       (completeMethod)="onComplete($event)"
       (onSelect)="onSuggestionSelect($event)"
     >
-      <!-- Item template: entity row or free-text row -->
+      <!-- Item template: entity row, free-text row, or truncation hint -->
       <ng-template let-item pTemplate="item">
         @if (item.kind === 'entity') {
           <span class="suggestion-entity">{{ item.label }}</span>
+        } @else if (item.kind === 'truncation') {
+          <span class="suggestion-truncation">{{ item.label }}</span>
         } @else {
           <span class="suggestion-freetext">{{ item.label }}</span>
         }
