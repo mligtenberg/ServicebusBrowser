@@ -20,7 +20,10 @@ import {
   MessageModificationAction,
   MessageModificationEngine,
 } from '@service-bus-browser/message-modification-engine';
-import { ReceivedMessage } from '@service-bus-browser/api-contracts';
+import {
+  ClearNonResendableProperties,
+  ReceivedMessage,
+} from '@service-bus-browser/api-contracts';
 import { MenuItem } from 'primeng/api';
 
 
@@ -81,6 +84,10 @@ export class PreviewBatch {
   private async loadRows(first: number, rows: number, pageId: UUID) {
     let messages = await repository.getMessages(pageId, this.messageFilter(), first, rows);
 
+    // Mirror the resend path: outgoing messages have headers and annotations
+    // cleared before modification actions are applied, so the preview reflects
+    // what will actually be sent. key/sequence are preserved for row selection.
+    messages = messages.map((message) => ClearNonResendableProperties(message));
 
     messages = this.messageModificationEngine.applyBatchActions(messages, this.batchModificationActions() ?? []);
 
