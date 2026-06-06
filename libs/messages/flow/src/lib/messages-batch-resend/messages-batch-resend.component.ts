@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, NgZone, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 import {
@@ -121,7 +121,6 @@ export class MessagesBatchResendComponent {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private fileService = inject(FilesService);
-  private zone = inject(NgZone);
 
   // Exposed in the preview body editor's right-click menu: select text in the
   // body, then turn the selection into a search & replace body action.
@@ -129,8 +128,7 @@ export class MessagesBatchResendComponent {
     {
       id: 'add-search-replace-body-action',
       label: 'Add search & replace action',
-      run: (selectedText) =>
-        this.zone.run(() => this.openSearchReplaceBodyAction(selectedText)),
+      run: (selectedText) => this.openSearchReplaceBodyAction(selectedText),
     },
   ];
 
