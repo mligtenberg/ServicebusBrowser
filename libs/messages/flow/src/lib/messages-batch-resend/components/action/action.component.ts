@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, model } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -82,6 +82,25 @@ export class ActionComponent {
     messageAnnotations: [],
     applicationProperties: [],
   });
+
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /**
+   * Focus (and select) the value input so the user can type immediately — used
+   * when a draft action is created from a property context menu, where the
+   * field name is already known and only the value is left to fill in. The
+   * value control is rendered asynchronously once the type/target signals
+   * propagate, so defer the lookup to the next macrotask.
+   */
+  focusValueField() {
+    setTimeout(() => {
+      const input = this.elementRef.nativeElement.querySelector<HTMLInputElement>(
+        'input[placeholder="Value"]',
+      );
+      input?.focus();
+      input?.select();
+    });
+  }
 
   clear() {
     this.currentActionType.set(undefined);

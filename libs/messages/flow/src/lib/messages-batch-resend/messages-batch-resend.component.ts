@@ -227,6 +227,7 @@ export class MessagesBatchResendComponent {
   });
 
   private popoverSaving = false;
+  private focusValueOnShow = false;
 
   openAddActionPopover(event: Event): void {
     this.popoverSaving = false;
@@ -274,6 +275,7 @@ export class MessagesBatchResendComponent {
     this.draftActionIndex.set(draftIdx);
 
     this.popoverSaving = false;
+    this.focusValueOnShow = true;
     this.editMode.set(true);
     this.editModeIndex.set(draftIdx);
     this.currentAction.set(draft);
@@ -282,6 +284,13 @@ export class MessagesBatchResendComponent {
     // popover would anchor at the top-left. Anchor to the stable "Add action"
     // button instead.
     this.actionPopover()?.show(event, this.addActionBtn()?.nativeElement);
+  }
+
+  onPopoverShow(): void {
+    if (this.focusValueOnShow) {
+      this.focusValueOnShow = false;
+      this.actionEditor()?.focusValueField();
+    }
   }
 
   savePopoverAction(): void {
@@ -330,6 +339,7 @@ export class MessagesBatchResendComponent {
     }
 
     this.popoverSaving = false;
+    this.focusValueOnShow = false;
     this.draftActionIndex.set(-1);
     this.currentAction.set(undefined);
     this.editMode.set(false);

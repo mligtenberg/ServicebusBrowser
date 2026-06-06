@@ -128,7 +128,12 @@
   </div>
 </div>
 
-<p-popover #actionPopover appendTo="body" (onHide)="onPopoverHide()">
+<p-popover
+  #actionPopover
+  appendTo="body"
+  (onShow)="onPopoverShow()"
+  (onHide)="onPopoverHide()"
+>
   <div class="action-popover-content">
     <h3 class="action-popover-title">{{ editMode() ? 'Edit Action' : 'Add Action' }}</h3>
     <lib-action
