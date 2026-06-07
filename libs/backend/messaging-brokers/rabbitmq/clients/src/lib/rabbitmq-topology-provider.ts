@@ -69,28 +69,7 @@ export class RabbitMqTopologyProvider implements TopologyProvider {
         selectable: true,
         type: 'connection',
         children: vhosts,
-        actions: [
-          {
-            icon: 'pi pi-pencil',
-            displayName: `Rename ${this.connection.name}`,
-            actionGroup: 'connection',
-            actionType: 'connection:rename',
-            parameters: {
-              connectionId: this.connection.id,
-              connectionName: this.connection.name,
-            },
-          },
-          {
-            icon: 'pi pi-trash',
-            displayName: `Remove ${this.connection.name}`,
-            actionGroup: 'connection',
-            actionType: 'connection:delete',
-            parameters: {
-              connectionId: this.connection.id,
-              connectionName: this.connection.name,
-            },
-          },
-        ],
+        actions: [],
       };
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));

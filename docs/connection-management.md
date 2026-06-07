@@ -2,19 +2,22 @@
 
 Connections are the root nodes of the topology tree. Each connection node exposes
 actions (rendered in the tree context menu / action list) under the `connection`
-action group. These actions are declared by each broker's topology provider and
-handled by action handlers registered in the connections store.
+action group. These actions are injected by the server layer and handled by
+action handlers registered in the connections store.
 
 ## Available actions
 
-| Action type          | Where declared                                                                 | Handler                                  |
-| -------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- |
-| `connection:rename`  | `*-topology-provider.ts` (service-bus, event-hub, rabbitmq)                    | `libs/connections/store/src/index.ts`    |
-| `connection:delete`  | `*-topology-provider.ts` (service-bus, event-hub, rabbitmq)                    | `libs/connections/store/src/index.ts`    |
+| Action type          | Where declared                                                                          | Handler                                  |
+| -------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `connection:rename`  | `libs/backend/server/src/lib/management/topology-actions.ts` (`injectConnectionMutationActions`) | `libs/connections/store/src/index.ts`    |
+| `connection:delete`  | `libs/backend/server/src/lib/management/topology-actions.ts` (`injectConnectionMutationActions`) | `libs/connections/store/src/index.ts`    |
 
 Both actions carry `connectionId` and `connectionName` parameters. They are
-declared identically for **all** connection types, so every connection can be
-renamed regardless of broker.
+injected uniformly at the server level for **all** connection types, so every
+connection can be renamed or deleted regardless of broker — including when the
+broker is unreachable. When the connection cannot be reached, `listTopologies`
+returns a minimal fallback root node (`errored: true`) that still carries these
+actions.
 
 ### Read-only stores (web variant)
 
