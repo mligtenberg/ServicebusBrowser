@@ -8,12 +8,14 @@ export const featureKey = 'topology';
 
 export type TopologyState = {
   rootNodes: TopologyNode[];
+  loaded: boolean;
   refreshingPaths: string[];
   erroredPaths: string[];
 };
 
 export const initialState: TopologyState = {
   rootNodes: [],
+  loaded: false,
   refreshingPaths: [],
   erroredPaths: [],
 };
@@ -23,6 +25,7 @@ export const logsReducer = createReducer(
   on(actions.loadTopologyRootNodes, (state) => ({
     ...state,
     rootNodes: [],
+    loaded: false,
     refreshingPaths: [],
     erroredPaths: [],
   })),
@@ -31,6 +34,7 @@ export const logsReducer = createReducer(
     (state, { nodes }): TopologyState => ({
       ...state,
       rootNodes: nodes,
+      loaded: true,
     }),
   ),
   on(

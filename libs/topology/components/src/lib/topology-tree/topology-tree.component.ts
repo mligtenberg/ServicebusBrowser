@@ -333,8 +333,12 @@ export class TopologyTreeComponent {
     return keys;
   });
 
+  private topologyLoaded = this.store.selectSignal(TopologySelectors.selectLoaded);
+
   constructor() {
-    this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+    if (!this.topologyLoaded()) {
+      this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+    }
 
     // Push free-text changes into the debounce subject
     effect(() => {
