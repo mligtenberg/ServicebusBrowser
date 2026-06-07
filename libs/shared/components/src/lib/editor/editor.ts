@@ -25,12 +25,14 @@ export function provideMonacoConfig(config: { urlPrefix?: string }) {
 
 /**
  * A custom action exposed in the editor's right-click context menu. `run`
- * receives the currently selected text (empty string when nothing is selected).
+ * receives the currently selected text (empty string when nothing is selected),
+ * plus the start and end character offsets of that selection within the full
+ * editor content (undefined when nothing is selected).
  */
 export interface EditorContextAction {
   id: string;
   label: string;
-  run: (selectedText: string) => void;
+  run: (selectedText: string, selectionStart?: number, selectionEnd?: number) => void;
 }
 
 @Component({
@@ -82,11 +84,17 @@ export class Editor implements OnDestroy, FormValueControl<string> {
           contextMenuOrder: 1.5,
           run: (ed) => {
             const selection = ed.getSelection();
-            const selectedText =
-              selection && !selection.isEmpty()
-                ? (ed.getModel()?.getValueInRange(selection) ?? '')
-                : '';
-            action.run(selectedText);
+            const model = ed.getModel();
+            let selectedText = '';
+            let selectionStart: number | undefined;
+            let selectionEnd: number | undefined;
+
+            if (selection && !selection.isEmpty() && model) {
+              selectedText = model.getValueInRange(selection) ?? '';
+              selectionStart = model.getOffsetAt(selection.getStartPosition());
+              selectionEnd = model.getOffsetAt(selection.getEndPosition());
+            }
+            action.run(selectedText, selectionStart, selectionEnd);
           },
         });
       }

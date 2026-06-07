@@ -276,6 +276,65 @@ export class BodyViewer {
     },
   }));
 
+  // Set of character positions in shownBody() that were added by pretty printing
+  // and are not present in body() at the equivalent position. Used to strip
+  // formatting artefacts from text selections before passing them to context actions.
+  private prettyAddedPositions = computed<Set<number>>(() => {
+    const raw = this.body() ?? '';
+    const pretty = this.shownBody() ?? '';
+    if (!raw || !pretty || raw === pretty) {
+      return new Set<number>();
+    }
+    return this.computeAddedPositions(raw, pretty);
+  });
+
+  // Wraps each incoming context action so that, when in pretty mode, any text
+  // selection has pretty-print formatting characters stripped before being
+  // forwarded to the original action handler.
+  protected wrappedContextActions = computed<EditorContextAction[]>(() =>
+    this.contextActions().map((action) => ({
+      ...action,
+      run: (selectedText: string, start?: number, end?: number) => {
+        action.run(this.stripPrettyFormatting(start, end, selectedText));
+      },
+    })),
+  );
+
+  private computeAddedPositions(raw: string, pretty: string): Set<number> {
+    const added = new Set<number>();
+    let ri = 0;
+    for (let pi = 0; pi < pretty.length; pi++) {
+      if (ri < raw.length && pretty[pi] === raw[ri]) {
+        ri++;
+      } else {
+        added.add(pi);
+      }
+    }
+    return added;
+  }
+
+  private stripPrettyFormatting(
+    start: number | undefined,
+    end: number | undefined,
+    selectedText: string,
+  ): string {
+    if (start === undefined || end === undefined) {
+      return selectedText;
+    }
+    const added = this.prettyAddedPositions();
+    if (added.size === 0) {
+      return selectedText;
+    }
+    const pretty = this.shownBody() ?? '';
+    let result = '';
+    for (let i = start; i < end && i < pretty.length; i++) {
+      if (!added.has(i)) {
+        result += pretty[i];
+      }
+    }
+    return result || selectedText;
+  }
+
   prettyPrintAvailable = computed(() => this.bodyLanguage() !== 'text');
 
   private prettyPrint(
