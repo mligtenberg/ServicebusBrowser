@@ -1,0 +1,13 @@
+<input
+  class="sbb-input"
+  [class.sbb-input--invalid]="invalid()"
+  [class.sbb-input--sm]="size() === 'sm'"
+  [class.sbb-input--lg]="size() === 'lg'"
+  [type]="type()"
+  [placeholder]="placeholder()"
+  [disabled]="disabled()"
+  [attr.aria-invalid]="invalid() || null"
+  [value]="value()"
+  (input)="handleInput($any($event.target).value)"
+  (blur)="handleBlur()"
+/>

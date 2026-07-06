@@ -1,0 +1,20 @@
+<button
+  [type]="type()"
+  [class]="buttonClasses()"
+  [disabled]="isDisabled()"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  @if (loading()) {
+    <fa-icon
+      class="sbb-button__spinner"
+      [icon]="spinnerIcon"
+      animation="spin"
+      aria-hidden="true"
+    ></fa-icon>
+  } @else if (icon(); as ic) {
+    <fa-icon class="sbb-button__icon" [icon]="ic" aria-hidden="true"></fa-icon>
+  }
+  <span class="sbb-button__label" [class.sbb-button__label--hidden]="iconOnly()">
+    <ng-content></ng-content>
+  </span>
+</button>

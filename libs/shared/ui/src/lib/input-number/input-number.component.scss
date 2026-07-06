@@ -1,0 +1,54 @@
+// SbbInputNumber — styled native numeric input.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks keep the component usable if the global sheet isn't loaded.
+
+:host {
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-text-muted-local: var(--sbb-text-muted, #64748b);
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #ffffff);
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-primary-local: var(--sbb-primary, #0ea5e9);
+  --sbb-focus-ring-local: var(--sbb-focus-ring, #0ea5e9);
+  --sbb-radius-local: var(--sbb-radius, 0.375rem);
+
+  display: inline-block;
+}
+
+.sbb-input-number__field {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  color: var(--sbb-text-local);
+  background: var(--sbb-surface-raised-local);
+  border: 1px solid var(--sbb-border-local);
+  border-radius: var(--sbb-radius-local);
+  font: inherit;
+  line-height: 1.4;
+
+  &::placeholder {
+    color: var(--sbb-text-muted-local);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring-local);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    color: var(--sbb-text-muted-local);
+    background: var(--sbb-border-local);
+    cursor: not-allowed;
+  }
+
+  // Hide native spin buttons — parity with the current bare p-inputnumber
+  // usage, which renders no spinner controls.
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
+  -moz-appearance: textfield;
+}

@@ -1,0 +1,57 @@
+<div
+  class="sbb-select"
+  brnPopover
+  align="start"
+  [sideOffset]="4"
+  brnSelect
+  [disabled]="disabled()"
+  [value]="value()"
+  (valueChange)="handleValueChange($event)"
+>
+  <button
+    type="button"
+    class="sbb-select-trigger"
+    brnSelectTrigger
+    (blur)="handleTouched()"
+  >
+    <span brnSelectValue [placeholder]="placeholder()">{{ selectedLabel() ?? placeholder() }}</span>
+    <i class="fa-solid fa-chevron-down sbb-select-caret" aria-hidden="true"></i>
+  </button>
+
+  <ng-template brnPopoverContent>
+    <div class="sbb-select-panel" brnSelectContent>
+      @if (searchable()) {
+        <input
+          type="text"
+          class="sbb-select-filter"
+          placeholder="Search…"
+          [value]="filterQuery()"
+          (input)="handleFilterInput($any($event.target).value)"
+          (click)="$event.stopPropagation()"
+        />
+      }
+      <div class="sbb-select-list" brnSelectList>
+        @for (group of filteredGroups(); track group.label) {
+          <div brnSelectGroup>
+            @if (group.label) {
+              <div class="sbb-select-group-label" brnSelectLabel>{{ group.label }}</div>
+            }
+            @for (option of group.options; track option.label) {
+              <div
+                class="sbb-select-item"
+                brnSelectItem
+                [value]="option.value"
+                [disabled]="!!option.disabled"
+              >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
+        @if (filteredGroups().length === 0) {
+          <div class="sbb-select-empty">No options</div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</div>

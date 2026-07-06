@@ -1,0 +1,12 @@
+// SbbInputGroupAddon styles.
+// Consumes the shared `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 0.5rem;
+  background: var(--sbb-surface, #f8fafc);
+  color: var(--sbb-text-muted, #64748b);
+}

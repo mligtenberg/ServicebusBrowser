@@ -1,0 +1,88 @@
+// SbbCheckbox — styled headless checkbox on @spartan-ng/brain's BrnCheckbox.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks are declared so the component renders correctly even if the
+// global sheet is not yet loaded. Sizing mirrors the current PrimeNG checkbox
+// (`p-checkbox`, 1.25rem x 1.25rem box) for visual parity.
+
+:host {
+  --sbb-checkbox-size: 1.25rem;
+
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-text-muted-local: var(--sbb-text-muted, #64748b);
+  --sbb-primary-local: var(--sbb-primary, #0ea5e9);
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #ffffff);
+  --sbb-focus-ring-local: var(--sbb-focus-ring, var(--sbb-primary-local));
+  --sbb-radius-local: calc(var(--sbb-radius, 0.375rem) / 1.5);
+
+  display: inline-block;
+}
+
+.sbb-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--sbb-text-local);
+
+  &--disabled {
+    cursor: not-allowed;
+    color: var(--sbb-text-muted-local);
+  }
+}
+
+.sbb-checkbox__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sbb-checkbox-size);
+  height: var(--sbb-checkbox-size);
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border: 1px solid var(--sbb-border-local);
+  border-radius: var(--sbb-radius-local);
+  background-color: var(--sbb-surface-raised-local);
+  color: var(--sbb-on-primary, #ffffff);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  outline: none;
+  cursor: inherit;
+
+  &[data-state='checked'],
+  &[data-state='indeterminate'] {
+    background-color: var(--sbb-primary-local);
+    border-color: var(--sbb-primary-local);
+  }
+
+  &[data-focus-visible='true'] {
+    box-shadow: 0 0 0 2px var(--sbb-surface-raised-local), 0 0 0 4px var(--sbb-focus-ring-local);
+  }
+
+  &[data-disabled='true'] {
+    opacity: 0.5;
+  }
+}
+
+.sbb-checkbox__icon {
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  display: none;
+  box-sizing: border-box;
+}
+
+.sbb-checkbox__control[data-state='checked'] .sbb-checkbox__icon--check {
+  display: block;
+}
+
+.sbb-checkbox__control[data-state='indeterminate'] .sbb-checkbox__icon--indeterminate {
+  display: block;
+}
+
+.sbb-checkbox__label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

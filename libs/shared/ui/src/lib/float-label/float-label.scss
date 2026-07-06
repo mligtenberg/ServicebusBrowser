@@ -1,0 +1,40 @@
+// SbbFloatLabel — parity target: PrimeNG `<p-floatlabel variant="on">`.
+//
+// The "on" variant keeps the label permanently floated on top of the
+// control's border (small, offset upward) rather than animating between a
+// placeholder position and a floated position. We still animate color/scale
+// on focus so the transition from a static page reads as intentional rather
+// than abrupt.
+
+:host {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+// The projected control (input/select/etc). We only touch spacing — the
+// control itself owns its own border/background styling.
+:host ::ng-deep > *:first-child {
+  width: 100%;
+}
+
+.sbb-float-label__label {
+  position: absolute;
+  pointer-events: none;
+  left: 0.75rem;
+  top: 0;
+  transform: translateY(-50%);
+  padding: 0 0.25rem;
+  background: var(--sbb-surface-raised);
+  color: var(--sbb-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  transition:
+    color 0.15s ease,
+    font-size 0.15s ease;
+  z-index: 1;
+}
+
+:host(:focus-within) .sbb-float-label__label {
+  color: var(--sbb-primary);
+}

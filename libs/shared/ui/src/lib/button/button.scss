@@ -1,0 +1,193 @@
+:host {
+  // Component host is an inline wrapper so `sbb-button` behaves like the
+  // inline native `<button>` it replaces (no accidental block layout).
+  display: inline-flex;
+}
+
+.sbb-button {
+  // Local danger-severity ramp. Not part of the shared `--sbb-*` token set
+  // (no global danger token exists yet); scoped here so no hex appears in
+  // the rules below. Seeded from PrimeUix Aura's `red` palette for parity
+  // with the current `severity="danger"` p-button color.
+  --sbb-button-danger: #ef4444;
+  --sbb-button-danger-hover: #dc2626;
+  --sbb-button-danger-subtle: #fef2f2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: var(--sbb-radius);
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  // ---------------------------------------------------------------------
+  // Sizes
+  // ---------------------------------------------------------------------
+  &.sbb-button--small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  &.sbb-button--medium {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  &.sbb-button--large {
+    padding: 0.625rem 1.25rem;
+    font-size: 1rem;
+  }
+
+  &.sbb-button--icon-only {
+    padding: 0.5rem;
+    aspect-ratio: 1 / 1;
+
+    &.sbb-button--small {
+      padding: 0.375rem;
+    }
+
+    &.sbb-button--large {
+      padding: 0.625rem;
+    }
+  }
+
+  &.sbb-button--rounded {
+    border-radius: 9999px;
+  }
+
+  // ---------------------------------------------------------------------
+  // Severity + variant combinations
+  // ---------------------------------------------------------------------
+
+  // Filled (default)
+  &.sbb-button--filled.sbb-button--primary {
+    background-color: var(--sbb-primary);
+    border-color: var(--sbb-primary);
+    color: var(--sbb-gray-50);
+
+    &:hover:not(:disabled) {
+      background-color: var(--sbb-primary-600);
+      border-color: var(--sbb-primary-600);
+    }
+  }
+
+  &.sbb-button--filled.sbb-button--secondary {
+    background-color: var(--sbb-gray-200);
+    border-color: var(--sbb-gray-200);
+    color: var(--sbb-text);
+
+    &:hover:not(:disabled) {
+      background-color: var(--sbb-gray-300);
+      border-color: var(--sbb-gray-300);
+    }
+  }
+
+  &.sbb-button--filled.sbb-button--danger {
+    background-color: var(--sbb-button-danger);
+    border-color: var(--sbb-button-danger);
+    color: var(--sbb-gray-50);
+
+    &:hover:not(:disabled) {
+      background-color: var(--sbb-button-danger-hover);
+      border-color: var(--sbb-button-danger-hover);
+    }
+  }
+
+  // Outlined
+  &.sbb-button--outlined {
+    background-color: transparent;
+
+    &.sbb-button--primary {
+      border-color: var(--sbb-primary);
+      color: var(--sbb-primary);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-primary-50);
+      }
+    }
+
+    &.sbb-button--secondary {
+      border-color: var(--sbb-border);
+      color: var(--sbb-text);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-gray-100);
+      }
+    }
+
+    &.sbb-button--danger {
+      border-color: var(--sbb-button-danger);
+      color: var(--sbb-button-danger);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-button-danger-subtle);
+      }
+    }
+  }
+
+  // Text
+  &.sbb-button--text {
+    background-color: transparent;
+    border-color: transparent;
+
+    &.sbb-button--primary {
+      color: var(--sbb-primary);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-primary-50);
+      }
+    }
+
+    &.sbb-button--secondary {
+      color: var(--sbb-text-muted);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-gray-100);
+      }
+    }
+
+    &.sbb-button--danger {
+      color: var(--sbb-button-danger);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-button-danger-subtle);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // States
+  // ---------------------------------------------------------------------
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &.sbb-button--loading {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.sbb-button__label--hidden {
+  display: none;
+}
+
+.sbb-button__icon,
+.sbb-button__spinner {
+  display: inline-flex;
+  flex: none;
+}

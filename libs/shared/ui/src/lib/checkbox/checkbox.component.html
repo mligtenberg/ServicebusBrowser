@@ -1,0 +1,31 @@
+<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- brn-checkbox self-associates via `closest('label')` at runtime (see @spartan-ng/brain/checkbox) -->
+<label class="sbb-checkbox" [class.sbb-checkbox--disabled]="isDisabled()">
+  <brn-checkbox
+    class="sbb-checkbox__control"
+    [checked]="checked()"
+    [indeterminate]="indeterminate()"
+    [disabled]="isDisabled()"
+    (checkedChange)="onCheckedChange($event)"
+    (touched)="onTouchedHandler()"
+  >
+    <svg
+      class="sbb-checkbox__icon sbb-checkbox__icon--check"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <svg
+      class="sbb-checkbox__icon sbb-checkbox__icon--indeterminate"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3 8h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  </brn-checkbox>
+  @if (label()) {
+    <span class="sbb-checkbox__label">{{ label() }}</span>
+  }
+</label>
