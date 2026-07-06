@@ -41,9 +41,9 @@ export class ColorThemeService {
     });
 
     effect(() => {
-      const html = document.querySelector('html');
-      if (!html) return;
-      html.classList.toggle('darkMode', this.darkMode());
+      const pref = this.userPreference();
+      const colorScheme = pref === 'sync' ? 'light dark' : pref;
+      document.documentElement.style.colorScheme = colorScheme;
     });
   }
 

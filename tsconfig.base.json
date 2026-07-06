@@ -109,7 +109,8 @@
       ],
       "@service-bus-browser/event-hub": [
         "libs/backend/messaging-brokers/event-hub/src/index.ts"
-      ]
+      ],
+      "@service-bus-browser/shared-ui": ["./libs/shared/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"],

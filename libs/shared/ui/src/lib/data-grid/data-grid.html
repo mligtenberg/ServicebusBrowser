@@ -1,0 +1,59 @@
+<div class="sbb-grid" role="grid">
+  <div class="sbb-grid__header" role="row">
+    @for (col of columns(); track col.field) {
+      <div
+        class="sbb-grid__hcell"
+        role="columnheader"
+        [class.sbb-grid__hcell--sortable]="col.sortable !== false"
+        [style.width]="col.width || null"
+        [attr.tabindex]="col.sortable === false ? null : 0"
+        [attr.aria-sort]="
+          sortIndicator(col) === 'asc'
+            ? 'ascending'
+            : sortIndicator(col) === 'desc'
+              ? 'descending'
+              : 'none'
+        "
+        (click)="onHeaderClick(col)"
+        (keydown.enter)="onHeaderClick(col)"
+        (keydown.space)="onHeaderClick(col); $event.preventDefault()"
+      >
+        <span class="sbb-grid__hlabel">{{ col.header }}</span>
+        @if (sortIndicator(col) === 'asc') {
+          <span class="sbb-grid__sort" aria-hidden="true">▲</span>
+        } @else if (sortIndicator(col) === 'desc') {
+          <span class="sbb-grid__sort" aria-hidden="true">▼</span>
+        }
+      </div>
+    }
+  </div>
+
+  <cdk-virtual-scroll-viewport
+    class="sbb-grid__viewport"
+    [itemSize]="rowHeight()"
+    (scrolledIndexChange)="onScrolledIndexChange()"
+  >
+    <div
+      *cdkVirtualFor="
+        let row of displayRows();
+        let i = index;
+        trackBy: trackBy()
+      "
+      class="sbb-grid__row"
+      role="row"
+      [attr.tabindex]="selectionMode() === 'none' ? null : 0"
+      [style.height.px]="rowHeight()"
+      [class.sbb-grid__row--selected]="isSelected(row, i)"
+      [attr.aria-selected]="isSelected(row, i)"
+      (click)="onRowClick($event, row, i)"
+      (keydown.enter)="onRowKeydown($event, row, i)"
+      (keydown.space)="onRowKeydown($event, row, i)"
+    >
+      @for (col of columns(); track col.field) {
+        <div class="sbb-grid__cell" role="gridcell" [style.width]="col.width || null">
+          {{ cellValue(row, col) }}
+        </div>
+      }
+    </div>
+  </cdk-virtual-scroll-viewport>
+</div>

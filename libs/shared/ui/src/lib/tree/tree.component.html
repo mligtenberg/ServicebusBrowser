@@ -1,0 +1,60 @@
+<cdk-tree
+  class="sbb-tree"
+  [dataSource]="nodes()"
+  [childrenAccessor]="childrenAccessor"
+  [trackBy]="trackBy"
+>
+  <cdk-nested-tree-node
+    *cdkTreeNodeDef="let node"
+    class="sbb-tree__node"
+    [class.sbb-tree__node--leaf]="isLeaf(node)"
+    [class.sbb-tree__node--selected]="isSelected(node)"
+  >
+    <div
+      class="sbb-tree__row"
+      role="treeitem"
+      tabindex="0"
+      [attr.aria-selected]="isSelected(node)"
+      [attr.aria-expanded]="isLeaf(node) ? null : isExpanded(node)"
+      (click)="onSelect(node)"
+      (keydown)="onRowKeydown(node, $event)"
+    >
+      @if (!isLeaf(node)) {
+        <button
+          type="button"
+          class="sbb-tree__toggle"
+          cdkTreeNodeToggle
+          [attr.aria-label]="isExpanded(node) ? 'Collapse' : 'Expand'"
+          [attr.aria-expanded]="isExpanded(node)"
+          (click)="onToggle(node); $event.stopPropagation()"
+        >
+          <span
+            class="sbb-tree__toggle-icon"
+            [class.sbb-tree__toggle-icon--open]="isExpanded(node)"
+            aria-hidden="true"
+          ></span>
+        </button>
+      } @else {
+        <span class="sbb-tree__toggle sbb-tree__toggle--spacer" aria-hidden="true"></span>
+      }
+
+      <span class="sbb-tree__content">
+        <ng-container
+          [ngTemplateOutlet]="nodeDef().template"
+          [ngTemplateOutletContext]="{
+            $implicit: node,
+            selected: isSelected(node),
+            expanded: isExpanded(node),
+            leaf: isLeaf(node)
+          }"
+        />
+      </span>
+    </div>
+
+    @if (isExpanded(node)) {
+      <div role="group" class="sbb-tree__children">
+        <ng-container cdkTreeNodeOutlet />
+      </div>
+    }
+  </cdk-nested-tree-node>
+</cdk-tree>
