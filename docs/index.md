@@ -25,6 +25,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [ADR-0003: Hard-cancel active receivers on Workspace switch](./adr/0003-hard-cancel-receivers-on-workspace-switch.md)
 - [ADR-0004: Topology Navigator search uses an autosuggest-only chip model](./adr/0004-topology-search-chip-model.md)
 - [ADR-0005: RabbitMQ vhost gets a dedicated topology node type](./adr/0005-vhost-dedicated-node-type.md)
+- [ADR-0006: Replace PrimeNG with @spartan-ng/brain + Angular CDK behind a bespoke UI layer](./adr/0006-replace-primeng-with-spartan-brain-cdk.md)
 
 ## Project Structure
 
