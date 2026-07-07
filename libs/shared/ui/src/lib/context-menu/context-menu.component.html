@@ -1,0 +1,45 @@
+<span
+  class="sbb-context-menu-trigger"
+  [cdkContextMenuTriggerFor]="menu"
+  [cdkContextMenuTriggerData]="{ $implicit: model() }"
+>
+  <ng-content></ng-content>
+</span>
+
+<ng-template #menu let-items>
+  <div cdkMenu class="sbb-context-menu-panel">
+    @for (item of items; track $index) {
+      @if (isSeparator(item)) {
+        <hr class="sbb-context-menu-panel__separator" aria-hidden="true" />
+      } @else if (item.items && item.items.length) {
+        <button
+          type="button"
+          cdkMenuItem
+          [cdkMenuTriggerFor]="menu"
+          [cdkMenuTriggerData]="{ $implicit: item.items }"
+          [cdkMenuItemDisabled]="item.disabled ?? false"
+          class="sbb-context-menu-panel__item"
+        >
+          @if (item.icon) {
+            <i class="sbb-context-menu-panel__icon" [class]="item.icon"></i>
+          }
+          <span class="sbb-context-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-context-menu-panel__caret" aria-hidden="true">›</span>
+        </button>
+      } @else {
+        <button
+          type="button"
+          cdkMenuItem
+          [cdkMenuItemDisabled]="item.disabled ?? false"
+          (cdkMenuItemTriggered)="invoke(item)"
+          class="sbb-context-menu-panel__item"
+        >
+          @if (item.icon) {
+            <i class="sbb-context-menu-panel__icon" [class]="item.icon"></i>
+          }
+          <span class="sbb-context-menu-panel__label">{{ item.label }}</span>
+        </button>
+      }
+    }
+  </div>
+</ng-template>

@@ -1,0 +1,23 @@
+<div class="sbb-dialog">
+  @if (title || closable) {
+    <div class="sbb-dialog__header">
+      <h2 class="sbb-dialog__title">{{ title }}</h2>
+      @if (closable) {
+        <button
+          type="button"
+          class="sbb-dialog__close"
+          aria-label="Close dialog"
+          (click)="close()"
+        >
+          &times;
+        </button>
+      }
+    </div>
+  }
+  <div class="sbb-dialog__body">
+    <ng-template
+      [cdkPortalOutlet]="portal"
+      (attached)="onAttached($event)"
+    ></ng-template>
+  </div>
+</div>

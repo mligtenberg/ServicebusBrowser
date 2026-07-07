@@ -24,3 +24,9 @@ export * from './lib/progress';
 export * from './lib/scroll-panel';
 export * from './lib/splitter';
 export * from './lib/message';
+
+// Batch 3 — overlay-driven services + shared menu model
+export * from './lib/menu';
+export * from './lib/dialog';
+export * from './lib/toast';
+export * from './lib/context-menu';
