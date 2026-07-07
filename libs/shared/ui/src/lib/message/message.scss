@@ -1,0 +1,51 @@
+:host {
+  // Component host is a block wrapper so `sbb-message` behaves like the
+  // block-level `<div>` it replaces (stacks naturally in forms/pages).
+  display: block;
+}
+
+.sbb-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--sbb-radius);
+  font-size: 0.875rem;
+  line-height: 1.4;
+
+  &.sbb-message--info {
+    color: var(--sbb-info);
+    background-color: var(--sbb-info-bg);
+    border-color: var(--sbb-info-border);
+  }
+
+  &.sbb-message--success {
+    color: var(--sbb-success);
+    background-color: var(--sbb-success-bg);
+    border-color: var(--sbb-success-border);
+  }
+
+  &.sbb-message--warn {
+    color: var(--sbb-warning);
+    background-color: var(--sbb-warning-bg);
+    border-color: var(--sbb-warning-border);
+  }
+
+  &.sbb-message--error {
+    color: var(--sbb-danger);
+    background-color: var(--sbb-danger-bg);
+    border-color: var(--sbb-danger-border);
+  }
+}
+
+.sbb-message__icon {
+  flex: none;
+  margin-top: 0.125rem;
+}
+
+.sbb-message__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}

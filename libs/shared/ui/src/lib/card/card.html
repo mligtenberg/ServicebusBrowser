@@ -1,0 +1,10 @@
+<div class="sbb-card">
+  @if (header(); as headerText) {
+    <div class="sbb-card__header">
+      <h3 class="sbb-card__title">{{ headerText }}</h3>
+    </div>
+  }
+  <div class="sbb-card__content">
+    <ng-content></ng-content>
+  </div>
+</div>

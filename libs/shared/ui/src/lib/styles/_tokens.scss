@@ -100,4 +100,28 @@
   // Default corner radius for controls/surfaces.
   // Parity: PrimeUix `border.radius.md` (default, unmodified by the app).
   --sbb-radius: 0.375rem;
+
+  // Contrast color for text/icons placed on a solid --sbb-primary fill.
+  --sbb-on-primary: #ffffff;
+
+  // Semantic status/severity colors (theme-dependent). Each severity provides a
+  // readable foreground (`*`), a subtle surface (`*-bg`), and a matching
+  // `*-border`. Consumed by tags, messages, buttons, etc. Seeded from PrimeUix
+  // Aura's green/sky/amber/red palettes for parity with the old p-tag/p-message
+  // severity colors, with dark-scheme variants for contrast.
+  --sbb-success: light-dark(#15803d, #86efac);
+  --sbb-success-bg: light-dark(#f0fdf4, #14532d);
+  --sbb-success-border: light-dark(#86efac, #15803d);
+
+  --sbb-info: light-dark(#0369a1, #7dd3fc);
+  --sbb-info-bg: light-dark(#f0f9ff, #0c4a6e);
+  --sbb-info-border: light-dark(#7dd3fc, #0369a1);
+
+  --sbb-warning: light-dark(#b45309, #fcd34d);
+  --sbb-warning-bg: light-dark(#fffbeb, #78350f);
+  --sbb-warning-border: light-dark(#fcd34d, #b45309);
+
+  --sbb-danger: light-dark(#b91c1c, #fca5a5);
+  --sbb-danger-bg: light-dark(#fef2f2, #7f1d1d);
+  --sbb-danger-border: light-dark(#fca5a5, #b91c1c);
 }

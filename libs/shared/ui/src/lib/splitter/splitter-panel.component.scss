@@ -1,0 +1,59 @@
+// SbbSplitterPanel — a single resizable pane, sized by the host
+// `BrnResizablePanel` directive (flex-basis driven, see splitter.component.ts).
+// Panels render their own trailing gutter/handle, positioned via `:host`
+// flex layout rather than absolute positioning, so it participates in the
+// splitter's flex flow like PrimeNG's `p-splitter-gutter`.
+
+:host {
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #ffffff);
+  --sbb-focus-ring-local: var(--sbb-focus-ring, #0ea5e9);
+
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:host([data-panel-group-direction='horizontal']) {
+  flex-direction: row;
+}
+
+:host([data-panel-group-direction='vertical']) {
+  flex-direction: column;
+}
+
+.sbb-splitter-panel__handle {
+  flex: 0 0 auto;
+  position: relative;
+  background: var(--sbb-border-local);
+  outline: none;
+  z-index: 1;
+
+  &[data-layout='horizontal'] {
+    width: 1px;
+    cursor: col-resize;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0 -3px;
+    }
+  }
+
+  &[data-layout='vertical'] {
+    height: 1px;
+    cursor: row-resize;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -3px 0;
+    }
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sbb-focus-ring-local);
+  }
+}

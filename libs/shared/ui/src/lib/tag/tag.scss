@@ -1,0 +1,48 @@
+:host {
+  // Inline host so `sbb-tag` behaves like the inline `p-tag` it replaces
+  // (no accidental block layout inside surrounding text/flex headers).
+  display: inline-flex;
+}
+
+.sbb-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-sizing: border-box;
+  border-radius: var(--sbb-radius);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  &.sbb-tag--primary {
+    background-color: var(--sbb-primary);
+    color: var(--sbb-gray-50);
+  }
+
+  &.sbb-tag--secondary {
+    background-color: var(--sbb-gray-200);
+    color: var(--sbb-text);
+  }
+
+  &.sbb-tag--success {
+    background-color: var(--sbb-success-bg);
+    color: var(--sbb-success);
+  }
+
+  &.sbb-tag--info {
+    background-color: var(--sbb-info-bg);
+    color: var(--sbb-info);
+  }
+
+  &.sbb-tag--warning {
+    background-color: var(--sbb-warning-bg);
+    color: var(--sbb-warning);
+  }
+
+  &.sbb-tag--danger {
+    background-color: var(--sbb-danger-bg);
+    color: var(--sbb-danger);
+  }
+}
