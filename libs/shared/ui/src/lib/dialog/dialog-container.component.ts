@@ -1,9 +1,12 @@
 import { DIALOG_DATA } from '@angular/cdk/dialog';
-import { CdkPortalOutlet, ComponentPortal } from '@angular/cdk/portal';
+import {
+  CdkPortalOutlet,
+  CdkPortalOutletAttachedRef,
+  ComponentPortal,
+} from '@angular/cdk/portal';
 import {
   ChangeDetectionStrategy,
   Component,
-  ComponentRef,
   inject,
   Injector,
 } from '@angular/core';
@@ -46,9 +49,13 @@ export class SbbDialogContainer {
     this.portal = new ComponentPortal(this.data.component, null, injector);
   }
 
-  protected onAttached(ref: ComponentRef<unknown>): void {
-    for (const [name, value] of Object.entries(this.data.inputs ?? {})) {
-      ref.setInput(name, value);
+  protected onAttached(ref: CdkPortalOutletAttachedRef): void {
+    // We only ever attach a ComponentPortal, so `ref` is a ComponentRef; the
+    // `'setInput' in ref` guard narrows away the EmbeddedViewRef/null cases.
+    if (ref && 'setInput' in ref) {
+      for (const [name, value] of Object.entries(this.data.inputs ?? {})) {
+        ref.setInput(name, value);
+      }
     }
   }
 

@@ -16,8 +16,8 @@ export interface SbbRadioGroupContract {
 }
 
 export interface SbbRadioFocusable {
-  readonly value: unknown;
-  readonly disabled: boolean;
+  readonly value: Signal<unknown>;
+  readonly disabled: Signal<boolean>;
   focus(): void;
 }
 

@@ -109,7 +109,7 @@ export class SbbRadioGroup implements ControlValueAccessor {
   }
 
   private moveFocus(current: SbbRadioFocusable, step: 1 | -1): void {
-    const enabled = this.focusables.filter((f) => !f.disabled);
+    const enabled = this.focusables.filter((f) => !f.disabled());
     if (enabled.length === 0) {
       return;
     }
@@ -119,6 +119,6 @@ export class SbbRadioGroup implements ControlValueAccessor {
       (startIndex + step + enabled.length) % enabled.length;
     const next = enabled[nextIndex];
     next.focus();
-    this.select(next.value);
+    this.select(next.value());
   }
 }

@@ -82,6 +82,13 @@ export class SbbDataGrid<T = unknown> {
   /** Stable identity for a row. Defaults to referential identity. */
   trackBy = input<(row: T, index: number) => unknown>((row) => row);
 
+  /**
+   * Adapter exposing the public `(row, index)` {@link trackBy} to CDK's
+   * `TrackByFunction<T>` shape `(index, row)`, used by `*cdkVirtualFor`.
+   */
+  protected readonly cdkTrackBy = (index: number, row: T): unknown =>
+    this.trackBy()(row, index);
+
   // ---------------------------------------------------------------------------
   // Two-way / outputs
   // ---------------------------------------------------------------------------
@@ -227,7 +234,7 @@ export class SbbDataGrid<T = unknown> {
   }
 
   /** Keyboard equivalent of a row click (Enter/Space). */
-  protected onRowKeydown(event: KeyboardEvent, row: T, index: number): void {
+  protected onRowKeydown(event: Event, row: T, index: number): void {
     event.preventDefault();
     // Reuse click semantics; ctrl/meta/shift on the KeyboardEvent toggle-select.
     this.onRowClick(event as unknown as MouseEvent, row, index);

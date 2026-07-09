@@ -10,7 +10,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   BrnSelectImports,
 } from '@spartan-ng/brain/select';
-import { BrnPopover, BrnPopoverContent, BrnPopoverTrigger } from '@spartan-ng/brain/popover';
+import { BrnPopover, BrnPopoverContent } from '@spartan-ng/brain/popover';
 import {
   isSbbSelectOptionGroup,
   SbbSelectOption,
@@ -41,7 +41,7 @@ import {
 @Component({
   selector: 'sbb-select',
   standalone: true,
-  imports: [BrnSelectImports, BrnPopover, BrnPopoverTrigger, BrnPopoverContent],
+  imports: [BrnSelectImports, BrnPopover, BrnPopoverContent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './select.html',
   styleUrl: './select.scss',

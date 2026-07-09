@@ -43,7 +43,7 @@ export class SbbDialogService {
     const closable = config.closable ?? true;
     const ref = new SbbDialogRef<R>();
 
-    const cdkRef = this.dialog.open<R, SbbDialogInternalData, SbbDialogContainer>(
+    const cdkRef = this.dialog.open<R, SbbDialogInternalData>(
       SbbDialogContainer,
       {
         disableClose: !closable,
@@ -57,7 +57,9 @@ export class SbbDialogService {
           inputs: config.inputs,
           title: config.title,
           closable,
-          ref,
+          // `SbbDialogInternalData.ref` is non-generic; `SbbDialogRef` is
+          // invariant in its result type, so widen `R` → `unknown` here.
+          ref: ref as SbbDialogRef<unknown>,
         },
       },
     );
