@@ -30,3 +30,7 @@ export * from './lib/menu';
 export * from './lib/dialog';
 export * from './lib/toast';
 export * from './lib/context-menu';
+
+// Batch 4 — form/nav primitives (in progress: select-button, split-button)
+export * from './lib/select-button';
+export * from './lib/split-button';

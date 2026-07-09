@@ -1,0 +1,22 @@
+<div
+  class="sbb-select-button"
+  brnToggleGroup
+  type="single"
+  [nullable]="false"
+  [value]="value()"
+  [disabled]="isDisabled()"
+  (valueChange)="handleValueChange($event)"
+  (focusout)="handleTouched()"
+  [attr.data-size]="size()"
+>
+  @for (option of normalizedOptions(); track option.value) {
+    <button
+      class="sbb-select-button__option"
+      brnToggleGroupItem
+      [value]="option.value"
+      [disabled]="option.disabled ?? false"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
