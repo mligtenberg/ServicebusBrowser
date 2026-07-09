@@ -1,13 +1,13 @@
 import { Component, computed, input } from '@angular/core';
 
-import { ProgressSpinner } from 'primeng/progressspinner';
 import { Task } from '@service-bus-browser/tasks-contracts';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons';
+import { SbbProgressSpinner } from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'sbb-task-list-summary',
-  imports: [ProgressSpinner, FaIconComponent],
+  imports: [SbbProgressSpinner, FaIconComponent],
   templateUrl: './tasks-summary.component.html',
   styleUrl: './tasks-summary.component.scss',
 })

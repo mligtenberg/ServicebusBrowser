@@ -6,7 +6,7 @@
   tabindex=""
   (keydown.enter)="togglePopover(op, $event)"
 />
-<p-popover #op appendTo="body">
+<sbb-popover #op>
   @for(task of tasks(); track task.id) {
     <div class="task">
       <sbb-task-card [task]="task" (cancelTask)="cancelTask(task)"/>
@@ -17,4 +17,4 @@
       <span>No running tasks</span>
     </div>
   }
-</p-popover>
+</sbb-popover>

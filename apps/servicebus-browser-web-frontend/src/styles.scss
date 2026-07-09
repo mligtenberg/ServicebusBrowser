@@ -1,4 +1,10 @@
 @use "primeicons/primeicons.css" as *;
+// CDK/brain overlays (sbb-popover, sbb-select, sbb-dialog, …) attach to the
+// global CDK overlay container — this positions/backdrops them.
+@use "@angular/cdk/overlay-prebuilt.css" as *;
+// shared-ui design tokens (`--sbb-*`). Without this, Sbb components fall back
+// to their built-in local color fallbacks instead of the token system.
+@use "../../../libs/shared/ui/src/lib/styles/index" as *;
 
 head, body {
   font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
