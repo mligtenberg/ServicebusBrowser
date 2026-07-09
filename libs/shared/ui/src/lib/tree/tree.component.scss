@@ -50,6 +50,15 @@
   }
 }
 
+// Non-selectable rows are still expandable but do not read as clickable.
+.sbb-tree__row--unselectable {
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
 .sbb-tree__node--selected > .sbb-tree__row {
   background: color-mix(in srgb, var(--sbb-primary-local) 16%, transparent);
 }

@@ -13,4 +13,11 @@ export interface SbbTreeNode {
   id: string;
   /** Child nodes. Absent or empty means the node is a leaf. */
   children?: this[];
+  /**
+   * Whether this node may be selected. Defaults to `true` when omitted.
+   * A non-selectable node is still rendered and can still be expanded, but
+   * clicking its row never changes the selection, and it is skipped by
+   * shift-range selection.
+   */
+  selectable?: boolean;
 }

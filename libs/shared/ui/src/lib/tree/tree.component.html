@@ -2,7 +2,7 @@
   class="sbb-tree"
   [dataSource]="nodes()"
   [childrenAccessor]="childrenAccessor"
-  [trackBy]="trackBy"
+  [attr.aria-multiselectable]="multiselectable() ? true : null"
 >
   <cdk-nested-tree-node
     *cdkTreeNodeDef="let node"
@@ -14,9 +14,10 @@
       class="sbb-tree__row"
       role="treeitem"
       tabindex="0"
-      [attr.aria-selected]="isSelected(node)"
+      [class.sbb-tree__row--unselectable]="!isSelectable(node)"
+      [attr.aria-selected]="isSelectable(node) ? isSelected(node) : null"
       [attr.aria-expanded]="isLeaf(node) ? null : isExpanded(node)"
-      (click)="onSelect(node)"
+      (click)="onRowClick(node, $event)"
       (keydown)="onRowKeydown(node, $event)"
     >
       @if (!isLeaf(node)) {
