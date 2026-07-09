@@ -1,0 +1,13 @@
+<input
+  class="sbb-date-picker__input"
+  [type]="inputType()"
+  [value]="displayValue()"
+  [disabled]="isDisabled()"
+  [readonly]="readonly()"
+  [required]="required()"
+  [attr.min]="minString() || null"
+  [attr.max]="maxString() || null"
+  [attr.placeholder]="placeholder() || null"
+  (input)="handleInput($event)"
+  (blur)="handleBlur()"
+/>

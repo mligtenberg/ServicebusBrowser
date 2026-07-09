@@ -1,0 +1,30 @@
+.sbb-date-picker-host {
+  display: inline-block;
+}
+
+.sbb-date-picker__input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  font: inherit;
+  color: var(--sbb-text);
+  background-color: var(--sbb-surface-raised);
+  border: 1px solid var(--sbb-border);
+  border-radius: var(--sbb-radius);
+  color-scheme: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring);
+    outline-offset: -1px;
+    border-color: var(--sbb-primary);
+  }
+
+  &:disabled {
+    color: var(--sbb-text-muted);
+    cursor: default;
+  }
+
+  &::placeholder {
+    color: var(--sbb-text-muted);
+  }
+}

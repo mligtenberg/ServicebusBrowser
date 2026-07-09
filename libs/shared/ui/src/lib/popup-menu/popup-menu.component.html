@@ -1,0 +1,37 @@
+<ng-template #panel let-items>
+  <div cdkMenu class="sbb-menu-panel">
+    @for (item of items; track $index) {
+      @if (isSeparator(item)) {
+        <hr class="sbb-menu-panel__separator" aria-hidden="true" />
+      } @else if (item.items && item.items.length) {
+        <button
+          type="button"
+          cdkMenuItem
+          [cdkMenuTriggerFor]="panel"
+          [cdkMenuTriggerData]="{ $implicit: item.items }"
+          [cdkMenuItemDisabled]="item.disabled ?? false"
+          class="sbb-menu-panel__item"
+        >
+          @if (item.icon) {
+            <i class="sbb-menu-panel__icon" [class]="item.icon"></i>
+          }
+          <span class="sbb-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-menu-panel__caret" aria-hidden="true">›</span>
+        </button>
+      } @else {
+        <button
+          type="button"
+          cdkMenuItem
+          [cdkMenuItemDisabled]="item.disabled ?? false"
+          (cdkMenuItemTriggered)="invoke(item)"
+          class="sbb-menu-panel__item"
+        >
+          @if (item.icon) {
+            <i class="sbb-menu-panel__icon" [class]="item.icon"></i>
+          }
+          <span class="sbb-menu-panel__label">{{ item.label }}</span>
+        </button>
+      }
+    }
+  </div>
+</ng-template>

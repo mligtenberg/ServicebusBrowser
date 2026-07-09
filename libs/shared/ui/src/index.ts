@@ -31,6 +31,10 @@ export * from './lib/dialog';
 export * from './lib/toast';
 export * from './lib/context-menu';
 
-// Batch 4 — form/nav primitives (in progress: select-button, split-button)
+// Batch 4 — form/nav primitives
 export * from './lib/select-button';
 export * from './lib/split-button';
+export * from './lib/autocomplete';
+export * from './lib/date-picker';
+export * from './lib/popup-menu';
+export * from './lib/menubar';

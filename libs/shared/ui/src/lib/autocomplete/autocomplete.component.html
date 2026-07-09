@@ -1,0 +1,79 @@
+<input
+  class="sbb-autocomplete__input"
+  type="text"
+  role="combobox"
+  aria-autocomplete="list"
+  [attr.aria-controls]="listboxId"
+  [attr.aria-expanded]="isOpen()"
+  [value]="query()"
+  [placeholder]="placeholder()"
+  [disabled]="isDisabled()"
+  (input)="onInput($event)"
+  (focus)="onFocus()"
+  (blur)="onBlur()"
+  (keydown)="onKeydown($event)"
+/>
+
+<ng-template #panel>
+  <div class="sbb-autocomplete-panel" role="listbox" [id]="listboxId">
+    @if (groups(); as gs) {
+      @for (group of gs; track group.label) {
+        <div class="sbb-autocomplete-panel__group">
+          <div class="sbb-autocomplete-panel__group-label">
+            @if (groupLabelDef(); as def) {
+              <ng-container
+                [ngTemplateOutlet]="def.template"
+                [ngTemplateOutletContext]="{ $implicit: group }"
+              />
+            } @else {
+              {{ group.label }}
+            }
+          </div>
+          @for (item of group.items; track $index) {
+            <button
+              type="button"
+              role="option"
+              class="sbb-autocomplete-panel__option"
+              [class.sbb-autocomplete-panel__option--active]="isActive(item)"
+              [attr.aria-selected]="isActive(item)"
+              (mousedown)="$event.preventDefault()"
+              (click)="selectItem(item)"
+              (mouseenter)="setActive(item)"
+            >
+              @if (itemDef(); as def) {
+                <ng-container
+                  [ngTemplateOutlet]="def.template"
+                  [ngTemplateOutletContext]="{ $implicit: item }"
+                />
+              } @else {
+                {{ display(item) }}
+              }
+            </button>
+          }
+        </div>
+      }
+    } @else {
+      @for (item of suggestions(); track $index) {
+        <button
+          type="button"
+          role="option"
+          class="sbb-autocomplete-panel__option"
+          [class.sbb-autocomplete-panel__option--active]="isActive(item)"
+          [attr.aria-selected]="isActive(item)"
+          (mousedown)="$event.preventDefault()"
+          (click)="selectItem(item)"
+          (mouseenter)="setActive(item)"
+        >
+          @if (itemDef(); as def) {
+            <ng-container
+              [ngTemplateOutlet]="def.template"
+              [ngTemplateOutletContext]="{ $implicit: item }"
+            />
+          } @else {
+            {{ display(item) }}
+          }
+        </button>
+      }
+    }
+  </div>
+</ng-template>
