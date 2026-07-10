@@ -8,14 +8,17 @@ import {
   signal,
 } from '@angular/core';
 
-import { InputGroup } from 'primeng/inputgroup';
-import { Dialog } from 'primeng/dialog';
-import { InputText } from 'primeng/inputtext';
-import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
-import { ScrollPanel } from 'primeng/scrollpanel';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputGroupAddon,
+  SbbScrollPanel,
+} from '@service-bus-browser/shared-ui';
+import { faSearch, faXmark } from '@fortawesome/free-solid-svg-icons';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -27,12 +30,12 @@ import { EndpointSelectorTreeInputComponent } from '../endpoint-selector-tree-in
 @Component({
   selector: 'sbb-tpl-endpoint-selector-input',
   imports: [
-    InputGroup,
-    Dialog,
-    InputText,
-    Button,
-    ScrollPanel,
-    InputGroupAddon,
+    SbbInputGroup,
+    SbbInputGroupAddon,
+    SbbInput,
+    SbbButton,
+    SbbDialog,
+    SbbScrollPanel,
     EndpointSelectorTreeInputComponent,
     FormsModule,
   ],
@@ -56,6 +59,9 @@ export class EndpointSelectorInputComponent implements ControlValueAccessor {
   value = model<SendEndpoint | null>(null);
 
   connectionsFilter = input<string[]>();
+
+  protected readonly clearIcon = faXmark;
+  protected readonly searchIcon = faSearch;
 
   constructor() {
     effect(() => {
