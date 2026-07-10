@@ -8,11 +8,11 @@
       {{ activeInitials() }}
     </span>
     <span class="ws-name">{{ ws.name }}</span>
-    <span class="pi pi-chevron-down ws-chevron"></span>
+    <fa-icon class="ws-chevron" [icon]="chevronIcon" aria-hidden="true"></fa-icon>
   }
 </button>
 
-<p-popover #op styleClass="ws-popover">
+<sbb-popover #op>
   <div class="ws-dropdown">
     <div class="ws-section-label">Active</div>
     @if (activeWorkspace(); as ws) {
@@ -37,30 +37,20 @@
       }
     }
   </div>
-</p-popover>
+</sbb-popover>
 
-<p-dialog
+<sbb-dialog
   header="Switch Workspace"
-  [visible]="showConfirmDialog()"
-  (visibleChange)="!$event && cancelSwitch()"
-  [modal]="true"
-  [style]="{ width: '420px' }"
-  [draggable]="false"
+  [open]="showConfirmDialog()"
+  (openChange)="onConfirmDialogOpenChange($event)"
+  [width]="'420px'"
 >
   <p class="confirm-text">
     One or more message loads are currently in progress. Switching workspaces
     will cancel all active loads. Do you want to continue?
   </p>
-  <ng-template #footer>
-    <p-button
-      label="Cancel"
-      severity="secondary"
-      (click)="cancelSwitch()"
-    />
-    <p-button
-      label="Continue"
-      severity="danger"
-      (click)="confirmSwitch()"
-    />
-  </ng-template>
-</p-dialog>
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelSwitch()">Cancel</sbb-button>
+    <sbb-button severity="danger" (click)="confirmSwitch()">Continue</sbb-button>
+  </div>
+</sbb-dialog>

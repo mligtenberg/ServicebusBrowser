@@ -3,15 +3,24 @@ import {
   computed,
   inject,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Popover } from 'primeng/popover';
-import { Dialog } from 'primeng/dialog';
-import { Button } from 'primeng/button';
-import { InputText } from 'primeng/inputtext';
-import { Tooltip } from 'primeng/tooltip';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import {
+  faChevronDown,
+  faPencil,
+  faPlus,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbInput,
+  SbbPopover,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
@@ -39,16 +48,30 @@ function workspaceInitials(name: string): string {
 @Component({
   selector: 'app-workspace-switcher',
   standalone: true,
-  imports: [NgStyle, FormsModule, Popover, Dialog, Button, InputText, Tooltip],
+  imports: [
+    NgStyle,
+    FormsModule,
+    FaIconComponent,
+    SbbPopover,
+    SbbDialog,
+    SbbButton,
+    SbbInput,
+    SbbTooltip,
+  ],
   templateUrl: './workspace-switcher.html',
   styleUrl: './workspace-switcher.scss',
 })
 export class WorkspaceSwitcherComponent {
-  @ViewChild('op') popover!: Popover;
+  private readonly popover = viewChild.required<SbbPopover>('op');
 
   private readonly store = inject(Store);
   workspaceService = inject(WorkspaceService);
   switchService = inject(WorkspaceSwitchService);
+
+  protected readonly chevronIcon = faChevronDown;
+  protected readonly plusIcon = faPlus;
+  protected readonly pencilIcon = faPencil;
+  protected readonly trashIcon = faTrash;
 
   activeWorkspace = this.workspaceService.activeWorkspace;
   availableWorkspaces = this.workspaceService.availableWorkspaces;
@@ -99,11 +122,11 @@ export class WorkspaceSwitcherComponent {
   }
 
   togglePopover(event: Event): void {
-    this.popover.toggle(event);
+    this.popover().toggle(event.currentTarget as HTMLElement);
   }
 
   openCreateDialog(): void {
-    this.popover.hide();
+    this.popover().close();
     this.newWorkspaceName.set('');
     this.showCreateDialog.set(true);
   }
@@ -125,12 +148,18 @@ export class WorkspaceSwitcherComponent {
   }
 
   selectWorkspace(ws: Workspace): void {
-    this.popover.hide();
+    this.popover().close();
     if (this.hasActiveTasks()) {
       this.pendingWorkspace.set(ws);
       this.showConfirmDialog.set(true);
     } else {
       this.switchService.switchTo(ws);
+    }
+  }
+
+  onConfirmDialogOpenChange(open: boolean): void {
+    if (!open) {
+      this.cancelSwitch();
     }
   }
 
@@ -150,10 +179,16 @@ export class WorkspaceSwitcherComponent {
   openRenameDialog(): void {
     const ws = this.activeWorkspace();
     if (!ws) return;
-    this.popover.hide();
+    this.popover().close();
     this.renameTarget.set(ws);
     this.renameWorkspaceName.set(ws.name);
     this.showRenameDialog.set(true);
+  }
+
+  onRenameDialogOpenChange(open: boolean): void {
+    if (!open) {
+      this.cancelRename();
+    }
   }
 
   async submitRename(): Promise<void> {
@@ -175,7 +210,7 @@ export class WorkspaceSwitcherComponent {
   }
 
   async openDeleteDialog(ws: Workspace): Promise<void> {
-    this.popover.hide();
+    this.popover().close();
     this.deleteTarget.set(ws);
     this.deleteStats.set(null);
     this.showDeleteDialog.set(true);
@@ -184,6 +219,12 @@ export class WorkspaceSwitcherComponent {
       countPagesByWorkspace(ws.id),
     ]);
     this.deleteStats.set({ connectionCount, pageCount });
+  }
+
+  onDeleteDialogOpenChange(open: boolean): void {
+    if (!open) {
+      this.cancelDelete();
+    }
   }
 
   async confirmDelete(): Promise<void> {

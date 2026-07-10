@@ -3,12 +3,12 @@ import {
   computed,
   inject,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { Popover } from 'primeng/popover';
-import { Dialog } from 'primeng/dialog';
-import { Button } from 'primeng/button';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { SbbButton, SbbDialog, SbbPopover } from '@service-bus-browser/shared-ui';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
@@ -35,16 +35,18 @@ function workspaceInitials(name: string): string {
 @Component({
   selector: 'app-workspace-switcher',
   standalone: true,
-  imports: [NgStyle, Popover, Dialog, Button],
+  imports: [NgStyle, FaIconComponent, SbbPopover, SbbDialog, SbbButton],
   templateUrl: './workspace-switcher.html',
   styleUrl: './workspace-switcher.scss',
 })
 export class WorkspaceSwitcherComponent {
-  @ViewChild('op') popover!: Popover;
+  private readonly popover = viewChild.required<SbbPopover>('op');
 
   private readonly store = inject(Store);
   workspaceService = inject(WorkspaceService);
   switchService = inject(WorkspaceSwitchService);
+
+  protected readonly chevronIcon = faChevronDown;
 
   activeWorkspace = this.workspaceService.activeWorkspace;
   availableWorkspaces = this.workspaceService.availableWorkspaces;
@@ -81,16 +83,22 @@ export class WorkspaceSwitcherComponent {
   }
 
   togglePopover(event: Event): void {
-    this.popover.toggle(event);
+    this.popover().toggle(event.currentTarget as HTMLElement);
   }
 
   selectWorkspace(ws: Workspace): void {
-    this.popover.hide();
+    this.popover().close();
     if (this.hasActiveTasks()) {
       this.pendingWorkspace.set(ws);
       this.showConfirmDialog.set(true);
     } else {
       this.switchService.switchTo(ws);
+    }
+  }
+
+  onConfirmDialogOpenChange(open: boolean): void {
+    if (!open) {
+      this.cancelSwitch();
     }
   }
 
