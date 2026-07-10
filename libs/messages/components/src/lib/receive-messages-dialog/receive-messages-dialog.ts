@@ -6,31 +6,36 @@ import {
   model,
   signal,
 } from '@angular/core';
-import { Dialog } from 'primeng/dialog';
-import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
-import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { ReceiveEndpoint, ReceiveOptions } from '@service-bus-browser/api-contracts';
-import { InputText } from 'primeng/inputtext';
 import { NgTemplateOutlet } from '@angular/common';
-import { Select } from 'primeng/select';
-import { SelectButton } from 'primeng/selectbutton';
 import { messagesActions } from '@service-bus-browser/messages-store';
-import { Message } from 'primeng/message';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbFloatLabel,
+  SbbInput,
+  SbbInputNumber,
+  SbbMessage,
+  SbbSelect,
+  SbbSelectButton,
+  SbbSelectOption,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-receive-messages-dialog',
   imports: [
-    Dialog,
-    FloatLabel,
+    SbbDialog,
+    SbbFloatLabel,
     FormsModule,
-    Button,
-    InputText,
+    SbbButton,
+    SbbInput,
+    SbbInputNumber,
     NgTemplateOutlet,
-    Select,
-    SelectButton,
-    Message,
+    SbbSelect,
+    SbbSelectButton,
+    SbbMessage,
   ],
   templateUrl: './receive-messages-dialog.html',
   styleUrl: './receive-messages-dialog.scss',
@@ -123,7 +128,10 @@ export class ReceiveMessagesDialog {
     this.receiveEndpoint.set(undefined);
   }
 
-  protected updateOptions(fieldName: string, value: string) {
+  protected updateOptions(
+    fieldName: string,
+    value: string | number | undefined,
+  ) {
     this.options.update((options) => ({
       ...options,
       [fieldName]: value,
@@ -133,5 +141,19 @@ export class ReceiveMessagesDialog {
   protected cancelLoadMessages() {
     this.options.set(this.defaultOptions);
     this.receiveEndpoint.set(undefined);
+  }
+
+  /** Maps a plain string enum (`ReceiveOptionType` of type `'enum'`) to `SbbSelect` options. */
+  protected enumSelectOptions(values: string[]): SbbSelectOption<string>[] {
+    return values.map((value) => ({ label: value, value }));
+  }
+
+  /** Coerces a stored option value (`string | number | undefined`) to `SbbInputNumber`'s `number | null`. */
+  protected toNumberValue(value: string | number | undefined): number | null {
+    if (value === undefined || value === '') {
+      return null;
+    }
+
+    return typeof value === 'number' ? value : Number(value);
   }
 }

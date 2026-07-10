@@ -7,24 +7,18 @@
   margin: 1rem 0;
   min-width: 20rem;
 
-  ::ng-deep p-select-button {
+  sbb-select-button {
     display: flex;
-    > * {
+
+    ::ng-deep .sbb-select-button {
+      display: flex;
+      flex: 1;
+    }
+
+    ::ng-deep .sbb-select-button__option {
       flex: 1;
     }
   }
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-p-floatlabel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
 
 .original-line-breaks {
