@@ -1,37 +1,25 @@
 <section class="connection-type">
-  <label for="connectionType" class="heading">Connection type</label>
-  <div class="connection-type-option full-width" id="connectionType">
-    <p-radiobutton
-      name="connectionType"
-      value="connectionString"
-      inputId="connectionStringConnection"
-      [(ngModel)]="connectionType"
-    ></p-radiobutton>
-    <label for="connectionStringConnection">Connection String</label>
-  </div>
-  <div class="connection-type-option full-width">
-    <p-radiobutton
-      name="connectionType"
-      value="azureAD"
-      inputId="azureADConnection"
-      [(ngModel)]="connectionType"
-    ></p-radiobutton>
-    <label for="azureADConnection">Azure AD</label>
-  </div>
+  <span class="heading">Connection type</span>
+  <sbb-radio-group class="full-width" [(ngModel)]="connectionType">
+    <div class="connection-type-option full-width">
+      <sbb-radio [value]="'connectionString'">Connection String</sbb-radio>
+    </div>
+    <div class="connection-type-option full-width">
+      <sbb-radio [value]="'azureAD'">Azure AD</sbb-radio>
+    </div>
+  </sbb-radio-group>
 </section>
 
 @if (connectionType() === 'connectionString') {
   <section class="connection-string">
     <div class="input-field">
-      <p-floatlabel variant="on">
-        <input
-          id="connectionString"
+      <sbb-float-label label="Connection String" for="connectionString">
+        <sbb-input
+          inputId="connectionString"
           class="full-width"
-          pInputText
           [(ngModel)]="connectionString"
         />
-        <label for="connectionString">Connection String</label>
-      </p-floatlabel>
+      </sbb-float-label>
     </div>
   </section>
 }
@@ -39,156 +27,118 @@
 @if (connectionType() === 'azureAD') {
   <section class="azure-ad">
     <div class="input-field">
-      <p-floatlabel variant="on">
-        <input
-          id="fullyQualifiedNamespace"
+      <sbb-float-label
+        label="Fully Qualified Namespace"
+        for="fullyQualifiedNamespace"
+      >
+        <sbb-input
+          inputId="fullyQualifiedNamespace"
           class="full-width"
-          pInputText
           [(ngModel)]="fullyQualifiedNamespace"
         />
-        <label for="fullyQualifiedNamespace">Fully Qualified Namespace</label>
-      </p-floatlabel>
+      </sbb-float-label>
     </div>
 
     <div class="auth-method-section">
-      <label for="authMethod" class="heading">Authentication Method</label>
-      <div class="auth-method-option full-width">
-        <p-radiobutton
-          name="authMethod"
-          value="integratedAuth"
-          inputId="integratedAuth"
-          [(ngModel)]="authMethod"
-        ></p-radiobutton>
-        <label for="integratedAuth">Integrated Authentication</label>
-      </div>
-      <div class="auth-method-option full-width">
-        <p-radiobutton
-          name="authMethod"
-          value="azureCli"
-          inputId="azureCliAuth"
-          [(ngModel)]="authMethod"
-        ></p-radiobutton>
-        <label for="azureCliAuth">Azure CLI</label>
-      </div>
-      <div class="auth-method-option full-width">
-        <p-radiobutton
-          name="authMethod"
-          value="ServicePrincipalClientSecret"
-          inputId="servicePrincipalAuth"
-          [(ngModel)]="authMethod"
-        ></p-radiobutton>
-        <label for="servicePrincipalAuth">Service Principal</label>
-      </div>
-      <div class="auth-method-option full-width">
-        <p-radiobutton
-          name="authMethod"
-          value="systemAssignedManagedIdentity"
-          inputId="systemAssignedManagedIdentityAuth"
-          [(ngModel)]="authMethod"
-        ></p-radiobutton>
-        <label for="systemAssignedManagedIdentityAuth"
-          >System Assigned Managed Identity</label
-        >
-      </div>
-      <div class="auth-method-option full-width">
-        <p-radiobutton
-          name="authMethod"
-          value="userAssignedManagedIdentity"
-          inputId="userAssignedManagedIdentityAuth"
-          [(ngModel)]="authMethod"
-        ></p-radiobutton>
-        <label for="userAssignedManagedIdentityAuth"
-          >User Assigned Managed Identity</label
-        >
-      </div>
+      <span class="heading">Authentication Method</span>
+      <sbb-radio-group class="full-width" [(ngModel)]="authMethod">
+        <div class="auth-method-option full-width">
+          <sbb-radio [value]="'integratedAuth'">Integrated Authentication</sbb-radio>
+        </div>
+        <div class="auth-method-option full-width">
+          <sbb-radio [value]="'azureCli'">Azure CLI</sbb-radio>
+        </div>
+        <div class="auth-method-option full-width">
+          <sbb-radio [value]="'ServicePrincipalClientSecret'"
+            >Service Principal</sbb-radio
+          >
+        </div>
+        <div class="auth-method-option full-width">
+          <sbb-radio [value]="'systemAssignedManagedIdentity'"
+            >System Assigned Managed Identity</sbb-radio
+          >
+        </div>
+        <div class="auth-method-option full-width">
+          <sbb-radio [value]="'userAssignedManagedIdentity'"
+            >User Assigned Managed Identity</sbb-radio
+          >
+        </div>
+      </sbb-radio-group>
     </div>
 
     @if (authMethod() === 'ServicePrincipalClientSecret') {
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="clientId"
+        <sbb-float-label label="Client ID" for="clientId">
+          <sbb-input
+            inputId="clientId"
             class="full-width"
-            pInputText
             [(ngModel)]="clientId"
           />
-          <label for="clientId">Client ID</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="clientSecret"
+        <sbb-float-label label="Client Secret" for="clientSecret">
+          <sbb-input
+            inputId="clientSecret"
             class="full-width"
-            pInputText
             [(ngModel)]="clientSecret"
           />
-          <label for="clientSecret">Client Secret</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="tenantId"
+        <sbb-float-label label="Tenant ID" for="tenantId">
+          <sbb-input
+            inputId="tenantId"
             class="full-width"
-            pInputText
             [(ngModel)]="tenantId"
           />
-          <label for="tenantId">Tenant ID</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="authority"
+        <sbb-float-label label="Authority" for="authority">
+          <sbb-input
+            inputId="authority"
             class="full-width"
-            pInputText
             [(ngModel)]="authority"
           />
-          <label for="authority">Authority</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
     }
 
     @if (authMethod() === 'userAssignedManagedIdentity') {
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="clientId"
+        <sbb-float-label label="Client ID" for="clientId">
+          <sbb-input
+            inputId="clientId"
             class="full-width"
-            pInputText
             [(ngModel)]="clientId"
           />
-          <label for="clientId">Client ID</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
     }
 
     @if (authMethod() === 'integratedAuth') {
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="email"
-            class="full-width"
+        <sbb-float-label label="Email" for="email">
+          <sbb-input
+            inputId="email"
             type="email"
-            pInputText
+            class="full-width"
             [(ngModel)]="email"
           />
-          <label for="email">Email</label>
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
       <div class="input-field">
-        <p-floatlabel variant="on">
-          <input
-            id="integratedTenantId"
+        <sbb-float-label
+          label="Tenant ID (required for guest accounts)"
+          for="integratedTenantId"
+        >
+          <sbb-input
+            inputId="integratedTenantId"
             class="full-width"
-            pInputText
             [(ngModel)]="integratedTenantId"
           />
-          <label for="integratedTenantId"
-            >Tenant ID (required for guest accounts)</label
-          >
-        </p-floatlabel>
+        </sbb-float-label>
       </div>
     }
   </section>

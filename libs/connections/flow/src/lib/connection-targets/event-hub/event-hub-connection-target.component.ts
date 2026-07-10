@@ -1,17 +1,27 @@
 import { Component, computed, effect, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RadioButton } from 'primeng/radiobutton';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import {
   Connection,
   EventHubConnection,
 } from '@service-bus-browser/api-contracts';
+import {
+  SbbFloatLabel,
+  SbbInput,
+  SbbRadio,
+  SbbRadioGroup,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-event-hub-connection-target',
-  imports: [CommonModule, RadioButton, FloatLabel, InputText, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SbbFloatLabel,
+    SbbInput,
+    SbbRadio,
+    SbbRadioGroup,
+  ],
   templateUrl: './event-hub-connection-target.component.html',
   styleUrl: './event-hub-connection-target.component.scss',
 })

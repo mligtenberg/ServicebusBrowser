@@ -3,27 +3,23 @@
   <div role="form">
     <section class="connection-target">
       <label for="connectionTarget" class="heading">Connection target</label>
-      <p-select
+      <sbb-select
         inputId="connectionTarget"
         class="full-width"
         [options]="connectionTargets"
-        optionLabel="label"
-        optionValue="value"
         placeholder="Select target"
         [(ngModel)]="connectionTarget"
       />
     </section>
 
     <section class="name">
-      <p-floatlabel variant="on">
-        <input
-          id="connectionName"
+      <sbb-float-label label="Connection Name" for="connectionName">
+        <sbb-input
+          inputId="connectionName"
           class="full-width"
-          pInputText
           [(ngModel)]="connectionName"
         />
-        <label for="connectionName">Connection Name</label>
-      </p-floatlabel>
+      </sbb-float-label>
     </section>
 
     @if (connectionTarget() === 'serviceBus') {
@@ -78,25 +74,23 @@
     }
 
     <section class="actions">
-      <button pButton severity="secondary" type="button">Cancel</button>
-      <button
-        pButton
+      <sbb-button severity="secondary" type="button">Cancel</sbb-button>
+      <sbb-button
         severity="primary"
         type="button"
         [disabled]="!canTest()"
         (click)="testConnection()"
       >
         Test
-      </button>
-      <button
-        pButton
+      </sbb-button>
+      <sbb-button
         severity="primary"
         type="button"
         [disabled]="(connectionTestStatus$ | async) !== 'success'"
         (click)="save()"
       >
         Save
-      </button>
+      </sbb-button>
     </section>
   </div>
 </main>

@@ -1,71 +1,49 @@
 <section class="rabbitmq">
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqHost"
-        class="full-width"
-        pInputText
-        [(ngModel)]="host"
-      />
-      <label for="rabbitMqHost">Host</label>
-    </p-floatlabel>
+    <sbb-float-label label="Host" for="rabbitMqHost">
+      <sbb-input inputId="rabbitMqHost" class="full-width" [(ngModel)]="host" />
+    </sbb-float-label>
   </div>
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqManagementPort"
-        type="number"
+    <sbb-float-label label="Management port" for="rabbitMqManagementPort">
+      <sbb-input-number
+        inputId="rabbitMqManagementPort"
         class="full-width"
-        pInputText
         [(ngModel)]="managementPort"
       />
-      <label for="rabbitMqManagementPort">Management port</label>
-    </p-floatlabel>
+    </sbb-float-label>
   </div>
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqAmqpPort"
-        type="number"
+    <sbb-float-label label="AMQP port" for="rabbitMqAmqpPort">
+      <sbb-input-number
+        inputId="rabbitMqAmqpPort"
         class="full-width"
-        pInputText
         [(ngModel)]="amqpPort"
       />
-      <label for="rabbitMqAmqpPort">AMQP port</label>
-    </p-floatlabel>
+    </sbb-float-label>
   </div>
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqVHost"
-        class="full-width"
-        pInputText
-        [(ngModel)]="vhost"
-      />
-      <label for="rabbitMqVHost">VHost</label>
-    </p-floatlabel>
+    <sbb-float-label label="VHost" for="rabbitMqVHost">
+      <sbb-input inputId="rabbitMqVHost" class="full-width" [(ngModel)]="vhost" />
+    </sbb-float-label>
   </div>
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqUserName"
+    <sbb-float-label label="Username" for="rabbitMqUserName">
+      <sbb-input
+        inputId="rabbitMqUserName"
         class="full-width"
-        pInputText
         [(ngModel)]="userName"
       />
-      <label for="rabbitMqUserName">Username</label>
-    </p-floatlabel>
+    </sbb-float-label>
   </div>
   <div class="input-field">
-    <p-floatlabel variant="on">
-      <input
-        id="rabbitMqPassword"
+    <sbb-float-label label="Password" for="rabbitMqPassword">
+      <sbb-input
+        inputId="rabbitMqPassword"
         type="password"
         class="full-width"
-        pInputText
         [(ngModel)]="password"
       />
-      <label for="rabbitMqPassword">Password</label>
-    </p-floatlabel>
+    </sbb-float-label>
   </div>
 </section>

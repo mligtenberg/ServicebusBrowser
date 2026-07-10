@@ -1,14 +1,17 @@
 import { Component, computed, effect, model } from '@angular/core';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Connection } from '@service-bus-browser/api-contracts';
+import {
+  SbbFloatLabel,
+  SbbInput,
+  SbbInputNumber,
+} from '@service-bus-browser/shared-ui';
 
 type RabbitMqConnection = Extract<Connection, { target: 'rabbitmq' }>;
 
 @Component({
   selector: 'lib-rabbitmq-connection-target',
-  imports: [FloatLabel, InputText, FormsModule],
+  imports: [FormsModule, SbbFloatLabel, SbbInput, SbbInputNumber],
   templateUrl: './rabbitmq-connection-target.component.html',
   styleUrl: './rabbitmq-connection-target.component.scss',
 })
