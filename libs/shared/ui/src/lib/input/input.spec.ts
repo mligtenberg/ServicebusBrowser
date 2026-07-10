@@ -63,6 +63,17 @@ describe('SbbInput', () => {
     expect(nativeInput().getAttribute('aria-invalid')).toBeNull();
   });
 
+  it('should forward inputId as the native input id when set', () => {
+    fixture.componentRef.setInput('inputId', 'connectionName');
+    fixture.detectChanges();
+    expect(nativeInput().getAttribute('id')).toBe('connectionName');
+  });
+
+  it('should not set an id on the native input when inputId is unset', () => {
+    fixture.detectChanges();
+    expect(nativeInput().getAttribute('id')).toBeNull();
+  });
+
   it('writeValue should reflect the value onto the native input', () => {
     component.writeValue('hello');
     fixture.detectChanges();

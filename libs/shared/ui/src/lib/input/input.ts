@@ -54,6 +54,13 @@ export class SbbInput implements ControlValueAccessor {
   /** Applies error/invalid styling (parity with PrimeNG's `p-invalid`). */
   readonly invalid = input<boolean>(false);
 
+  /**
+   * `id` forwarded onto the native `<input>`, so an external
+   * `<sbb-float-label for="x">` (or any plain `<label for>`) can associate
+   * its label with the control.
+   */
+  readonly inputId = input<string | undefined>(undefined);
+
   /** Current value, reflected into the native input. */
   protected readonly value = signal('');
 

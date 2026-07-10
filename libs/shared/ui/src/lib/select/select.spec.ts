@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { SbbSelect } from './select';
 import { SbbSelectOption, SbbSelectOptionGroup } from './select.models';
 
@@ -118,5 +119,25 @@ describe('SbbSelect', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
     expect(component['disabled']()).toBe(true);
+  });
+
+  function triggerButton(): HTMLButtonElement {
+    return fixture.debugElement.query(By.css('.sbb-select-trigger'))
+      .nativeElement;
+  }
+
+  it('should forward inputId as the trigger button id when set', () => {
+    setOptions(options);
+    fixture.componentRef.setInput('inputId', 'connectionTarget');
+    fixture.detectChanges();
+    expect(triggerButton().getAttribute('id')).toBe('connectionTarget');
+  });
+
+  it('should fall back to a generated id on the trigger button when inputId is unset', () => {
+    setOptions(options);
+    fixture.detectChanges();
+    expect(triggerButton().getAttribute('id')).toBe(
+      component['generatedTriggerId'],
+    );
   });
 });

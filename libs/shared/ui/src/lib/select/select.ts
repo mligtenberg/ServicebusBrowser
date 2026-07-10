@@ -18,6 +18,8 @@ import {
   SbbSelectOptions,
 } from './select.models';
 
+let nextSelectId = 0;
+
 /**
  * `SbbSelect` — a styled, `ControlValueAccessor`-compliant single-select
  * dropdown.
@@ -65,6 +67,20 @@ export class SbbSelect<T> implements ControlValueAccessor {
 
   /** Shows a text filter above the option list. */
   readonly searchable = input<boolean>(false);
+
+  /**
+   * `id` forwarded onto the trigger `<button>`, so an external
+   * `<sbb-float-label for="x">` (or any plain `<label for>`) can associate
+   * its label with the control.
+   */
+  readonly inputId = input<string | undefined>(undefined);
+
+  /**
+   * Fallback id used on the trigger `<button>` when `inputId` is not set.
+   * `BrnSelectTrigger.id` is a required (non-optional) string input, so this
+   * keeps the binding valid without forcing every call site to supply one.
+   */
+  protected readonly generatedTriggerId = `sbb-select-trigger-${nextSelectId++}`;
 
   /** Current value, reflected from the CVA and by user selection. */
   protected readonly value = signal<T | null>(null);

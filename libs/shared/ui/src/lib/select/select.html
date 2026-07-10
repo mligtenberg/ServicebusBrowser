@@ -12,6 +12,7 @@
     type="button"
     class="sbb-select-trigger"
     brnSelectTrigger
+    [id]="inputId() ?? generatedTriggerId"
     (blur)="handleTouched()"
   >
     <span brnSelectValue [placeholder]="placeholder()">{{ selectedLabel() ?? placeholder() }}</span>

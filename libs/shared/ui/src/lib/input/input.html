@@ -4,6 +4,7 @@
   [class.sbb-input--sm]="size() === 'sm'"
   [class.sbb-input--lg]="size() === 'lg'"
   [type]="type()"
+  [attr.id]="inputId() || null"
   [placeholder]="placeholder()"
   [disabled]="disabled()"
   [attr.aria-invalid]="invalid() || null"
