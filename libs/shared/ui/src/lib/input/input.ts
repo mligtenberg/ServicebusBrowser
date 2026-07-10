@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   forwardRef,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { SbbInputSize, SbbInputType } from './input.models';
@@ -61,6 +63,12 @@ export class SbbInput implements ControlValueAccessor {
    */
   readonly inputId = input<string | undefined>(undefined);
 
+  /** Renders the native `<input>` read-only (parity with `pInputText readonly`). */
+  readonly readonly = input<boolean>(false);
+
+  private readonly inputRef =
+    viewChild<ElementRef<HTMLInputElement>>('inputEl');
+
   /** Current value, reflected into the native input. */
   protected readonly value = signal('');
 
@@ -93,5 +101,12 @@ export class SbbInput implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
+  }
+
+  /** Focuses (and selects the contents of) the native input. */
+  focus(): void {
+    const el = this.inputRef()?.nativeElement;
+    el?.focus();
+    el?.select();
   }
 }

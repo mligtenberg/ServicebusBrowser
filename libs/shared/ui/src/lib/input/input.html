@@ -1,4 +1,5 @@
 <input
+  #inputEl
   class="sbb-input"
   [class.sbb-input--invalid]="invalid()"
   [class.sbb-input--sm]="size() === 'sm'"
@@ -6,6 +7,7 @@
   [type]="type()"
   [attr.id]="inputId() || null"
   [placeholder]="placeholder()"
+  [readonly]="readonly()"
   [disabled]="disabled()"
   [attr.aria-invalid]="invalid() || null"
   [value]="value()"
