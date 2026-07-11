@@ -12,6 +12,7 @@
 .sbb-grid {
   display: flex;
   flex-direction: column;
+  position: relative;
   height: 100%;
   min-height: 0;
   border: 1px solid var(--sbb-border, #e2e8f0);
@@ -86,5 +87,30 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+.sbb-grid__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--sbb-surface-raised, #ffffff) 60%, transparent);
+}
+
+.sbb-grid__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--sbb-border, #e2e8f0);
+  border-top-color: var(--sbb-primary, #3b82f6);
+  border-radius: 50%;
+  animation: sbb-grid-spin 0.7s linear infinite;
+}
+
+@keyframes sbb-grid-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

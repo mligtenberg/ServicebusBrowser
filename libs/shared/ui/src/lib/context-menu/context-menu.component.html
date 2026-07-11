@@ -2,6 +2,7 @@
   class="sbb-context-menu-trigger"
   [cdkContextMenuTriggerFor]="menu"
   [cdkContextMenuTriggerData]="{ $implicit: model() }"
+  (cdkMenuOpened)="opened.emit(data())"
 >
   <ng-content></ng-content>
 </span>

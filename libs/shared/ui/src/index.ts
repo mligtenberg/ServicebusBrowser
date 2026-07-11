@@ -28,6 +28,7 @@ export * from './lib/message';
 // Batch 3 — overlay-driven services + shared menu model
 export * from './lib/menu';
 export * from './lib/dialog';
+export * from './lib/drawer';
 export * from './lib/toast';
 export * from './lib/context-menu';
 

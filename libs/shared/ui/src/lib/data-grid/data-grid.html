@@ -28,6 +28,12 @@
     }
   </div>
 
+  @if (loading()) {
+    <div class="sbb-grid__loading" role="status" aria-live="polite">
+      <span class="sbb-grid__spinner" aria-hidden="true"></span>
+    </div>
+  }
+
   <cdk-virtual-scroll-viewport
     class="sbb-grid__viewport"
     [itemSize]="rowHeight()"
@@ -45,14 +51,29 @@
       [style.height.px]="rowHeight()"
       [class.sbb-grid__row--selected]="isSelected(row, i)"
       [attr.aria-selected]="isSelected(row, i)"
+      (mousedown)="onRowMouseDown($event, row, i)"
       (click)="onRowClick($event, row, i)"
       (keydown.enter)="onRowKeydown($event, row, i)"
       (keydown.space)="onRowKeydown($event, row, i)"
     >
-      @for (col of columns(); track col.field) {
-        <div class="sbb-grid__cell" role="gridcell" [style.width]="col.width || null">
-          {{ cellValue(row, col) }}
-        </div>
+      @if (rowContextMenu().length && row !== null && row !== undefined) {
+        <sbb-context-menu
+          [model]="rowContextMenu()"
+          [data]="row"
+          (opened)="onRowContextMenu(row, i)"
+        >
+          @for (col of columns(); track col.field) {
+            <div class="sbb-grid__cell" role="gridcell" [style.width]="col.width || null">
+              {{ cellValue(row, col) }}
+            </div>
+          }
+        </sbb-context-menu>
+      } @else {
+        @for (col of columns(); track col.field) {
+          <div class="sbb-grid__cell" role="gridcell" [style.width]="col.width || null">
+            {{ cellValue(row, col) }}
+          </div>
+        }
       }
     </div>
   </cdk-virtual-scroll-viewport>

@@ -4,7 +4,7 @@ import {
   CdkMenuItem,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import {
   isSbbMenuSeparator,
   SbbMenuItem,
@@ -51,6 +51,9 @@ export class SbbContextMenu<T> {
 
   /** Contextual value passed to each chosen item's `onSelect`. */
   readonly data = input.required<T>();
+
+  /** Fires with the contextual `data` when the menu opens (right-click). */
+  readonly opened = output<T>();
 
   /** Template type guard so the recursive template can branch on separators. */
   protected isSeparator(item: SbbMenuItem<T>): item is SbbMenuSeparator {

@@ -22,6 +22,8 @@ import {
   SbbSortState,
   resolveField,
 } from './data-grid.models';
+import { SbbContextMenu } from '../context-menu';
+import { SbbMenuItem } from '../menu';
 
 /**
  * Headless, virtualized, selectable data-grid built on Angular CDK.
@@ -39,7 +41,7 @@ import {
 @Component({
   selector: 'sbb-data-grid',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ScrollingModule],
+  imports: [ScrollingModule, SbbContextMenu],
   templateUrl: './data-grid.html',
   styleUrl: './data-grid.scss',
 })
@@ -59,6 +61,18 @@ export class SbbDataGrid<T = unknown> {
 
   /** `'none' | 'single' | 'multiple'`. Defaults to `'single'`. */
   selectionMode = input<SbbSelectionMode>('single');
+
+  /**
+   * When `true`, the grid does NOT mutate `selection` on row click — it only
+   * emits {@link rowClick}/{@link rowMouseDown} and reflects the `selection`
+   * model for highlighting. Lets a host own complex selection semantics (e.g.
+   * contiguous shift-range across lazily-loaded rows) while still using the
+   * grid's rendering/virtualization. Ignored for context-menu selection.
+   */
+  manualSelection = input<boolean>(false);
+
+  /** Shows a loading overlay over the viewport. */
+  loading = input<boolean>(false);
 
   /** Enable lazy loading (emits {@link lazyLoad} near the scroll end). */
   lazy = input<boolean>(false);
@@ -83,6 +97,14 @@ export class SbbDataGrid<T = unknown> {
   trackBy = input<(row: T, index: number) => unknown>((row) => row);
 
   /**
+   * Optional right-click context menu shown per row. When non-empty, each row
+   * becomes a context-menu trigger; the menu is built from these items and the
+   * chosen item's `onSelect` receives the row. Right-clicking a row also
+   * selects it (unless `selectionMode` is `'none'`).
+   */
+  rowContextMenu = input<SbbMenuItem<T>[]>([]);
+
+  /**
    * Adapter exposing the public `(row, index)` {@link trackBy} to CDK's
    * `TrackByFunction<T>` shape `(index, row)`, used by `*cdkVirtualFor`.
    */
@@ -104,6 +126,15 @@ export class SbbDataGrid<T = unknown> {
 
   /** Fires when the viewport nears the end of the loaded window in lazy mode. */
   lazyLoad = output<SbbLazyLoadEvent>();
+
+  /** Fires with the row whose context menu was opened (right-clicked). */
+  rowContextMenuOpened = output<T>();
+
+  /** Fires on every row click (row is `null` for unloaded lazy placeholders). */
+  rowClick = output<{ event: MouseEvent; row: T | null; index: number }>();
+
+  /** Fires on row mousedown (before click), for hosts implementing range select. */
+  rowMouseDown = output<{ event: MouseEvent; row: T | null; index: number }>();
 
   // ---------------------------------------------------------------------------
   // Internal state
@@ -209,10 +240,17 @@ export class SbbDataGrid<T = unknown> {
   // Interaction
   // ---------------------------------------------------------------------------
 
+  /** Emit a row mousedown (hosts use this for shift-range anchoring). */
+  protected onRowMouseDown(event: MouseEvent, row: T | null, index: number): void {
+    this.rowMouseDown.emit({ event, row, index });
+  }
+
   /** Handle a row click, honouring modifier keys for multi-selection. */
-  protected onRowClick(event: MouseEvent, row: T, index: number): void {
+  protected onRowClick(event: MouseEvent, row: T | null, index: number): void {
+    this.rowClick.emit({ event, row, index });
+
     const mode = this.selectionMode();
-    if (mode === 'none' || row == null) {
+    if (mode === 'none' || this.manualSelection() || row == null) {
       return;
     }
     const id = this.trackBy()(row, index);
@@ -238,6 +276,26 @@ export class SbbDataGrid<T = unknown> {
     event.preventDefault();
     // Reuse click semantics; ctrl/meta/shift on the KeyboardEvent toggle-select.
     this.onRowClick(event as unknown as MouseEvent, row, index);
+  }
+
+  /**
+   * Right-click on a row: select it (joining/replacing per selection mode) so
+   * menu commands act on it, then notify the host.
+   */
+  protected onRowContextMenu(row: T, index: number): void {
+    const mode = this.selectionMode();
+    if (mode !== 'none' && !this.manualSelection() && row != null) {
+      const id = this.trackBy()(row, index);
+      if (!this.selectionModel.isSelected(id)) {
+        if (mode === 'multiple') {
+          this.selectionModel.select(id);
+        } else {
+          this.selectionModel.setSelection(id);
+        }
+        this.emitSelection();
+      }
+    }
+    this.rowContextMenuOpened.emit(row);
   }
 
   /** Cycle a sortable column through asc -> desc -> unsorted. */
@@ -312,5 +370,10 @@ export class SbbDataGrid<T = unknown> {
   /** Reset lazy-load bookkeeping (e.g. when the underlying page changes). */
   resetLazyState(): void {
     this.lastEmittedLazyEnd = -1;
+  }
+
+  /** Scroll a given row index into view. */
+  scrollToIndex(index: number, behavior: ScrollBehavior = 'auto'): void {
+    this.viewport()?.scrollToIndex(index, behavior);
   }
 }
