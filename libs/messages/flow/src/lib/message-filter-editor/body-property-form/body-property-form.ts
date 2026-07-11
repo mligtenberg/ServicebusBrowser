@@ -1,5 +1,4 @@
 import { Component, input, model, output } from '@angular/core';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   SbbButton,
@@ -30,7 +29,6 @@ import { BodyFilter } from '@service-bus-browser/filtering';
     SbbInput,
     SelectSignalFormInput,
     FormField,
-    FaIconComponent,
   ],
   templateUrl: './body-property-form.html',
   styleUrl: './body-property-form.scss',

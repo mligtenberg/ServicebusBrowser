@@ -15,7 +15,6 @@ import {
 } from '@service-bus-browser/shared-ui';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faWindowMaximize } from '@fortawesome/free-solid-svg-icons';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
@@ -40,7 +39,6 @@ import { Location } from '@angular/common';
     SbbTooltip,
     SbbSelect,
     SbbFloatLabel,
-    FaIconComponent,
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',

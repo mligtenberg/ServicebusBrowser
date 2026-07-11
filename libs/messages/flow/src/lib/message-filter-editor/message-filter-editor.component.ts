@@ -14,7 +14,6 @@ import {
   SbbDrawer,
   SbbTag,
 } from '@service-bus-browser/shared-ui';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -60,7 +59,6 @@ const DEFAULT_MESSAGE_PROPERTIES: { label: string; type: string }[] = [
     SbbAccordion,
     SbbAccordionPanel,
     SbbTag,
-    FaIconComponent,
     FormField,
     SystemPropertyForm,
     ApplicationPropertyForm,

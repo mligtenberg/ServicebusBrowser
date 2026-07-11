@@ -6,7 +6,6 @@ import {
   FormField,
   FormValueControl,
 } from '@angular/forms/signals';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   SbbButton,
@@ -39,7 +38,6 @@ import { PropertyFilter } from '@service-bus-browser/filtering';
     SbbButton,
     SelectSignalFormInput,
     DatePickerSignalFormInput,
-    FaIconComponent,
   ],
   templateUrl: './application-property-form.html',
   styleUrl: './application-property-form.scss',
