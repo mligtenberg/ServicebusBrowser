@@ -59,4 +59,36 @@ describe('SbbSplitter', () => {
     expect(text).toContain('B');
     expect(text).toContain('C');
   });
+
+  it('keyboard-resizes the gutter, moving size from one panel to its neighbour', () => {
+    const panels = query('sbb-splitter-panel');
+    expect(panels[0].getAttribute('data-panel-size')).toBe('60');
+    expect(panels[1].getAttribute('data-panel-size')).toBe('40');
+
+    const firstHandle = query('.sbb-splitter-panel__handle')[0];
+    firstHandle.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+    );
+    fixture.detectChanges();
+
+    // ArrowRight grows the left panel by 1% and shrinks its right neighbour by 1%.
+    expect(panels[0].getAttribute('data-panel-size')).toBe('61');
+    expect(panels[1].getAttribute('data-panel-size')).toBe('39');
+    // Untouched panel is unaffected.
+    expect(panels[2].getAttribute('data-panel-size')).toBe('0');
+  });
+
+  it('starts a pointer drag from the gutter (delegates to the group startResize)', () => {
+    const firstHandle = query('.sbb-splitter-panel__handle')[0];
+    expect(document.body.style.cursor).not.toBe('ew-resize');
+
+    firstHandle.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, clientX: 100, clientY: 0 }),
+    );
+    // startResize sets the resize cursor synchronously; only reached with a valid index.
+    expect(document.body.style.cursor).toBe('ew-resize');
+
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    expect(document.body.style.cursor).toBe('default');
+  });
 });

@@ -4,7 +4,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { BrnResizableHandle, BrnResizablePanel } from '@spartan-ng/brain/resizable';
+import { BrnResizablePanel } from '@spartan-ng/brain/resizable';
 import { SBB_SPLITTER_GROUP } from './splitter.token';
 
 /**
@@ -21,16 +21,22 @@ import { SBB_SPLITTER_GROUP } from './splitter.token';
  */
 @Component({
   selector: 'sbb-splitter-panel',
-  imports: [BrnResizableHandle],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-content />
     @if (showHandle()) {
       <div
-        brnResizableHandle
-        withHandle
         class="sbb-splitter-panel__handle"
+        role="separator"
+        tabindex="0"
         [attr.data-layout]="orientation()"
+        [attr.aria-orientation]="
+          orientation() === 'vertical' ? 'horizontal' : 'vertical'
+        "
+        (mousedown)="onHandlePointerDown($event)"
+        (touchstart)="onHandlePointerDown($event)"
+        (keydown)="onHandleKeydown($event)"
       ></div>
     }
   `,
@@ -61,4 +67,36 @@ export class SbbSplitterPanel {
   protected readonly showHandle = computed(() =>
     this.group.hasHandleAfter(this),
   );
+
+  /** Start a drag when the gutter after this panel is pressed. */
+  protected onHandlePointerDown(event: MouseEvent | TouchEvent): void {
+    this.group.startResizeFromPanel(this, event);
+  }
+
+  /** Keyboard resize of the gutter after this panel (arrow keys, shift = coarse). */
+  protected onHandleKeydown(event: KeyboardEvent): void {
+    const step = event.shiftKey ? 10 : 1;
+    const horizontal = this.orientation() === 'horizontal';
+    let delta = 0;
+    switch (event.key) {
+      case 'ArrowLeft':
+        if (horizontal) delta = -step;
+        break;
+      case 'ArrowRight':
+        if (horizontal) delta = step;
+        break;
+      case 'ArrowUp':
+        if (!horizontal) delta = -step;
+        break;
+      case 'ArrowDown':
+        if (!horizontal) delta = step;
+        break;
+      default:
+        return;
+    }
+    if (delta !== 0) {
+      event.preventDefault();
+      this.group.nudgeAfter(this, delta);
+    }
+  }
 }

@@ -79,4 +79,50 @@ export class SbbSplitter {
     const index = panels.indexOf(panel);
     return index >= 0 && index < panels.length - 1;
   }
+
+  /**
+   * @internal Start a pointer drag on the gutter after `panel`. Bypasses the
+   * primitive `BrnResizableHandle` (whose DOM-sibling index walk assumes the
+   * handle is a flat sibling of the panels, which our handle-inside-panel markup
+   * violates) and drives `BrnResizableGroup.startResize` with the index we
+   * already track via `contentChildren`.
+   */
+  startResizeFromPanel(panel: SbbSplitterPanel, event: MouseEvent | TouchEvent): void {
+    const index = this.panels().indexOf(panel);
+    if (index < 0 || index >= this.panels().length - 1) {
+      return;
+    }
+    event.preventDefault();
+    this.hostGroup.startResize(index, event);
+  }
+
+  /** @internal Keyboard resize of the gutter after `panel` (signed percentage). */
+  nudgeAfter(panel: SbbSplitterPanel, delta: number): void {
+    const panels = this.panels();
+    const index = panels.indexOf(panel);
+    if (index < 0 || index >= panels.length - 1) {
+      return;
+    }
+    const left = panels[index];
+    const right = panels[index + 1];
+    const sizes = [...this.hostGroup.layout()];
+    if (sizes.length !== panels.length) {
+      return;
+    }
+    const newLeft = Math.max(
+      left.hostPanel.minSize(),
+      Math.min(left.hostPanel.maxSize(), sizes[index] + delta),
+    );
+    const newRight = Math.max(
+      right.hostPanel.minSize(),
+      Math.min(right.hostPanel.maxSize(), sizes[index + 1] - delta),
+    );
+    if (Math.abs(newLeft + newRight - (sizes[index] + sizes[index + 1])) > 0.01) {
+      return;
+    }
+    sizes[index] = newLeft;
+    sizes[index + 1] = newRight;
+    this.hostGroup.layout.set(sizes);
+    this.hostGroup.updatePanelStyles();
+  }
 }
