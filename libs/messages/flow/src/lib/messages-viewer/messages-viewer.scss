@@ -27,7 +27,7 @@
   }
 
   > :not(:last-child) {
-    border-bottom: 2px solid var(--p-splitter-gutter-background);
+    border-bottom: 2px solid var(--sbb-border);
   }
 
   .system-properties, .application-properties {
@@ -35,7 +35,7 @@
   }
 }
 
-p-splitter {
+sbb-splitter {
   height: 100%;
 }
 
@@ -55,16 +55,28 @@ p-splitter {
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  td {
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
 }
 
-td {
-  padding: 9px 16px;
+.messages-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.property-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  td {
+    padding: 9px 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:first-child {
+      width: 40%;
+      font-weight: 500;
+    }
+  }
 }
 
 .messages-header {
@@ -82,7 +94,7 @@ td {
 }
 
 .header {
-  border-bottom: 2px solid var(--p-splitter-gutter-background);
+  border-bottom: 2px solid var(--sbb-border);
 }
 
 .header-actions {
@@ -104,12 +116,8 @@ td {
   flex: 1;
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--p-splitter-gutter-background);
+    border-bottom: 1px solid var(--sbb-border);
   }
-}
-
-::ng-deep .hide-scrollbar .p-scrollpanel-bar {
-  display: none;
 }
 
 .column-picker {
@@ -134,14 +142,14 @@ td {
     .drag-handle {
       cursor: grab;
       padding: 0.25rem;
-      color: var(--p-text-muted-color);
+      color: var(--sbb-text-muted);
 
       &:active {
         cursor: grabbing;
       }
     }
 
-    ::ng-deep .column-select {
+    .column-select {
       flex: 1;
       min-width: 0;
     }
@@ -161,9 +169,9 @@ td {
     0 5px 5px -3px rgba(0, 0, 0, 0.2),
     0 8px 10px 1px rgba(0, 0, 0, 0.14),
     0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  background: var(--p-overlay-popover-background, var(--p-content-background));
-  color: var(--p-overlay-popover-color, var(--p-content-color));
-  border-radius: var(--p-border-radius);
+  background: var(--sbb-surface-raised);
+  color: var(--sbb-text);
+  border-radius: var(--sbb-radius);
   padding: 0.25rem;
 }
 

@@ -16,29 +16,32 @@ import {
   AlterType,
 } from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { Textarea } from 'primeng/textarea';
-import { Button } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbInput,
+  SbbInputGroup,
+  SbbSelect,
+  SbbTextarea,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
-import { Tooltip } from 'primeng/tooltip';
 import { Editor } from '@service-bus-browser/shared-components';
+import { faCheck, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'lib-alter-body',
   standalone: true,
   imports: [
     FormsModule,
-    InputText,
-    Select,
-    Textarea,
-    Button,
-    Dialog,
+    SbbInput,
+    SbbSelect,
+    SbbTextarea,
+    SbbButton,
+    SbbDialog,
     Editor,
-    InputGroup,
-    Tooltip,
+    SbbInputGroup,
+    SbbTooltip,
   ],
   templateUrl: './alter-body.component.html',
   styleUrls: ['./alter-body.component.scss'],
@@ -59,6 +62,14 @@ export class AlterBodyComponent {
     { label: 'Search and Replace', value: 'searchAndReplace' },
     { label: 'Regex Replace', value: 'regexReplace' },
   ];
+
+  // Rich-content pTooltip (with <pre> capture-group examples) has no
+  // equivalent in SbbTooltip, which only accepts a plain string. Collapsed to
+  // an equivalent plain-text hint — see migration report for details.
+  protected readonly regexHelpText =
+    'Use named capture groups: (?<name>pattern). Reference the captured value in the replacement with $<name>';
+  protected readonly externalLinkIcon = faUpRightFromSquare;
+  protected readonly checkIcon = faCheck;
 
   editorOptions = computed(() => ({
     theme: this.colorThemeService.lightMode() ? 'vs-light' : 'vs-dark',

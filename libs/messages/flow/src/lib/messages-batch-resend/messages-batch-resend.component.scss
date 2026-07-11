@@ -33,10 +33,6 @@
   flex: 1;
   min-height: 0;
   border-bottom: none;
-
-  ::ng-deep .p-splitter-panel {
-    overflow: hidden;
-  }
 }
 
 .preview-panel {
@@ -219,22 +215,16 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--batch-resend-border);
-  background: var(--p-surface-0, #fff);
+  background: var(--sbb-surface-raised, #fff);
 
   sbb-tpl-endpoint-selector-input {
     flex: 1;
   }
 }
 
-::ng-deep .p-splitter {
+// lib-messages-viewer is not part of this migration and still renders a
+// PrimeNG p-splitter internally; keep suppressing its default borders here.
+::ng-deep lib-messages-viewer .p-splitter {
   border-left: none;
   border-right: none;
-  border-top: none;
-
-  lib-messages-viewer {
-    .p-splitter {
-      border-left: none;
-      border-right: none;
-    }
-  }
 }

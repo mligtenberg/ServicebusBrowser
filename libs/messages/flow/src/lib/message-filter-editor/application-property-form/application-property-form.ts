@@ -6,17 +6,22 @@ import {
   FormField,
   FormValueControl,
 } from '@angular/forms/signals';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { Checkbox } from 'primeng/checkbox';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  SbbButton,
+  SbbCheckbox,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputGroupAddon,
+  SbbInputNumber,
+} from '@service-bus-browser/shared-ui';
 import {
   dateFilterTypes,
   numberFilterTypes,
   propertyTypes,
   stringFilterTypes,
 } from '../options';
-import { InputText } from 'primeng/inputtext';
-import { Button } from 'primeng/button';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { formHelpers } from '../../form-helpers';
@@ -25,14 +30,16 @@ import { PropertyFilter } from '@service-bus-browser/filtering';
 @Component({
   selector: 'lib-application-property-form',
   imports: [
-    InputGroup,
-    InputGroupAddon,
-    Checkbox,
+    SbbInputGroup,
+    SbbInputGroupAddon,
+    SbbCheckbox,
     FormField,
-    InputText,
-    Button,
+    SbbInput,
+    SbbInputNumber,
+    SbbButton,
     SelectSignalFormInput,
     DatePickerSignalFormInput,
+    FaIconComponent,
   ],
   templateUrl: './application-property-form.html',
   styleUrl: './application-property-form.scss',
@@ -128,6 +135,7 @@ export class ApplicationPropertyForm
   protected readonly stringFilterTypes = stringFilterTypes;
   protected readonly dateFilterTypes = dateFilterTypes;
   protected readonly numberFilterTypes = numberFilterTypes;
+  protected readonly removeIcon = faTrash;
 
   protected remove() {
     this.removedPressed.emit();

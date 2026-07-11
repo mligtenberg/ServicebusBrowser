@@ -7,16 +7,21 @@ import {
   signal,
 } from '@angular/core';
 
-import { Drawer } from 'primeng/drawer';
-import { Button } from 'primeng/button';
-import { AccordionModule } from 'primeng/accordion';
+import {
+  SbbAccordion,
+  SbbAccordionPanel,
+  SbbButton,
+  SbbDrawer,
+  SbbTag,
+} from '@service-bus-browser/shared-ui';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import {
   filterIsValid,
   MessageFilter,
   PropertyFilter,
 } from '@service-bus-browser/filtering';
-import { Tag } from 'primeng/tag';
 import { applyEach, form, FormField, required } from '@angular/forms/signals';
 import { SystemPropertyForm } from './system-property-form/system-property-form';
 import { ApplicationPropertyForm } from './application-property-form/application-property-form';
@@ -50,10 +55,12 @@ const DEFAULT_MESSAGE_PROPERTIES: { label: string; type: string }[] = [
   selector: 'lib-message-filter-editor',
   standalone: true,
   imports: [
-    Drawer,
-    Button,
-    AccordionModule,
-    Tag,
+    SbbDrawer,
+    SbbButton,
+    SbbAccordion,
+    SbbAccordionPanel,
+    SbbTag,
+    FaIconComponent,
     FormField,
     SystemPropertyForm,
     ApplicationPropertyForm,
@@ -63,6 +70,16 @@ const DEFAULT_MESSAGE_PROPERTIES: { label: string; type: string }[] = [
   styleUrls: ['./message-filter-editor.component.scss'],
 })
 export class MessageFilterEditorComponent {
+  protected readonly faPlus = faPlus;
+
+  // Per-panel expand state (all sections start open, multiple allowed).
+  protected headersOpen = true;
+  protected propertiesOpen = true;
+  protected deliveryAnnotationsOpen = true;
+  protected messageAnnotationsOpen = true;
+  protected applicationPropertiesOpen = true;
+  protected bodyOpen = true;
+
   visible = model<boolean>(false);
   filters = model.required<MessageFilter>();
   knownHeaders = input<{ label: string; type: string }[]>(
@@ -321,6 +338,13 @@ export class MessageFilterEditorComponent {
       ...f,
       body: [...f.body.slice(0, index), ...f.body.slice(index + 1)],
     }));
+  }
+
+  /** Backdrop/Escape/close-button dismissal discards edits, like Cancel. */
+  protected onDrawerOpenChange(open: boolean) {
+    if (!open) {
+      this.onCancel();
+    }
   }
 
   protected onCancel() {

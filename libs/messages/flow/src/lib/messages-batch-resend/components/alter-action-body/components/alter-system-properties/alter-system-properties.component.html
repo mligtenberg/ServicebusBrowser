@@ -1,89 +1,66 @@
 <div class="alter-system-properties-container">
-  <p-input-group>
-    <p-select
-      appendTo="body"
+  <sbb-input-group>
+    <sbb-select
       required
       [(ngModel)]="fieldName"
       [options]="propertyKeys"
       placeholder="Select property"
     />
 
-    <p-select
+    <sbb-select
       [options]="alterTypes()"
       [(ngModel)]="alterType"
       placeholder="Alter Type"
-      appendTo="body"
     />
-  </p-input-group>
+  </sbb-input-group>
 
   @if (alterType() !== 'fullReplace') {
-    <input
-      pInputText
+    <sbb-input
       required
       [(ngModel)]="searchValue"
       placeholder="Search value"
-      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"
+      [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+      sbbTooltipPlacement="top"
     />
   }
 
   @if (propertyIsText(fieldName())) {
-    <input
-      pInputText
+    <sbb-input
       required
       [(ngModel)]="value"
       placeholder="Value"
-      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"
+      [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+      sbbTooltipPlacement="top"
     />
   }
   @if (propertyIsDate(fieldName())) {
-    <p-date-picker
+    <sbb-date-picker
       [(ngModel)]="value"
-      required
-      appendTo="body"
+      [required]="true"
       [showTime]="true"
-      hourFormat="24"
       placeholder="Value"
     />
   }
   @if (propertyIsTimeSpan(fieldName())) {
-    <input
-      #timeSpanInput
-      (click)="popover.toggle($event)"
-      pInputText
+    <sbb-input
+      (click)="togglePopover(popover, $event)"
       required
-      readonly
+      [readonly]="true"
       [ngModel]="value()"
       class="time-span-trigger"
       aria-disabled="false"
       placeholder="Value"
     />
-    <p-popover appendTo="body" #popover>
+    <sbb-popover #popover>
       <sbb-duration-input required [(ngModel)]="value" />
-    </p-popover>
+    </sbb-popover>
   }
 
   @if (propertyIsNumber(fieldName())) {
-    <input
-      pInputText
-      required
-      type="number"
-      [(ngModel)]="value"
-      placeholder="Value"
-    />
+    <sbb-input-number required [(ngModel)]="value" placeholder="Value" />
   }
 
   @if (propertyUnknownType(fieldName())) {
-    <input pInputText required [(ngModel)]="value" placeholder="Value" />
+    <sbb-input required [(ngModel)]="value" placeholder="Value" />
   }
 </div>
-
-<ng-template #regexEplain>
-  <div class="regex-explanation">
-    <p>Within the regex you can define named capture groups by using</p>
-    <pre>(?&lt;name&gt;pattern)</pre>
-    <p>the values can be referenced in the replacement with</p>
-    <pre>$&lt;name&gt;</pre>
-  </div>
-</ng-template>

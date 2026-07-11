@@ -3,38 +3,32 @@
     <h2 class="title">{{header()}}</h2>
     @if (isCsvTableVisible()) {
     <div class="csv-delimiter-selector">
-      <p-floatlabel variant="on">
-        <p-select
+      <sbb-float-label label="Delimiter" for="csv-delimiter">
+        <sbb-select
           inputId="csv-delimiter"
           [(ngModel)]="csvDelimiter"
           [options]="csvDelimiterOptions"
-          optionLabel="label"
-          optionValue="value"
-          [editable]="true"
-          appendTo="body"
         />
-        <label for="csv-delimiter">Delimiter</label>
-      </p-floatlabel>
+      </sbb-float-label>
     </div>
     }
-    <p-select-button
+    <sbb-select-button
       [(ngModel)]="showPrettyBody"
       [options]="prettyPrintOptions"
       [disabled]="!prettyPrintAvailable()"
-      optionLabel="label"
-      optionValue="value"
       size="small"
     />
     @if (canOpenInPopup()) {
-    <p-button
-      icon="pi pi-window-maximize"
-      pTooltip="Open in new window"
-      tooltipPosition="bottom"
+    <sbb-button
+      [icon]="faWindowMaximize"
+      [iconOnly]="true"
+      variant="text"
+      [rounded]="true"
+      [sbbTooltip]="'Open in new window'"
+      sbbTooltipPlacement="bottom"
       (click)="openInPopup()"
       [disabled]="!messageKey()"
-      [rounded]="true"
-      [text]="true"
-    ></p-button>
+    ></sbb-button>
     }
   </div>
   <div class="editor">
@@ -45,23 +39,24 @@
 <ng-template #bodyView>
   @if (isCsvTableVisible()) {
   <div class="csv-table-wrapper">
-    <p-table [value]="csvRows()" [scrollable]="true" scrollHeight="flex">
-      <ng-template pTemplate="header">
+    <table class="csv-table">
+      <thead>
         <tr>
           @for (header of csvHeaders(); track header) {
           <th>{{ header }}</th>
           }
         </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-rowData>
+      </thead>
+      <tbody>
+        @for (rowData of csvRows(); track $index) {
         <tr>
           @for (header of csvHeaders(); track header) {
           <td>{{ rowData[header] }}</td>
           }
         </tr>
-      </ng-template>
-    </p-table>
+        }
+      </tbody>
+    </table>
   </div>
   } @else { @let body = shownBody(); @if (body !== undefined) {
   <sbb-editor

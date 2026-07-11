@@ -35,24 +35,29 @@ import {
 } from '@angular/core/rxjs-interop';
 import { MessagePage } from '@service-bus-browser/messages-contracts';
 import { BodyFilter, MessageFilter, PropertyFilter } from '@service-bus-browser/filtering';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { Button, ButtonDirective } from 'primeng/button';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbMenu,
+  SbbMenuItem,
+  SbbPopover,
+  SbbScrollPanel,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
+import {
+  faEllipsisVertical,
+  faFilter,
+} from '@fortawesome/free-solid-svg-icons';
 import { ColorThemeService } from '@service-bus-browser/services';
-import { MenuItem } from 'primeng/api';
 import { BASE_ROUTE } from '../const';
-import { ScrollPanel } from 'primeng/scrollpanel';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import {
   PropertyValue,
   ReceivedMessage,
   SendEndpoint,
 } from '@service-bus-browser/api-contracts';
-import { Menu } from 'primeng/menu';
 import { MessageFilterEditorComponent } from '../message-filter-editor/message-filter-editor.component';
-import { Tooltip } from 'primeng/tooltip';
-import { Popover } from 'primeng/popover';
 import { SystemPropertyForm } from '../message-filter-editor/system-property-form/system-property-form';
 import { ApplicationPropertyForm } from '../message-filter-editor/application-property-form/application-property-form';
 import { BodyPropertyForm } from '../message-filter-editor/body-property-form/body-property-form';
@@ -65,25 +70,23 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
 getMessagesRepository().then((r) => (repository = r));
 import { UUID } from '@service-bus-browser/shared-contracts';
-import MessagesViewer from '../messages-viewer/messages-viewer';
+import MessagesViewer, { MessagesLazyLoad } from '../messages-viewer/messages-viewer';
 
 
 @Component({
   selector: 'lib-messages-page',
   imports: [
     CommonModule,
-    TableModule,
     FormsModule,
-    Dialog,
-    Button,
-    ScrollPanel,
+    SbbDialog,
+    SbbButton,
+    SbbScrollPanel,
     EndpointSelectorTreeInputComponent,
-    ButtonDirective,
-    Menu,
+    SbbMenu,
     MessageFilterEditorComponent,
-    Tooltip,
+    SbbTooltip,
     MessagesViewer,
-    Popover,
+    SbbPopover,
     SystemPropertyForm,
     ApplicationPropertyForm,
     BodyPropertyForm,
@@ -296,7 +299,10 @@ export class MessagesPageComponent {
     { key: string; value: unknown } | undefined
   >(undefined);
 
-  filterPopover = viewChild<Popover>('filterPopover');
+  protected readonly faFilter = faFilter;
+  protected readonly faEllipsisVertical = faEllipsisVertical;
+
+  filterPopover = viewChild<SbbPopover>('filterPopover');
   currentFilterSection = signal<
     | 'headers'
     | 'properties'
@@ -370,21 +376,21 @@ export class MessagesPageComponent {
       {
         label: 'Copy property',
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
-        command: () => {
+        onSelect: () => {
           this.filterOnHeader(
             selection.key,
             selection.value as string | number | boolean | Date,
@@ -403,21 +409,21 @@ export class MessagesPageComponent {
       {
         label: 'Copy property',
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
-        command: () => {
+        onSelect: () => {
           this.filterOnProperty(
             selection.key,
             selection.value as string | number | boolean | Date,
@@ -436,21 +442,21 @@ export class MessagesPageComponent {
       {
         label: 'Copy property',
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
-        command: () => {
+        onSelect: () => {
           this.filterOnDeliveryAnnotation(
             selection.key,
             selection.value as string | number | boolean | Date,
@@ -469,21 +475,21 @@ export class MessagesPageComponent {
       {
         label: 'Copy property',
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
-        command: () => {
+        onSelect: () => {
           this.filterOnMessageAnnotation(
             selection.key,
             selection.value as string | number | boolean | Date,
@@ -502,21 +508,21 @@ export class MessagesPageComponent {
       {
         label: 'Copy property',
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
         icon: 'pi pi-copy',
-        command: () => {
+        onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
         icon: 'pi pi-filter',
-        command: () => {
+        onSelect: () => {
           this.filterOnApplicationProperty(
             selection.key,
             selection.value as string | number | boolean | Date,
@@ -528,12 +534,12 @@ export class MessagesPageComponent {
 
   colorThemeService = inject(ColorThemeService);
 
-  messageContextMenu = computed<MenuItem[]>(() => {
+  messageContextMenu = computed<SbbMenuItem<ReceivedMessage>[]>(() => {
     const contextMenuSelection = this.selection();
     return this.getMenuItems(contextMenuSelection, false);
   });
 
-  allMessagesMenu = computed<MenuItem[]>(() => {
+  allMessagesMenu = computed<SbbMenuItem<ReceivedMessage>[]>(() => {
     return this.getMenuItems(undefined, true);
   });
 
@@ -609,7 +615,7 @@ export class MessagesPageComponent {
             ? 'Quick resend all messages'
             : 'Quick selected resend messages',
           icon: 'pi pi-envelope',
-          command: () => {
+          onSelect: () => {
             this.resendAllMessages.set(allMessages);
             this.displaySendMessages.set(true);
           },
@@ -619,7 +625,7 @@ export class MessagesPageComponent {
             ? 'Batch resend all messages'
             : 'Batch resend selected messages',
           icon: 'pi pi-envelope',
-          command: () => {
+          onSelect: () => {
             this.router.navigate(
               [this.baseRoute, 'batch-resend', this.currentPage()!.id],
               {
@@ -634,7 +640,7 @@ export class MessagesPageComponent {
         {
           label: allMessages ? 'Export all messages' : 'Export selection',
           icon: 'pi pi-download',
-          command: () => {
+          onSelect: () => {
             this.exportMessages(allMessages);
           },
         },
@@ -649,7 +655,7 @@ export class MessagesPageComponent {
       {
         label: 'Quick resend message',
         icon: 'pi pi-envelope',
-        command: () => {
+        onSelect: () => {
           this.menuMessagesSelection.set([]);
           this.displaySendMessages.set(true);
         },
@@ -657,7 +663,7 @@ export class MessagesPageComponent {
       {
         label: allMessages ? 'Resend message' : 'Resend selected message',
         icon: 'pi pi-envelope',
-        command: () => {
+        onSelect: () => {
           this.router.navigate([
             this.baseRoute,
             'resend',
@@ -669,7 +675,7 @@ export class MessagesPageComponent {
       {
         label: 'Export message',
         icon: 'pi pi-download',
-        command: () => {
+        onSelect: () => {
           this.exportMessages(allMessages);
         },
       },
@@ -788,21 +794,18 @@ export class MessagesPageComponent {
   private showDraftFilterPopover(): void {
     this.removeFilterPopoverAnchor();
     const position = this.lastContextMenuPosition;
-    if (!position) {
-      this.filterPopover()?.show(new Event('click'));
-      return;
-    }
+    const view = this.document.defaultView;
 
     const anchor = this.document.createElement('div');
     anchor.style.position = 'fixed';
-    anchor.style.left = `${position.x}px`;
-    anchor.style.top = `${position.y}px`;
+    anchor.style.left = `${position?.x ?? (view?.innerWidth ?? 0) / 2}px`;
+    anchor.style.top = `${position?.y ?? (view?.innerHeight ?? 0) / 2}px`;
     anchor.style.width = '1px';
     anchor.style.height = '1px';
     anchor.style.pointerEvents = 'none';
     this.document.body.appendChild(anchor);
     this.filterPopoverAnchorEl = anchor;
-    this.filterPopover()?.show(new Event('click'), anchor);
+    this.filterPopover()?.open(anchor);
   }
 
   private removeFilterPopoverAnchor(): void {
@@ -826,11 +829,11 @@ export class MessagesPageComponent {
       });
     }
 
-    this.filterPopover()?.hide();
+    this.filterPopover()?.close();
   }
 
   cancelFilterPopover(): void {
-    this.filterPopover()?.hide();
+    this.filterPopover()?.close();
   }
 
   onFilterPopoverHide(): void {
@@ -861,7 +864,7 @@ export class MessagesPageComponent {
     return 'string';
   }
 
-  protected async loadMessages($event: TableLazyLoadEvent) {
+  protected async loadMessages($event: MessagesLazyLoad) {
     const first = $event.first ?? 0;
     const rows = $event.rows ?? 0;
 

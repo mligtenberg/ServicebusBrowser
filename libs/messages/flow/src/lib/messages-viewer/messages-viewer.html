@@ -1,30 +1,29 @@
 <div class="container" #container>
   @if (containerWidth() >= 600 && !forceNarrow()) {
   <div class="wide">
-    <p-splitter
-      [panelSizes]="[75, 25]"
-      (onResizeStart)="isResizing.set(true)"
-      (onResizeEnd)="isResizing.set(false); cdRef.detectChanges()"
-      (resize)="onResize()"
+    <sbb-splitter
+      (resizeStart)="isResizing.set(true)"
+      (resizeEnd)="isResizing.set(false); cdRef.detectChanges()"
+      (panelSizesChange)="onResize()"
     >
-      <ng-template #panel>
-        <p-splitter [panelSizes]="[40, 60]" layout="vertical">
-          <ng-template pTemplate>
+      <sbb-splitter-panel [size]="75">
+        <sbb-splitter orientation="vertical">
+          <sbb-splitter-panel [size]="40">
             <div class="card messages">
               <ng-template *ngTemplateOutlet="messageSelectorTemplate" />
             </div>
-          </ng-template>
-          <ng-template pTemplate>
+          </sbb-splitter-panel>
+          <sbb-splitter-panel [size]="60">
             <div class="card body">
               <ng-template *ngTemplateOutlet="bodyTemplate" />
             </div>
-          </ng-template>
-        </p-splitter>
-      </ng-template>
-      <ng-template #panel>
-        <p-scroll-panel
+          </sbb-splitter-panel>
+        </sbb-splitter>
+      </sbb-splitter-panel>
+      <sbb-splitter-panel [size]="25">
+        <sbb-scroll-panel
           style="width: 100%; height: 100%"
-          [ngClass]="{'hide-scrollbar': isResizing()}"
+          [hideScrollbar]="isResizing()"
         >
           <div class="properties">
             @if (!sendMode()) {
@@ -47,9 +46,9 @@
               <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
             </div>
           </div>
-        </p-scroll-panel>
-      </ng-template>
-    </p-splitter>
+        </sbb-scroll-panel>
+      </sbb-splitter-panel>
+    </sbb-splitter>
   </div>
   } @else {
   <div class="narrow">
@@ -96,15 +95,16 @@
         @if (messagesHeader(); as ref) {
           <ng-container *ngTemplateOutlet="ref"></ng-container>
         }
-        <p-button
-          icon="pi pi-table"
-          text="true"
-          pTooltip="Select columns"
-          (click)="columnPickerPopover.toggle($event)"
+        <sbb-button
+          [icon]="faTableCells"
+          [iconOnly]="true"
+          variant="text"
+          [sbbTooltip]="'Select columns'"
+          (click)="toggleColumnPicker(columnPickerPopover, $event)"
         />
       </div>
     </div>
-    <p-popover #columnPickerPopover appendTo="body">
+    <sbb-popover #columnPickerPopover>
       <div class="column-picker">
         <div
           class="column-rows"
@@ -113,104 +113,62 @@
         >
           @for (field of selectedColumnFields(); track $index; let i = $index) {
             <div class="column-row" cdkDrag cdkDragLockAxis="y">
-              <i
-                class="pi pi-bars drag-handle"
+              <fa-icon
+                class="drag-handle"
+                [icon]="faBars"
                 cdkDragHandle
                 aria-label="Drag to reorder"
-              ></i>
-              <p-select
-                [options]="optionsForRow(i)"
+              ></fa-icon>
+              <sbb-select
+                class="column-select"
+                [options]="columnOptionsForRow(i)"
                 [ngModel]="field"
                 (ngModelChange)="setColumn(i, $event)"
-                [group]="true"
-                optionLabel="header"
-                optionValue="field"
-                optionGroupLabel="label"
-                optionGroupChildren="items"
-                [filter]="true"
-                filterBy="header"
-                appendTo="body"
+                [searchable]="true"
                 placeholder="Select column"
-                styleClass="column-select"
               />
-              <p-button
-                icon="pi pi-times"
-                text="true"
+              <sbb-button
+                [icon]="faXmark"
+                [iconOnly]="true"
+                variant="text"
                 severity="danger"
-                pTooltip="Remove column"
+                [sbbTooltip]="'Remove column'"
                 (click)="removeColumn(i)"
               />
             </div>
           }
         </div>
         <div class="column-picker-footer">
-          <p-button
-            label="Add column"
-            icon="pi pi-plus"
-            text="true"
+          <sbb-button
+            [icon]="faPlus"
+            variant="text"
             [disabled]="!canAddColumn()"
             (click)="addColumn()"
-          />
+          >
+            Add column
+          </sbb-button>
         </div>
       </div>
-    </p-popover>
-    <p-context-menu #cm appendTo="body" [model]="messagesContextMenu()" />
-    <p-table
-      #messagesTable
-      [columns]="cols()"
-      [rows]="100"
-      [value]="currentPageMessages()"
-      [scrollable]="true"
-      scrollHeight="flex"
+    </sbb-popover>
+    <sbb-data-grid
+      #messagesGrid
+      class="messages-grid"
+      [columns]="gridColumns()"
+      [data]="messages()"
+      [rowHeight]="42"
+      [lazy]="lazy()"
       [loading]="showTableLoading()"
-      [virtualScroll]="true"
-      [virtualScrollItemSize]="42"
-      stripedRows
-      [selection]="selection()"
-      (selectionChange)="onSelectionChange($event)"
-      [selectionMode]="this.multiselect() ? 'multiple' : 'single'"
-      contextMenuSelectionMode="joint"
-      [metaKeySelection]="this.multiselect()"
-      [contextMenu]="showMessageContextMenu() ? cm : undefined"
-      [lazy]="this.lazy()"
-      (onLazyLoad)="onLazyLoad($event)"
-    >
-      <ng-template pTemplate="header" let-columns>
-        <tr>
-          @for (col of columns; track col) {
-          <th style="width: 20%">{{ col.header }}</th>
-          }
-        </tr>
-      </ng-template>
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr
-          [pContextMenuRow]="rowData?.key"
-          [pSelectableRow]="rowData?.key"
-          [pContextMenuRowIndex]="rowIndex"
-          [pSelectableRowIndex]="rowIndex"
-          (mousedown)="onRowMouseDown($event)"
-          (click)="onRowClick($event, rowIndex)"
-        >
-          @for (col of columns; track col) {
-          <td>{{ getField(rowData, col.field) }}</td>
-          }
-        </tr>
-      </ng-template>
-    </p-table>
-    @if (usePagination()) {
-    <p-paginator
-      [rows]="maxMessagesPerPage()"
-      [totalRecords]="messages().length"
-      (onPageChange)="setPage($event)"
-      style="--p-paginator-padding: 3px"
-      #messagesPaginator
+      [trackBy]="trackByKey"
+      [selectionMode]="multiselect() ? 'multiple' : 'single'"
+      [manualSelection]="multiselect()"
+      [selection]="selectionKeys()"
+      (selectionChange)="onGridSelectionChange($event)"
+      [rowContextMenu]="messagesContextMenu()"
+      (rowContextMenuOpened)="onMessageContextMenu($event)"
+      (rowClick)="onGridRowClick($event)"
+      (rowMouseDown)="onGridRowMouseDown($event)"
+      (lazyLoad)="onGridLazyLoad($event)"
     />
-    }
   </div>
 </ng-template>
 
@@ -225,192 +183,134 @@
   />
 </ng-template>
 
+<!-- Shared key/value property table, right-click context menu per row. -->
+<ng-template
+  #propertyTableTemplate
+  let-rows="rows"
+  let-menu="menu"
+  let-show="show"
+  let-selModel="selModel"
+>
+  <div class="table-container">
+    <table class="property-table">
+      <tbody>
+        @for (row of rows; track row.key) {
+          @if (show) {
+            <sbb-context-menu
+              [model]="menu"
+              [data]="row"
+              (opened)="selModel.set(row)"
+            >
+              <tr>
+                <td class="user-selectable">{{ row.key }}</td>
+                <td class="user-selectable">
+                  @if (dateGuard(row.value)) {
+                    {{ row.value | date: 'medium' }}
+                  } @else {
+                    {{ row.value }}
+                  }
+                </td>
+              </tr>
+            </sbb-context-menu>
+          } @else {
+            <tr>
+              <td class="user-selectable">{{ row.label }}</td>
+              <td class="user-selectable">
+                @if (dateGuard(row.value)) {
+                  {{ row.value | date: 'medium' }}
+                } @else {
+                  {{ row.value }}
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+
 <ng-template #headersTemplate>
   <div class="header">
     <h2>Headers</h2>
   </div>
-  <div class="table-container">
-    <p-context-menu
-      #propertyMenu
-      [model]="headersContextMenu()"
-      appendTo="body"
-    />
-    <p-table
-      [columns]="propertiesCols"
-      [value]="headers()"
-      [virtualScroll]="false"
-      dataKey="key"
-      [contextMenu]="showHeadersContextMenu() ? propertyMenu : undefined"
-      [(contextMenuSelection)]="headersContextMenuSelection"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
-          {
-          <td class="user-selectable">
-            {{ rowData[col.field] | date: 'medium' }}
-          </td>
-          } @else {
-          <td class="user-selectable">{{ rowData[col.field] }}</td>
-          } }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <ng-container
+    *ngTemplateOutlet="
+      propertyTableTemplate;
+      context: {
+        rows: headers(),
+        menu: headersContextMenu(),
+        show: showHeadersContextMenu(),
+        selModel: headersContextMenuSelection
+      }
+    "
+  />
 </ng-template>
 
 <ng-template #propertiesTemplate>
   <div class="header">
     <h2>Properties</h2>
   </div>
-  <div class="table-container">
-    <p-context-menu
-      #propertiesMenu
-      [model]="propertiesContextMenu()"
-      appendTo="body"
-    />
-    <p-table
-      [columns]="propertiesCols"
-      [value]="properties()"
-      [virtualScroll]="false"
-      dataKey="key"
-      [contextMenu]="showPropertiesContextMenu() ? propertiesMenu : undefined"
-      [(contextMenuSelection)]="propertiesContextMenuSelection"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
-          {
-          <td class="user-selectable">
-            {{ rowData[col.field] | date: 'medium' }}
-          </td>
-          } @else {
-          <td class="user-selectable">{{ rowData[col.field] }}</td>
-          } }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <ng-container
+    *ngTemplateOutlet="
+      propertyTableTemplate;
+      context: {
+        rows: properties(),
+        menu: propertiesContextMenu(),
+        show: showPropertiesContextMenu(),
+        selModel: propertiesContextMenuSelection
+      }
+    "
+  />
 </ng-template>
 
 <ng-template #deliveryAnnotationsTemplate>
   <div class="header">
     <h2>Delivery annotations</h2>
   </div>
-  <div class="table-container">
-    <p-context-menu
-      #deliveryAnnotationsMenu
-      [model]="deliveryAnnotationsContextMenu()"
-      appendTo="body"
-    />
-    <p-table
-      [columns]="propertiesCols"
-      [value]="deliveryAnnotations()"
-      [virtualScroll]="false"
-      dataKey="key"
-      [contextMenu]="showDeliveryAnnotationsContextMenu() ? deliveryAnnotationsMenu : undefined"
-      [(contextMenuSelection)]="deliveryAnnotationsContextMenuSelection"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
-          {
-          <td class="user-selectable">
-            {{ rowData[col.field] | date: 'medium' }}
-          </td>
-          } @else {
-          <td class="user-selectable">{{ rowData[col.field] }}</td>
-          } }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <ng-container
+    *ngTemplateOutlet="
+      propertyTableTemplate;
+      context: {
+        rows: deliveryAnnotations(),
+        menu: deliveryAnnotationsContextMenu(),
+        show: showDeliveryAnnotationsContextMenu(),
+        selModel: deliveryAnnotationsContextMenuSelection
+      }
+    "
+  />
 </ng-template>
 
 <ng-template #messageAnnotationsTemplate>
   <div class="header">
     <h2>Message annotations</h2>
   </div>
-  <div class="table-container">
-    <p-context-menu
-      #messageAnnotationsMenu
-      [model]="messageAnnotationsContextMenu()"
-      appendTo="body"
-    />
-    <p-table
-      [columns]="propertiesCols"
-      [value]="messageAnnotations()"
-      [virtualScroll]="false"
-      dataKey="key"
-      [contextMenu]="showMessageAnnotationsContextMenu() ? messageAnnotationsMenu : undefined"
-      [(contextMenuSelection)]="messageAnnotationsContextMenuSelection"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) { @if (dateGuard(rowData[col.field]))
-          {
-          <td class="user-selectable">
-            {{ rowData[col.field] | date: 'medium' }}
-          </td>
-          } @else {
-          <td class="user-selectable">{{ rowData[col.field] }}</td>
-          } }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <ng-container
+    *ngTemplateOutlet="
+      propertyTableTemplate;
+      context: {
+        rows: messageAnnotations(),
+        menu: messageAnnotationsContextMenu(),
+        show: showMessageAnnotationsContextMenu(),
+        selModel: messageAnnotationsContextMenuSelection
+      }
+    "
+  />
 </ng-template>
 
 <ng-template #applicationPropertiesTemplate>
   <div class="header">
     <h2>Application properties</h2>
   </div>
-  <div class="table-container">
-    <p-context-menu
-      #customPropertyMenu
-      [model]="applicationPropertiesContextMenu()"
-      appendTo="body"
-    />
-    <p-table
-      [columns]="propertiesCols"
-      [value]="applicationProperties()"
-      [virtualScroll]="false"
-      dataKey="key"
-      [contextMenu]="showApplicationPropertiesContextMenu() ? customPropertyMenu : undefined"
-      [(contextMenuSelection)]="applicationPropertiesContextMenuSelection"
-    >
-      <ng-template
-        pTemplate="body"
-        let-rowData
-        let-rowIndex="rowIndex"
-        let-columns="columns"
-      >
-        <tr style="height: 30px" [pContextMenuRow]="rowData">
-          @for (col of columns; track col) {
-          <td class="user-selectable">{{ rowData[col.field] }}</td>
-          }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  <ng-container
+    *ngTemplateOutlet="
+      propertyTableTemplate;
+      context: {
+        rows: applicationProperties(),
+        menu: applicationPropertiesContextMenu(),
+        show: showApplicationPropertiesContextMenu(),
+        selModel: applicationPropertiesContextMenuSelection
+      }
+    "
+  />
 </ng-template>

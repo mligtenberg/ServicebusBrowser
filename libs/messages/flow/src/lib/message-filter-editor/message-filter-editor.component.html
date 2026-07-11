@@ -1,243 +1,209 @@
-<p-drawer
+<sbb-drawer
   header="Filter Messages"
-  appendTo="body"
-  [(visible)]="visible"
+  [open]="visible()"
+  (openChange)="onDrawerOpenChange($event)"
   [modal]="true"
   position="right"
-  [style]="{ width: '900px', 'max-width': '90vw' }"
-  (onHide)="onCancel()"
+  [width]="'900px'"
 >
-  <div>
-    <div>
-      <p-accordion [multiple]="true" [value]="['0', '1', '2', '3', '4', '5']">
-        <!-- Headers -->
-        <p-accordion-panel value="0">
-          <p-accordion-header>
-            <div class="filter-header">
-              Headers
-              @let headersFilterTagValue = headersFilterTag();
-              @if (headersFilterTagValue) {
-                <p-tag>{{ headersFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            <div>
-              @for (
-                filter of filterForm.headers().value();
-                let index = $index;
-                track index
-              ) {
-                <div class="filter-line system-property-filter-line">
-                  <lib-system-property-form
-                    [formField]="filterForm.headers[index]"
-                    [removable]="true"
-                    (removedPressed)="removeHeaderFilter(index)"
-                    [availableSystemProperties]="knownHeaders()"
-                  />
-                </div>
-              }
+  <sbb-accordion [multiple]="true">
+    <!-- Headers -->
+    <sbb-accordion-panel [(open)]="headersOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Headers
+          @if (headersFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      <div>
+        @for (
+          filter of filterForm.headers().value();
+          let index = $index;
+          track index
+        ) {
+          <div class="filter-line system-property-filter-line">
+            <lib-system-property-form
+              [formField]="filterForm.headers[index]"
+              [removable]="true"
+              (removedPressed)="removeHeaderFilter(index)"
+              [availableSystemProperties]="knownHeaders()"
+            />
+          </div>
+        }
 
-              <p-button
-                icon="pi pi-plus"
-                label="Add Header Filter"
-                variant="outlined"
-                (click)="addHeaderFilter()"
-              ></p-button>
-            </div>
-          </p-accordion-content>
-        </p-accordion-panel>
+        <sbb-button [icon]="faPlus" variant="outlined" (click)="addHeaderFilter()">
+          Add Header Filter
+        </sbb-button>
+      </div>
+    </sbb-accordion-panel>
 
-        <!-- Properties -->
-        <p-accordion-panel value="1">
-          <p-accordion-header>
-            <div class="filter-header">
-              Properties
-              @let propertiesFilterTagValue = propertiesFilterTag();
-              @if (propertiesFilterTagValue) {
-                <p-tag>{{ propertiesFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            @for (
-              filter of filterForm.properties().value();
-              let index = $index;
-              track index
-            ) {
-              <div class="filter-line system-property-filter-line">
-                <lib-system-property-form
-                  [formField]="filterForm.properties[index]"
-                  [removable]="true"
-                  (removedPressed)="removePropertiesFilter(index)"
-                  [availableSystemProperties]="knownProperties()"
-                />
-              </div>
-            }
+    <!-- Properties -->
+    <sbb-accordion-panel [(open)]="propertiesOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Properties
+          @if (propertiesFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      @for (
+        filter of filterForm.properties().value();
+        let index = $index;
+        track index
+      ) {
+        <div class="filter-line system-property-filter-line">
+          <lib-system-property-form
+            [formField]="filterForm.properties[index]"
+            [removable]="true"
+            (removedPressed)="removePropertiesFilter(index)"
+            [availableSystemProperties]="knownProperties()"
+          />
+        </div>
+      }
 
-            <p-button
-              icon="pi pi-plus"
-              label="Add Property Filter"
-              variant="outlined"
-              (click)="addPropertiesFilter()"
-            ></p-button>
-          </p-accordion-content>
-        </p-accordion-panel>
+      <sbb-button [icon]="faPlus" variant="outlined" (click)="addPropertiesFilter()">
+        Add Property Filter
+      </sbb-button>
+    </sbb-accordion-panel>
 
-        <!-- Delivery Annotations -->
-        <p-accordion-panel value="2">
-          <p-accordion-header>
-            <div class="filter-header">
-              Delivery Annotations
-              @let deliveryAnnotationsFilterTagValue =
-                deliveryAnnotationsFilterTag();
-              @if (deliveryAnnotationsFilterTagValue) {
-                <p-tag>{{ deliveryAnnotationsFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            @for (
-              filter of filterForm.deliveryAnnotations().value();
-              let index = $index;
-              track index
-            ) {
-              <div class="filter-line system-property-filter-line">
-                <lib-system-property-form
-                  [formField]="filterForm.deliveryAnnotations[index]"
-                  [removable]="true"
-                  (removedPressed)="removeDeliveryAnnotationFilter(index)"
-                  [availableSystemProperties]="knownDeliveryAnnotations()"
-                />
-              </div>
-            }
+    <!-- Delivery Annotations -->
+    <sbb-accordion-panel [(open)]="deliveryAnnotationsOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Delivery Annotations
+          @if (deliveryAnnotationsFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      @for (
+        filter of filterForm.deliveryAnnotations().value();
+        let index = $index;
+        track index
+      ) {
+        <div class="filter-line system-property-filter-line">
+          <lib-system-property-form
+            [formField]="filterForm.deliveryAnnotations[index]"
+            [removable]="true"
+            (removedPressed)="removeDeliveryAnnotationFilter(index)"
+            [availableSystemProperties]="knownDeliveryAnnotations()"
+          />
+        </div>
+      }
 
-            <p-button
-              icon="pi pi-plus"
-              label="Add Delivery Annotation Filter"
-              variant="outlined"
-              (click)="addDeliveryAnnotationFilter()"
-            ></p-button>
-          </p-accordion-content>
-        </p-accordion-panel>
+      <sbb-button
+        [icon]="faPlus"
+        variant="outlined"
+        (click)="addDeliveryAnnotationFilter()"
+      >
+        Add Delivery Annotation Filter
+      </sbb-button>
+    </sbb-accordion-panel>
 
-        <!-- Message Annotations -->
-        <p-accordion-panel value="3">
-          <p-accordion-header>
-            <div class="filter-header">
-              Message Annotations
-              @let messageAnnotationsFilterTagValue =
-                messageAnnotationsFilterTag();
-              @if (messageAnnotationsFilterTagValue) {
-                <p-tag>{{ messageAnnotationsFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            @for (
-              filter of filterForm.messageAnnotations().value();
-              let index = $index;
-              track index
-            ) {
-              <div class="filter-line system-property-filter-line">
-                <lib-system-property-form
-                  [formField]="filterForm.messageAnnotations[index]"
-                  [removable]="true"
-                  (removedPressed)="removeMessageAnnotationFilter(index)"
-                  [availableSystemProperties]="knownMessageAnnotations()"
-                />
-              </div>
-            }
+    <!-- Message Annotations -->
+    <sbb-accordion-panel [(open)]="messageAnnotationsOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Message Annotations
+          @if (messageAnnotationsFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      @for (
+        filter of filterForm.messageAnnotations().value();
+        let index = $index;
+        track index
+      ) {
+        <div class="filter-line system-property-filter-line">
+          <lib-system-property-form
+            [formField]="filterForm.messageAnnotations[index]"
+            [removable]="true"
+            (removedPressed)="removeMessageAnnotationFilter(index)"
+            [availableSystemProperties]="knownMessageAnnotations()"
+          />
+        </div>
+      }
 
-            <p-button
-              icon="pi pi-plus"
-              label="Add Message Annotation Filter"
-              variant="outlined"
-              (click)="addMessageAnnotationFilter()"
-            ></p-button>
-          </p-accordion-content>
-        </p-accordion-panel>
+      <sbb-button
+        [icon]="faPlus"
+        variant="outlined"
+        (click)="addMessageAnnotationFilter()"
+      >
+        Add Message Annotation Filter
+      </sbb-button>
+    </sbb-accordion-panel>
 
-        <!-- Application Properties -->
-        <p-accordion-panel value="4">
-          <p-accordion-header>
-            <div class="filter-header">
-              Application Properties
-              @let applicationFilterTagValue = applicationFilterTag();
-              @if (applicationFilterTagValue) {
-                <p-tag>{{ applicationFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            @for (
-              filter of filterForm.applicationProperties().value();
-              let index = $index;
-              track index
-            ) {
-              <div class="filter-line application-property-filter-line">
-                <lib-application-property-form
-                  [formField]="filterForm.applicationProperties[index]"
-                  [removable]="true"
-                  (removedPressed)="removeApplicationPropertyFilter(index)"
-                  [availableApplicationProperties]="
-                    knownApplicationProperties()
-                  "
-                />
-              </div>
-            }
+    <!-- Application Properties -->
+    <sbb-accordion-panel [(open)]="applicationPropertiesOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Application Properties
+          @if (applicationFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      @for (
+        filter of filterForm.applicationProperties().value();
+        let index = $index;
+        track index
+      ) {
+        <div class="filter-line application-property-filter-line">
+          <lib-application-property-form
+            [formField]="filterForm.applicationProperties[index]"
+            [removable]="true"
+            (removedPressed)="removeApplicationPropertyFilter(index)"
+            [availableApplicationProperties]="knownApplicationProperties()"
+          />
+        </div>
+      }
 
-            <p-button
-              icon="pi pi-plus"
-              label="Add Application Property Filter"
-              variant="outlined"
-              (click)="addApplicationPropertyFilter()"
-            ></p-button>
-          </p-accordion-content>
-        </p-accordion-panel>
+      <sbb-button
+        [icon]="faPlus"
+        variant="outlined"
+        (click)="addApplicationPropertyFilter()"
+      >
+        Add Application Property Filter
+      </sbb-button>
+    </sbb-accordion-panel>
 
-        <!-- Body -->
-        <p-accordion-panel value="5">
-          <p-accordion-header>
-            <div class="filter-header">
-              Message Body
-              @let bodyFilterTagValue = bodyFilterTag();
-              @if (bodyFilterTagValue) {
-                <p-tag>{{ bodyFilterTagValue }}</p-tag>
-              }
-            </div>
-          </p-accordion-header>
-          <p-accordion-content>
-            @for (
-              filter of filterForm.body().value();
-              let index = $index;
-              track index
-            ) {
-              <div class="filter-line application-property-filter-line">
-                <lib-body-property-form
-                  [formField]="filterForm.body[index]"
-                  [removable]="true"
-                  (removedPressed)="removeBodyFilter(index)"
-                />
-              </div>
-            }
+    <!-- Body -->
+    <sbb-accordion-panel [(open)]="bodyOpen">
+      <div sbbAccordionPanelHeader>
+        <div class="filter-header">
+          Message Body
+          @if (bodyFilterTag(); as tag) {
+            <sbb-tag>{{ tag }}</sbb-tag>
+          }
+        </div>
+      </div>
+      @for (
+        filter of filterForm.body().value();
+        let index = $index;
+        track index
+      ) {
+        <div class="filter-line application-property-filter-line">
+          <lib-body-property-form
+            [formField]="filterForm.body[index]"
+            [removable]="true"
+            (removedPressed)="removeBodyFilter(index)"
+          />
+        </div>
+      }
 
-            <p-button
-              icon="pi pi-plus"
-              label="Add body Filter"
-              variant="outlined"
-              (click)="addBodyFilter()"
-            ></p-button>
-          </p-accordion-content>
-        </p-accordion-panel>
-      </p-accordion>
-    </div>
-    <div class="actions">
-      <p-button variant="text" (click)="onCancel()"> Cancel</p-button>
-      <p-button severity="danger" (click)="onClearAll()"> Clear All</p-button>
-      <p-button (click)="onApply()" [disabled]="!isFilterValid()">
-        Apply
-      </p-button>
-    </div>
+      <sbb-button [icon]="faPlus" variant="outlined" (click)="addBodyFilter()">
+        Add body Filter
+      </sbb-button>
+    </sbb-accordion-panel>
+  </sbb-accordion>
+
+  <div sbbDrawerFooter class="actions">
+    <sbb-button variant="text" (click)="onCancel()">Cancel</sbb-button>
+    <sbb-button severity="danger" (click)="onClearAll()">Clear All</sbb-button>
+    <sbb-button (click)="onApply()" [disabled]="!isFilterValid()">Apply</sbb-button>
   </div>
-</p-drawer>
+</sbb-drawer>

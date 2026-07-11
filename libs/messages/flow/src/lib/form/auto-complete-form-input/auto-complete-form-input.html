@@ -1,13 +1,11 @@
-<p-auto-complete
-  [dropdown]="true"
+<sbb-autocomplete
   [suggestions]="suggestions() ?? []"
-  (completeMethod)="completeMethod.emit($event)"
-  (onHide)="hide.emit()"
-  appendTo="body"
-  inputId="contentType"
+  [completeOnFocus]="true"
+  [minLength]="0"
+  (completeChange)="completeMethod.emit({ query: $event })"
+  (selected)="hide.emit()"
+  (cleared)="hide.emit()"
   [disabled]="disabled()"
-  [readonly]="readonly()"
   [hidden]="hidden()"
-  [required]="required()"
   [(ngModel)]="value"
 />

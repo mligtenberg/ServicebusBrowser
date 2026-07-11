@@ -1,6 +1,6 @@
 <div class="batch-resend-container" [ngClass]="{ darkMode: darkMode() }">
-  <p-splitter [panelSizes]="[60, 40]" class="batch-resend-splitter">
-    <ng-template pTemplate="panel">
+  <sbb-splitter class="batch-resend-splitter">
+    <sbb-splitter-panel [size]="60">
       <div class="preview-panel">
         <lib-preview-batch
           [pageId]="pageId()"
@@ -22,40 +22,43 @@
           [(messageAnnotationsContextMenuSelection)]="messageAnnotationsContextMenuSelection"
         />
       </div>
-    </ng-template>
-    <ng-template pTemplate="panel">
+    </sbb-splitter-panel>
+    <sbb-splitter-panel [size]="40">
       <div class="actions-panel">
         @let currentActions = actions();
         <div class="actions-list">
           <div class="actions-header">
             <span class="actions-title">Actions</span>
             <div class="actions-header-buttons">
-              <p-button
-                icon="pi pi-upload"
+              <sbb-button
+                [icon]="uploadIcon"
+                [iconOnly]="true"
                 severity="secondary"
-                text="true"
-                pTooltip="Import Actions"
+                variant="text"
+                [sbbTooltip]="'Import Actions'"
+                aria-label="Import Actions"
                 (click)="importActions()"
-              ></p-button>
-              <p-button
-                icon="pi pi-download"
+              ></sbb-button>
+              <sbb-button
+                [icon]="downloadIcon"
+                [iconOnly]="true"
                 severity="secondary"
-                text="true"
-                pTooltip="Export Actions"
+                variant="text"
+                [sbbTooltip]="'Export Actions'"
+                aria-label="Export Actions"
                 [disabled]="currentActions.length === 0"
                 (click)="exportActions()"
-              ></p-button>
-              <p-button
+              ></sbb-button>
+              <sbb-button
                 #addActionBtn
-                label="Add action"
-                icon="pi pi-plus"
+                [icon]="plusIcon"
                 severity="primary"
                 (click)="openAddActionPopover($event)"
-              ></p-button>
+              >Add action</sbb-button>
             </div>
           </div>
           @if (currentActions.length > 0) {
-            <p-scroll-panel [style]="{ height: 'calc(100% - 4em)' }">
+            <sbb-scroll-panel [style.height]="'calc(100% - 4em)'">
               <div
                 cdkDropList
                 (cdkDropListDropped)="dropAction($event)"
@@ -99,25 +102,29 @@
                       </div>
                     </div>
                     <div class="action-card-buttons">
-                      <p-button
-                        icon="pi pi-pencil"
+                      <sbb-button
+                        [icon]="penIcon"
+                        [iconOnly]="true"
                         severity="primary"
-                        text="true"
-                        pTooltip="Edit action"
+                        variant="text"
+                        [sbbTooltip]="'Edit action'"
+                        aria-label="Edit action"
                         (click)="openEditActionPopover($event, i)"
-                      ></p-button>
-                      <p-button
-                        icon="pi pi-trash"
+                      ></sbb-button>
+                      <sbb-button
+                        [icon]="trashIcon"
+                        [iconOnly]="true"
                         severity="danger"
-                        text="true"
-                        pTooltip="Delete action"
+                        variant="text"
+                        [sbbTooltip]="'Delete action'"
+                        aria-label="Delete action"
                         (click)="removeAction(i)"
-                      ></p-button>
+                      ></sbb-button>
                     </div>
                   </div>
                 }
               </div>
-            </p-scroll-panel>
+            </sbb-scroll-panel>
           }
 
           @if (currentActions.length === 0) {
@@ -129,26 +136,25 @@
           }
         </div>
       </div>
-    </ng-template>
-  </p-splitter>
+    </sbb-splitter-panel>
+  </sbb-splitter>
 
   <div class="bottom-bar">
     <sbb-tpl-endpoint-selector-input [(ngModel)]="selectedEndpoint" />
-    <p-split-button
+    <sbb-split-button
       label="Send batch"
-      icon="pi pi-send"
-      severity="success"
+      [icon]="sendIcon"
+      severity="primary"
       [disabled]="sendBatchDisabled()"
       [model]="splitButtonItems()"
-      (onClick)="resendMessages()"
-    ></p-split-button>
+      (clicked)="resendMessages()"
+    ></sbb-split-button>
   </div>
 </div>
 
-<p-popover
+<sbb-popover
   #actionPopover
-  appendTo="body"
-  (onHide)="onPopoverHide()"
+  (closed)="onPopoverHide()"
 >
   <div class="action-popover-content">
     <h3 class="action-popover-title">{{ editMode() ? 'Edit Action' : 'Add Action' }}</h3>
@@ -158,20 +164,14 @@
       [applicationPropertyLabels]="applicationPropertyLabels()"
     ></lib-action>
     <div class="action-popover-footer">
-      <p-button
-        label="Cancel"
+      <sbb-button
         severity="secondary"
-        icon="pi pi-times"
         (click)="cancelPopoverAction()"
-      ></p-button>
-      <p-button
-        label="Save"
-        icon="pi pi-check"
+      >Cancel</sbb-button>
+      <sbb-button
         [disabled]="!canAddAction()"
         (click)="savePopoverAction()"
-      ></p-button>
+      >Save</sbb-button>
     </div>
   </div>
-</p-popover>
-
-<p-toast position="bottom-center"></p-toast>
+</sbb-popover>

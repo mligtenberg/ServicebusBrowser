@@ -1,11 +1,10 @@
-<p-input-group>
-  <p-inputgroup-addon>
-    <p-checkbox
+<sbb-input-group>
+  <sbb-input-group-addon>
+    <sbb-checkbox
       [formField]="propertyForm.isActive"
-      [binary]="true"
       class="isActive"
     />
-  </p-inputgroup-addon>
+  </sbb-input-group-addon>
 
   <lib-select-signal-form-input
     [options]="systemApplicationOptions()"
@@ -60,8 +59,7 @@
   }
 
   @if (propertyForm.fieldType().value()  === 'string') {
-    <input
-      pInputText
+    <sbb-input
       [formField]="formHelpers.asStringValueTree(propertyForm.value)"
       placeholder="Value"
       class="value"
@@ -76,25 +74,27 @@
   }
 
   @if (propertyForm.fieldType().value() === 'number') {
-    <input type="number" pInputText
-           [formField]="formHelpers.asNumberValueTree(propertyForm.value)"
-           class="value"
+    <sbb-input-number
+      [formField]="formHelpers.asNumberValueTree(propertyForm.value)"
+      class="value"
     />
   }
 
   @if (propertyForm.fieldType().value() === 'boolean') {
-    <p-checkbox
+    <sbb-checkbox
       [formField]="formHelpers.asBooleanValueTree(propertyForm.value)"
-      [binary]="true"
       class="value"
     />
   }
 
   @if (removable()) {
-    <p-button
-      icon="pi pi-trash"
+    <sbb-button
+      [icon]="removeIcon"
+      [iconOnly]="true"
       severity="danger"
+      variant="text"
+      aria-label="Remove"
       (click)="remove()"
-    ></p-button>
+    ></sbb-button>
   }
-</p-input-group>
+</sbb-input-group>

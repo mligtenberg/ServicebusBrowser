@@ -5,9 +5,12 @@ import {
   BatchActionTarget,
   BatchActionType,
 } from '@service-bus-browser/message-modification-engine';
-import { InputGroup } from 'primeng/inputgroup';
-import { Select } from 'primeng/select';
-import { Button } from 'primeng/button';
+import {
+  SbbButton,
+  SbbInputGroup,
+  SbbSelect,
+} from '@service-bus-browser/shared-ui';
+import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
 import { AddActionBodyComponent } from '../add-action-body/add-action-body.component';
 import { AlterActionBodyComponent } from '../alter-action-body/alter-action-body.component';
@@ -21,9 +24,9 @@ import { MessageFilterEditorComponent } from '../../../message-filter-editor/mes
 @Component({
   selector: 'lib-action',
   imports: [
-    InputGroup,
-    Select,
-    Button,
+    SbbInputGroup,
+    SbbSelect,
+    SbbButton,
     FormsModule,
     AddActionBodyComponent,
     AlterActionBodyComponent,
@@ -34,6 +37,8 @@ import { MessageFilterEditorComponent } from '../../../message-filter-editor/mes
   styleUrl: './action.component.scss',
 })
 export class ActionComponent {
+  protected readonly filterIcon = faFilter;
+
   actionTypes = [
     { label: 'Add', value: 'add' },
     { label: 'Alter', value: 'alter' },

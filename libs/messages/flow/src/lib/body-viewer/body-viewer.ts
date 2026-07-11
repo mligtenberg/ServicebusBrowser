@@ -6,14 +6,17 @@ import {
 } from '@service-bus-browser/message-modification-engine';
 import { ClearNonResendableProperties } from '@service-bus-browser/api-contracts';
 import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
-import { SelectButton } from 'primeng/selectbutton';
+import {
+  SbbButton,
+  SbbFloatLabel,
+  SbbSelect,
+  SbbSelectButton,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { NgTemplateOutlet } from '@angular/common';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { Select } from 'primeng/select';
-import { FloatLabel } from 'primeng/floatlabel';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faWindowMaximize } from '@fortawesome/free-solid-svg-icons';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 
@@ -30,14 +33,14 @@ import { Location } from '@angular/common';
   selector: 'lib-body-viewer',
   imports: [
     Editor,
-    SelectButton,
+    SbbSelectButton,
     FormsModule,
-    TableModule,
     NgTemplateOutlet,
-    Button,
-    Tooltip,
-    Select,
-    FloatLabel,
+    SbbButton,
+    SbbTooltip,
+    SbbSelect,
+    SbbFloatLabel,
+    FaIconComponent,
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',
@@ -110,6 +113,8 @@ export class BodyViewer {
     });
     this.destroyRef.onDestroy(() => channel.close());
   }
+
+  protected readonly faWindowMaximize = faWindowMaximize;
 
   canOpenInPopup = computed(() => !this.isPopup());
 

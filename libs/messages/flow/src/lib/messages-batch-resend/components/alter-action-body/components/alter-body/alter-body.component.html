@@ -1,56 +1,53 @@
 <div class="alter-body-container">
-  <p-select
+  <sbb-select
     [options]="alterTypes"
     [(ngModel)]="alterType"
     placeholder="Alter Type"
-    appendTo="body"
   />
 
   @if (alterType() !== 'fullReplace') {
-    <input
-      pInputText
+    <sbb-input
       required
       [(ngModel)]="searchValue"
       placeholder="Search text"
-      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"
+      [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+      sbbTooltipPlacement="top"
     />
   }
 
   <div class="value-container">
-    <p-input-group>
-    <textarea
-      pInputTextarea
+    <sbb-input-group>
+    <sbb-textarea
       [(ngModel)]="value"
       [rows]="5"
-      [cols]="30"
       placeholder="New value"
       required
-      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"
-    ></textarea>
+      [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+      sbbTooltipPlacement="top"
+    ></sbb-textarea>
 
     @if (alterType() === 'fullReplace') {
-      <p-button
-        icon="pi pi-external-link"
+      <sbb-button
+        [icon]="externalLinkIcon"
+        [iconOnly]="true"
+        variant="text"
+        class="editor-button"
+        [sbbTooltip]="'Open full screen editor'"
+        sbbTooltipPlacement="top"
+        aria-label="Open full screen editor"
         (click)="monacoDialogVisible.set(true)"
-        styleClass="editor-button"
-        pTooltip="Open full screen editor"
-        tooltipPosition="top">
-      </p-button>
+      ></sbb-button>
     }
-    </p-input-group>
+    </sbb-input-group>
   </div>
 </div>
 
-<p-dialog
+<sbb-dialog
   header="Edit Body Content"
-  [(visible)]="monacoDialogVisible"
+  [(open)]="monacoDialogVisible"
   [modal]="true"
-  [style]="{width: '90vw', height: '90vh'}"
-  [draggable]="false"
-  [resizable]="false"
-  appendTo="body">
+  width="90vw"
+  height="90vh">
   <div class="monaco-editor-container">
     <sbb-editor
     [style]="{height: '100%'}"
@@ -58,16 +55,7 @@
       [(value)]="value"
     ></sbb-editor>
   </div>
-  <ng-template #footer>
-    <p-button label="Done" icon="pi pi-check" (click)="monacoDialogVisible.set(false)" styleClass="p-button-success"></p-button>
-  </ng-template>
-</p-dialog>
-
-<ng-template #regexEplain>
-  <div class="regex-explanation">
-    <p>Within the regex you can define named capture groups by using</p>
-    <pre>(?&lt;name&gt;pattern)</pre>
-    <p>the values can be referenced in the replacement with</p>
-    <pre>$&lt;name&gt;</pre>
+  <div sbbDialogFooter>
+    <sbb-button [icon]="checkIcon" (click)="monacoDialogVisible.set(false)">Done</sbb-button>
   </div>
-</ng-template>
+</sbb-dialog>

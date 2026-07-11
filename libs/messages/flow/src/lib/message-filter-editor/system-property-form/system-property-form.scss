@@ -3,18 +3,18 @@
   width: 100%;
 }
 
-p-input-group {
+sbb-input-group {
   lib-select-signal-form-input, lib-date-picker-signal-form-input {
-    color: var(--p-inputtext-color);
-    background: var(--p-inputtext-background);
-    border: 1px solid var(--p-inputtext-border-color);
+    color: var(--sbb-text);
+    background: var(--sbb-surface);
+    border: 1px solid var(--sbb-border);
 
     ::ng-deep {
-      p-select {
+      sbb-select {
         border: none;
       }
 
-      p-date-picker > input {
+      sbb-date-picker input {
         border: none;
       }
     }
