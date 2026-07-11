@@ -2,6 +2,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbDataGrid } from './data-grid';
 import { SbbColumn, SbbLazyLoadEvent, SbbSortState } from './data-grid.models';
+import { SbbMenuItem } from '../menu';
 
 interface Row {
   id: number;
@@ -36,6 +37,7 @@ const COLUMNS: SbbColumn<Row>[] = [
         [rowHeight]="rowHeight()"
         [lazyLoadThreshold]="threshold()"
         [trackBy]="trackById"
+        [rowContextMenu]="rowContextMenu()"
         [(selection)]="selection"
         (sortChange)="lastSort = $event"
         (lazyLoad)="lazyEvents.push($event)"
@@ -54,11 +56,14 @@ class HostComponent {
   rowHeight = signal(42);
   threshold = signal(20);
   selection = signal<ReadonlyArray<unknown>>([]);
+  rowContextMenu = signal<SbbMenuItem<Row>[]>([]);
 
   lastSort: SbbSortState | null = null;
   lazyEvents: SbbLazyLoadEvent[] = [];
 
-  trackById = (row: Row) => row.id;
+  // Null-safe like real hosts (e.g. messages-viewer's `row?.key ?? index`), so
+  // sparse placeholder rows do not throw when the grid tracks them.
+  trackById = (row: Row | undefined, index: number) => row?.id ?? index;
 }
 
 // jsdom gives elements zero geometry and no scrollTo, so the CDK virtual
@@ -258,6 +263,29 @@ describe('SbbDataGrid', () => {
     expect(host.selection()).toEqual([0]);
   });
 
+  it('renders cell text when a row context menu is configured', async () => {
+    await setup((h) =>
+      h.rowContextMenu.set([{ label: 'Do', onSelect: () => undefined }]),
+    );
+    const firstRowCells = Array.from(
+      renderedRows()[0].querySelectorAll('.sbb-grid__cell'),
+    ).map((el) => (el as HTMLElement).textContent?.trim());
+    // With a context menu, cells are projected through <sbb-context-menu>;
+    // their text must still render.
+    expect(firstRowCells.length).toBe(3);
+    expect(firstRowCells[0]).toBe('0');
+    expect(firstRowCells[1]).toBe('row-0000');
+  });
+
+  it('selects a row on click when a row context menu is configured', async () => {
+    await setup((h) =>
+      h.rowContextMenu.set([{ label: 'Do', onSelect: () => undefined }]),
+    );
+    renderedRows()[2].click();
+    fixture.detectChanges();
+    expect(host.selection()).toEqual([2]);
+  });
+
   it('does not select in none mode', async () => {
     await setup((h) => h.selectionMode.set('none'));
     renderedRows()[0].click();
@@ -350,6 +378,47 @@ describe('SbbDataGrid', () => {
     expect(ev.totalRecords).toBe(1000);
     expect(ev.rows).toBe(ev.last - ev.first);
     expect(ev.last).toBeGreaterThan(ev.first);
+  });
+
+  it('requests the initial window for a sparse placeholder dataset without scrolling', async () => {
+    // messages-viewer shape: `data` spans the whole dataset (length == total)
+    // with undefined placeholders; nothing is loaded and the user has not
+    // scrolled. The grid must still request the first window, or every rendered
+    // row is an empty placeholder.
+    await setup((h) => {
+      h.lazy.set(true);
+      h.data.set(new Array<Row>(1000)); // length 1000, all holes
+    });
+
+    expect(host.lazyEvents.length).toBeGreaterThan(0);
+    const ev = host.lazyEvents[0];
+    expect(ev.first).toBe(0);
+    expect(ev.last).toBeGreaterThan(0);
+    expect(ev.totalRecords).toBe(1000);
+  });
+
+  it('renders real cell text once placeholder rows are filled in', async () => {
+    await setup((h) => {
+      h.lazy.set(true);
+      h.data.set(new Array<Row>(1000));
+    });
+    // Simulate the host servicing the emitted window: fill the sparse array.
+    const ev = host.lazyEvents[0];
+    host.data.update((d) => {
+      const next = [...d];
+      for (let i = ev.first; i < ev.last; i++) {
+        next[i] = { id: i, name: `row-${String(i).padStart(4, '0')}`, score: i };
+      }
+      return next;
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const firstCell = renderedRows()[0]
+      .querySelector('.sbb-grid__cell')
+      ?.textContent?.trim();
+    expect(firstCell).toBe('0');
   });
 
   it('does not emit lazyLoad when everything is already loaded', async () => {

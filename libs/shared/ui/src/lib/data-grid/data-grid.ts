@@ -151,6 +151,8 @@ export class SbbDataGrid<T = unknown> {
   private readonly sortState = signal<SbbSortState>({ field: '', direction: null });
 
   private lastEmittedLazyEnd = -1;
+  private lastEmittedLazyFirst = -1;
+  private lastEmittedLazyLast = -1;
 
   constructor() {
     // Keep the SelectionModel in sync with the two-way `selection` input,
@@ -168,6 +170,19 @@ export class SbbDataGrid<T = unknown> {
         return;
       }
       this.selectionModel.setSelection(...incoming);
+    });
+
+    // Drive lazy loading off the viewport's rendered-range stream rather than
+    // only `scrolledIndexChange`. The stream also fires on the FIRST render, so
+    // a sparse dataset (all placeholders) requests its initial window without
+    // needing a user scroll — otherwise the grid would render empty rows.
+    effect((onCleanup) => {
+      const vp = this.viewport();
+      if (!vp) {
+        return;
+      }
+      const sub = vp.renderedRangeStream.subscribe(() => this.checkLazyLoad());
+      onCleanup(() => sub.unsubscribe());
     });
   }
 
@@ -319,8 +334,19 @@ export class SbbDataGrid<T = unknown> {
     this.sortChange.emit({ field: column.field, direction });
   }
 
-  /** Fired by cdk viewport on scroll-index change; gates lazyLoad emission. */
-  protected onScrolledIndexChange(): void {
+  /**
+   * Gate {@link lazyLoad} emission from the current rendered range. Supports the
+   * two loading shapes the {@link data} contract allows:
+   *
+   *  1. **Sparse full-length window** — `data` spans the whole dataset with
+   *     `null`/`undefined` placeholders for unloaded rows (its length equals
+   *     `totalRecords`). We look for unloaded rows inside the rendered window
+   *     (plus a threshold of look-ahead) and request exactly that gap.
+   *  2. **Dense loaded prefix** — `data` holds only the rows loaded so far
+   *     (its length is the loaded count, `< totalRecords`). We request the next
+   *     chunk once the viewport nears the end of the loaded prefix.
+   */
+  protected checkLazyLoad(): void {
     if (!this.lazy()) {
       return;
     }
@@ -329,21 +355,44 @@ export class SbbDataGrid<T = unknown> {
       return;
     }
     const range = vp.getRenderedRange();
-    const loaded = this.data().length;
+    const data = this.data();
     const total = this.effectiveTotal();
     const threshold = this.lazyLoadThreshold();
 
-    // Nothing more to load.
+    // Shape 1: fill placeholder gaps inside (and just past) the rendered window.
+    const scanEnd = Math.min(total, range.end + threshold);
+    let firstMissing = -1;
+    let lastMissing = -1;
+    for (let i = range.start; i < scanEnd; i++) {
+      if (data[i] === null || data[i] === undefined) {
+        if (firstMissing === -1) {
+          firstMissing = i;
+        }
+        lastMissing = i;
+      }
+    }
+    if (firstMissing !== -1) {
+      const first = firstMissing;
+      const last = Math.min(total, lastMissing + 1);
+      if (
+        last > first &&
+        !(this.lastEmittedLazyFirst === first && this.lastEmittedLazyLast === last)
+      ) {
+        this.lastEmittedLazyFirst = first;
+        this.lastEmittedLazyLast = last;
+        this.lazyLoad.emit({ first, last, rows: last - first, totalRecords: total });
+      }
+      return;
+    }
+
+    // Shape 2: append the next chunk near the end of a dense loaded prefix.
+    const loaded = data.length;
     if (loaded >= total) {
       return;
     }
-
-    // Near the end of what we have loaded?
     if (range.end < loaded - threshold) {
       return;
     }
-
-    // Don't re-emit for the same window end.
     if (loaded === this.lastEmittedLazyEnd) {
       return;
     }
@@ -370,6 +419,8 @@ export class SbbDataGrid<T = unknown> {
   /** Reset lazy-load bookkeeping (e.g. when the underlying page changes). */
   resetLazyState(): void {
     this.lastEmittedLazyEnd = -1;
+    this.lastEmittedLazyFirst = -1;
+    this.lastEmittedLazyLast = -1;
   }
 
   /** Scroll a given row index into view. */
