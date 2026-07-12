@@ -1,13 +1,9 @@
 <div
-  class="sbb-popover"
-  brnPopover
-  [align]="align()"
-  [sideOffset]="sideOffset()"
-  (stateChanged)="handleStateChanged($event)"
+  #panel
+  class="sbb-popover-panel"
+  popover="auto"
+  [attr.data-align]="align()"
+  (toggle)="onToggle($event)"
 >
-  <ng-template brnPopoverContent>
-    <div class="sbb-popover-panel">
-      <ng-content />
-    </div>
-  </ng-template>
+  <ng-content />
 </div>

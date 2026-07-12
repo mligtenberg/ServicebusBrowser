@@ -21,6 +21,10 @@ class HostComponent {
   readonly closeCount = signal(0);
 }
 
+// NOTE: jsdom does not implement the native Popover API (`showPopover` /
+// `hidePopover`), so `SbbPopover` falls back to its plain state-signal path
+// here — open/close resolve synchronously and the projected content lives in
+// the DOM at all times (hidden by the UA `display: none` in real browsers).
 describe('SbbPopover', () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
@@ -37,21 +41,15 @@ describe('SbbPopover', () => {
       .componentInstance as SbbPopover;
   });
 
-  afterEach(() => {
-    // Overlays attach to the CDK global overlay container appended to
-    // document.body — dispose explicitly so panels don't leak between specs.
-    popover.close();
-  });
-
   it('should create', () => {
     expect(popover).toBeTruthy();
   });
 
-  it('should not render panel content until opened', () => {
-    expect(document.querySelector('.content')).toBeNull();
+  it('should start closed', () => {
+    expect(popover.isOpen()).toBe(false);
   });
 
-  it('should project content into the overlay panel once toggled open', () => {
+  it('should open on toggle from the trigger and project content', () => {
     const trigger = fixture.debugElement.query(
       By.css('button'),
     ).nativeElement as HTMLButtonElement;
@@ -60,7 +58,6 @@ describe('SbbPopover', () => {
 
     expect(popover.isOpen()).toBe(true);
     const content = document.querySelector('.content');
-    expect(content).not.toBeNull();
     expect(content?.textContent).toContain('Hello world');
   });
 
@@ -93,7 +90,7 @@ describe('SbbPopover', () => {
     expect(host.closeCount()).toBe(1);
   });
 
-  it('should open via the imperative open() method and close via close()', () => {
+  it('should open via open() and close via close()', () => {
     const trigger = fixture.debugElement.query(
       By.css('button'),
     ).nativeElement as HTMLButtonElement;
@@ -105,5 +102,17 @@ describe('SbbPopover', () => {
     popover.close();
     fixture.detectChanges();
     expect(popover.isOpen()).toBe(false);
+  });
+
+  it('should stamp and release the trigger anchor-name across open/close', () => {
+    const trigger = fixture.debugElement.query(
+      By.css('button'),
+    ).nativeElement as HTMLButtonElement;
+
+    popover.open(trigger);
+    expect(trigger.style.getPropertyValue('anchor-name')).not.toBe('');
+
+    popover.close();
+    expect(trigger.style.getPropertyValue('anchor-name')).toBe('');
   });
 });

@@ -1,43 +1,42 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Output,
-  ViewChild,
+  ElementRef,
   input,
+  output,
+  signal,
+  viewChild,
 } from '@angular/core';
-import {
-  BrnPopover,
-  BrnPopoverContent,
-} from '@spartan-ng/brain/popover';
 
 /**
- * `SbbPopover` — a styled, click-toggled overlay panel anchored to an
- * external trigger element, projecting arbitrary content.
+ * `SbbPopover` — a styled overlay panel anchored to an external trigger
+ * element, projecting arbitrary content.
  *
  * Opinionated-minimal replacement for `p-popover`. Public API derived from
  * current call sites (tasks summary, workspace switcher, send-message /
  * batch-resend system-property editors):
  *  - The popover itself renders no trigger — callers wire an arbitrary
- *    element's `(click)`/`(keydown.enter)` to `toggle()` via a template
- *    reference variable (`#pop`, `pop.toggle($event)`), exactly like the
- *    prior `p-popover #op` + `togglePopover(op, $event)` idiom.
+ *    element's `(click)` to `toggle()` via a template reference variable
+ *    (`#pop`, `pop.toggle($event.currentTarget)`).
  *  - `align` controls horizontal alignment relative to the trigger
- *    (`'start' | 'center' | 'end'`), parity with the default centered
- *    `p-popover` plus the offset menu seen in the workspace switcher.
- *  - Arbitrary content is projected via `<ng-content>` — no template/content
- *    model beyond "whatever the caller puts inside `<sbb-popover>`".
+ *    (`'start' | 'center' | 'end'`); `sideOffset` the vertical gap.
+ *  - Arbitrary content is projected via `<ng-content>`.
  *  - `opened`/`closed` outputs mirror `p-popover`'s `(onShow)`/`(onHide)`.
  *
- * Built on `@spartan-ng/brain/popover` (`BrnPopover` + `BrnPopoverContent`,
- * itself layered on `@angular/cdk/overlay`) — brain/CDK types are only used
- * inside this component's own template and are not part of the public API
- * surface.
+ * Built on the **native HTML Popover API** (`popover="auto"` → top-layer
+ * rendering, light-dismiss and Escape for free) plus **CSS anchor
+ * positioning** (a per-instance `anchor-name` is stamped onto the trigger and
+ * the panel's `position-anchor` points at it). No CDK overlay, no
+ * `@spartan-ng/brain` — the browser does the positioning, flipping and
+ * dismissal.
+ *
+ * The native `toggle` event is the single source of truth for open state, so
+ * light-dismiss/Escape stay in sync. Environments without the Popover API
+ * (e.g. jsdom under tests) transparently fall back to a plain state signal.
  */
 @Component({
   selector: 'sbb-popover',
   standalone: true,
-  imports: [BrnPopover, BrnPopoverContent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './popover.html',
   styleUrl: './popover.scss',
@@ -53,42 +52,108 @@ export class SbbPopover {
   /** Vertical gap, in pixels, between the trigger and the panel. */
   readonly sideOffset = input<number>(4);
 
-  /** Emits once the panel has finished opening. */
-  @Output() readonly opened = new EventEmitter<void>();
+  /** Emits once the panel has opened. */
+  readonly opened = output<void>();
 
-  /** Emits once the panel has finished closing. */
-  @Output() readonly closed = new EventEmitter<void>();
+  /** Emits once the panel has closed. */
+  readonly closed = output<void>();
 
-  @ViewChild(BrnPopover, { static: true })
-  private readonly overlay!: BrnPopover;
+  private readonly panelRef =
+    viewChild.required<ElementRef<HTMLElement>>('panel');
+
+  private static nextId = 0;
+
+  /**
+   * Unique CSS `anchor-name` for this instance. Anchor names are dashed-idents;
+   * it is stamped onto the trigger element while the panel is open and removed
+   * on close so it doesn't linger on the trigger's inline style.
+   */
+  protected readonly anchorName = `--sbb-popover-${SbbPopover.nextId++}`;
+
+  /**
+   * Open state. Driven by the native `toggle` event (or set directly in the
+   * fallback path). Deliberately lags the live DOM state — see {@link toggle}.
+   */
+  private readonly openState = signal(false);
+
+  private currentOrigin: HTMLElement | undefined;
 
   /** Anchors the panel to `origin` and opens it (no-op if already open). */
   open(origin: HTMLElement): void {
-    this.overlay.setOrigin(origin);
-    this.overlay.open();
+    const panel = this.panelRef().nativeElement;
+    if (this.supportsPopover(panel)) {
+      if (panel.matches(':popover-open')) {
+        return;
+      }
+      this.anchorTo(origin);
+      panel.showPopover();
+    } else if (!this.openState()) {
+      this.anchorTo(origin);
+      this.setOpen(true);
+    }
   }
 
   /** Closes the panel (no-op if already closed). */
   close(): void {
-    this.overlay.close();
+    const panel = this.panelRef().nativeElement;
+    if (this.supportsPopover(panel) && panel.matches(':popover-open')) {
+      panel.hidePopover();
+    } else {
+      // DOM already closed (e.g. light-dismissed) or unsupported — sync state.
+      this.setOpen(false);
+    }
   }
 
   /** Anchors the panel to `origin` and flips its open/closed state. */
   toggle(origin: HTMLElement): void {
-    this.overlay.setOrigin(origin);
-    this.overlay.toggle();
+    // Decide on our (deliberately lagging) signal, not the live DOM state: when
+    // the trigger is re-clicked, the browser's light-dismiss has synchronously
+    // closed the panel but the async `toggle` event hasn't updated `openState`
+    // yet, so it still reads true → we close instead of reopening.
+    if (this.openState()) {
+      this.close();
+    } else {
+      this.open(origin);
+    }
   }
 
   /** Whether the panel is currently open. */
   isOpen(): boolean {
-    return this.overlay.stateComputed() === 'open';
+    return this.openState();
   }
 
-  protected handleStateChanged(state: 'open' | 'closed'): void {
-    if (state === 'open') {
+  /** Native `toggle` event — the source of truth for open state. */
+  protected onToggle(event: Event): void {
+    this.setOpen((event as ToggleEvent).newState === 'open');
+  }
+
+  private setOpen(open: boolean): void {
+    if (open === this.openState()) {
+      return;
+    }
+    this.openState.set(open);
+    if (open) {
       this.opened.emit();
     } else {
+      this.releaseAnchor();
       this.closed.emit();
     }
+  }
+
+  private anchorTo(origin: HTMLElement): void {
+    this.currentOrigin = origin;
+    origin.style.setProperty('anchor-name', this.anchorName);
+    const panel = this.panelRef().nativeElement;
+    panel.style.setProperty('position-anchor', this.anchorName);
+    panel.style.setProperty('--sbb-popover-offset', `${this.sideOffset()}px`);
+  }
+
+  private releaseAnchor(): void {
+    this.currentOrigin?.style.removeProperty('anchor-name');
+    this.currentOrigin = undefined;
+  }
+
+  private supportsPopover(el: HTMLElement): boolean {
+    return typeof el.showPopover === 'function';
   }
 }

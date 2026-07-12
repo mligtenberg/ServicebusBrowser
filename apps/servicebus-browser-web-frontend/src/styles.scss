@@ -1,5 +1,5 @@
 @use "primeicons/primeicons.css" as *;
-// CDK/brain overlays (sbb-popover, sbb-select, sbb-dialog, …) attach to the
+// CDK/brain overlays (sbb-select, sbb-dialog, sbb-autocomplete, …) attach to the
 // global CDK overlay container — this positions/backdrops them.
 @use "@angular/cdk/overlay-prebuilt.css" as *;
 // shared-ui design tokens (`--sbb-*`). Without this, Sbb components fall back

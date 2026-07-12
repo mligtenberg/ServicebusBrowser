@@ -2,31 +2,60 @@
   display: contents;
 }
 
-.sbb-popover {
-  display: contents;
-}
-
 .sbb-popover-panel {
-  display: flex;
+  // Reset the UA popover defaults (which center the panel in the viewport via
+  // `inset: 0; margin: auto;`) so CSS anchor positioning drives placement.
+  // `position-anchor` is stamped inline by the component (per-instance name);
+  // the panel sits below the trigger, offset by `--sbb-popover-offset`.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  top: anchor(bottom);
+  margin-top: var(--sbb-popover-offset, 4px);
+  // Flip above the trigger when there's no room below.
+  position-try-fallbacks: flip-block;
+
+  // NB: do NOT set `display` here. When closed, the UA rule
+  // `[popover]:not(:popover-open) { display: none }` hides the panel — but an
+  // author `display` (even in the base rule) always beats the UA rule, which
+  // would leave every popover permanently visible. So `display` lives only in
+  // the `:popover-open` block below.
   flex-direction: column;
   min-width: 12rem;
-  max-width: 24rem;
+  // Shrink-to-fit the content (a fixed-position box sizes to max-content), only
+  // capping so it can't outgrow the viewport. A hard `24rem` here squeezed wide
+  // content — e.g. the filter forms' input-group row — into wrapping even when
+  // there was room. Narrow content (menus) still stays narrow.
+  max-width: min(40rem, calc(100vw - 1rem));
   max-height: 24rem;
   overflow: auto;
   background: var(--sbb-surface-raised);
   border: 1px solid var(--sbb-border);
   border-radius: var(--sbb-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
-  animation: sbb-popover-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
-}
+  animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
 
-@keyframes sbb-popover-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
+  // Only take layout (and thus become visible) once actually opened; see note above.
+  &:popover-open {
+    display: flex;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+
+  // Alignment. Only ONE inline inset is set per alignment so the other stays
+  // `auto` and the sizing containing block remains the full viewport — setting
+  // e.g. `left: anchor(center)` would shrink the available width to the gap
+  // between the trigger and the viewport edge, squeezing the panel narrow when
+  // the trigger sits near an edge.
+  &[data-align='start'] {
+    left: anchor(left);
+  }
+
+  // Center on the trigger via `anchor-center` (both inline insets stay auto),
+  // so the panel shrink-to-fits its content and is then centered on the anchor.
+  &[data-align='center'] {
+    justify-self: anchor-center;
+  }
+
+  &[data-align='end'] {
+    right: anchor(right);
   }
 }
