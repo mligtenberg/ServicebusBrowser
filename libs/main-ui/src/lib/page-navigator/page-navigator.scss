@@ -62,28 +62,25 @@
   --color-active: var(--sbb-primary);
   font-weight: bold;
   display: flex;
+  align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-bottom: solid 1px transparent;
+  border-bottom: solid 2px transparent;
   height: 30px;
-  padding: 5px 2px 3px 6px;
+  box-sizing: border-box;
+  padding: 0 4px 0 8px;
   z-index: 2;
+  gap: 6px;
+  color: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 65%));
+  transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+              border-color var(--sbb-transition-duration) var(--sbb-transition-ease);
 
   &.active {
-    > div {
-      color: var(--color-active);
-    }
-    border-bottom: solid 1px var(--color-active);
+    color: var(--color-active);
+    border-bottom-color: var(--color-active);
   }
 
-  &:not(.active) > div {
-    color: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 65%));
-
-    &:focus-visible {
-      outline: var(--color-active) solid 2px;
-      outline-offset: -2px;
-    }
-
+  &:not(.active):not(.disabled) {
     &:hover {
       color: light-dark(hsl(0, 0%, 15%), hsl(0, 0%, 100%));
     }
@@ -91,16 +88,38 @@
 
   &.disabled {
     cursor: default;
-    opacity: 0.7;
+    opacity: 0.5;
+  }
+
+  span[routerLink],
+  > span {
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+
+    &:focus-visible {
+      outline: var(--color-active) solid 2px;
+      outline-offset: -2px;
+    }
   }
 
   .close-button {
     color: hsl(0, 60%, 60%);
     background: none;
     border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: var(--sbb-radius);
+    transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+                background-color var(--sbb-transition-duration) var(--sbb-transition-ease);
 
-    :hover {
+    &:hover {
       color: light-dark(hsl(0, 20%, 41%), hsl(0, 23%, 70%));
+      background-color: var(--sbb-surface-hover);
     }
   }
 
@@ -111,6 +130,14 @@
     padding: 0 4px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    border-radius: var(--sbb-radius);
+    transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+                background-color var(--sbb-transition-duration) var(--sbb-transition-ease);
+
+    &:hover {
+      background-color: var(--sbb-surface-hover);
+    }
 
     &.accept-button {
       color: hsl(120, 50%, 45%);
@@ -138,7 +165,6 @@
     min-width: 4rem;
     padding: 0 0;
     margin: 0;
-    margin-top: -2px;
     outline: none;
   }
 }
