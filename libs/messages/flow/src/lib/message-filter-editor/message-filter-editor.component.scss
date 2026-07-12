@@ -7,20 +7,22 @@
   gap: 0.2rem;
   width: 100%;
 
-  .isActive {
-    width: 1.5rem;
-  }
+  ::ng-deep {
+    .isActive {
+      width: 1.5rem;
+    }
 
-  .fieldName {
-    width: 10rem;
-  }
+    .fieldName {
+      width: 10rem;
+    }
 
-  .fieldType {
-    width: 10rem;
-  }
+    .fieldType, .filterType {
+      width: 10rem;
+    }
 
-  .value {
-    flex: 1;
+    .value {
+      flex: 1;
+    }
   }
 }
 

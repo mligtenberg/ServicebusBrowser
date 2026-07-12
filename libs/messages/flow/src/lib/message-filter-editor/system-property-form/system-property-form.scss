@@ -3,19 +3,78 @@
   width: 100%;
 }
 
+// When used inside sbb-input-group, strip borders/radii/backgrounds from
+// inner controls so the group presents as one unified control, while keeping
+// the flex layout intact so the select caret and proper sizing are preserved.
 sbb-input-group {
-  lib-select-signal-form-input, lib-date-picker-signal-form-input {
-    color: var(--sbb-text);
-    background: var(--sbb-surface);
-    border: 1px solid var(--sbb-border);
+  ::ng-deep {
+    // Each custom wrapper becomes a flex child that stretches to the group height
+    lib-select-signal-form-input,
+    lib-date-picker-signal-form-input,
+    sbb-input,
+    sbb-input-number {
+      display: flex;
+      align-items: stretch;
+      min-width: 0;
 
-    ::ng-deep {
-      sbb-select {
-        border: none;
+      // The sbb-select host and date-picker host need to stretch too
+      sbb-select,
+      sbb-date-picker {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      // The .sbb-select wrapper div
+      .sbb-select {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      // Strip individual borders/backgrounds from the actual trigger/input elements.
+      // Keep display:flex and justify-content so the caret stays visible.
+      .sbb-select-trigger {
+        flex: 1;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        min-height: unset;
+
+        &:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+        }
+      }
+
+      .sbb-input,
+      .sbb-input-number__field {
+        flex: 1;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        height: 100%;
+
+        &:focus,
+        &:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+        }
       }
 
       sbb-date-picker input {
-        border: none;
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+
+        &:focus,
+        &:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+        }
       }
     }
   }
