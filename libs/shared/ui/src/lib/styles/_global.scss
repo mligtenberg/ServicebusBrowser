@@ -9,3 +9,32 @@
 .sbb-dialog-pane {
   z-index: 1010 !important;
 }
+
+// Shared entry animation for overlay panels (popover, context-menu,
+// autocomplete, …). Keyframes are global in CSS and untouched by Angular's
+// emulated encapsulation, so components just reference this name with
+// `animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);`.
+@keyframes sbb-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Reduced-motion: drop the scale (the actual "motion") but keep the opacity
+// cross-fade, which isn't considered motion. Redefining the same-named
+// keyframes here overrides the block above wherever the media query matches.
+@media (prefers-reduced-motion: reduce) {
+  @keyframes sbb-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
