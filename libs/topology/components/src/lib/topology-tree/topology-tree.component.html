@@ -1,6 +1,34 @@
 <div class="main-container">
   <div class="search-container">
-    <!-- Chip display area (chips are managed manually, above the autocomplete) -->
+    <!-- Blended autosuggest input -->
+    <sbb-autocomplete
+      class="search-autocomplete"
+      [groups]="suggestionGroups()"
+      [minLength]="0"
+      [completeOnFocus]="true"
+      [placeholder]="currentChips().length === 0 ? 'Search' : 'Add filter…'"
+      [ngModel]="autocompleteText()"
+      (ngModelChange)="autocompleteText.set($event)"
+      (completeChange)="onComplete($event)"
+      (selected)="onSuggestionSelect($event)"
+      (cleared)="onSearchCleared()"
+    >
+      <!-- Item template: entity row or truncation hint -->
+      <ng-template sbbAutocompleteItem let-item>
+        @if (item.kind === 'entity') {
+          <span class="suggestion-entity">{{ item.label }}</span>
+        } @else if (item.kind === 'truncation') {
+          <span class="suggestion-truncation">{{ item.label }}</span>
+        }
+      </ng-template>
+
+      <!-- Group header template -->
+      <ng-template sbbAutocompleteGroupLabel let-group>
+        <span class="suggestion-group-label">{{ group.label }}</span>
+      </ng-template>
+    </sbb-autocomplete>
+
+    <!-- Chip display area (chips are managed manually, below the autocomplete) -->
     @if (currentChips().length > 0) {
       <div class="chip-list">
         @for (chip of currentChips(); track chip.type) {
@@ -16,70 +44,40 @@
         }
       </div>
     }
-
-    <!-- Blended autosuggest input -->
-    <p-autocomplete
-      class="search-autocomplete"
-      [ngModel]="autocompleteValue()"
-      [suggestions]="suggestions()"
-      [group]="true"
-      optionGroupLabel="groupLabel"
-      optionGroupChildren="items"
-      [minLength]="0"
-      [completeOnFocus]="true"
-      [showEmptyMessage]="false"
-      [forceSelection]="false"
-      [delay]="0"
-      [placeholder]="currentChips().length === 0 ? 'Search' : 'Add filter…'"
-      appendTo="body"
-      (completeMethod)="onComplete($event)"
-      (onSelect)="onSuggestionSelect($event)"
-      (onClear)="onSearchCleared()"
-    >
-      <!-- Item template: entity row or truncation hint -->
-      <ng-template let-item pTemplate="item">
-        @if (item.kind === 'entity') {
-          <span class="suggestion-entity">{{ item.label }}</span>
-        } @else if (item.kind === 'truncation') {
-          <span class="suggestion-truncation">{{ item.label }}</span>
-        }
-      </ng-template>
-
-      <!-- Group header template -->
-      <ng-template let-group pTemplate="group">
-        <span class="suggestion-group-label">{{ group.groupLabel }}</span>
-      </ng-template>
-    </p-autocomplete>
   </div>
 
   <div class="tree-wrapper">
     @if (hasNoResults()) {
       <div class="no-results">No results</div>
     } @else {
-      <p-tree
-        [value]="treeNodes()"
-        (onNodeExpand)="onNodeExpand($event)"
-        (onNodeCollapse)="onNodeCollapse($event)"
-        selectionMode="multiple"
-        [selection]="treeSelection()"
+      <sbb-tree
+        [nodes]="treeNodes()"
+        [selectionMode]="multiSelectEnabled() ? 'multiple' : 'single'"
+        [expandedIds]="expandedIds()"
+        [rangeFilter]="rangeFilter"
         (selectionChange)="onSelectionChange($event)"
+        (nodeSelect)="onNodeSelect($event)"
+        (nodeExpand)="onNodeExpand($event)"
+        (nodeCollapse)="onNodeCollapse($event)"
       >
-        <ng-template let-node pTemplate="default">
-          <sbb-tpl-generic-tree-node
-            [node]="node.data"
-            (actionSelected)="onActionSelected($event)"
-            (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
-            (sendEndpointSelected)="onSendEndpointSelected($event)"
-            (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
-            [selectionMode]="nodeSelectionMode()"
-            [searchTerm]="debouncedFreeText()"
-            [exactMatch]="isExactChipMatch(node.data)"
-          />
+        <ng-template sbbTreeNode let-node>
+          @let n = asTreeNode(node);
+          @if (n.placeholder) {
+            <span class="children">No topology found</span>
+          } @else {
+            <sbb-tpl-generic-tree-node
+              [node]="n.data!"
+              (actionSelected)="onActionSelected($event)"
+              (receiveEndpointSelected)="onReceiveEndpointSelected($event)"
+              (sendEndpointSelected)="onSendEndpointSelected($event)"
+              (clearReceiveEndpointSelected)="onClearReceiveEndpointSelected($event)"
+              [selectionMode]="nodeSelectionMode()"
+              [searchTerm]="debouncedFreeText()"
+              [exactMatch]="isExactChipMatch(n.data)"
+            />
+          }
         </ng-template>
-        <ng-template let-node pTemplate="no-children">
-          <span class="children">No topology found</span>
-        </ng-template>
-      </p-tree>
+      </sbb-tree>
     }
   </div>
 </div>
