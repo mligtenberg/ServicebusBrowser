@@ -13,16 +13,16 @@
       [cdkDragData]="page.id"
       [ngClass]="{'active': page === currentPage(), disabled: page.blocked }"
       (dblclick)="!page.blocked && startRename(page.id, page.name)"
-      (contextmenu)="!page.blocked && openContextMenu($event, page.id, page.name, i)"
     >
       @if (page.blocked) {
         <span
           [attr.aria-label]="page.name">{{ page.name }}</span>
         <button tabindex="1" disabled class="close-button">
-          <span class="pi pi-times"></span>
+          <span class="fa-solid fa-xmark"></span>
         </button>
       }
       @else {
+        <sbb-context-menu [model]="pageMenu(page.id, page.name, i)" [data]="page.id">
         @if (editingPageId() === page.id) {
           <input
             class="page-name-input"
@@ -43,7 +43,7 @@
             (click)="commitRename(page.id); $event.stopPropagation()"
             aria-label="Confirm rename"
           >
-            <span class="pi pi-check"></span>
+            <span class="fa-solid fa-check"></span>
           </button>
           <button
             tabindex="1"
@@ -52,7 +52,7 @@
             (click)="cancelRename(); $event.stopPropagation()"
             aria-label="Cancel rename"
           >
-            <span class="pi pi-times"></span>
+            <span class="fa-solid fa-xmark"></span>
           </button>
         }
         @else {
@@ -61,9 +61,10 @@
             tabindex="1"
             [attr.aria-label]="page.name">{{ page.name }}</span>
           <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
-            <span class="pi pi-times"></span>
+            <span class="fa-solid fa-xmark"></span>
           </button>
         }
+        </sbb-context-menu>
       }
     </div>
   }
@@ -76,7 +77,7 @@
     class="move-scroll-button move-left"
     (click)="scrollToStart(pageNavigator)"
   ><span
-    class="pi pi-chevron-left"></span></button>
+    class="fa-solid fa-chevron-left"></span></button>
 }
 
 @if (!scrollAtEnd()) {
@@ -84,11 +85,5 @@
     class="move-scroll-button move-right"
     (click)="scrollToEnd(pageNavigator)"
   ><span
-    class="pi pi-chevron-right"></span></button>
+    class="fa-solid fa-chevron-right"></span></button>
 }
-
-<p-context-menu
-  #contextMenu
-  [model]="contextMenuItems()"
-  appendTo="body"
-/>
