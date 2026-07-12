@@ -185,12 +185,9 @@ export class MessagesBatchResendComponent {
     () => !this.selectedMessageSequence(),
   );
 
-  // Note: PrimeNG MenuItem.icon took a "pi pi-*" CSS class; SbbMenuItem.icon
-  // expects a CSS-class-based icon font too, but this project only wires up
-  // FontAwesome via the SVG component (`FaIconComponent` / `[icon]` bindings),
-  // not a class-based icon font. There is no equivalent to set here, so the
-  // icons are intentionally omitted rather than pointing at a class that
-  // resolves to nothing.
+  // Icons intentionally omitted here (never had them). SbbMenuItem.icon is a
+  // CSS-class string and the FontAwesome webfont is now loaded globally, so a
+  // `fa-solid fa-*` class could be set here if these entries want icons.
   protected splitButtonItems = computed<SbbMenuItem<void>[]>(() => [
     {
       label: 'Send selection',

@@ -23,14 +23,14 @@ const stripConnectionMutationActions = <T extends TopologyNode | undefined>(
 
 const buildConnectionMutationActions = (connectionId: UUID, connectionName: string) => [
   {
-    icon: 'pi pi-pencil',
+    icon: 'fa-solid fa-pencil',
     displayName: `Rename ${connectionName}`,
     actionGroup: 'connection',
     actionType: 'connection:rename',
     parameters: { connectionId, connectionName },
   },
   {
-    icon: 'pi pi-trash',
+    icon: 'fa-solid fa-trash',
     displayName: `Remove ${connectionName}`,
     actionGroup: 'connection',
     actionType: 'connection:delete',

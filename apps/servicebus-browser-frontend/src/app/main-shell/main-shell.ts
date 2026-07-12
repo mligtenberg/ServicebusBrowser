@@ -51,7 +51,7 @@ export class MainShell {
         items: [
           {
             label: 'Add Connection',
-            icon: 'pi pi-plus',
+            icon: 'fa-solid fa-plus',
             onSelect: () => this.router.navigateByUrl('/connections/add'),
           },
         ],
@@ -61,12 +61,12 @@ export class MainShell {
         items: [
           {
             label: 'Send',
-            icon: 'pi pi-send',
+            icon: 'fa-solid fa-paper-plane',
             onSelect: () => this.router.navigateByUrl('/messages/send'),
           },
           {
             label: 'Import',
-            icon: 'pi pi-upload',
+            icon: 'fa-solid fa-upload',
             onSelect: () => {
               this.importMessages();
             },
@@ -78,49 +78,49 @@ export class MainShell {
         items: [
           {
             label: 'Application Theme',
-            icon: 'pi pi-desktop',
+            icon: 'fa-solid fa-desktop',
             items: [
               {
                 ...selectionMarks(() => this.themeService.preference() === 'sync', 'Sync with OS'),
-                icon: 'pi pi-desktop',
+                icon: 'fa-solid fa-desktop',
                 onSelect: () => this.themeService.setPreference('sync'),
               },
               {
                 ...selectionMarks(() => this.themeService.preference() === 'light', 'Light theme'),
-                icon: 'pi pi-sun',
+                icon: 'fa-solid fa-sun',
                 onSelect: () => this.themeService.setPreference('light'),
               },
               {
                 ...selectionMarks(() => this.themeService.preference() === 'dark', 'Dark theme'),
-                icon: 'pi pi-moon',
+                icon: 'fa-solid fa-moon',
                 onSelect: () => this.themeService.setPreference('dark'),
               },
             ],
           },
           {
             label: 'Default Body View',
-            icon: 'pi pi-eye',
+            icon: 'fa-solid fa-eye',
             items: [
               {
                 ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'raw', 'Raw'),
-                icon: 'pi pi-file',
+                icon: 'fa-solid fa-file',
                 onSelect: () => this.messagePreferences.setDefaultBodyView('raw'),
               },
               {
                 ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'pretty', 'Pretty'),
-                icon: 'pi pi-sparkles',
+                icon: 'fa-solid fa-wand-magic-sparkles',
                 onSelect: () => this.messagePreferences.setDefaultBodyView('pretty'),
               },
             ],
           },
           {
             label: 'Search for Updates',
-            icon: 'pi pi-refresh',
+            icon: 'fa-solid fa-arrows-rotate',
             onSelect: () => this.electron?.checkForUpdates?.(),
           },
           {
             label: 'About',
-            icon: 'pi pi-info-circle',
+            icon: 'fa-solid fa-circle-info',
             onSelect: () => this.router.navigateByUrl('/about'),
           },
         ],

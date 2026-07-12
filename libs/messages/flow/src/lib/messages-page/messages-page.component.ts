@@ -375,21 +375,21 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Copy property',
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
-        icon: 'pi pi-filter',
+        icon: 'fa-solid fa-filter',
         onSelect: () => {
           this.filterOnHeader(
             selection.key,
@@ -408,21 +408,21 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Copy property',
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
-        icon: 'pi pi-filter',
+        icon: 'fa-solid fa-filter',
         onSelect: () => {
           this.filterOnProperty(
             selection.key,
@@ -441,21 +441,21 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Copy property',
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
-        icon: 'pi pi-filter',
+        icon: 'fa-solid fa-filter',
         onSelect: () => {
           this.filterOnDeliveryAnnotation(
             selection.key,
@@ -474,21 +474,21 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Copy property',
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
-        icon: 'pi pi-filter',
+        icon: 'fa-solid fa-filter',
         onSelect: () => {
           this.filterOnMessageAnnotation(
             selection.key,
@@ -507,21 +507,21 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Copy property',
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(`${selection.key}: ${selection.value}`);
         },
       },
       {
         label: "Copy property's value",
-        icon: 'pi pi-copy',
+        icon: 'fa-solid fa-copy',
         onSelect: () => {
           navigator.clipboard.writeText(selection.value as string);
         },
       },
       {
         label: `Add filter for ${selection.key}`,
-        icon: 'pi pi-filter',
+        icon: 'fa-solid fa-filter',
         onSelect: () => {
           this.filterOnApplicationProperty(
             selection.key,
@@ -614,7 +614,7 @@ export class MessagesPageComponent {
           label: allMessages
             ? 'Quick resend all messages'
             : 'Quick selected resend messages',
-          icon: 'pi pi-envelope',
+          icon: 'fa-solid fa-envelope',
           onSelect: () => {
             this.resendAllMessages.set(allMessages);
             this.displaySendMessages.set(true);
@@ -624,7 +624,7 @@ export class MessagesPageComponent {
           label: allMessages
             ? 'Batch resend all messages'
             : 'Batch resend selected messages',
-          icon: 'pi pi-envelope',
+          icon: 'fa-solid fa-envelope',
           onSelect: () => {
             this.router.navigate(
               [this.baseRoute, 'batch-resend', this.currentPage()!.id],
@@ -639,7 +639,7 @@ export class MessagesPageComponent {
         },
         {
           label: allMessages ? 'Export all messages' : 'Export selection',
-          icon: 'pi pi-download',
+          icon: 'fa-solid fa-download',
           onSelect: () => {
             this.exportMessages(allMessages);
           },
@@ -654,7 +654,7 @@ export class MessagesPageComponent {
     return [
       {
         label: 'Quick resend message',
-        icon: 'pi pi-envelope',
+        icon: 'fa-solid fa-envelope',
         onSelect: () => {
           this.menuMessagesSelection.set([]);
           this.displaySendMessages.set(true);
@@ -662,7 +662,7 @@ export class MessagesPageComponent {
       },
       {
         label: allMessages ? 'Resend message' : 'Resend selected message',
-        icon: 'pi pi-envelope',
+        icon: 'fa-solid fa-envelope',
         onSelect: () => {
           this.router.navigate([
             this.baseRoute,
@@ -674,7 +674,7 @@ export class MessagesPageComponent {
       },
       {
         label: 'Export message',
-        icon: 'pi pi-download',
+        icon: 'fa-solid fa-download',
         onSelect: () => {
           this.exportMessages(allMessages);
         },

@@ -35,7 +35,7 @@
                 <p-input-group>
                   <p-select formControlName="key" [options]="systemFieldOptions"></p-select>
                   <input pInputText formControlName="value" placeholder="Value"/>
-                  <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationSystemProperty(i)"></p-button>
+                  <p-button icon="fa-solid fa-trash" type="button" (click)="removeCorrelationSystemProperty(i)"></p-button>
                 </p-input-group>
               </div>
             </div>
@@ -61,7 +61,7 @@
                 @if (form.getRawValue().correlationApplicationProperties[i].datatype === 'date') {
                   <p-date-picker formControlName="value"></p-date-picker>
                 }
-                <p-button icon="pi pi-trash" type="button" (click)="removeCorrelationApplicationProperty(i)"></p-button>
+                <p-button icon="fa-solid fa-trash" type="button" (click)="removeCorrelationApplicationProperty(i)"></p-button>
               </p-input-group>
             </div>
           }

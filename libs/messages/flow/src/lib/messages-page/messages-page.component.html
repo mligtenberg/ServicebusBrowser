@@ -41,14 +41,14 @@
             [sbbTooltip]="'Filtered messages count'"
             sbbTooltipPlacement="bottom"
           >
-            <i class="pi pi-search"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
             @if (filteredMessageCount() !== undefined) {
               <span class="count">{{ filteredMessageCount() | number }}</span>
               <span class="subtext"
                 >({{ filteredPercentage() | number: '1.1-1' }}%)</span
               >
             } @else {
-              <i class="pi pi-spin pi-spinner"></i>
+              <i class="fa-solid fa-spin fa-spinner"></i>
             }
           </div>
           <div
@@ -58,11 +58,11 @@
             [sbbTooltip]="'Total messages count'"
             sbbTooltipPlacement="bottom"
           >
-            <i class="pi pi-inbox"></i>
+            <i class="fa-solid fa-inbox"></i>
             @if (totalMessageCount() !== undefined) {
               <span class="count">{{ totalMessageCount() | number }}</span>
             } @else {
-              <i class="pi pi-spin pi-spinner"></i>
+              <i class="fa-solid fa-spin fa-spinner"></i>
             }
           </div>
         </div>

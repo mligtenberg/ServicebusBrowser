@@ -158,7 +158,7 @@ export class GenericTreeNodeComponent {
 
     if (node.refreshable) {
       contextMenu.push({
-        icon: 'pi pi-refresh',
+        icon: 'fa-solid fa-arrows-rotate',
         label: 'Refresh',
         disabled: this.isLoading(),
         command: () => {
@@ -171,7 +171,7 @@ export class GenericTreeNodeComponent {
       addSeparatorIfNeeded();
 
       contextMenu.push({
-        icon: 'pi pi-upload',
+        icon: 'fa-solid fa-upload',
         label: 'Send new message',
         command: () => {
           this.sendEndpointSelected.emit(node.sendEndpoint!);
@@ -184,7 +184,7 @@ export class GenericTreeNodeComponent {
 
       for (const receiveEndpoint of node.receiveEndpoints) {
         contextMenu.push({
-          icon: 'pi pi-download',
+          icon: 'fa-solid fa-download',
           label: `Receive ${receiveEndpoint.displayName} messages`,
           command: () => {
             this.receiveEndpointSelected.emit(receiveEndpoint);
@@ -199,7 +199,7 @@ export class GenericTreeNodeComponent {
           continue;
         }
         contextMenu.push({
-          icon: 'pi pi-eraser',
+          icon: 'fa-solid fa-eraser',
           label: `Clear ${receiveEndpoint.displayName} messages`,
           command: () => {
             this.clearReceiveEndpointSelected.emit(receiveEndpoint);
