@@ -55,7 +55,7 @@ p-tree {
 .search-container {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid var(--p-inputtext-border-color, #ced4da);
+  border-bottom: 1px solid var(--sbb-border);
 }
 
 // ── Chips ─────────────────────────────────────────────────────────────────
@@ -71,8 +71,8 @@ p-tree {
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
-  background: var(--p-highlight-background, #e9ecef);
-  color: var(--p-highlight-color, #212529);
+  background: var(--sbb-surface-hover);
+  color: var(--sbb-text);
   border-radius: 1rem;
   padding: 0.1rem 0.5rem;
   font-size: 0.8rem;
@@ -131,7 +131,7 @@ p-tree {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--p-text-muted-color, #6c757d);
+  color: var(--sbb-text-muted);
 }
 
 .suggestion-entity {
@@ -142,7 +142,7 @@ p-tree {
 
 .no-results {
   padding: 1rem;
-  color: var(--p-text-muted-color, #6c757d);
+  color: var(--sbb-text-muted);
   font-style: italic;
   text-align: center;
 }

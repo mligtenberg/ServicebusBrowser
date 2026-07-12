@@ -95,11 +95,11 @@ p-card {
 
   // code text area
   font: 13px Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-  background: var(--p-surface-50);
+  background: var(--sbb-gray-50);
   border-radius: 0;
 
   &.darkMode {
-    background: var(--p-surface-950);
+    background: var(--sbb-gray-950);
   }
 }
 

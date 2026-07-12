@@ -79,8 +79,8 @@
   border: none;
   border-radius: 0;
   cursor: pointer;
-  background-color: var(--sbb-primary, var(--p-primary-600));
-  color: white;
+  background-color: var(--sbb-primary-surface);
+  color: var(--sbb-on-primary);
   font-size: 1rem;
   text-align: left;
   padding: 6px;
@@ -89,7 +89,7 @@
   align-items: center;
 
   &:hover {
-    background-color: var(--sbb-primary-hover, var(--p-primary-700));
+    background-color: var(--sbb-primary-surface-hover);
   }
 }
 

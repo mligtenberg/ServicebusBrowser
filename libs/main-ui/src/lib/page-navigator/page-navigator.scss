@@ -29,7 +29,7 @@
   height: 29px;
   width: 29px;
   cursor: pointer;
-  background: var(--p-menubar-background);
+  background: var(--sbb-surface);
   border: none;
 
   &.move-left {
@@ -40,7 +40,7 @@
       left: 29px;
       top: 0;
       bottom: 0;
-      background: linear-gradient(to left, transparent, var(--p-menubar-background));
+      background: linear-gradient(to left, transparent, var(--sbb-surface));
       width: 20px;
     }
   }
@@ -52,14 +52,14 @@
       right: 29px;
       top: 0;
       bottom: 0;
-      background: linear-gradient(to right, transparent, var(--p-menubar-background));
+      background: linear-gradient(to right, transparent, var(--sbb-surface));
       width: 20px;
     }
   }
 }
 
 .page {
-  --color-active: var(--p-primary-color);
+  --color-active: var(--sbb-primary);
   font-weight: bold;
   display: flex;
   justify-content: center;

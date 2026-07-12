@@ -2,10 +2,10 @@ sbb-logs-log-line {
   display: block;
 
   &.odd {
-    background: var(--p-surface-100);
+    background: var(--sbb-gray-100);
 
     &.darkMode {
-      background: var(--p-surface-800);
+      background: var(--sbb-gray-800);
     }
   }
 }
