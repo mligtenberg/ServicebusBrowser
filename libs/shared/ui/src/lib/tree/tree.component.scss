@@ -10,11 +10,10 @@
 //   leaf row line-height      28px     -> --sbb-tree-leaf-line-height
 
 :host {
-  // Local fallbacks (only used if the token isn't inherited from :root).
-  --sbb-tree-padding: 0.6rem;
-  --sbb-tree-toggle-size: 1.2rem;
-  --sbb-tree-indent: var(--sbb-tree-toggle-size);
-  --sbb-tree-leaf-line-height: 28px;
+  // Sizing tokens are read inline as `var(--token, fallback)` at each usage
+  // below, so a consumer (or :root) can override them by inheritance. They are
+  // deliberately NOT declared here: a declaration on :host would win over the
+  // inherited value and make the token un-overridable.
 
   // Fallbacks for the semantic tokens the component reads, so a missing
   // global sheet still yields a usable (light) rendering.
@@ -28,7 +27,7 @@
 
 .sbb-tree {
   display: block;
-  padding: var(--sbb-tree-padding);
+  padding: var(--sbb-tree-padding, 0.6rem);
 }
 
 // cdk-nested-tree-node renders as a block; each child level is nested inside
@@ -43,7 +42,7 @@
   gap: 0;
   cursor: pointer;
   border-radius: var(--sbb-radius-local);
-  line-height: var(--sbb-tree-leaf-line-height);
+  line-height: var(--sbb-tree-leaf-line-height, 28px);
 
   &:hover {
     background: color-mix(in srgb, var(--sbb-primary-local) 8%, transparent);
@@ -67,8 +66,8 @@
 // whether or not a node has children (mirrors p-tree toggle-button-size).
 .sbb-tree__toggle {
   flex: 0 0 auto;
-  width: var(--sbb-tree-toggle-size);
-  height: var(--sbb-tree-toggle-size);
+  width: var(--sbb-tree-toggle-size, 1.2rem);
+  height: var(--sbb-tree-toggle-size, 1.2rem);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -102,10 +101,10 @@
   //   width: calc(100% - toggle-size)
   flex: 1 1 auto;
   min-width: 0;
-  width: calc(100% - var(--sbb-tree-toggle-size));
+  width: calc(100% - var(--sbb-tree-toggle-size, 1.2rem));
 }
 
 // Each descendant level is inset by one indent step.
 .sbb-tree__children {
-  padding-left: var(--sbb-tree-indent);
+  padding-left: var(--sbb-tree-indent, var(--sbb-tree-toggle-size, 1.2rem));
 }
