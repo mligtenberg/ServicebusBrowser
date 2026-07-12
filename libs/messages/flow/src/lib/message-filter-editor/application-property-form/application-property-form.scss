@@ -16,6 +16,15 @@ sbb-input-group {
       display: flex;
       align-items: stretch;
       min-width: 0;
+      // Non-value fields (the selects) share the row width flexibly; without an
+      // explicit grow the wrappers size to content and pack against the left.
+      flex: 1 1 0;
+
+      // The value control keeps a usable minimum width but still grows to fill.
+      &.value {
+        flex: 1 1 auto;
+        min-width: 12rem;
+      }
 
       // The sbb-select host and date-picker host need to stretch too
       sbb-select,
