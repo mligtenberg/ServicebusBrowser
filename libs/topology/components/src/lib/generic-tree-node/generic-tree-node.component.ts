@@ -1,13 +1,17 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { Tooltip } from 'primeng/tooltip';
+import {
+  SbbButton,
+  SbbContextMenu,
+  SbbMenuItem,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import {
   ReceiveEndpoint,
   SendEndpoint,
   TopologyNode,
 } from '@service-bus-browser/api-contracts';
-import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import {
   TopologyActions,
@@ -15,14 +19,12 @@ import {
 } from '@service-bus-browser/topology-store';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
-import { MenuItem } from 'primeng/api';
-import { ContextMenu } from 'primeng/contextmenu';
 import { TopologyAction } from '@service-bus-browser/api-contracts';
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'sbb-tpl-generic-tree-node',
-  imports: [CommonModule, FaIconComponent, Tooltip, Button, ContextMenu],
+  imports: [CommonModule, FaIconComponent, SbbTooltip, SbbButton, SbbContextMenu],
   templateUrl: './generic-tree-node.component.html',
   styleUrl: './generic-tree-node.component.scss',
 })
@@ -101,10 +103,6 @@ export class GenericTreeNodeComponent {
     { initialValue: true },
   );
 
-  disableRefresh = computed(
-    () => this.selectionMode() === 'none' || this.isLoading(),
-  );
-
   showMessageCounts = computed(() => {
     const node = this.node();
     if (!node.availableMessageCounts) {
@@ -137,6 +135,18 @@ export class GenericTreeNodeComponent {
     return node.availableMessageCounts;
   });
 
+  /**
+   * Flattened message-count string for the (text-only) SbbTooltip. Replaces the
+   * old rich `TemplateRef` tooltip that listed each entity on its own line.
+   */
+  messageCountTooltip = computed(() => {
+    const entities = this.messageCountEntities();
+    if (!entities) {
+      return '';
+    }
+    return entities.map((e) => `${e.name}: ${e.count}`).join(', ');
+  });
+
   showRefresh = computed(() => {
     const node = this.node();
     const showMessageCounts = this.showMessageCounts();
@@ -146,7 +156,7 @@ export class GenericTreeNodeComponent {
 
   contextMenuItems = computed(() => {
     const node = this.node();
-    const contextMenu: MenuItem[] = [];
+    const contextMenu: SbbMenuItem<TopologyNode>[] = [];
 
     const addSeparatorIfNeeded = () => {
       if (contextMenu.length) {
