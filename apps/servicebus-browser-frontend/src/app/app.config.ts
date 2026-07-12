@@ -13,8 +13,6 @@ import {
   PreloadAllModules, withRouterConfig,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
-import { providePrimeNG } from 'primeng/config';
-import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
 import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
@@ -34,15 +32,7 @@ import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-front
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // primeng
-    providePrimeNG({
-      theme: {
-        preset: theme,
-        options: {
-          darkModeSelector: '.darkMode',
-        },
-      },
-    }),
+    // primeng services (theme removed — components use base styles)
     {
       provide: DialogService,
       useClass: DialogService,
