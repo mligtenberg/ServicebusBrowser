@@ -5,7 +5,7 @@
 
   .main-menu {
     z-index: 2;
-    .p-menubar {
+    .sbb-menubar-row {
       padding: 0;
       min-height: 32px;
       border-radius: 0;
@@ -13,20 +13,22 @@
       position: relative;
       -webkit-app-region: drag;
 
-      .p-menubar-item-content {
-        -webkit-app-region: none;
+      .sbb-menubar__item,
+      [sbbMenubarStart],
+      [sbbMenubarEnd] {
+        -webkit-app-region: no-drag;
       }
     }
 
     &.mac {
-      .p-menubar {
+      .sbb-menubar-row {
         padding: 3px 3px 3px 70px;
       }
     }
   }
 
   body.fullscreen & .main-menu.mac {
-    .p-menubar {
+    .sbb-menubar-row {
       padding-left: 3px;
     }
   }
@@ -35,25 +37,11 @@
     z-index: 1;
     flex: 1;
     height: calc(100% - 32px);
-
-    .p-splitter {
-      border: none;
-      border-radius: 0;
-      height: 100%;
-    }
   }
 
   .sidebar {
     width: 100%;
     height: 100%;
-  }
-
-  .p-scrollpanel {
-    height: 100%;
-
-    .p-scrollpanel-content {
-      position: absolute;
-    }
   }
 
   .main-content {
@@ -64,7 +52,7 @@
     align-items: stretch;
     justify-items: stretch;
 
-    p-scroll-panel {
+    sbb-scroll-panel {
       flex: 1;
     }
   }

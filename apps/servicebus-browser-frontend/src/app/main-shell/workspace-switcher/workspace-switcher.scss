@@ -1,6 +1,5 @@
 :host.with-window-controls .ws-trigger {
   margin-left: 1em;
-
 }
 
 .ws-trigger {
@@ -11,14 +10,14 @@
   margin-right: 4px;
   border: none;
   background: transparent;
-  color: var(--p-menubar-item-color, var(--p-text-muted-color));
+  color: var(--sbb-text-muted);
   cursor: pointer;
   height: 100%;
   -webkit-app-region: none;
 
   &:hover {
-    background: var(--p-menubar-item-focus-background, var(--p-content-hover-background));
-    color: var(--p-menubar-item-focus-color, var(--p-text-color));
+    background: var(--sbb-surface-hover);
+    color: var(--sbb-text);
   }
 }
 
@@ -69,13 +68,13 @@
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: var(--p-primary-color);
+  color: var(--sbb-primary);
   cursor: pointer;
   font-size: 0.875rem;
   text-align: left;
 
   &:hover {
-    background: var(--p-content-hover-background);
+    background: var(--sbb-surface-hover);
   }
 
   fa-icon {
@@ -85,7 +84,7 @@
 
 .ws-separator {
   height: 1px;
-  background: var(--p-content-border-color);
+  background: var(--sbb-border);
   margin: 4px 0;
 }
 
@@ -93,7 +92,7 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--p-text-muted-color);
+  color: var(--sbb-text-muted);
   padding: 4px 12px 2px;
   font-weight: 600;
 }
@@ -106,9 +105,9 @@
   font-size: 0.875rem;
 
   &--active {
-    background: var(--p-highlight-background);
-    color: var(--p-highlight-color);
-    font-weight: 500;
+    background: var(--sbb-surface);
+    color: var(--sbb-primary);
+    font-weight: 600;
   }
 
   &--clickable {
@@ -120,7 +119,7 @@
     text-align: left;
 
     &:hover {
-      background: var(--p-content-hover-background);
+      background: var(--sbb-surface-hover);
     }
   }
 }
@@ -142,7 +141,7 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--p-text-muted-color);
+  color: var(--sbb-text-muted);
   cursor: pointer;
   padding: 0;
   opacity: 0;
@@ -153,13 +152,13 @@
   }
 
   &:hover {
-    background: var(--p-content-hover-background);
-    color: var(--p-text-color);
+    background: var(--sbb-surface-hover);
+    color: var(--sbb-text);
   }
 
   &--danger:hover {
-    background: var(--p-red-100, rgba(239, 68, 68, 0.1));
-    color: var(--p-red-500, #ef4444);
+    background: var(--sbb-danger-bg, rgba(239, 68, 68, 0.1));
+    color: var(--sbb-danger, #ef4444);
   }
 }
 
@@ -187,5 +186,5 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: var(--p-text-color);
+  color: var(--sbb-text);
 }
