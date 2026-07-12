@@ -100,6 +100,12 @@
   // Parity: Aura `focusRing.color` -> `primary.color` in both schemes.
   --sbb-focus-ring: var(--sbb-primary);
 
+  // Solid brand-colored bar/header fill (pairs with --sbb-on-primary text).
+  // Unchanged in light; deeper in dark so the fill doesn't glare like the
+  // bright primary.400 accent would.
+  --sbb-primary-surface: light-dark(var(--sbb-primary-500), var(--sbb-primary-700));
+  --sbb-primary-surface-hover: light-dark(var(--sbb-primary-600), var(--sbb-primary-800));
+
   // Default corner radius for controls/surfaces.
   // Parity: PrimeUix `border.radius.md` (default, unmodified by the app).
   --sbb-radius: 0.375rem;
@@ -159,6 +165,8 @@
   --sbb-border: var(--sbb-gray-700);
   --sbb-primary: var(--sbb-primary-400);
   --sbb-focus-ring: var(--sbb-primary);
+  --sbb-primary-surface: var(--sbb-primary-700);
+  --sbb-primary-surface-hover: var(--sbb-primary-800);
   --sbb-shadow-overlay: var(--sbb-shadow-overlay-dark);
 
   --sbb-success: #86efac;
