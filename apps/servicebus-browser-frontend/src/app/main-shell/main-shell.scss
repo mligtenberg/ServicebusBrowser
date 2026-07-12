@@ -73,25 +73,6 @@
   width: 100%;
 }
 
-.logs-header {
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  background-color: var(--p-primary-600);
-  color: white;
-  font-size: 1rem;
-  text-align: left;
-  padding: 6px;
-  display: block flex;
-  justify-content: space-between;
-  align-items: center;
-
-  &:hover {
-    background-color: var(--p-primary-700);
-  }
-}
-
 .close-button {
   --p-button-icon-only-width: 1rem;
 }
