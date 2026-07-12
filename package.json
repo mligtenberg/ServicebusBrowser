@@ -24,6 +24,7 @@
     "@azure/service-bus": "7.10.0-beta.4",
     "@fortawesome/angular-fontawesome": "^4.0.0",
     "@fortawesome/fontawesome-common-types": "^7.2.0",
+    "@fortawesome/fontawesome-free": "^7.3.0",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
