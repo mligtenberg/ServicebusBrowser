@@ -17,4 +17,16 @@
   border: 1px solid var(--sbb-border);
   border-radius: var(--sbb-radius);
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.12);
+  animation: sbb-popover-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
+}
+
+@keyframes sbb-popover-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

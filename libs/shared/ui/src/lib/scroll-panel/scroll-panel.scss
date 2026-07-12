@@ -20,7 +20,7 @@
 
   // Themed, thin scrollbars (Firefox).
   scrollbar-width: thin;
-  scrollbar-color: var(--sbb-gray-400) transparent;
+  scrollbar-color: light-dark(var(--sbb-gray-400), var(--sbb-gray-600)) transparent;
 
   // Themed, thin scrollbars (Chromium/WebKit).
   &::-webkit-scrollbar {
@@ -33,14 +33,14 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--sbb-gray-400);
+    background-color: light-dark(var(--sbb-gray-400), var(--sbb-gray-600));
     border-radius: var(--sbb-radius);
     border: 0.1875rem solid transparent;
     background-clip: padding-box;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: var(--sbb-gray-500);
+    background-color: light-dark(var(--sbb-gray-500), var(--sbb-gray-500));
   }
 }
 

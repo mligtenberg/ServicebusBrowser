@@ -181,6 +181,12 @@ export class SbbDataGrid<T = unknown> {
       if (!vp) {
         return;
       }
+      // Track changes to input data and totalRecords to re-evaluate lazy loading
+      this.data();
+      this.effectiveTotal();
+
+      this.checkLazyLoad();
+
       const sub = vp.renderedRangeStream.subscribe(() => this.checkLazyLoad());
       onCleanup(() => sub.unsubscribe());
     });

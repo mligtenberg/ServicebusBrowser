@@ -28,7 +28,7 @@
   }
 
   &:hover:not([disabled]):not([data-state='on']) {
-    background-color: var(--sbb-surface-raised);
+    background-color: light-dark(var(--sbb-surface-raised), var(--sbb-gray-800));
   }
 
   &:focus-visible {
@@ -37,8 +37,8 @@
   }
 
   &[data-state='on'] {
-    color: var(--sbb-on-primary);
-    background-color: var(--sbb-primary);
+    color: light-dark(var(--sbb-primary-700), var(--sbb-primary-200));
+    background-color: light-dark(var(--sbb-primary-100), var(--sbb-primary-900));
   }
 
   &[disabled] {

@@ -84,13 +84,13 @@
   }
 
   &.sbb-button--filled.sbb-button--secondary {
-    background-color: var(--sbb-gray-200);
-    border-color: var(--sbb-gray-200);
+    background-color: light-dark(var(--sbb-gray-200), var(--sbb-gray-700));
+    border-color: light-dark(var(--sbb-gray-200), var(--sbb-gray-700));
     color: var(--sbb-text);
 
     &:hover:not(:disabled) {
-      background-color: var(--sbb-gray-300);
-      border-color: var(--sbb-gray-300);
+      background-color: light-dark(var(--sbb-gray-300), var(--sbb-gray-600));
+      border-color: light-dark(var(--sbb-gray-300), var(--sbb-gray-600));
     }
   }
 
@@ -114,7 +114,8 @@
       color: var(--sbb-primary);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-primary-50);
+        // light: pale sky tint; dark: low-opacity primary glow
+        background-color: light-dark(var(--sbb-primary-50), rgba(14, 165, 233, 0.12));
       }
     }
 
@@ -123,7 +124,7 @@
       color: var(--sbb-text);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-gray-100);
+        background-color: var(--sbb-surface-hover);
       }
     }
 
@@ -132,7 +133,8 @@
       color: var(--sbb-button-danger);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-button-danger-subtle);
+        // light: pale red tint; dark: low-opacity danger glow
+        background-color: light-dark(var(--sbb-button-danger-subtle), rgba(239, 68, 68, 0.12));
       }
     }
   }
@@ -146,7 +148,7 @@
       color: var(--sbb-primary);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-primary-50);
+        background-color: light-dark(var(--sbb-primary-50), rgba(14, 165, 233, 0.12));
       }
     }
 
@@ -154,7 +156,7 @@
       color: var(--sbb-text-muted);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-gray-100);
+        background-color: var(--sbb-surface-hover);
       }
     }
 
@@ -162,7 +164,7 @@
       color: var(--sbb-button-danger);
 
       &:hover:not(:disabled) {
-        background-color: var(--sbb-button-danger-subtle);
+        background-color: light-dark(var(--sbb-button-danger-subtle), rgba(239, 68, 68, 0.12));
       }
     }
   }
@@ -189,5 +191,41 @@
 .sbb-button__icon,
 .sbb-button__spinner {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
   flex: none;
+  pointer-events: none;
+}
+
+:host ::ng-deep {
+  .sbb-button__icon fa-icon,
+  .sbb-button__icon svg,
+  .sbb-button__spinner fa-icon,
+  .sbb-button__spinner svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+.sbb-button--small {
+  .sbb-button__icon,
+  .sbb-button__spinner {
+    width: 0.875rem;
+    height: 0.875rem;
+    font-size: 0.875rem;
+  }
+}
+
+.sbb-button--large {
+  .sbb-button__icon,
+  .sbb-button__spinner {
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 1.125rem;
+  }
 }

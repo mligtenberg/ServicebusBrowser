@@ -8,6 +8,7 @@ import {
   inject,
   input,
   model,
+  signal,
   TemplateRef,
   viewChild,
 } from '@angular/core';
@@ -65,6 +66,8 @@ export class SbbDrawer {
   /** Panel width (any CSS length). Defaults to `'400px'`. */
   readonly width = input<string>('400px');
 
+  readonly isClosing = signal(false);
+
   private cdkRef: DialogRef<void, unknown> | undefined;
   private destroyed = false;
 
@@ -83,8 +86,21 @@ export class SbbDrawer {
     });
   }
 
-  protected requestClose(): void {
-    this.open.set(false);
+  requestClose(): void {
+    console.log('[SbbDrawer] requestClose called, starting close animation');
+    this.startCloseAnimation();
+  }
+
+  private startCloseAnimation(): void {
+    if (this.isClosing()) {
+      return;
+    }
+    this.isClosing.set(true);
+    setTimeout(() => {
+      this.open.set(false);
+      this.closeDrawer();
+      this.isClosing.set(false);
+    }, 200); // 200ms matches the slow transition duration
   }
 
   private openDrawer(): void {
@@ -99,9 +115,8 @@ export class SbbDrawer {
       strategy.right('0');
     }
 
-    const closable = this.closable();
     const ref = this.dialog.open<void>(this.drawerTemplate(), {
-      disableClose: !closable,
+      disableClose: true, // handle manual closure to allow exit animations
       hasBackdrop: this.modal(),
       backdropClass: 'sbb-dialog-backdrop',
       panelClass: ['sbb-drawer-pane', `sbb-drawer-pane--${this.position()}`],
@@ -110,8 +125,25 @@ export class SbbDrawer {
     });
     this.cdkRef = ref;
 
+    // Handle backdrop click manual close
+    if (this.modal() && this.closable()) {
+      ref.backdropClick.pipe(take(1)).subscribe(() => {
+        this.startCloseAnimation();
+      });
+    }
+
+    // Handle escape key manual close
+    if (this.closable()) {
+      ref.keydownEvents.subscribe((event) => {
+        if (event.key === 'Escape') {
+          this.startCloseAnimation();
+        }
+      });
+    }
+
     ref.closed.pipe(take(1)).subscribe(() => {
       this.cdkRef = undefined;
+      this.isClosing.set(false);
       if (!this.destroyed && this.open()) {
         this.open.set(false);
       }

@@ -4,6 +4,18 @@
 // Local fallbacks are declared so the component renders correctly even if the
 // global sheet is not yet loaded. Sizing mirrors the current PrimeNG checkbox
 // (`p-checkbox`, 1.25rem x 1.25rem box) for visual parity.
+//
+// Architecture note: BrnCheckbox sets `display: contents` on its host element,
+// which means the brn-checkbox custom element has NO layout box — only its inner
+// <button> does. BrnCheckbox also passes [class]="class()" to the inner button,
+// so any class set on <brn-checkbox class="..."> is forwarded to the button.
+// However, data-state / data-focus-visible etc. are bound to the brn-checkbox HOST
+// (display:contents), not to the button. We therefore cannot use CSS selectors like
+// `button[data-state='checked']` reliably across view-encapsulation boundaries.
+//
+// Solution: a dedicated <span class="sbb-checkbox__box"> inside brn-checkbox's
+// ng-content is the visual control box. Its checked/indeterminate state is driven
+// directly by Angular signal class bindings in the template, not by CSS attr selectors.
 
 :host {
   --sbb-checkbox-size: 1.25rem;
@@ -19,6 +31,7 @@
   display: inline-block;
 }
 
+// The label wrapper — makes the whole thing clickable
 .sbb-checkbox {
   display: inline-flex;
   align-items: center;
@@ -32,7 +45,24 @@
   }
 }
 
-.sbb-checkbox__control {
+// BrnCheckbox's inner <button> (brn-checkbox passes class() to the button,
+// but we no longer set a class on brn-checkbox, so the button is unstyled —
+// we only need to strip its native button appearance so it doesn't add layout).
+// brn-checkbox itself is display:contents so no rules needed for it.
+brn-checkbox {
+  // brn-checkbox is display:contents; its inner button needs to be transparent.
+  // We target the button inside via ::ng-deep.
+  ::ng-deep button {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: inherit;
+  }
+}
+
+// The actual visual box — a dedicated <span> that BrnCheckbox projects via ng-content.
+.sbb-checkbox__box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -48,40 +78,35 @@
     background-color 0.15s ease,
     border-color 0.15s ease,
     box-shadow 0.15s ease;
-  outline: none;
-  cursor: inherit;
+  pointer-events: none; // clicks are handled by the button above
 
-  &[data-state='checked'],
-  &[data-state='indeterminate'] {
+  &--checked,
+  &--indeterminate {
     background-color: var(--sbb-primary-local);
     border-color: var(--sbb-primary-local);
   }
-
-  &[data-focus-visible='true'] {
-    box-shadow: 0 0 0 2px var(--sbb-surface-raised-local), 0 0 0 4px var(--sbb-focus-ring-local);
-  }
-
-  &[data-disabled='true'] {
-    opacity: 0.5;
-  }
 }
 
+// Focus ring — target the button inside brn-checkbox when it's focused
+brn-checkbox:has(button:focus-visible) .sbb-checkbox__box,
+brn-checkbox[data-focus-visible='true'] .sbb-checkbox__box {
+  box-shadow: 0 0 0 2px var(--sbb-surface-raised-local), 0 0 0 4px var(--sbb-focus-ring-local);
+}
+
+brn-checkbox[data-disabled='true'] .sbb-checkbox__box {
+  opacity: 0.5;
+}
+
+// The icon SVG rendered inside the box
 .sbb-checkbox__icon {
   width: 100%;
   height: 100%;
   padding: 2px;
-  display: none;
   box-sizing: border-box;
-}
-
-.sbb-checkbox__control[data-state='checked'] .sbb-checkbox__icon--check {
   display: block;
 }
 
-.sbb-checkbox__control[data-state='indeterminate'] .sbb-checkbox__icon--indeterminate {
-  display: block;
-}
-
+// Optional text label alongside the checkbox
 .sbb-checkbox__label {
   font-size: 0.875rem;
   line-height: 1.25rem;

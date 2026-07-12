@@ -62,7 +62,7 @@
   padding: 0.375rem 0.5rem;
   font-size: 0.875rem;
   color: var(--sbb-text);
-  background: var(--sbb-surface);
+  background: light-dark(var(--sbb-surface), var(--sbb-gray-950));
   border: 1px solid var(--sbb-border);
   border-radius: var(--sbb-radius);
 
@@ -92,8 +92,8 @@
   cursor: pointer;
 
   &[data-highlighted] {
-    background: var(--sbb-primary);
-    color: var(--sbb-surface-raised);
+    background: light-dark(var(--sbb-primary-100), var(--sbb-primary-900));
+    color: light-dark(var(--sbb-primary-700), var(--sbb-primary-200));
   }
 
   &[data-disabled] {

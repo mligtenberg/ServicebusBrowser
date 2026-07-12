@@ -1,5 +1,11 @@
 <ng-template #drawerTemplate>
-  <div class="sbb-drawer" [style.width]="width()">
+  <div
+    class="sbb-drawer"
+    [class.sbb-drawer--left]="position() === 'left'"
+    [class.sbb-drawer--right]="position() === 'right'"
+    [class.sbb-drawer--closing]="isClosing()"
+    [style.width]="width()"
+  >
     @if (header() || closable()) {
       <div class="sbb-drawer__header">
         <h2 class="sbb-drawer__title">{{ header() }}</h2>
@@ -10,7 +16,7 @@
             aria-label="Close"
             (click)="requestClose()"
           >
-            &times;
+            <span aria-hidden="true" style="pointer-events: none;">&times;</span>
           </button>
         }
       </div>

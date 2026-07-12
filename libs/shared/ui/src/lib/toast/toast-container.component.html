@@ -13,7 +13,7 @@
         aria-label="Dismiss notification"
         (click)="dismiss(toast.id)"
       >
-        &times;
+        <span aria-hidden="true" style="pointer-events: none;">&times;</span>
       </button>
     </div>
   }

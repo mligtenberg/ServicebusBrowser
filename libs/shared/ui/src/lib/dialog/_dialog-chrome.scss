@@ -51,10 +51,16 @@
   border: 0;
   border-radius: var(--sbb-radius);
   cursor: pointer;
+  user-select: none;
+  -webkit-app-region: no-drag;
+
+  span {
+    pointer-events: none;
+  }
 
   &:hover {
     color: var(--sbb-text);
-    background-color: var(--sbb-surface);
+    background-color: var(--sbb-surface-hover);
   }
 
   &:focus-visible {

@@ -67,7 +67,7 @@
     cursor: default;
 
     &:nth-child(even) {
-      background: color-mix(in srgb, var(--sbb-surface, #f8fafc) 60%, transparent);
+      background: var(--sbb-surface-hover);
     }
 
     &:hover {

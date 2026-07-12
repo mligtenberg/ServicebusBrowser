@@ -1,29 +1,41 @@
+<!--
+  BrnCheckbox sets display:contents on its host (so the custom element has no box).
+  It passes [class]="class()" to an inner <button>, which means class="sbb-checkbox__control"
+  gets forwarded to the button. However, [attr.data-state] is bound to the brn-checkbox HOST
+  (display:contents), not to the inner button — so CSS selectors like
+  .sbb-checkbox__control[data-state='checked'] never match.
+
+  Fix: use a dedicated visual-box <span class="sbb-checkbox__box"> and drive icon
+  visibility via Angular signal bindings instead of CSS attribute selectors.
+  brn-checkbox still owns the button/behavior; we just separate visual from behaviour.
+-->
 <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- brn-checkbox self-associates via `closest('label')` at runtime (see @spartan-ng/brain/checkbox) -->
 <label class="sbb-checkbox" [class.sbb-checkbox--disabled]="isDisabled()">
   <brn-checkbox
-    class="sbb-checkbox__control"
     [checked]="checked()"
     [indeterminate]="indeterminate()"
     [disabled]="isDisabled()"
     (checkedChange)="onCheckedChange($event)"
     (touched)="onTouchedHandler()"
   >
-    <svg
-      class="sbb-checkbox__icon sbb-checkbox__icon--check"
-      viewBox="0 0 16 16"
+    <!-- Visual box: lives INSIDE the brn-checkbox button (via ng-content) -->
+    <span
+      class="sbb-checkbox__box"
+      [class.sbb-checkbox__box--checked]="checked()"
+      [class.sbb-checkbox__box--indeterminate]="indeterminate()"
       aria-hidden="true"
-      focusable="false"
     >
-      <path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-    <svg
-      class="sbb-checkbox__icon sbb-checkbox__icon--indeterminate"
-      viewBox="0 0 16 16"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M3 8h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-    </svg>
+      @if (checked() && !indeterminate()) {
+        <svg class="sbb-checkbox__icon" viewBox="0 0 16 16" focusable="false">
+          <path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      }
+      @if (indeterminate()) {
+        <svg class="sbb-checkbox__icon" viewBox="0 0 16 16" focusable="false">
+          <path d="M3 8h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      }
+    </span>
   </brn-checkbox>
   @if (label()) {
     <span class="sbb-checkbox__label">{{ label() }}</span>

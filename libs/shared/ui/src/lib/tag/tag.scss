@@ -18,14 +18,19 @@
 
   &.sbb-tag--primary {
     background-color: var(--sbb-primary);
-    color: var(--sbb-gray-50);
+    // --sbb-primary is already light-dark(); white text works on the sky-400/500
+    // fill in both schemes.
+    color: var(--sbb-on-primary, #ffffff);
   }
 
   &.sbb-tag--secondary {
-    background-color: var(--sbb-gray-200);
+    // light: slate-200 (#e2e8f0)  |  dark: slate-700 (#334155)
+    background-color: light-dark(var(--sbb-gray-200), var(--sbb-gray-700));
     color: var(--sbb-text);
   }
 
+  // Severity variants: all use the semantic --sbb-*-bg / --sbb-* tokens which
+  // are already defined with light-dark() in _tokens.scss — no change needed.
   &.sbb-tag--success {
     background-color: var(--sbb-success-bg);
     color: var(--sbb-success);

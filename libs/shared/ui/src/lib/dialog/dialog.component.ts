@@ -103,6 +103,7 @@ export class SbbDialog {
   /** Invoked by the close button in the projected header. */
   protected requestClose(): void {
     this.open.set(false);
+    this.closeDialog();
   }
 
   private openDialog(): void {
