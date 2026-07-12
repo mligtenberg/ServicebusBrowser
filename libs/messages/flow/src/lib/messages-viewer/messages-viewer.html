@@ -204,17 +204,30 @@
   let-selModel="selModel"
 >
   <div class="table-container">
-    <table class="property-table">
-      <tbody>
-        @for (row of rows; track row.key) {
-          @if (show) {
-            <sbb-context-menu
-              [model]="menu"
-              [data]="row"
-              (opened)="selModel.set(row)"
-            >
+    <sbb-scroll-panel class="table-scroll-panel">
+      <table class="property-table">
+        <tbody>
+          @for (row of rows; track row.key) {
+            @if (show) {
+              <sbb-context-menu
+                [model]="menu"
+                [data]="row"
+                (opened)="selModel.set(row)"
+              >
+                <tr>
+                  <td class="user-selectable">{{ row.key }}</td>
+                  <td class="user-selectable">
+                    @if (dateGuard(row.value)) {
+                      {{ row.value | date: 'medium' }}
+                    } @else {
+                      {{ row.value }}
+                    }
+                  </td>
+                </tr>
+              </sbb-context-menu>
+            } @else {
               <tr>
-                <td class="user-selectable">{{ row.key }}</td>
+                <td class="user-selectable">{{ row.label }}</td>
                 <td class="user-selectable">
                   @if (dateGuard(row.value)) {
                     {{ row.value | date: 'medium' }}
@@ -223,22 +236,11 @@
                   }
                 </td>
               </tr>
-            </sbb-context-menu>
-          } @else {
-            <tr>
-              <td class="user-selectable">{{ row.label }}</td>
-              <td class="user-selectable">
-                @if (dateGuard(row.value)) {
-                  {{ row.value | date: 'medium' }}
-                } @else {
-                  {{ row.value }}
-                }
-              </td>
-            </tr>
+            }
           }
-        }
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </sbb-scroll-panel>
   </div>
 </ng-template>
 
