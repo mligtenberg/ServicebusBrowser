@@ -4,7 +4,7 @@
   role="combobox"
   aria-autocomplete="list"
   [attr.aria-controls]="listboxId"
-  [attr.aria-expanded]="isOpen()"
+  [attr.aria-expanded]="isOpen() && flatItems().length > 0"
   [value]="query()"
   [placeholder]="placeholder()"
   [disabled]="isDisabled()"
@@ -15,6 +15,9 @@
 />
 
 <ng-template #panel>
+  <!-- Only render the styled panel when there is something to show, so an empty
+       result set doesn't leave an empty dropdown box hanging under the input. -->
+  @if (flatItems().length > 0) {
   <div class="sbb-autocomplete-panel" role="listbox" [id]="listboxId">
     @if (groups(); as gs) {
       @for (group of gs; track group.label) {
@@ -76,4 +79,5 @@
       }
     }
   </div>
+  }
 </ng-template>
