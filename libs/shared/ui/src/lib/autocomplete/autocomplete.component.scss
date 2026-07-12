@@ -39,6 +39,7 @@
   border: 1px solid var(--sbb-border);
   border-radius: var(--sbb-radius);
   box-shadow: var(--sbb-shadow-overlay);
+  animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
 }
 
 .sbb-autocomplete-panel__group-label {

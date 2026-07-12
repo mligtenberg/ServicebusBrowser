@@ -26,18 +26,7 @@
   border-radius: var(--sbb-radius);
   box-shadow: var(--sbb-shadow-overlay);
   list-style: none;
-  animation: sbb-menu-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
-}
-
-@keyframes sbb-menu-fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
 }
 
 .sbb-split-button-panel__separator {
