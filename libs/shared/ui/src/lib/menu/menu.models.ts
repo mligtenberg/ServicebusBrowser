@@ -24,28 +24,35 @@ export type SbbMenuItem<T = unknown> =
 
 /** A menu entry that acts on a single contextual value. */
 export interface SbbMenuActionItem<T> {
-  /** Visible text of the entry. */
-  label: string;
-  /** Optional leading icon (a FontAwesome class string, e.g. `'fa fa-pen'`). */
-  icon?: string;
-  /** When `true`, the entry is shown but cannot be invoked. */
-  disabled?: boolean;
-  separator?: false;
+  /** Visible text of the entry. Can be a signal/function for dynamic updates. */
+  label?: string | (() => string);
+  /** Optional leading icon. Can be a signal/function for dynamic updates. */
+  icon?: string | (() => string);
+  /** When `true`, the entry cannot be invoked. Can be a signal/function. */
+  disabled?: boolean | (() => boolean);
+  /** Optional CSS class. Can be a signal/function for dynamic updates. */
+  styleClass?: string | (() => string);
+  separator?: boolean;
   supportedMultiSelection?: false;
   /** Invoked with the menu's contextual data when the entry is chosen. */
   onSelect?(data: T): void;
+  /** PrimeNG-compatible command callback. */
+  command?(event: any): void;
   /** Nested submenu entries. When present, the entry expands rather than acts. */
   items?: SbbMenuItem<T>[];
 }
 
 /** A menu entry that can act on either a single value or a multi-selection. */
 export interface SbbMenuMultiActionItem<T> {
-  label: string;
-  icon?: string;
-  disabled?: boolean;
-  separator?: false;
-  supportedMultiSelection: true;
+  label?: string | (() => string);
+  icon?: string | (() => string);
+  disabled?: boolean | (() => boolean);
+  styleClass?: string | (() => string);
+  separator?: boolean;
+  supportedMultiSelection?: true;
   onSelect?(data: T | T[]): void;
+  /** PrimeNG-compatible command callback. */
+  command?(event: any): void;
   items?: SbbMenuItem<T>[];
 }
 

@@ -48,11 +48,22 @@ export class SbbMenubar<T = void> {
     return isSbbMenuSeparator(item);
   }
 
-  /** Invokes the chosen item's `onSelect` with the contextual data. */
+  /** Invokes the chosen item's `onSelect` or `command` with the contextual data. */
   protected invoke(item: SbbMenuItem<T>): void {
     if (isSbbMenuSeparator(item)) {
       return;
     }
     item.onSelect?.(this.data() as T);
+    if ('command' in item && typeof item.command === 'function') {
+      item.command({ item });
+    }
+  }
+
+  /** Resolves value that can be either a plain type or a signal/function. */
+  protected resolve<V>(value: V | (() => V) | undefined): V | undefined {
+    if (typeof value === 'function') {
+      return (value as () => V)();
+    }
+    return value;
   }
 }

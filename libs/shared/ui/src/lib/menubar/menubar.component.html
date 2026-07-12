@@ -10,26 +10,26 @@
             cdkMenuItem
             [cdkMenuTriggerFor]="submenu"
             [cdkMenuTriggerData]="{ $implicit: item.items }"
-            [cdkMenuItemDisabled]="item.disabled ?? false"
-            class="sbb-menubar__item"
+            [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
+            [class]="'sbb-menubar__item ' + (resolve(item.styleClass) ?? '')"
           >
-            @if (item.icon) {
-              <i class="sbb-menubar__icon" [class]="item.icon"></i>
+            @if (resolve(item.icon); as iconClass) {
+              <i class="sbb-menubar__icon" [class]="iconClass"></i>
             }
-            <span class="sbb-menubar__label">{{ item.label }}</span>
+            <span class="sbb-menubar__label">{{ resolve(item.label) }}</span>
           </button>
         } @else {
           <button
             type="button"
             cdkMenuItem
-            [cdkMenuItemDisabled]="item.disabled ?? false"
+            [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
             (cdkMenuItemTriggered)="invoke(item)"
-            class="sbb-menubar__item"
+            [class]="'sbb-menubar__item ' + (resolve(item.styleClass) ?? '')"
           >
-            @if (item.icon) {
-              <i class="sbb-menubar__icon" [class]="item.icon"></i>
+            @if (resolve(item.icon); as iconClass) {
+              <i class="sbb-menubar__icon" [class]="iconClass"></i>
             }
-            <span class="sbb-menubar__label">{{ item.label }}</span>
+            <span class="sbb-menubar__label">{{ resolve(item.label) }}</span>
           </button>
         }
       }
@@ -40,7 +40,7 @@
 </div>
 
 <ng-template #submenu let-items>
-  <div cdkMenu class="sbb-menu-panel">
+  <div cdkMenu class="sbb-menu-panel" [attr.data-model-len]="model().length">
     @for (item of items; track $index) {
       @if (isSeparator(item)) {
         <hr class="sbb-menu-panel__separator" aria-hidden="true" />
@@ -50,27 +50,27 @@
           cdkMenuItem
           [cdkMenuTriggerFor]="submenu"
           [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="item.disabled ?? false"
-          class="sbb-menu-panel__item"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
+          [class]="'sbb-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-menu-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-menu-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-menu-panel__label">{{ resolve(item.label) }}</span>
           <span class="sbb-menu-panel__caret" aria-hidden="true">›</span>
         </button>
       } @else {
         <button
           type="button"
           cdkMenuItem
-          [cdkMenuItemDisabled]="item.disabled ?? false"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
           (cdkMenuItemTriggered)="invoke(item)"
-          class="sbb-menu-panel__item"
+          [class]="'sbb-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-menu-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-menu-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-menu-panel__label">{{ resolve(item.label) }}</span>
         </button>
       }
     }

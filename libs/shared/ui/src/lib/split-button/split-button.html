@@ -21,7 +21,7 @@
 </div>
 
 <ng-template #menu let-items>
-  <div cdkMenu class="sbb-split-button-panel">
+  <div cdkMenu class="sbb-split-button-panel" [attr.data-model-len]="model().length">
     @for (item of items; track $index) {
       @if (isSeparator(item)) {
         <hr class="sbb-split-button-panel__separator" aria-hidden="true" />
@@ -31,27 +31,27 @@
           cdkMenuItem
           [cdkMenuTriggerFor]="menu"
           [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="item.disabled ?? false"
-          class="sbb-split-button-panel__item"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
+          [class]="'sbb-split-button-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-split-button-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-split-button-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-split-button-panel__label">{{ item.label }}</span>
+          <span class="sbb-split-button-panel__label">{{ resolve(item.label) }}</span>
           <span class="sbb-split-button-panel__caret" aria-hidden="true">›</span>
         </button>
       } @else {
         <button
           type="button"
           cdkMenuItem
-          [cdkMenuItemDisabled]="item.disabled ?? false"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
           (cdkMenuItemTriggered)="invoke(item)"
-          class="sbb-split-button-panel__item"
+          [class]="'sbb-split-button-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-split-button-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-split-button-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-split-button-panel__label">{{ item.label }}</span>
+          <span class="sbb-split-button-panel__label">{{ resolve(item.label) }}</span>
         </button>
       }
     }

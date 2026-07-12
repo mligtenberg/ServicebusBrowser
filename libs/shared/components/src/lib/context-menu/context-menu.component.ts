@@ -25,5 +25,8 @@ export class ContextMenuComponent<T> {
 
   onSelect(event: MenuItemCommandEvent, menuItem: SbbMenuItem<T>) {
     menuItem.onSelect?.(this.data(), event);
+    if ('command' in menuItem && typeof menuItem.command === 'function') {
+      menuItem.command({ item: menuItem, originalEvent: event.originalEvent });
+    }
   }
 }

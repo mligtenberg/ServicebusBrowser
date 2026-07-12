@@ -8,7 +8,7 @@
 </span>
 
 <ng-template #menu let-items>
-  <div cdkMenu class="sbb-context-menu-panel">
+  <div cdkMenu class="sbb-context-menu-panel" [attr.data-model-len]="model().length">
     @for (item of items; track $index) {
       @if (isSeparator(item)) {
         <hr class="sbb-context-menu-panel__separator" aria-hidden="true" />
@@ -18,27 +18,27 @@
           cdkMenuItem
           [cdkMenuTriggerFor]="menu"
           [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="item.disabled ?? false"
-          class="sbb-context-menu-panel__item"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
+          [class]="'sbb-context-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-context-menu-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-context-menu-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-context-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-context-menu-panel__label">{{ resolve(item.label) }}</span>
           <span class="sbb-context-menu-panel__caret" aria-hidden="true">›</span>
         </button>
       } @else {
         <button
           type="button"
           cdkMenuItem
-          [cdkMenuItemDisabled]="item.disabled ?? false"
+          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
           (cdkMenuItemTriggered)="invoke(item)"
-          class="sbb-context-menu-panel__item"
+          [class]="'sbb-context-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
         >
-          @if (item.icon) {
-            <i class="sbb-context-menu-panel__icon" [class]="item.icon"></i>
+          @if (resolve(item.icon); as iconClass) {
+            <i class="sbb-context-menu-panel__icon" [class]="iconClass"></i>
           }
-          <span class="sbb-context-menu-panel__label">{{ item.label }}</span>
+          <span class="sbb-context-menu-panel__label">{{ resolve(item.label) }}</span>
         </button>
       }
     }

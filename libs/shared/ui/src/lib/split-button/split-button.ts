@@ -66,11 +66,22 @@ export class SbbSplitButton {
     return isSbbMenuSeparator(item);
   }
 
-  /** Invokes the chosen item's `onSelect`. */
+  /** Invokes the chosen item's `onSelect` or `command`. */
   protected invoke(item: SbbMenuItem<void>): void {
     if (isSbbMenuSeparator(item)) {
       return;
     }
     item.onSelect?.();
+    if ('command' in item && typeof item.command === 'function') {
+      item.command({ item });
+    }
+  }
+
+  /** Resolves value that can be either a plain type or a signal/function. */
+  protected resolve<V>(value: V | (() => V) | undefined): V | undefined {
+    if (typeof value === 'function') {
+      return (value as () => V)();
+    }
+    return value;
   }
 }
