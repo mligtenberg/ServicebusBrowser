@@ -45,6 +45,15 @@ export class ColorThemeService {
       const colorScheme = pref === 'sync' ? 'light dark' : pref;
       document.documentElement.style.colorScheme = colorScheme;
     });
+
+    effect(() => {
+      const isDark = this.darkMode();
+      if (isDark) {
+        document.documentElement.classList.add('sbb-dark');
+      } else {
+        document.documentElement.classList.remove('sbb-dark');
+      }
+    });
   }
 
   setPreference(pref: 'sync' | 'light' | 'dark') {

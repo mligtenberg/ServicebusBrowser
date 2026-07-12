@@ -1,0 +1,11 @@
+// Global overlay/CDK styling rules.
+.sbb-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.sbb-drawer-pane,
+.sbb-dialog-pane {
+  z-index: 1010 !important;
+}
