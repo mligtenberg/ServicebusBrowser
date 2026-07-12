@@ -96,6 +96,9 @@
   // Parity: Aura light `primary.color` -> primary.500 / dark `primary.color` -> primary.400.
   --sbb-primary: light-dark(var(--sbb-primary-500), var(--sbb-primary-400));
 
+  // High-contrast primary text color for labels or emphasis text on standard backgrounds.
+  --sbb-primary-text: light-dark(var(--sbb-primary-700), var(--sbb-primary-300));
+
   // Focus-visible ring color.
   // Parity: Aura `focusRing.color` -> `primary.color` in both schemes.
   --sbb-focus-ring: var(--sbb-primary);
@@ -164,6 +167,7 @@
   --sbb-text-muted: var(--sbb-gray-400);
   --sbb-border: var(--sbb-gray-700);
   --sbb-primary: var(--sbb-primary-400);
+  --sbb-primary-text: var(--sbb-primary-300);
   --sbb-focus-ring: var(--sbb-primary);
   --sbb-primary-surface: var(--sbb-primary-700);
   --sbb-primary-surface-hover: var(--sbb-primary-800);
