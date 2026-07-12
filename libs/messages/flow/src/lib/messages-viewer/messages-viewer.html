@@ -26,25 +26,31 @@
           [hideScrollbar]="isResizing()"
         >
           <div class="properties">
-            @if (!sendMode()) {
+            @if (!sendMode() && headers().length > 0) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="headersTemplate" />
             </div>
             }
+            @if (properties().length > 0) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="propertiesTemplate" />
             </div>
-            @if (!sendMode()) {
+            }
+            @if (!sendMode() && deliveryAnnotations().length > 0) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
             </div>
+            }
+            @if (!sendMode() && messageAnnotations().length > 0) {
             <div class="system-properties">
               <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
             </div>
             }
+            @if (applicationProperties().length > 0) {
             <div class="application-properties">
               <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
             </div>
+            }
           </div>
         </sbb-scroll-panel>
       </sbb-splitter-panel>
@@ -58,25 +64,31 @@
     <div class="card body">
       <ng-template *ngTemplateOutlet="bodyTemplate" />
     </div>
-    @if (!sendMode()) {
+    @if (!sendMode() && headers().length > 0) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="headersTemplate" />
     </div>
     }
+    @if (properties().length > 0) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="propertiesTemplate" />
     </div>
-    @if (!sendMode()) {
+    }
+    @if (!sendMode() && deliveryAnnotations().length > 0) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
     </div>
+    }
+    @if (!sendMode() && messageAnnotations().length > 0) {
     <div class="system-properties">
       <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
     </div>
     }
+    @if (applicationProperties().length > 0) {
     <div class="application-properties">
       <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
     </div>
+    }
   </div>
   }
 </div>
