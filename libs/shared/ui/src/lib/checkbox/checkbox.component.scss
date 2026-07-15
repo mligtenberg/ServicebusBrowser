@@ -1,21 +1,13 @@
-// SbbCheckbox — styled headless checkbox on @spartan-ng/brain's BrnCheckbox.
+// SbbCheckbox — styled checkbox on a native <button role="checkbox">.
 //
 // Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
 // Local fallbacks are declared so the component renders correctly even if the
 // global sheet is not yet loaded. Sizing mirrors the current PrimeNG checkbox
 // (`p-checkbox`, 1.25rem x 1.25rem box) for visual parity.
 //
-// Architecture note: BrnCheckbox sets `display: contents` on its host element,
-// which means the brn-checkbox custom element has NO layout box — only its inner
-// <button> does. BrnCheckbox also passes [class]="class()" to the inner button,
-// so any class set on <brn-checkbox class="..."> is forwarded to the button.
-// However, data-state / data-focus-visible etc. are bound to the brn-checkbox HOST
-// (display:contents), not to the button. We therefore cannot use CSS selectors like
-// `button[data-state='checked']` reliably across view-encapsulation boundaries.
-//
-// Solution: a dedicated <span class="sbb-checkbox__box"> inside brn-checkbox's
-// ng-content is the visual control box. Its checked/indeterminate state is driven
-// directly by Angular signal class bindings in the template, not by CSS attr selectors.
+// The visual box is a dedicated <span class="sbb-checkbox__box"> inside the
+// button. Its checked/indeterminate state is driven directly by Angular signal
+// class bindings in the template, not by CSS attribute selectors.
 
 :host {
   --sbb-checkbox-size: 1.25rem;
@@ -45,23 +37,15 @@
   }
 }
 
-// BrnCheckbox's inner <button> (brn-checkbox passes class() to the button,
-// but we no longer set a class on brn-checkbox, so the button is unstyled —
-// we only need to strip its native button appearance so it doesn't add layout).
-// brn-checkbox itself is display:contents so no rules needed for it.
-brn-checkbox {
-  // brn-checkbox is display:contents; its inner button needs to be transparent.
-  // We target the button inside via ::ng-deep.
-  ::ng-deep button {
-    all: unset;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: inherit;
-  }
+.sbb-checkbox__control {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: inherit;
 }
 
-// The actual visual box — a dedicated <span> that BrnCheckbox projects via ng-content.
+// The actual visual box — a dedicated <span> inside the control button.
 .sbb-checkbox__box {
   display: inline-flex;
   align-items: center;
@@ -87,13 +71,12 @@ brn-checkbox {
   }
 }
 
-// Focus ring — target the button inside brn-checkbox when it's focused
-brn-checkbox:has(button:focus-visible) .sbb-checkbox__box,
-brn-checkbox[data-focus-visible='true'] .sbb-checkbox__box {
+// Focus ring — target the box when the control button is focused
+.sbb-checkbox__control:focus-visible .sbb-checkbox__box {
   box-shadow: 0 0 0 2px var(--sbb-surface-raised-local), 0 0 0 4px var(--sbb-focus-ring-local);
 }
 
-brn-checkbox[data-disabled='true'] .sbb-checkbox__box {
+.sbb-checkbox__control:disabled .sbb-checkbox__box {
   opacity: 0.5;
 }
 

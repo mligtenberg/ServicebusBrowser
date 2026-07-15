@@ -25,7 +25,7 @@
 //
 // Dark mode is controlled by the native `color-scheme` property on `:root`
 // (`light` / `dark` / `light dark` for OS-driven auto). ThemeService toggles
-// this value directly instead of applying a `.darkMode` class.
+// this value directly.
 //
 // Parity source: PrimeUix Aura preset, light + dark `colorScheme` blocks
 // (node_modules/@primeuix/themes/aura base module), with the app's `sky`
@@ -71,11 +71,18 @@
 
   // Base page background.
   // Parity: Aura light `surface.50` (#f8fafc) / dark `surface.900` (#0f172a).
-  --sbb-surface: light-dark(var(--sbb-gray-50), var(--sbb-gray-900));
+  // We use relative oklch color syntax to extract the primary hue (h) and apply a low-chroma tint in both schemes.
+  --sbb-surface: light-dark(
+    oklch(from var(--sbb-primary-50) 0.98 0.01 h),
+    oklch(from var(--sbb-primary-500) 0.17 0.02 h)
+  );
 
   // Elevated surface background (cards, panels, popovers, modals, dialogs).
   // Parity: Aura light `surface.0` (#ffffff) / dark `surface.900` (content bg).
-  --sbb-surface-raised: light-dark(#ffffff, var(--sbb-gray-900));
+  --sbb-surface-raised: light-dark(
+    #ffffff,
+    oklch(from var(--sbb-primary-500) 0.20 0.02 h)
+  );
 
   // Hover state surface overlay (subtle darken in light, subtle lighten in dark).
   --sbb-surface-hover: light-dark(rgba(15, 23, 42, 0.04), rgba(255, 255, 255, 0.06));
@@ -157,35 +164,4 @@
   --sbb-danger: light-dark(#b91c1c, #fca5a5);
   --sbb-danger-bg: light-dark(#fef2f2, #7f1d1d);
   --sbb-danger-border: light-dark(#fca5a5, #b91c1c);
-}
-
-.sbb-dark {
-  --sbb-surface: var(--sbb-gray-900);
-  --sbb-surface-raised: var(--sbb-gray-900);
-  --sbb-surface-hover: rgba(255, 255, 255, 0.06);
-  --sbb-text: #ffffff;
-  --sbb-text-muted: var(--sbb-gray-400);
-  --sbb-border: var(--sbb-gray-700);
-  --sbb-primary: var(--sbb-primary-400);
-  --sbb-primary-text: var(--sbb-primary-300);
-  --sbb-focus-ring: var(--sbb-primary);
-  --sbb-primary-surface: var(--sbb-primary-700);
-  --sbb-primary-surface-hover: var(--sbb-primary-800);
-  --sbb-shadow-overlay: var(--sbb-shadow-overlay-dark);
-
-  --sbb-success: #86efac;
-  --sbb-success-bg: #14532d;
-  --sbb-success-border: #15803d;
-
-  --sbb-info: #7dd3fc;
-  --sbb-info-bg: #0c4a6e;
-  --sbb-info-border: #0369a1;
-
-  --sbb-warning: #fcd34d;
-  --sbb-warning-bg: #78350f;
-  --sbb-warning-border: #b45309;
-
-  --sbb-danger: #fca5a5;
-  --sbb-danger-bg: #7f1d1d;
-  --sbb-danger-border: #b91c1c;
 }

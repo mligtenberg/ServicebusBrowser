@@ -26,31 +26,7 @@
           [hideScrollbar]="isResizing()"
         >
           <div class="properties">
-            @if (!sendMode() && headers().length > 0) {
-            <div class="system-properties">
-              <ng-template *ngTemplateOutlet="headersTemplate" />
-            </div>
-            }
-            @if (properties().length > 0) {
-            <div class="system-properties">
-              <ng-template *ngTemplateOutlet="propertiesTemplate" />
-            </div>
-            }
-            @if (!sendMode() && deliveryAnnotations().length > 0) {
-            <div class="system-properties">
-              <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
-            </div>
-            }
-            @if (!sendMode() && messageAnnotations().length > 0) {
-            <div class="system-properties">
-              <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
-            </div>
-            }
-            @if (applicationProperties().length > 0) {
-            <div class="application-properties">
-              <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-            </div>
-            }
+            <ng-container *ngTemplateOutlet="propertiesTableTemplate" />
           </div>
         </sbb-scroll-panel>
       </sbb-splitter-panel>
@@ -64,31 +40,9 @@
     <div class="card body">
       <ng-template *ngTemplateOutlet="bodyTemplate" />
     </div>
-    @if (!sendMode() && headers().length > 0) {
-    <div class="system-properties">
-      <ng-template *ngTemplateOutlet="headersTemplate" />
+    <div class="properties">
+      <ng-container *ngTemplateOutlet="propertiesTableTemplate" />
     </div>
-    }
-    @if (properties().length > 0) {
-    <div class="system-properties">
-      <ng-template *ngTemplateOutlet="propertiesTemplate" />
-    </div>
-    }
-    @if (!sendMode() && deliveryAnnotations().length > 0) {
-    <div class="system-properties">
-      <ng-template *ngTemplateOutlet="deliveryAnnotationsTemplate" />
-    </div>
-    }
-    @if (!sendMode() && messageAnnotations().length > 0) {
-    <div class="system-properties">
-      <ng-template *ngTemplateOutlet="messageAnnotationsTemplate" />
-    </div>
-    }
-    @if (applicationProperties().length > 0) {
-    <div class="application-properties">
-      <ng-template *ngTemplateOutlet="applicationPropertiesTemplate" />
-    </div>
-    }
   </div>
   }
 </div>
@@ -195,136 +149,125 @@
   />
 </ng-template>
 
-<!-- Shared key/value property table, right-click context menu per row. -->
+<ng-template #propertiesTableTemplate>
+  <table class="property-table">
+    @if (!sendMode() && headers().length > 0) {
+      <ng-container
+        *ngTemplateOutlet="
+          propertyGroupTemplate;
+          context: {
+            title: 'Headers',
+            rows: headers(),
+            menu: headersContextMenu(),
+            show: showHeadersContextMenu(),
+            selModel: headersContextMenuSelection
+          }
+        "
+      />
+    }
+    @if (properties().length > 0) {
+      <ng-container
+        *ngTemplateOutlet="
+          propertyGroupTemplate;
+          context: {
+            title: 'Properties',
+            rows: properties(),
+            menu: propertiesContextMenu(),
+            show: showPropertiesContextMenu(),
+            selModel: propertiesContextMenuSelection
+          }
+        "
+      />
+    }
+    @if (!sendMode() && deliveryAnnotations().length > 0) {
+      <ng-container
+        *ngTemplateOutlet="
+          propertyGroupTemplate;
+          context: {
+            title: 'Delivery annotations',
+            rows: deliveryAnnotations(),
+            menu: deliveryAnnotationsContextMenu(),
+            show: showDeliveryAnnotationsContextMenu(),
+            selModel: deliveryAnnotationsContextMenuSelection
+          }
+        "
+      />
+    }
+    @if (!sendMode() && messageAnnotations().length > 0) {
+      <ng-container
+        *ngTemplateOutlet="
+          propertyGroupTemplate;
+          context: {
+            title: 'Message annotations',
+            rows: messageAnnotations(),
+            menu: messageAnnotationsContextMenu(),
+            show: showMessageAnnotationsContextMenu(),
+            selModel: messageAnnotationsContextMenuSelection
+          }
+        "
+      />
+    }
+    @if (applicationProperties().length > 0) {
+      <ng-container
+        *ngTemplateOutlet="
+          propertyGroupTemplate;
+          context: {
+            title: 'Application properties',
+            rows: applicationProperties(),
+            menu: applicationPropertiesContextMenu(),
+            show: showApplicationPropertiesContextMenu(),
+            selModel: applicationPropertiesContextMenuSelection
+          }
+        "
+      />
+    }
+  </table>
+</ng-template>
+
 <ng-template
-  #propertyTableTemplate
+  #propertyGroupTemplate
+  let-title="title"
   let-rows="rows"
   let-menu="menu"
   let-show="show"
   let-selModel="selModel"
 >
-  <div class="table-container">
-    <sbb-scroll-panel class="table-scroll-panel">
-      <table class="property-table">
-        <tbody>
-          @for (row of rows; track row.key) {
-            @if (show) {
-              <sbb-context-menu
-                [model]="menu"
-                [data]="row"
-                (opened)="selModel.set(row)"
-              >
-                <tr>
-                  <td class="user-selectable">{{ row.key }}</td>
-                  <td class="user-selectable">
-                    @if (dateGuard(row.value)) {
-                      {{ row.value | date: 'medium' }}
-                    } @else {
-                      {{ row.value }}
-                    }
-                  </td>
-                </tr>
-              </sbb-context-menu>
+  <tbody>
+    <tr>
+      <th colspan="2" class="header">
+        <h2>{{ title }}</h2>
+      </th>
+    </tr>
+    @for (row of rows; track row.key) {
+      @if (show) {
+        <sbb-context-menu
+          [model]="menu"
+          [data]="row"
+          (opened)="selModel.set(row)"
+        >
+          <tr>
+            <td class="user-selectable">{{ row.key }}</td>
+            <td class="user-selectable">
+              @if (dateGuard(row.value)) {
+                {{ row.value | date: 'medium' }}
+              } @else {
+                {{ row.value }}
+              }
+            </td>
+          </tr>
+        </sbb-context-menu>
+      } @else {
+        <tr>
+          <td class="user-selectable">{{ row.label }}</td>
+          <td class="user-selectable">
+            @if (dateGuard(row.value)) {
+              {{ row.value | date: 'medium' }}
             } @else {
-              <tr>
-                <td class="user-selectable">{{ row.label }}</td>
-                <td class="user-selectable">
-                  @if (dateGuard(row.value)) {
-                    {{ row.value | date: 'medium' }}
-                  } @else {
-                    {{ row.value }}
-                  }
-                </td>
-              </tr>
+              {{ row.value }}
             }
-          }
-        </tbody>
-      </table>
-    </sbb-scroll-panel>
-  </div>
-</ng-template>
-
-<ng-template #headersTemplate>
-  <div class="header">
-    <h2>Headers</h2>
-  </div>
-  <ng-container
-    *ngTemplateOutlet="
-      propertyTableTemplate;
-      context: {
-        rows: headers(),
-        menu: headersContextMenu(),
-        show: showHeadersContextMenu(),
-        selModel: headersContextMenuSelection
+          </td>
+        </tr>
       }
-    "
-  />
-</ng-template>
-
-<ng-template #propertiesTemplate>
-  <div class="header">
-    <h2>Properties</h2>
-  </div>
-  <ng-container
-    *ngTemplateOutlet="
-      propertyTableTemplate;
-      context: {
-        rows: properties(),
-        menu: propertiesContextMenu(),
-        show: showPropertiesContextMenu(),
-        selModel: propertiesContextMenuSelection
-      }
-    "
-  />
-</ng-template>
-
-<ng-template #deliveryAnnotationsTemplate>
-  <div class="header">
-    <h2>Delivery annotations</h2>
-  </div>
-  <ng-container
-    *ngTemplateOutlet="
-      propertyTableTemplate;
-      context: {
-        rows: deliveryAnnotations(),
-        menu: deliveryAnnotationsContextMenu(),
-        show: showDeliveryAnnotationsContextMenu(),
-        selModel: deliveryAnnotationsContextMenuSelection
-      }
-    "
-  />
-</ng-template>
-
-<ng-template #messageAnnotationsTemplate>
-  <div class="header">
-    <h2>Message annotations</h2>
-  </div>
-  <ng-container
-    *ngTemplateOutlet="
-      propertyTableTemplate;
-      context: {
-        rows: messageAnnotations(),
-        menu: messageAnnotationsContextMenu(),
-        show: showMessageAnnotationsContextMenu(),
-        selModel: messageAnnotationsContextMenuSelection
-      }
-    "
-  />
-</ng-template>
-
-<ng-template #applicationPropertiesTemplate>
-  <div class="header">
-    <h2>Application properties</h2>
-  </div>
-  <ng-container
-    *ngTemplateOutlet="
-      propertyTableTemplate;
-      context: {
-        rows: applicationProperties(),
-        menu: applicationPropertiesContextMenu(),
-        show: showApplicationPropertiesContextMenu(),
-        selModel: applicationPropertiesContextMenuSelection
-      }
-    "
-  />
+    }
+  </tbody>
 </ng-template>

@@ -3,8 +3,8 @@ import {
   Component,
   computed,
   inject,
+  input,
 } from '@angular/core';
-import { BrnResizablePanel } from '@spartan-ng/brain/resizable';
 import { SBB_SPLITTER_GROUP } from './splitter.token';
 
 /**
@@ -18,6 +18,10 @@ import { SBB_SPLITTER_GROUP } from './splitter.token';
  *
  * Each panel (except the last) renders the draggable gutter after itself, so
  * consumers never place a separate handle element between panels.
+ *
+ * Sizing is `flex: {size} 1 0` (grow ratio, basis 0) rather than
+ * `flex-basis: {size}%`, so panels distribute space proportionally to their
+ * current size.
  */
 @Component({
   selector: 'sbb-splitter-panel',
@@ -41,32 +45,32 @@ import { SBB_SPLITTER_GROUP } from './splitter.token';
     }
   `,
   styleUrl: './splitter-panel.component.scss',
-  hostDirectives: [
-    {
-      directive: BrnResizablePanel,
-      inputs: ['defaultSize: size', 'minSize', 'maxSize', 'collapsible'],
-    },
-  ],
   host: {
     class: 'sbb-splitter-panel',
+    '[attr.data-layout]': 'orientation()',
+    '[attr.data-panel-size]': 'currentSize()',
+    '[style.flex]': 'flex()',
   },
 })
 export class SbbSplitterPanel {
   private readonly group = inject(SBB_SPLITTER_GROUP);
 
-  /**
-   * @internal Used by `SbbSplitter` to compute handle placement, and the
-   * backing directive for this panel's public `size`/`minSize`/`maxSize`/
-   * `collapsible` inputs (aliased from `BrnResizablePanel` via `hostDirectives`).
-   */
-  readonly hostPanel = inject(BrnResizablePanel, { self: true });
+  /** Initial size (percentage of the splitter's main axis). */
+  readonly size = input<number>(0);
+  /** Minimum size (percentage) this panel can be dragged/nudged to. */
+  readonly minSize = input<number>(0);
+  /** Maximum size (percentage) this panel can be dragged/nudged to. */
+  readonly maxSize = input<number>(100);
 
   protected readonly orientation = this.group.orientation;
 
+  /** Current size (percentage), reactive to drag/keyboard resizing. */
+  protected readonly currentSize = computed(() => this.group.sizeFor(this));
+
+  protected readonly flex = computed(() => `${this.currentSize()} 1 0`);
+
   /** Renders the gutter handle right after this panel, unless it is the last one. */
-  protected readonly showHandle = computed(() =>
-    this.group.hasHandleAfter(this),
-  );
+  protected readonly showHandle = computed(() => this.group.hasHandleAfter(this));
 
   /** Start a drag when the gutter after this panel is pressed. */
   protected onHandlePointerDown(event: MouseEvent | TouchEvent): void {

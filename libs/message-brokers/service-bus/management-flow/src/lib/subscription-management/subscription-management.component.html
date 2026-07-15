@@ -1,41 +1,38 @@
 <form [formGroup]="form">
-  <p-card class="name" header="Name">
-    <input pInputText formControlName="name" />
-  </p-card>
+  <sbb-card class="name" header="Subscription Identity">
+    <sbb-float-label variant="on" label="Subscription name" for="name">
+      <sbb-input inputId="name" formControlName="name"></sbb-input>
+    </sbb-float-label>
+  </sbb-card>
 
-  <p-card class="properties" header="Subscription Properties" formGroupName="properties">
+  <sbb-card class="properties" header="Subscription Properties" formGroupName="properties">
     <div class="line">
-      <p-float-label variant="on">
-        <p-inputnumber formControlName="maxDeliveryCount" inputId="maxDeliveryCount"></p-inputnumber>
-        <!--suppress XmlInvalidId -->
-        <label for="maxDeliveryCount">Max delivery count</label>
-      </p-float-label>
+      <sbb-float-label variant="on" label="Max delivery count" for="maxDeliveryCount">
+        <sbb-input-number formControlName="maxDeliveryCount" inputId="maxDeliveryCount"></sbb-input-number>
+      </sbb-float-label>
     </div>
     <div class="line">
-      <p-float-label variant="on">
-        <textarea pTextarea formControlName="userMetadata" id="userMetadata"></textarea>
-        <label for="userMetadata">User Metadata</label>
-      </p-float-label>
+      <sbb-float-label variant="on" label="User metadata" for="userMetadata">
+        <sbb-textarea formControlName="userMetadata" inputId="userMetadata" [rows]="5"></sbb-textarea>
+      </sbb-float-label>
     </div>
     <div class="line">
-      <p-float-label variant="on">
+      <sbb-float-label variant="on" label="Forward to" for="forwardMessagesTo">
         <sbb-tpl-endpoint-string-selector-input
           id="forwardMessagesTo"
           formControlName="forwardMessagesTo"
           [connectionsFilter]="endpointFilter()"
           />
-        <label for="forwardMessagesTo">Forward to</label>
-      </p-float-label>
+      </sbb-float-label>
     </div>
     <div class="line">
-      <p-float-label variant="on">
+      <sbb-float-label variant="on" label="Forward dead letters to" for="forwardDeadLetteredMessagesTo">
         <sbb-tpl-endpoint-string-selector-input
           id="forwardDeadLetteredMessagesTo"
           formControlName="forwardDeadLetteredMessagesTo"
           [connectionsFilter]="endpointFilter()"
           />
-        <label for="forwardDeadLetteredMessagesTo">Forward dead letters to</label>
-      </p-float-label>
+      </sbb-float-label>
     </div>
     <div class="line duration-input">
       <label for="autoDeleteOnIdle">Auto delete on idle</label>
@@ -49,55 +46,42 @@
       <label for="lockDuration">Lock duration</label>
       <sbb-duration-input id="lockDuration" formControlName="lockDuration"></sbb-duration-input>
     </div>
-  </p-card>
+  </sbb-card>
 
-  <p-card class="settings" header="Subscription Settings" formGroupName="settings">
+  <sbb-card class="settings" header="Subscription Settings" formGroupName="settings">
     <div class="checkbox">
-      <p-checkbox formControlName="enableBatchedOperations" inputId="enableBatchedOperations" [binary]="true" />
+      <sbb-checkbox formControlName="enableBatchedOperations" id="enableBatchedOperations"></sbb-checkbox>
       <!--suppress XmlInvalidId -->
       <label for="enableBatchedOperations">Enable batched operations</label>
     </div>
     <div class="checkbox">
-      <p-checkbox formControlName="deadLetteringOnMessageExpiration" inputId="deadLetteringOnMessageExpiration" [binary]="true" />
+      <sbb-checkbox formControlName="deadLetteringOnMessageExpiration" id="deadLetteringOnMessageExpiration"></sbb-checkbox>
       <!--suppress XmlInvalidId -->
       <label for="deadLetteringOnMessageExpiration">Deadlettering on message expiration</label>
     </div>
     <div class="checkbox">
-      <p-checkbox formControlName="requiresSession" inputId="requiresSession" [binary]="true" />
+      <sbb-checkbox formControlName="requiresSession" id="requiresSession"></sbb-checkbox>
       <!--suppress XmlInvalidId -->
       <label for="requiresSession">Requires session</label>
     </div>
-  </p-card>
+  </sbb-card>
 
   @if (action() === 'modify') {
-    <p-card class="information" header="Subscription Information">
+    <sbb-card class="information" header="Subscription Information">
       <div class="table-container">
-        <p-table
+        <sbb-data-grid
+          [hideHeader]="true"
           [columns]="informationCols"
-          [value]="currentSubscriptionInformation()"
-          [scrollable]="true"
-          scrollHeight="100cqh"
-          [virtualScroll]="false"
-          >
-          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
-            <tr style="height:30px">
-              @for (col of columns; track col) {
-                <td class="user-selectable">
-                  @if (isDate(rowData[col.field])) {
-                    {{ rowData[col.field] | date: 'medium' }}
-                  } @else {
-                    {{ rowData[col.field] }}
-                  }
-                </td>
-              }
-            </tr>
-          </ng-template>
-        </p-table>
+          [data]="currentSubscriptionInformation()"
+          [rowHeight]="30"
+          [lazy]="false"
+          [loading]="false"
+        />
       </div>
-    </p-card>
+    </sbb-card>
   }
 
   <div class="actions">
-    <button pButton type="button" (click)="save()" [disabled]="form.invalid">Save</button>
+    <sbb-button (click)="save()" [disabled]="form.invalid">Save</sbb-button>
   </div>
 </form>

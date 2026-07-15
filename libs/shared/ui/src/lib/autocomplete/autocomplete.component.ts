@@ -1,5 +1,3 @@
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -7,18 +5,17 @@ import {
   computed,
   contentChild,
   DestroyRef,
+  effect,
   ElementRef,
   forwardRef,
   inject,
   input,
   output,
   signal,
-  TemplateRef,
   viewChild,
-  ViewContainerRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { SbbPopover } from '../popover';
 import {
   SbbAutocompleteGroupLabelDef,
   SbbAutocompleteItemDef,
@@ -37,17 +34,18 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
  *    `sbbAutocompleteItem`/`sbbAutocompleteGroupLabel` templates,
  *    `completeOnFocus`, `minLength=0`, `(selected)`/`(cleared)`.
  *
- * Implementation note: rather than assembling `@spartan-ng/brain/autocomplete`
- * — which couples `BrnPopover` + `brnPopoverContent` + `brnAutocompleteContent`
- * in a version-sensitive way — this is built directly on `@angular/cdk/overlay`
- * per the migration's CDK escape hatch, giving full control over grouping,
- * templating and free-text semantics. brain/CDK types never surface in the
- * public API; the internals can be swapped later behind this same surface.
+ * Implementation note: the suggestion panel is rendered through
+ * {@link SbbPopover} — the native HTML Popover API plus CSS anchor
+ * positioning — rather than a body-level CDK overlay. Because `SbbPopover`
+ * keeps its panel as a DOM descendant, an autocomplete opened *inside* another
+ * popover (e.g. the batch-resend "add action" editor) forms a native popover
+ * ancestor chain, so clicking a suggestion no longer light-dismisses the
+ * surrounding popover. brain/CDK types never surface in the public API.
  */
 @Component({
   selector: 'sbb-autocomplete',
   standalone: true,
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, SbbPopover],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './autocomplete.component.html',
   styleUrl: './autocomplete.component.scss',
@@ -61,10 +59,6 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
   host: { class: 'sbb-autocomplete-host' },
 })
 export class SbbAutocomplete<T> implements ControlValueAccessor {
-  private readonly overlay = inject(Overlay);
-  private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
   /** Flat suggestions. Ignored when {@link groups} is set. */
   readonly suggestions = input<readonly T[]>([]);
 
@@ -100,7 +94,10 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
 
   protected readonly itemDef = contentChild(SbbAutocompleteItemDef);
   protected readonly groupLabelDef = contentChild(SbbAutocompleteGroupLabelDef);
-  private readonly panel = viewChild.required<TemplateRef<unknown>>('panel');
+
+  private readonly popover = viewChild(SbbPopover);
+  private readonly inputRef =
+    viewChild.required<ElementRef<HTMLInputElement>>('input');
 
   private static nextId = 0;
 
@@ -110,8 +107,11 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
   /** Current input text. */
   protected readonly query = signal('');
 
-  /** Whether the suggestion panel is open. */
-  protected readonly isOpen = signal(false);
+  /** Whether the user's intent is for the panel to be shown (subject to having items). */
+  private readonly wantOpen = signal(false);
+
+  /** Minimum panel width, tracked from the input so the list can't be narrower. */
+  protected readonly panelMinWidth = signal(0);
 
   /** Index of the highlighted item within {@link flatItems}, or -1. */
   protected readonly activeIndex = signal(-1);
@@ -132,14 +132,34 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
     return this.suggestions();
   });
 
-  private overlayRef: OverlayRef | undefined;
-  private subscriptions = new Subscription();
-
   private onChange: (value: T | string | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.close());
+    // Drive the popover from intent + availability: only show it once there is
+    // something to show, and hide it as soon as the result set empties, so an
+    // empty query never leaves a bare panel hanging under the input.
+    effect(() => {
+      const pop = this.popover();
+      if (!pop) {
+        return;
+      }
+      const shouldOpen =
+        this.wantOpen() && !this.isDisabled() && this.flatItems().length > 0;
+      if (shouldOpen) {
+        const input = this.inputRef().nativeElement;
+        this.panelMinWidth.set(input.offsetWidth);
+        pop.open(input);
+      } else {
+        pop.close();
+      }
+    });
+    inject(DestroyRef).onDestroy(() => this.wantOpen.set(false));
+  }
+
+  /** Whether the suggestion panel is currently open. */
+  protected isOpen(): boolean {
+    return this.popover()?.isOpen() ?? false;
   }
 
   protected display(item: T | string | null): string {
@@ -173,18 +193,13 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
     }
 
     this.completeChange.emit(raw);
-
-    if (raw.length >= this.minLength()) {
-      this.open();
-    } else {
-      this.close();
-    }
+    this.wantOpen.set(raw.length >= this.minLength());
   }
 
   protected onFocus(): void {
     if (this.completeOnFocus() && !this.isDisabled()) {
       this.completeChange.emit(this.query());
-      this.open();
+      this.wantOpen.set(true);
     }
   }
 
@@ -197,9 +212,7 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        if (!this.isOpen()) {
-          this.open();
-        }
+        this.wantOpen.set(true);
         this.activeIndex.set(Math.min(items.length - 1, this.activeIndex() + 1));
         break;
       case 'ArrowUp':
@@ -232,45 +245,16 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
     this.close();
   }
 
-  private open(): void {
-    if (this.isDisabled()) {
-      return;
-    }
-    this.isOpen.set(true);
-    if (this.overlayRef) {
-      return;
-    }
-
-    const host = this.hostRef.nativeElement;
-    this.overlayRef = this.overlay.create({
-      positionStrategy: this.overlay
-        .position()
-        .flexibleConnectedTo(host)
-        .withPositions([
-          { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-          { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-        ]),
-      scrollStrategy: this.overlay.scrollStrategies.reposition(),
-      width: host.offsetWidth,
-    });
-    this.overlayRef.attach(new TemplatePortal(this.panel(), this.viewContainerRef));
-
-    this.subscriptions = new Subscription();
-    this.subscriptions.add(
-      this.overlayRef.outsidePointerEvents().subscribe((event) => {
-        if (!host.contains(event.target as Node)) {
-          this.close();
-        }
-      }),
-    );
+  /** Closes the panel and clears the highlight. */
+  private close(): void {
+    this.wantOpen.set(false);
+    this.activeIndex.set(-1);
   }
 
-  private close(): void {
-    this.isOpen.set(false);
+  /** Panel light-dismissed (outside click / Escape) — sync our intent. */
+  protected onPopoverClosed(): void {
+    this.wantOpen.set(false);
     this.activeIndex.set(-1);
-    this.subscriptions.unsubscribe();
-    this.overlayRef?.dispose();
-    this.overlayRef = undefined;
   }
 
   writeValue(value: T | string | null | undefined): void {

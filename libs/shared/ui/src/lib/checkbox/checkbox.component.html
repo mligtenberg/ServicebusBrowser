@@ -1,24 +1,14 @@
-<!--
-  BrnCheckbox sets display:contents on its host (so the custom element has no box).
-  It passes [class]="class()" to an inner <button>, which means class="sbb-checkbox__control"
-  gets forwarded to the button. However, [attr.data-state] is bound to the brn-checkbox HOST
-  (display:contents), not to the inner button — so CSS selectors like
-  .sbb-checkbox__control[data-state='checked'] never match.
-
-  Fix: use a dedicated visual-box <span class="sbb-checkbox__box"> and drive icon
-  visibility via Angular signal bindings instead of CSS attribute selectors.
-  brn-checkbox still owns the button/behavior; we just separate visual from behaviour.
--->
-<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- brn-checkbox self-associates via `closest('label')` at runtime (see @spartan-ng/brain/checkbox) -->
+<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- the button self-associates via `closest('label')` at runtime, same as a native <input> -->
 <label class="sbb-checkbox" [class.sbb-checkbox--disabled]="isDisabled()">
-  <brn-checkbox
-    [checked]="checked()"
-    [indeterminate]="indeterminate()"
+  <button
+    type="button"
+    role="checkbox"
+    class="sbb-checkbox__control"
+    [attr.aria-checked]="indeterminate() ? 'mixed' : checked()"
     [disabled]="isDisabled()"
-    (checkedChange)="onCheckedChange($event)"
-    (touched)="onTouchedHandler()"
+    (click)="onCheckedChange(!checked())"
+    (blur)="onTouchedHandler()"
   >
-    <!-- Visual box: lives INSIDE the brn-checkbox button (via ng-content) -->
     <span
       class="sbb-checkbox__box"
       [class.sbb-checkbox__box--checked]="checked()"
@@ -36,7 +26,7 @@
         </svg>
       }
     </span>
-  </brn-checkbox>
+  </button>
   @if (label()) {
     <span class="sbb-checkbox__label">{{ label() }}</span>
   }

@@ -295,7 +295,7 @@ export class BodyViewer {
   // selection has pretty-print formatting characters stripped before being
   // forwarded to the original action handler.
   protected wrappedContextActions = computed<EditorContextAction[]>(() =>
-    this.contextActions().map((action) => ({
+    (this.contextActions() ?? []).map((action) => ({
       ...action,
       run: (selectedText: string, start?: number, end?: number) => {
         action.run(this.stripPrettyFormatting(start, end, selectedText));

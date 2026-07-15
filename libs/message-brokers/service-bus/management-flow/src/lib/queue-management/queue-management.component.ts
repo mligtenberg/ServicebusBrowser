@@ -1,24 +1,26 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { QueueForm } from './form';
 import { combineLatest, from, map, of, switchMap } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputNumber } from 'primeng/inputnumber';
-import { Textarea } from 'primeng/textarea';
+import {
+  SbbCard,
+  SbbInput,
+  SbbFloatLabel,
+  SbbInputNumber,
+  SbbTextarea,
+  SbbCheckbox,
+  SbbButton,
+  SbbDataGrid,
+} from '@service-bus-browser/shared-ui';
 import {
   EndpointStringSelectorInputComponent
 } from '@service-bus-browser/topology-components';
-import { Checkbox } from 'primeng/checkbox';
-import { ButtonDirective } from 'primeng/button';
 import { Queue, QueueWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
@@ -29,16 +31,17 @@ import { SaveFeedbackService } from '../save-feedback.service';
     CommonModule,
     ReactiveFormsModule,
     DurationInputComponent,
-    Card,
-    InputText,
-    FloatLabel,
-    InputNumber,
-    Textarea,
-    Checkbox,
-    ButtonDirective,
-    TableModule,
+    SbbCard,
+    SbbInput,
+    SbbFloatLabel,
+    SbbInputNumber,
+    SbbTextarea,
+    SbbCheckbox,
+    SbbButton,
+    SbbDataGrid,
     EndpointStringSelectorInputComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './queue-management.component.html',
   styleUrl: './queue-management.component.scss',
 })
@@ -47,6 +50,7 @@ export class QueueManagementComponent {
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
   saveFeedback = inject(SaveFeedbackService);
+  datePipe = inject(DatePipe);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -59,7 +63,7 @@ export class QueueManagementComponent {
 
     return Object.entries(queue.metaData).map(([key, value]) => ({
       key,
-      value,
+      value: value instanceof Date ? this.datePipe.transform(value, 'medium') : value,
     }));
   });
   endpointFilter = computed(() => {
@@ -226,9 +230,6 @@ export class QueueManagementComponent {
     });
   }
 
-  isDate(value: unknown): boolean {
-    return value instanceof Date;
-  }
 
   private createForm() {
     return new FormGroup<QueueForm>({

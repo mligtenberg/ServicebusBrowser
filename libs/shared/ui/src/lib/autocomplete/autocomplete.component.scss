@@ -28,6 +28,8 @@
   }
 }
 
+// The panel chrome (background, border, shadow, positioning, fade-in) comes
+// from the enclosing `SbbPopover`; this only lays out the option list within it.
 .sbb-autocomplete-panel {
   display: flex;
   flex-direction: column;
@@ -35,11 +37,6 @@
   padding: 0.25rem;
   overflow-y: auto;
   color: var(--sbb-text);
-  background-color: var(--sbb-surface-raised);
-  border: 1px solid var(--sbb-border);
-  border-radius: var(--sbb-radius);
-  box-shadow: var(--sbb-shadow-overlay);
-  animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
 }
 
 .sbb-autocomplete-panel__group-label {

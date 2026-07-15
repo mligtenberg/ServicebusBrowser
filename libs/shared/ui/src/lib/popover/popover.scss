@@ -12,8 +12,10 @@
   margin: 0;
   top: anchor(bottom);
   margin-top: var(--sbb-popover-offset, 4px);
-  // Flip above the trigger when there's no room below.
-  position-try-fallbacks: flip-block;
+  // Flip above the trigger when there's no room below, and/or mirror
+  // left↔right when there's no room on the preferred side (e.g. a
+  // point-anchored context menu opened near the right edge of the window).
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
 
   // NB: do NOT set `display` here. When closed, the UA rule
   // `[popover]:not(:popover-open) { display: none }` hides the panel — but an

@@ -1,9 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
-import { Button } from 'primeng/button';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
-import { Menu } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
+import { SbbMenu, SbbMenuItem, SbbButton } from '@service-bus-browser/shared-ui';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -16,7 +15,7 @@ import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@s
 
 @Component({
   selector: 'app-main-app',
-  imports: [Button, MainUiComponent, Menu, WorkspaceSwitcherComponent],
+  imports: [SbbButton, MainUiComponent, SbbMenu, WorkspaceSwitcherComponent],
   templateUrl: './main-app.html',
   styleUrl: './main-app.scss',
 })
@@ -36,15 +35,15 @@ export class MainApp implements OnInit {
     this.oidcSecurityService.userData$.pipe(map((r) => r.userData)),
   );
   userName = computed(() => this.userData()?.name);
+  faUser = faUser;
 
-  menuItems = computed<MenuItem[]>(() => {
+  menuItems = computed<SbbMenuItem[]>(() => {
     const themePref = this.themeService.preference();
     const bodyView = this.messagePreferences.defaultBodyView();
     const selectionMarks = (selected: boolean, label: string) =>
       selected
         ? {
-            label: `${label}<i class="pi pi-check menu-item-selected-check"></i>`,
-            escape: false,
+            label,
             styleClass: 'menu-item-selected',
           }
         : { label };
@@ -117,7 +116,7 @@ export class MainApp implements OnInit {
     ];
   });
 
-  accountMenuItems: MenuItem[] = [
+  accountMenuItems: SbbMenuItem[] = [
     {
       label: 'Sign-out',
       icon: 'pi pi-sign-out',

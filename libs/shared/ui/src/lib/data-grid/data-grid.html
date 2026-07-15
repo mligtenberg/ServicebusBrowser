@@ -1,32 +1,34 @@
 <div class="sbb-grid" role="grid">
-  <div class="sbb-grid__header" role="row">
-    @for (col of columns(); track col.field) {
-      <div
-        class="sbb-grid__hcell"
-        role="columnheader"
-        [class.sbb-grid__hcell--sortable]="col.sortable !== false"
-        [style.width]="col.width || null"
-        [attr.tabindex]="col.sortable === false ? null : 0"
-        [attr.aria-sort]="
-          sortIndicator(col) === 'asc'
-            ? 'ascending'
-            : sortIndicator(col) === 'desc'
-              ? 'descending'
-              : 'none'
-        "
-        (click)="onHeaderClick(col)"
-        (keydown.enter)="onHeaderClick(col)"
-        (keydown.space)="onHeaderClick(col); $event.preventDefault()"
-      >
-        <span class="sbb-grid__hlabel">{{ col.header }}</span>
-        @if (sortIndicator(col) === 'asc') {
-          <span class="sbb-grid__sort" aria-hidden="true">▲</span>
-        } @else if (sortIndicator(col) === 'desc') {
-          <span class="sbb-grid__sort" aria-hidden="true">▼</span>
-        }
-      </div>
-    }
-  </div>
+  @if (!hideHeader()) {
+    <div class="sbb-grid__header" role="row">
+      @for (col of columns(); track col.field) {
+        <div
+          class="sbb-grid__hcell"
+          role="columnheader"
+          [class.sbb-grid__hcell--sortable]="col.sortable !== false"
+          [style.width]="col.width || null"
+          [attr.tabindex]="col.sortable === false ? null : 0"
+          [attr.aria-sort]="
+            sortIndicator(col) === 'asc'
+              ? 'ascending'
+              : sortIndicator(col) === 'desc'
+                ? 'descending'
+                : 'none'
+          "
+          (click)="onHeaderClick(col)"
+          (keydown.enter)="onHeaderClick(col)"
+          (keydown.space)="onHeaderClick(col); $event.preventDefault()"
+        >
+          <span class="sbb-grid__hlabel">{{ col.header }}</span>
+          @if (sortIndicator(col) === 'asc') {
+            <span class="sbb-grid__sort" aria-hidden="true">▲</span>
+          } @else if (sortIndicator(col) === 'desc') {
+            <span class="sbb-grid__sort" aria-hidden="true">▼</span>
+          }
+        </div>
+      }
+    </div>
+  }
 
   @if (loading()) {
     <div class="sbb-grid__loading" role="status" aria-live="polite">

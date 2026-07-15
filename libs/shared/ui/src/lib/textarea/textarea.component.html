@@ -1,6 +1,7 @@
 <textarea
   class="sbb-textarea"
   [class.sbb-textarea--auto-resize]="autoResize()"
+  [attr.id]="inputId() || null"
   [rows]="rows()"
   [placeholder]="placeholder()"
   [disabled]="disabled()"

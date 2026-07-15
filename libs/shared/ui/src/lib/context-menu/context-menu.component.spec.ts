@@ -27,12 +27,6 @@ describe('SbbContextMenu', () => {
     host = fixture.componentInstance;
   });
 
-  afterEach(() => {
-    document
-      .querySelectorAll('.cdk-overlay-container')
-      .forEach((el) => el.remove());
-  });
-
   function openMenu(): void {
     fixture.detectChanges();
     const trigger = fixture.nativeElement.querySelector('.trigger');
@@ -43,12 +37,12 @@ describe('SbbContextMenu', () => {
   }
 
   function panel(): Element | null {
-    return document.querySelector('.sbb-context-menu-panel');
+    return document.querySelector('.sbb-menu-panel');
   }
 
   function items(): HTMLButtonElement[] {
     return Array.from(
-      document.querySelectorAll<HTMLButtonElement>('.sbb-context-menu-panel__item'),
+      document.querySelectorAll<HTMLButtonElement>('.sbb-menu-panel__item'),
     );
   }
 
@@ -82,7 +76,7 @@ describe('SbbContextMenu', () => {
     openMenu();
 
     expect(
-      document.querySelectorAll('.sbb-context-menu-panel__separator').length,
+      document.querySelectorAll('.sbb-menu-panel__separator').length,
     ).toBe(1);
     expect(items().length).toBe(2);
   });
@@ -109,7 +103,7 @@ describe('SbbContextMenu', () => {
     openMenu();
 
     const button = items()[0];
-    expect(button.querySelector('.sbb-context-menu-panel__caret')).not.toBeNull();
+    expect(button.querySelector('.sbb-menu-panel__caret')).not.toBeNull();
     expect(button.getAttribute('aria-haspopup')).toBe('menu');
   });
 });

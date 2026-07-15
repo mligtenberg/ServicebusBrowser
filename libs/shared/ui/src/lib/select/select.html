@@ -1,58 +1,74 @@
-<div
-  class="sbb-select"
-  brnPopover
-  align="start"
-  [sideOffset]="4"
-  brnSelect
-  [disabled]="disabled()"
-  [value]="value()"
-  (valueChange)="handleValueChange($event)"
->
+<div class="sbb-select">
   <button
+    #trigger
     type="button"
     class="sbb-select-trigger"
-    brnSelectTrigger
+    role="combobox"
+    aria-haspopup="listbox"
     [id]="inputId() ?? generatedTriggerId"
+    [attr.aria-controls]="listboxId"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-activedescendant]="isOpen() ? activeId() : null"
+    [attr.data-placeholder]="selectedLabel() === null ? '' : null"
+    [disabled]="disabled()"
+    (click)="toggle()"
+    (keydown)="onTriggerKeydown($event)"
     (blur)="handleTouched()"
   >
-    <span brnSelectValue [placeholder]="placeholder()">{{ selectedLabel() ?? placeholder() }}</span>
-    <i class="fa-solid fa-chevron-down sbb-select-caret" aria-hidden="true"></i>
+    <span class="sbb-select-value">{{ selectedLabel() ?? placeholder() }}</span>
+    <fa-icon class="sbb-select-caret" [icon]="caretIcon" aria-hidden="true"></fa-icon>
   </button>
 
-  <ng-template brnPopoverContent>
-    <div class="sbb-select-panel" brnSelectContent>
+  <sbb-popover
+    align="start"
+    [sideOffset]="4"
+    (opened)="onOpened()"
+    (closed)="onClosed()"
+  >
+    <div class="sbb-select-panel" [style.min-width.px]="triggerWidth()">
       @if (searchable()) {
         <input
+          #filter
           type="text"
           class="sbb-select-filter"
           placeholder="Search…"
+          [attr.aria-controls]="listboxId"
+          [attr.aria-activedescendant]="activeId()"
           [value]="filterQuery()"
-          (input)="handleFilterInput($any($event.target).value)"
-          (click)="$event.stopPropagation()"
+          (input)="handleFilterInput(filter.value)"
+          (keydown)="onFilterKeydown($event)"
         />
       }
-      <div class="sbb-select-list" brnSelectList>
+      <div class="sbb-select-list" role="listbox" [id]="listboxId">
         @for (group of filteredGroups(); track group.label) {
-          <div brnSelectGroup>
+          <div role="group" [attr.aria-label]="group.label || null">
             @if (group.label) {
-              <div class="sbb-select-group-label" brnSelectLabel>{{ group.label }}</div>
+              <div class="sbb-select-group-label">{{ group.label }}</div>
             }
             @for (option of group.options; track option.label) {
-              <div
+              @let entry = flatOptionFor(option);
+              <button
+                type="button"
                 class="sbb-select-item"
-                brnSelectItem
-                [value]="option.value"
-                [disabled]="!!option.disabled"
+                role="option"
+                [id]="entry?.id"
+                [disabled]="option.disabled"
+                [attr.aria-selected]="isSelected(option)"
+                [attr.data-highlighted]="entry && entry.id === activeId() ? '' : null"
+                [attr.data-disabled]="option.disabled ? '' : null"
+                (mousedown)="$event.preventDefault()"
+                (click)="selectOption(option)"
+                (mouseenter)="entry && setActiveOption(entry)"
               >
                 {{ option.label }}
-              </div>
+              </button>
             }
           </div>
         }
-        @if (filteredGroups().length === 0) {
+        @if (flatOptions().length === 0) {
           <div class="sbb-select-empty">No options</div>
         }
       </div>
     </div>
-  </ng-template>
+  </sbb-popover>
 </div>

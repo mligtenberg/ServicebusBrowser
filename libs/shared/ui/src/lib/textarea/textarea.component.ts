@@ -43,6 +43,9 @@ export class SbbTextarea implements ControlValueAccessor {
   /** Whether the textarea grows to fit its content instead of scrolling. */
   autoResize = input<boolean>(false);
 
+  /** Forwarded `id` for label association. */
+  inputId = input<string | undefined>(undefined);
+
   protected readonly value = signal('');
   protected readonly disabled = signal(false);
 

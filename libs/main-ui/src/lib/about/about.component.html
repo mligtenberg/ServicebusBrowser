@@ -15,23 +15,12 @@
 
   <div class="packages-section">
     <h3 class="section-title">Packages</h3>
-    <p-table [value]="packages()" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '50rem'}">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Name</th>
-          <th>Version</th>
-          <th>Author</th>
-          <th>License</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-pkg>
-        <tr>
-          <td><a [href]="pkg.homepage">{{ pkg.name }}</a></td>
-          <td>{{ pkg.version }}</td>
-          <td>{{ pkg.author }}</td>
-          <td>{{ pkg.license }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <sbb-data-grid
+      [data]="packages()"
+      [columns]="columns"
+      [rowHeight]="36"
+      selectionMode="none"
+      class="packages-grid">
+    </sbb-data-grid>
   </div>
 </div>

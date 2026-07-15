@@ -1,0 +1,24 @@
+// Design tokens (`--sbb-*`) — tier-1 palette + tier-2 semantic (light-dark()).
+// Without this, Sbb components fall back to their built-in local color fallbacks.
+@use '../../../libs/shared/ui/src/lib/styles/index' as *;
+
+// Base font, mirroring the app shell. `user-select` is left at the default
+// (selectable) here — unlike the app — so component text can be inspected.
+head,
+body {
+  font:
+    14px 'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+// Match the story canvas to the app's page background. `--sbb-surface` is a
+// `light-dark()` token, so it follows the `color-scheme` the theme decorator
+// stamps on <html> — light gives a near-white surface, dark a dark gray.
+body {
+  background: light-dark(#fff, var(--sbb-surface));
+  color: var(--sbb-text);
+}

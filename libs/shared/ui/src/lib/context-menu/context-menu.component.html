@@ -1,46 +1,5 @@
-<span
-  class="sbb-context-menu-trigger"
-  [cdkContextMenuTriggerFor]="menu"
-  [cdkContextMenuTriggerData]="{ $implicit: model() }"
-  (cdkMenuOpened)="opened.emit(data())"
->
+<span class="sbb-context-menu-trigger" (contextmenu)="onContextMenu($event)">
   <ng-content></ng-content>
 </span>
 
-<ng-template #menu let-items>
-  <div cdkMenu class="sbb-context-menu-panel" [attr.data-model-len]="model().length">
-    @for (item of items; track $index) {
-      @if (isSeparator(item)) {
-        <hr class="sbb-context-menu-panel__separator" aria-hidden="true" />
-      } @else if (item.items && item.items.length) {
-        <button
-          type="button"
-          cdkMenuItem
-          [cdkMenuTriggerFor]="menu"
-          [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
-          [class]="'sbb-context-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
-        >
-          @if (resolve(item.icon); as iconClass) {
-            <i class="sbb-context-menu-panel__icon" [class]="iconClass"></i>
-          }
-          <span class="sbb-context-menu-panel__label">{{ resolve(item.label) }}</span>
-          <span class="sbb-context-menu-panel__caret" aria-hidden="true">›</span>
-        </button>
-      } @else {
-        <button
-          type="button"
-          cdkMenuItem
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
-          (cdkMenuItemTriggered)="invoke(item)"
-          [class]="'sbb-context-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
-        >
-          @if (resolve(item.icon); as iconClass) {
-            <i class="sbb-context-menu-panel__icon" [class]="iconClass"></i>
-          }
-          <span class="sbb-context-menu-panel__label">{{ resolve(item.label) }}</span>
-        </button>
-      }
-    }
-  </div>
-</ng-template>
+<sbb-menu #menu [model]="model()" [data]="data()" />

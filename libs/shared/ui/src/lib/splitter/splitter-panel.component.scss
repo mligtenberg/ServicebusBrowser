@@ -1,8 +1,8 @@
-// SbbSplitterPanel — a single resizable pane, sized by the host
-// `BrnResizablePanel` directive (flex-basis driven, see splitter.component.ts).
-// Panels render their own trailing gutter/handle, positioned via `:host`
-// flex layout rather than absolute positioning, so it participates in the
-// splitter's flex flow like PrimeNG's `p-splitter-gutter`.
+// SbbSplitterPanel — a single resizable pane, sized via `flex` bound to the
+// splitter group's current layout (see splitter.component.ts). Panels render
+// their own trailing gutter/handle, positioned via `:host` flex layout rather
+// than absolute positioning, so it participates in the splitter's flex flow
+// like PrimeNG's `p-splitter-gutter`.
 
 :host {
   --sbb-border-local: var(--sbb-border, #e2e8f0);
@@ -15,11 +15,11 @@
   overflow: hidden;
 }
 
-:host([data-panel-group-direction='horizontal']) {
+:host([data-layout='horizontal']) {
   flex-direction: row;
 }
 
-:host([data-panel-group-direction='vertical']) {
+:host([data-layout='vertical']) {
   flex-direction: column;
 }
 

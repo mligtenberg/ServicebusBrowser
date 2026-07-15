@@ -42,8 +42,9 @@ describe('SbbCheckbox', () => {
   }
 
   function clickControl(): void {
-    const brnCheckbox: HTMLElement = fixture.debugElement.query(By.css('brn-checkbox')).nativeElement;
-    const button = brnCheckbox.querySelector('button') as HTMLButtonElement;
+    const button: HTMLButtonElement = fixture.debugElement.query(
+      By.css('.sbb-checkbox__control'),
+    ).nativeElement;
     button.click();
     fixture.detectChanges();
   }

@@ -1,9 +1,6 @@
-// SbbSplitter — a resizable split-pane container on
-// `@spartan-ng/brain`'s `BrnResizableGroup` (host directive).
-//
-// The group itself is just the flex container; individual panel sizing and
-// the draggable gutter live on `SbbSplitterPanel` (see
-// splitter-panel.component.scss).
+// SbbSplitter — a resizable split-pane container. The group itself is just
+// the flex container; individual panel sizing and the draggable gutter live
+// on `SbbSplitterPanel` (see splitter-panel.component.scss).
 
 :host {
   --sbb-border-local: var(--sbb-border, #e2e8f0);

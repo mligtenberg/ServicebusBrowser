@@ -29,11 +29,9 @@
   > :not(:last-child) {
     border-bottom: 2px solid var(--sbb-border);
   }
-
-  .system-properties, .application-properties {
-    min-height: 10em;
-  }
 }
+
+
 
 sbb-splitter {
   height: 100%;
@@ -66,32 +64,34 @@ sbb-splitter {
   width: 100%;
   border-collapse: collapse;
 
-  tbody > *:not(:last-child) td {
+  tbody:not(:last-child) {
+    border-bottom: 2px solid var(--sbb-border);
+  }
+
+  tbody:not(.property-group-header) > *:not(:last-child) td {
     border-bottom: 1px solid var(--sbb-border);
   }
 
-  td {
+  td, th {
     padding: 9px 16px;
     white-space: nowrap;
+    text-align: left;
+  }
 
+  th {
+    padding: 0;
+    
+    h2 {
+      padding: 0.5rem 1rem;
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+
+  td {
     &:first-child {
       font-weight: 500;
       color: var(--sbb-primary-text);
-    }
-  }
-}
-
-.table-scroll-panel {
-  display: block;
-  width: 100%;
-  height: auto;
-
-  ::ng-deep {
-    .sbb-scroll-panel-viewport {
-      height: auto;
-      overflow-y: hidden;
-      overflow-x: auto;
-      padding-bottom: 24px;
     }
   }
 }
@@ -128,13 +128,6 @@ sbb-splitter {
   flex-direction: column;
   min-height: 100%;
   justify-content: start;
-}
-
-.properties > * {
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--sbb-border);
-  }
 }
 
 .column-picker {

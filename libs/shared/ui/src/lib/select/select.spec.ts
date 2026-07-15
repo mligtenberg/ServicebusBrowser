@@ -3,23 +3,6 @@ import { By } from '@angular/platform-browser';
 import { SbbSelect } from './select';
 import { SbbSelectOption, SbbSelectOptionGroup } from './select.models';
 
-// jsdom has no ResizeObserver; brain's select trigger uses one internally to
-// track the trigger width for the overlay panel. Scoped to this spec only —
-// it does not touch the shared test-setup used by sibling component specs.
-class ResizeObserverStub {
-  observe(): void {
-    /* no-op */
-  }
-  unobserve(): void {
-    /* no-op */
-  }
-  disconnect(): void {
-    /* no-op */
-  }
-}
-(globalThis as { ResizeObserver?: unknown }).ResizeObserver ??=
-  ResizeObserverStub;
-
 describe('SbbSelect', () => {
   let component: SbbSelect<string>;
   let fixture: ComponentFixture<SbbSelect<string>>;

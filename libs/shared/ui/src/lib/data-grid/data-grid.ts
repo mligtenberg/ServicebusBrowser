@@ -74,6 +74,9 @@ export class SbbDataGrid<T = unknown> {
   /** Shows a loading overlay over the viewport. */
   loading = input<boolean>(false);
 
+  /** Hides the header row completely, useful for simple property lists. */
+  hideHeader = input<boolean>(false);
+
   /** Enable lazy loading (emits {@link lazyLoad} near the scroll end). */
   lazy = input<boolean>(false);
 

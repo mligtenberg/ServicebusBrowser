@@ -2,12 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   forwardRef,
   input,
   signal,
+  viewChildren,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { BrnToggleGroupImports } from '@spartan-ng/brain/toggle-group';
 import { SbbSelectOption } from '../select';
 
 /**
@@ -26,14 +27,13 @@ import { SbbSelectOption } from '../select';
  * (each rendered as its own label), mirroring how `SbbSelect` normalizes
  * plain-vs-object options.
  *
- * Built on `@spartan-ng/brain/toggle-group` in `type="single"`, non-nullable
- * mode. brain's toggle-group is itself a `ControlValueAccessor`; this component
- * wraps it and never exposes brain/CDK types on its public API.
+ * Built on a native `role="radiogroup"` of `role="radio"` buttons with a
+ * roving tabindex, following the standard single-select toolbar pattern.
  */
 @Component({
   selector: 'sbb-select-button',
   standalone: true,
-  imports: [BrnToggleGroupImports],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './select-button.html',
   styleUrl: './select-button.scss',
@@ -81,17 +81,62 @@ export class SbbSelectButton<T> implements ControlValueAccessor {
     }),
   );
 
+  /**
+   * Roving-tabindex target: the selected option if it's enabled, otherwise
+   * the first enabled option. `-1` if every option is disabled.
+   */
+  protected readonly focusableIndex = computed(() => {
+    const options = this.normalizedOptions();
+    const selectedIndex = options.findIndex((option) => option.value === this.value());
+    if (selectedIndex >= 0 && !(options[selectedIndex].disabled ?? false)) {
+      return selectedIndex;
+    }
+    return options.findIndex((option) => !(option.disabled ?? false));
+  });
+
+  private readonly optionButtons = viewChildren<ElementRef<HTMLButtonElement>>('optionButton');
+
   private onChange: (value: T | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
 
-  protected handleValueChange(value: unknown): void {
-    const next = (value ?? null) as T | null;
-    this.value.set(next);
-    this.onChange(next);
+  protected isOptionDisabled(option: SbbSelectOption<T>): boolean {
+    return this.isDisabled() || (option.disabled ?? false);
+  }
+
+  protected handleValueChange(value: T): void {
+    this.value.set(value);
+    this.onChange(value);
   }
 
   protected handleTouched(): void {
     this.onTouched();
+  }
+
+  /** Arrow-key roving selection, following the standard toolbar/radiogroup pattern. */
+  protected onOptionKeydown(event: KeyboardEvent, index: number): void {
+    const options = this.normalizedOptions();
+    let step: number;
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        step = 1;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        step = -1;
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+    for (let i = 1; i <= options.length; i++) {
+      const nextIndex = (index + step * i + options.length) % options.length;
+      if (!this.isOptionDisabled(options[nextIndex])) {
+        this.handleValueChange(options[nextIndex].value);
+        this.optionButtons()[nextIndex]?.nativeElement.focus();
+        return;
+      }
+    }
   }
 
   writeValue(value: T | null | undefined): void {

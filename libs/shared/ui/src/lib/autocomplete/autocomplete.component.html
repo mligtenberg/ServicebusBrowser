@@ -1,4 +1,5 @@
 <input
+  #input
   class="sbb-autocomplete__input"
   type="text"
   role="combobox"
@@ -14,11 +15,14 @@
   (keydown)="onKeydown($event)"
 />
 
-<ng-template #panel>
-  <!-- Only render the styled panel when there is something to show, so an empty
-       result set doesn't leave an empty dropdown box hanging under the input. -->
-  @if (flatItems().length > 0) {
-  <div class="sbb-autocomplete-panel" role="listbox" [id]="listboxId">
+<sbb-popover align="start" [sideOffset]="4" (closed)="onPopoverClosed()">
+  @if (isOpen()) {
+  <div
+    class="sbb-autocomplete-panel"
+    role="listbox"
+    [id]="listboxId"
+    [style.min-width.px]="panelMinWidth()"
+  >
     @if (groups(); as gs) {
       @for (group of gs; track group.label) {
         <div class="sbb-autocomplete-panel__group">
@@ -80,4 +84,4 @@
     }
   </div>
   }
-</ng-template>
+</sbb-popover>

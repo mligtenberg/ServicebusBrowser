@@ -13,7 +13,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   host: {
     role: 'progressbar',
     'aria-label': 'Loading',
-    '[style.--sbb-progress-spinner-size.rem]': 'size()',
+    '[style.--sbb-progress-spinner-size]': 'size() + "rem"',
   },
 })
 export class SbbProgressSpinner {

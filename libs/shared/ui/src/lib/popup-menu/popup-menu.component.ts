@@ -1,18 +1,16 @@
-import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
   input,
-  TemplateRef,
   viewChild,
-  ViewContainerRef,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { SbbPopover } from '../popover';
 import { isSbbMenuSeparator, SbbMenuItem, SbbMenuSeparator } from '../menu';
+
+let nextMenuId = 0;
 
 /**
  * `SbbMenu` — a popup menu built from an `SbbMenuItem` model and opened
@@ -28,23 +26,24 @@ import { isSbbMenuSeparator, SbbMenuItem, SbbMenuSeparator } from '../menu';
  * <sbb-button icon="ellipsis" (click)="menu.open($event)" />
  * ```
  *
- * The panel is a `@angular/cdk/menu` `cdkMenu` (keyboard nav, submenu
- * positioning, ARIA) rendered into a `@angular/cdk/overlay` overlay. A
- * `cdkMenu` with no trigger ancestor self-provides its menu stack, so opening
- * it imperatively works. Nested `items` render as submenus via the
- * self-recursive panel template. CDK types never surface in the public API.
+ * Built on {@link SbbPopover} (native HTML Popover API + CSS anchor
+ * positioning), not a body-portaled CDK overlay: because the panel stays a DOM
+ * descendant, a menu opened inside another popover forms a native popover
+ * ancestor chain, so choosing an item never light-dismisses the surrounding
+ * popover. Keyboard navigation uses roving DOM focus over the `role="menuitem"`
+ * buttons; submenus are themselves nested `SbbPopover`s. CDK types no longer
+ * surface anywhere.
  */
 @Component({
   selector: 'sbb-menu',
   standalone: true,
-  imports: [CdkMenu, CdkMenuItem, CdkMenuTrigger],
+  imports: [SbbPopover, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './popup-menu.component.html',
   styleUrl: './popup-menu.component.scss',
 })
 export class SbbMenu<T = void> {
-  private readonly overlay = inject(Overlay);
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly document = inject(DOCUMENT);
 
   /** The menu structure to render. */
   readonly model = input.required<SbbMenuItem<T>[]>();
@@ -52,71 +51,127 @@ export class SbbMenu<T = void> {
   /** Contextual value passed to each chosen item's `onSelect`. */
   readonly data = input<T>();
 
-  private readonly panel =
-    viewChild.required<TemplateRef<unknown>>('panel');
+  private readonly popover = viewChild.required<SbbPopover>('root');
 
-  private overlayRef: OverlayRef | undefined;
-  private subscriptions = new Subscription();
+  /** Id stamped on the root panel so focus queries stay scoped to this instance. */
+  protected readonly menuPanelId = `sbb-menu-panel-${nextMenuId++}`;
+
+  /** A transient zero-size anchor created when opened at a raw pointer point. */
+  private pointAnchor: HTMLElement | undefined;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.close());
+    // Only the body-appended point anchor needs manual cleanup; the popover
+    // panel is torn down with this component's view. Calling close() here would
+    // emit the popover's `closed` output mid-destroy and throw.
+    inject(DestroyRef).onDestroy(() => this.removePointAnchor());
+  }
+
+  /** Whether the menu is currently open. */
+  protected isOpen(): boolean {
+    return this.popover().isOpen();
   }
 
   /**
    * Opens the menu. Pass the triggering `MouseEvent` (anchors to the clicked
-   * element, or the pointer if unavailable) or an `HTMLElement` to anchor to.
+   * element, or a zero-size anchor at the pointer if there is none), an
+   * `HTMLElement` to anchor to, or a `{ x, y }` viewport point (context-menu
+   * style — anchors a zero-size element there).
    */
-  open(origin: MouseEvent | HTMLElement): void {
-    this.close();
-    this.subscriptions = new Subscription();
-
-    const anchor =
-      origin instanceof MouseEvent
-        ? origin.currentTarget instanceof HTMLElement
-          ? origin.currentTarget
-          : { x: origin.clientX, y: origin.clientY }
-        : origin;
-
-    const positionStrategy = this.overlay
-      .position()
-      .flexibleConnectedTo(anchor)
-      .withPositions([
-        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
-        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' },
-        { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top' },
-        { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom' },
-      ]);
-
-    this.overlayRef = this.overlay.create({
-      positionStrategy,
-      scrollStrategy: this.overlay.scrollStrategies.close(),
-      hasBackdrop: true,
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-    });
-
-    this.overlayRef.attach(
-      new TemplatePortal(this.panel(), this.viewContainerRef, {
-        $implicit: this.model(),
-      }),
-    );
-
-    this.subscriptions.add(
-      this.overlayRef.backdropClick().subscribe(() => this.close()),
-    );
-    this.subscriptions.add(
-      this.overlayRef.keydownEvents().subscribe((event) => {
-        if (event.key === 'Escape') {
-          this.close();
-        }
-      }),
-    );
+  open(origin: MouseEvent | HTMLElement | { x: number; y: number }): void {
+    this.popover().open(this.resolveAnchor(origin));
   }
 
   /** Closes the menu (no-op if already closed). */
   close(): void {
-    this.subscriptions.unsubscribe();
-    this.overlayRef?.dispose();
-    this.overlayRef = undefined;
+    this.popover().close();
+  }
+
+  /** Anchor resolution: element as-is; MouseEvent → its element, else a point anchor. */
+  private resolveAnchor(
+    origin: MouseEvent | HTMLElement | { x: number; y: number },
+  ): HTMLElement {
+    if (origin instanceof HTMLElement) {
+      return origin;
+    }
+    if (origin instanceof MouseEvent) {
+      if (origin.currentTarget instanceof HTMLElement) {
+        return origin.currentTarget;
+      }
+      return this.createPointAnchor(origin.clientX, origin.clientY);
+    }
+    return this.createPointAnchor(origin.x, origin.y);
+  }
+
+  /** Builds a zero-size, fixed-position anchor at a pointer location. */
+  private createPointAnchor(x: number, y: number): HTMLElement {
+    this.removePointAnchor();
+    const anchor = this.document.createElement('div');
+    anchor.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:0;height:0;`;
+    this.document.body.appendChild(anchor);
+    this.pointAnchor = anchor;
+    return anchor;
+  }
+
+  private removePointAnchor(): void {
+    this.pointAnchor?.remove();
+    this.pointAnchor = undefined;
+  }
+
+  /** Panel opened — move focus to the first enabled item. */
+  protected onOpened(): void {
+    queueMicrotask(() => this.firstItem()?.focus());
+  }
+
+  /** Panel closed — drop any transient point anchor. */
+  protected onClosed(): void {
+    this.removePointAnchor();
+  }
+
+  private firstItem(): HTMLElement | null {
+    const panel = this.document.getElementById(this.menuPanelId);
+    return (
+      panel?.querySelector<HTMLElement>(
+        'button.sbb-menu-panel__item:not([aria-disabled="true"])',
+      ) ?? null
+    );
+  }
+
+  /** Roving-focus navigation within the panel that owns the focused item. */
+  protected onKeydown(event: KeyboardEvent): void {
+    const panel = event.currentTarget as HTMLElement;
+    const items = Array.from(
+      panel.querySelectorAll<HTMLButtonElement>(
+        ':scope > button.sbb-menu-panel__item',
+      ),
+    ).filter((item) => item.getAttribute('aria-disabled') !== 'true');
+    if (items.length === 0) {
+      return;
+    }
+    const active = this.document.activeElement as HTMLElement | null;
+    const current = active ? items.indexOf(active as HTMLButtonElement) : -1;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        event.stopPropagation();
+        items[(current + 1 + items.length) % items.length].focus();
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        event.stopPropagation();
+        items[(current - 1 + items.length) % items.length].focus();
+        break;
+      case 'Home':
+        event.preventDefault();
+        event.stopPropagation();
+        items[0].focus();
+        break;
+      case 'End':
+        event.preventDefault();
+        event.stopPropagation();
+        items[items.length - 1].focus();
+        break;
+    }
   }
 
   /** Template type guard so the recursive template can branch on separators. */
@@ -126,7 +181,7 @@ export class SbbMenu<T = void> {
 
   /** Invokes the chosen item's `onSelect` or `command` with the contextual data, then closes. */
   protected invoke(item: SbbMenuItem<T>): void {
-    if (isSbbMenuSeparator(item)) {
+    if (isSbbMenuSeparator(item) || this.resolve(item.disabled)) {
       return;
     }
     item.onSelect?.(this.data() as T);

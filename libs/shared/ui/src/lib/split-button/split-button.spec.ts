@@ -37,12 +37,6 @@ describe('SbbSplitButton', () => {
     appRef = TestBed.inject(ApplicationRef);
   });
 
-  afterEach(() => {
-    document
-      .querySelectorAll('.cdk-overlay-container')
-      .forEach((el) => el.remove());
-  });
-
   async function flush(): Promise<void> {
     fixture.detectChanges();
     await Promise.resolve();
@@ -64,7 +58,7 @@ describe('SbbSplitButton', () => {
   function panelItems(): HTMLButtonElement[] {
     return Array.from(
       document.querySelectorAll<HTMLButtonElement>(
-        '.sbb-split-button-panel__item',
+        '.sbb-menu-panel__item',
       ),
     );
   }

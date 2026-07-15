@@ -14,46 +14,9 @@
     [icon]="caretIcon"
     [iconOnly]="true"
     [disabled]="disabled()"
-    [cdkMenuTriggerFor]="menu"
-    [cdkMenuTriggerData]="{ $implicit: model() }"
     aria-label="More actions"
+    (click)="menu.open($event)"
   ></sbb-button>
 </div>
 
-<ng-template #menu let-items>
-  <div cdkMenu class="sbb-split-button-panel" [attr.data-model-len]="model().length">
-    @for (item of items; track $index) {
-      @if (isSeparator(item)) {
-        <hr class="sbb-split-button-panel__separator" aria-hidden="true" />
-      } @else if (item.items && item.items.length) {
-        <button
-          type="button"
-          cdkMenuItem
-          [cdkMenuTriggerFor]="menu"
-          [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
-          [class]="'sbb-split-button-panel__item ' + (resolve(item.styleClass) ?? '')"
-        >
-          @if (resolve(item.icon); as iconClass) {
-            <i class="sbb-split-button-panel__icon" [class]="iconClass"></i>
-          }
-          <span class="sbb-split-button-panel__label">{{ resolve(item.label) }}</span>
-          <span class="sbb-split-button-panel__caret" aria-hidden="true">›</span>
-        </button>
-      } @else {
-        <button
-          type="button"
-          cdkMenuItem
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
-          (cdkMenuItemTriggered)="invoke(item)"
-          [class]="'sbb-split-button-panel__item ' + (resolve(item.styleClass) ?? '')"
-        >
-          @if (resolve(item.icon); as iconClass) {
-            <i class="sbb-split-button-panel__icon" [class]="iconClass"></i>
-          }
-          <span class="sbb-split-button-panel__label">{{ resolve(item.label) }}</span>
-        </button>
-      }
-    }
-  </div>
-</ng-template>
+<sbb-menu #menu [model]="model()" />

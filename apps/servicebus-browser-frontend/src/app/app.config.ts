@@ -18,29 +18,21 @@ import { provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusElectronClient } from '@service-bus-browser/service-bus-angular-providers';
-import { MessageService } from 'primeng/api';
+
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import { provideHttpClient } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
-import { DialogService } from 'primeng/dynamicdialog';
+
 import { WorkspaceService } from '@service-bus-browser/services';
 import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // primeng services (theme removed — components use base styles)
-    {
-      provide: DialogService,
-      useClass: DialogService,
-    },
-    {
-      provide: MessageService,
-      useClass: MessageService,
-    },
+
 
     // config
     provideZonelessChangeDetection(),

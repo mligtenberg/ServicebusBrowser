@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { BrnCheckbox } from '@spartan-ng/brain/checkbox';
 
 /**
- * `SbbCheckbox` — a styled, opinionated-minimal boolean checkbox built on
- * `@spartan-ng/brain`'s headless `BrnCheckbox`.
+ * `SbbCheckbox` — a styled, opinionated-minimal boolean checkbox built on a
+ * native `<button role="checkbox">`.
  *
  * Derived from current call sites (all `p-checkbox … [binary]="true"` bound
  * via `formControlName`, paired with an external `<label for="…">`):
@@ -17,12 +16,11 @@ import { BrnCheckbox } from '@spartan-ng/brain/checkbox';
  *
  * Implements `ControlValueAccessor` so it can be used with
  * `formControlName` / `[formControl]` / `[(ngModel)]` exactly like the
- * PrimeNG checkbox it replaces. `@spartan-ng/brain` is an implementation
- * detail — no brain/CDK types are exposed on the public API.
+ * PrimeNG checkbox it replaces.
  */
 @Component({
   selector: 'sbb-checkbox',
-  imports: [BrnCheckbox],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './checkbox.component.html',
   styleUrl: './checkbox.component.scss',

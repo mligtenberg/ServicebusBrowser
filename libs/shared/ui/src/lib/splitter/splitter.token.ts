@@ -22,6 +22,8 @@ export interface SbbSplitterGroupContract {
    * moved from the panel to its neighbour (negative shrinks `panel`).
    */
   nudgeAfter(panel: SbbSplitterPanel, delta: number): void;
+  /** Current size (percentage) of `panel`, reactive to drag/keyboard resizing. */
+  sizeFor(panel: SbbSplitterPanel): number;
 }
 
 export const SBB_SPLITTER_GROUP = new InjectionToken<SbbSplitterGroupContract>(

@@ -36,14 +36,14 @@
   border-radius: calc(var(--sbb-radius) - 0.125rem);
   cursor: pointer;
 
-  &:hover:not(.cdk-menu-item-disabled),
-  &.cdk-menu-item-highlighted:not(.cdk-menu-item-disabled),
+  &:hover:not([aria-disabled='true']),
+  &:focus,
   &:focus-visible {
     background-color: var(--sbb-surface-hover);
     outline: none;
   }
 
-  &.cdk-menu-item-disabled {
+  &[aria-disabled='true'] {
     color: var(--sbb-text-muted);
     cursor: default;
   }

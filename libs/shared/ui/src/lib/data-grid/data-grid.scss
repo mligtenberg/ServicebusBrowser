@@ -25,7 +25,7 @@
     display: flex;
     flex: 0 0 auto;
     border-bottom: 1px solid var(--sbb-border, #e2e8f0);
-    background: var(--sbb-surface, #f8fafc);
+    background: var(--sbb-surface-raised, #f8fafc);
     font-weight: 600;
   }
 
@@ -66,17 +66,21 @@
     border-bottom: 1px solid var(--sbb-border, #e2e8f0);
     cursor: default;
 
-    &:nth-child(even) {
-      background: var(--sbb-surface-hover);
+    &:nth-child(odd) {
+      background: var(--sbb-surface);
     }
 
     &:hover {
-      background: color-mix(in srgb, var(--sbb-primary, #0ea5e9) 8%, transparent);
+      background: rgb(from var(--sbb-primary) r g b / 14%);
     }
 
     &--selected,
-    &--selected:hover {
-      background: color-mix(in srgb, var(--sbb-primary, #0ea5e9) 18%, transparent);
+    &--selected:hover,
+    &--selected:nth-child(odd) {
+      background: light-dark(
+          oklch(from var(--sbb-primary-100) l 0.01 h),
+          oklch(from var(--sbb-primary-900) l 0.02 h)
+      )
     }
   }
 

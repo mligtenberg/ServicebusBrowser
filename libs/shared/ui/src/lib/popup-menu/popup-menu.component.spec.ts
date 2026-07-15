@@ -29,12 +29,6 @@ describe('SbbMenu', () => {
     appRef = TestBed.inject(ApplicationRef);
   });
 
-  afterEach(() => {
-    document
-      .querySelectorAll('.cdk-overlay-container')
-      .forEach((el) => el.remove());
-  });
-
   async function openMenu(): Promise<void> {
     fixture.detectChanges();
     fixture.nativeElement.querySelector('button').click();

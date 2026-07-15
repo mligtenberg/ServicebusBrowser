@@ -1,16 +1,41 @@
-<ng-template #panel let-items>
-  <div cdkMenu class="sbb-menu-panel" [attr.data-model-len]="model().length">
+<sbb-popover
+  #root
+  align="start"
+  [sideOffset]="2"
+  (opened)="onOpened()"
+  (closed)="onClosed()"
+>
+  @if (isOpen()) {
+    <ng-container
+      [ngTemplateOutlet]="level"
+      [ngTemplateOutletContext]="{ $implicit: model(), root: true }"
+    />
+  }
+</sbb-popover>
+
+<ng-template #level let-items let-root="root">
+  <div
+    class="sbb-menu-panel"
+    role="menu"
+    tabindex="-1"
+    [attr.id]="root ? menuPanelId : null"
+    [attr.data-model-len]="items.length"
+    (keydown)="onKeydown($event)"
+  >
     @for (item of items; track $index) {
       @if (isSeparator(item)) {
         <hr class="sbb-menu-panel__separator" aria-hidden="true" />
       } @else if (item.items && item.items.length) {
         <button
+          #subBtn
           type="button"
-          cdkMenuItem
-          [cdkMenuTriggerFor]="panel"
-          [cdkMenuTriggerData]="{ $implicit: item.items }"
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
+          role="menuitem"
+          aria-haspopup="menu"
           [class]="'sbb-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
+          [attr.aria-disabled]="resolve(item.disabled) ? 'true' : null"
+          [attr.aria-expanded]="sub.isOpen()"
+          (click)="resolve(item.disabled) ? null : sub.toggle(subBtn)"
+          (mouseenter)="resolve(item.disabled) ? null : sub.open(subBtn)"
         >
           @if (resolve(item.icon); as iconClass) {
             <i class="sbb-menu-panel__icon" [class]="iconClass"></i>
@@ -18,13 +43,21 @@
           <span class="sbb-menu-panel__label">{{ resolve(item.label) }}</span>
           <span class="sbb-menu-panel__caret" aria-hidden="true">›</span>
         </button>
+        <sbb-popover #sub align="end" [sideOffset]="2">
+          @if (sub.isOpen()) {
+            <ng-container
+              [ngTemplateOutlet]="level"
+              [ngTemplateOutletContext]="{ $implicit: item.items }"
+            />
+          }
+        </sbb-popover>
       } @else {
         <button
           type="button"
-          cdkMenuItem
-          [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
-          (cdkMenuItemTriggered)="invoke(item)"
+          role="menuitem"
           [class]="'sbb-menu-panel__item ' + (resolve(item.styleClass) ?? '')"
+          [attr.aria-disabled]="resolve(item.disabled) ? 'true' : null"
+          (click)="invoke(item)"
         >
           @if (resolve(item.icon); as iconClass) {
             <i class="sbb-menu-panel__icon" [class]="iconClass"></i>

@@ -31,8 +31,6 @@ module.exports = [
     // every other project must consume those only through shared-ui's wrappers.
     // nx accumulates bannedExternalImports across all matching depConstraints and there is no
     // per-tag exception to a `*` ban, so shared-ui is excluded here via flat-config `ignores`.
-    // NOTE: `primeng` is deliberately NOT banned yet — it is still imported by unmigrated feature
-    // libs during coexistence. Add it to bannedExternalImports once the last primeng import is gone.
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     ignores: ['libs/shared/ui/**'],
     rules: {
@@ -45,7 +43,7 @@ module.exports = [
             {
               sourceTag: '*',
               onlyDependOnLibsWithTags: ['*'],
-              bannedExternalImports: ['@spartan-ng/brain', '@spartan-ng/brain/*', '@angular/cdk', '@angular/cdk/*'],
+              bannedExternalImports: ['@spartan-ng/brain', '@spartan-ng/brain/*', '@angular/cdk', '@angular/cdk/*', 'primeng', 'primeng/*'],
             },
           ],
         },

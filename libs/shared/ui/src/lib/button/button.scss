@@ -73,13 +73,13 @@
 
   // Filled (default)
   &.sbb-button--filled.sbb-button--primary {
-    background-color: var(--sbb-primary);
-    border-color: var(--sbb-primary);
-    color: var(--sbb-gray-50);
+    background-color: var(--sbb-primary-surface);
+    border-color: var(--sbb-primary-surface);
+    color: var(--sbb-on-primary);
 
     &:hover:not(:disabled) {
-      background-color: var(--sbb-primary-600);
-      border-color: var(--sbb-primary-600);
+      background-color: var(--sbb-primary-surface-hover);
+      border-color: var(--sbb-primary-surface-hover);
     }
   }
 
