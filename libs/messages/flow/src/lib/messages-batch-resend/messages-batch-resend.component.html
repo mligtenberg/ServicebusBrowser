@@ -59,20 +59,15 @@
           </div>
           @if (currentActions.length > 0) {
             <sbb-scroll-panel [style.height]="'calc(100% - 4em)'">
-              <div
-                cdkDropList
-                (cdkDropListDropped)="dropAction($event)"
+              <sbb-reorderable-list
+                [items]="currentActions"
+                (reordered)="dropAction($event)"
                 class="action-drop-list"
               >
-                @for (action of currentActions; track action; let i = $index) {
-                  <div
-                    class="action-card"
-                    cdkDrag
-                    cdkDragLockAxis="y"
-                    cdkDragPreviewContainer="parent"
-                  >
+                <ng-template sbbReorderableListItem let-action let-i="index">
+                  <div class="action-card">
                     <span
-                      cdkDragHandle
+                      sbbReorderableListHandle
                       class="action-drag-handle"
                       aria-label="Drag to reorder"
                     >
@@ -122,8 +117,8 @@
                       ></sbb-button>
                     </div>
                   </div>
-                }
-              </div>
+                </ng-template>
+              </sbb-reorderable-list>
             </sbb-scroll-panel>
           }
 

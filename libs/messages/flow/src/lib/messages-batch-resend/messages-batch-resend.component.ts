@@ -2,13 +2,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, effect, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+
 import { Store } from '@ngrx/store';
 import {
   messagePagesActions,
@@ -18,6 +12,10 @@ import {
   SbbButton,
   SbbMenuItem,
   SbbPopover,
+  SbbReorderableList,
+  SbbReorderableListItemDef,
+  SbbReorderableListHandle,
+  SbbReorderableListReorderEvent,
   SbbScrollPanel,
   SbbSplitButton,
   SbbSplitter,
@@ -73,9 +71,9 @@ import {
     SbbSplitter,
     SbbSplitterPanel,
     SbbSplitButton,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
+    SbbReorderableList,
+    SbbReorderableListItemDef,
+    SbbReorderableListHandle,
     SbbPopover,
     SbbTooltip,
   ],
@@ -648,13 +646,14 @@ export class MessagesBatchResendComponent {
     }
   }
 
-  dropAction(event: CdkDragDrop<MessageModificationAction[]>) {
+  dropAction(event: SbbReorderableListReorderEvent) {
     if (event.previousIndex === event.currentIndex) {
       return;
     }
     this.actions.update((currentActions) => {
       const arr = [...currentActions];
-      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      const [moved] = arr.splice(event.previousIndex, 1);
+      arr.splice(event.currentIndex, 0, moved);
       return arr;
     });
   }

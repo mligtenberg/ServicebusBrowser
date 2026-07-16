@@ -44,7 +44,7 @@ export class SbbCheckbox implements ControlValueAccessor {
    * a discernible name; ignored when a visible `label` is present, which is
    * wired up as the accessible name instead.
    */
-  readonly ariaLabel = input<string>('', { alias: 'ariaLabel' });
+  readonly ariaLabel = input<string>('');
 
   /** Whether the checkbox is disabled. Also settable via CVA (form control). */
   readonly disabled = input(false);
