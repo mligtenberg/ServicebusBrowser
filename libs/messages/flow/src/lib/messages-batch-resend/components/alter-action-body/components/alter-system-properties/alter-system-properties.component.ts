@@ -9,17 +9,20 @@ import {
 
 import { PropertyValue } from '@service-bus-browser/messages-contracts';
 import { FormsModule } from '@angular/forms';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { Popover } from 'primeng/popover';
+import {
+  SbbDatePicker,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputNumber,
+  SbbPopover,
+  SbbSelect,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import {
   AmqpPropertyKeys,
   AmqpPropertyKeys as AmqpPropertyKeysList,
 } from '../../../../../send-message/form';
-import { Tooltip } from 'primeng/tooltip';
 import {
   AlterAction,
   AlterPropertyActions,
@@ -33,13 +36,14 @@ import {
   standalone: true,
   imports: [
     FormsModule,
-    InputGroup,
-    InputText,
-    Select,
-    DatePicker,
-    Popover,
+    SbbInputGroup,
+    SbbInput,
+    SbbInputNumber,
+    SbbSelect,
+    SbbDatePicker,
+    SbbPopover,
     DurationInputComponent,
-    Tooltip,
+    SbbTooltip,
   ],
   templateUrl: './alter-system-properties.component.html',
   styleUrls: ['./alter-system-properties.component.scss'],
@@ -53,7 +57,13 @@ export class AlterSystemPropertiesComponent {
   protected value = model<PropertyValue | undefined>();
   protected searchValue = model<string>('');
 
-  propertyKeys = AmqpPropertyKeysList;
+  propertyKeys = AmqpPropertyKeysList.map((key) => ({ label: key, value: key }));
+
+  // Rich-content pTooltip (with <pre> capture-group examples) has no
+  // equivalent in SbbTooltip, which only accepts a plain string. Collapsed to
+  // an equivalent plain-text hint — see migration report for details.
+  protected readonly regexHelpText =
+    'Use named capture groups: (?<name>pattern). Reference the captured value in the replacement with $<name>';
 
   alterTypes = computed(() => {
     const currentFieldIsString = this.propertyIsText(this.fieldName());
@@ -149,6 +159,10 @@ export class AlterSystemPropertiesComponent {
         this.alterType.set(action.alterType);
       }
     });
+  }
+
+  protected togglePopover(popover: SbbPopover, $event: Event) {
+    popover.toggle($event.currentTarget as HTMLElement);
   }
 
   propertyUnknownType(key: AmqpPropertyKeys | '') {

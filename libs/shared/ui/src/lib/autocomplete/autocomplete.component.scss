@@ -1,0 +1,67 @@
+.sbb-autocomplete-host {
+  display: inline-block;
+}
+
+.sbb-autocomplete__input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  font: inherit;
+  color: var(--sbb-text);
+  background-color: var(--sbb-surface-raised);
+  border: 1px solid var(--sbb-border);
+  border-radius: var(--sbb-radius);
+
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring);
+    outline-offset: -1px;
+    border-color: var(--sbb-primary);
+  }
+
+  &:disabled {
+    color: var(--sbb-text-muted);
+    cursor: default;
+  }
+
+  &::placeholder {
+    color: var(--sbb-text-muted);
+  }
+}
+
+// The panel chrome (background, border, shadow, positioning, fade-in) comes
+// from the enclosing `SbbPopover`; this only lays out the option list within it.
+.sbb-autocomplete-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 16rem;
+  padding: 0.25rem;
+  overflow-y: auto;
+  color: var(--sbb-text);
+}
+
+.sbb-autocomplete-panel__group-label {
+  padding: 0.375rem 0.625rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sbb-text-muted);
+}
+
+.sbb-autocomplete-panel__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.375rem 0.625rem;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--sbb-radius) - 0.125rem);
+  cursor: pointer;
+
+  &--active,
+  &:hover {
+    background-color: var(--sbb-surface-hover);
+  }
+}

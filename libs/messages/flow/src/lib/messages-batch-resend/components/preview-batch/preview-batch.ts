@@ -6,7 +6,9 @@ import {
   linkedSignal,
   model,
 } from '@angular/core';
-import MessagesViewer from '../../../messages-viewer/messages-viewer';
+import MessagesViewer, {
+  MessagesLazyLoad,
+} from '../../../messages-viewer/messages-viewer';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 
@@ -15,7 +17,6 @@ let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
 getMessagesRepository().then((r) => (repository = r));
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, switchMap } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { MessageFilter } from '@service-bus-browser/filtering';
 import {
   MessageModificationAction,
@@ -25,7 +26,7 @@ import {
   ClearNonResendableProperties,
   ReceivedMessage,
 } from '@service-bus-browser/api-contracts';
-import { MenuItem } from 'primeng/api';
+import { SbbMenuItem } from '@service-bus-browser/shared-ui';
 import { EditorContextAction } from '@service-bus-browser/shared-components';
 
 
@@ -46,11 +47,11 @@ export class PreviewBatch {
   sessionActionsKey = input<string | undefined>(undefined);
   selectedMessageSequence = model<string>();
 
-  propertiesContextMenu = input<MenuItem[]>([]);
-  applicationPropertiesContextMenu = input<MenuItem[]>([]);
-  headersContextMenu = input<MenuItem[]>([]);
-  deliveryAnnotationsContextMenu = input<MenuItem[]>([]);
-  messageAnnotationsContextMenu = input<MenuItem[]>([]);
+  propertiesContextMenu = input<SbbMenuItem[]>([]);
+  applicationPropertiesContextMenu = input<SbbMenuItem[]>([]);
+  headersContextMenu = input<SbbMenuItem[]>([]);
+  deliveryAnnotationsContextMenu = input<SbbMenuItem[]>([]);
+  messageAnnotationsContextMenu = input<SbbMenuItem[]>([]);
 
   propertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
   applicationPropertiesContextMenuSelection = model<{ key: string; value: unknown } | undefined>(undefined);
@@ -91,14 +92,11 @@ export class PreviewBatch {
     );
   });
 
-  protected async loadMessages($event: TableLazyLoadEvent) {
+  protected async loadMessages($event: MessagesLazyLoad) {
     const first = $event.first ?? 0;
     const rows = $event.rows ?? 0;
 
     await this.loadRows(first, rows, this.pageId());
-
-    //trigger change detection
-    $event.forceUpdate?.();
   }
 
   private async loadRows(first: number, rows: number, pageId: UUID) {

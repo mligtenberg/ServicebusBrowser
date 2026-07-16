@@ -1,12 +1,8 @@
-<p-virtual-scroller
-  [items]="logs()"
-  [itemSize]="24"
-  [appendOnly]="true"
-  scrollHeight="20rem"
->
-  <ng-template #item let-item let-options="options">
+<sbb-virtual-scroller class="logs-viewport" [items]="logs()" [itemSize]="24" [appendOnly]="true">
+  <ng-template let-item let-i="index">
     <sbb-logs-log-line
       [logLine]="item"
-      [ngClass]="{'odd': options.index % 2 === 1, 'darkMode': darkMode()}"></sbb-logs-log-line>
+      [ngClass]="{'odd': i % 2 === 1, 'darkMode': darkMode()}">
+    </sbb-logs-log-line>
   </ng-template>
-</p-virtual-scroller>
+</sbb-virtual-scroller>

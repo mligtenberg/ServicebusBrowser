@@ -1,43 +1,44 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Card } from 'primeng/card';
-import { Checkbox } from 'primeng/checkbox';
-import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { FloatLabel } from 'primeng/floatlabel';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputText } from 'primeng/inputtext';
 import { TopicForm } from './form';
-import { Textarea } from 'primeng/textarea';
 import { combineLatest, from, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { ButtonDirective } from 'primeng/button';
+import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { Topic, TopicWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
+import {
+  SbbCard,
+  SbbInput,
+  SbbFloatLabel,
+  SbbInputNumber,
+  SbbTextarea,
+  SbbCheckbox,
+  SbbButton,
+  SbbDataGrid,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-topic-management',
   imports: [
     CommonModule,
-    Card,
-    Checkbox,
+    SbbCard,
+    SbbCheckbox,
     DurationInputComponent,
-    FloatLabel,
+    SbbFloatLabel,
     FormsModule,
-    InputNumber,
-    InputText,
+    SbbInputNumber,
+    SbbInput,
     ReactiveFormsModule,
-    Textarea,
-    ButtonDirective,
-    PrimeTemplate,
-    TableModule,
+    SbbTextarea,
+    SbbButton,
+    SbbDataGrid,
   ],
+  providers: [DatePipe],
   templateUrl: './topic-management.component.html',
   styleUrl: './topic-management.component.scss',
 })
@@ -46,6 +47,7 @@ export class TopicManagementComponent {
   managementClient = inject(ServiceBusManagementFrontendClient);
   refreshUtil = inject(RefreshUtil);
   saveFeedback = inject(SaveFeedbackService);
+  datePipe = inject(DatePipe);
   form = this.createForm();
 
   action = signal<'create' | 'modify'>('create');
@@ -58,7 +60,7 @@ export class TopicManagementComponent {
 
     return Object.entries(topic.metadata).map(([key, value]) => ({
       key,
-      value,
+      value: value instanceof Date ? this.datePipe.transform(value, 'medium') : value,
     }));
   });
 
@@ -240,7 +242,5 @@ export class TopicManagementComponent {
     });
   }
 
-  isDate(value: unknown): boolean {
-    return value instanceof Date;
-  }
+
 }

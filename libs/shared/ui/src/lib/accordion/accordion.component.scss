@@ -1,0 +1,16 @@
+// SbbAccordion — container for SbbAccordionPanel items.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks are declared so the component renders correctly even if the
+// global sheet is not yet loaded.
+
+:host {
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-radius-local: var(--sbb-radius, 0.375rem);
+
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--sbb-border-local);
+  border-radius: var(--sbb-radius-local);
+  overflow: hidden;
+}

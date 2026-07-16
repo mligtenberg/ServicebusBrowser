@@ -10,17 +10,15 @@ import {
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Duration } from 'luxon';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputNumber } from 'primeng/inputnumber';
-import { FloatLabel } from 'primeng/floatlabel';
+import { SbbInputGroup, SbbInputNumber, SbbFloatLabel } from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'sbb-duration-input',
   imports: [
     ReactiveFormsModule,
-    InputGroup,
-    InputNumber,
-    FloatLabel
+    SbbInputGroup,
+    SbbInputNumber,
+    SbbFloatLabel
 ],
   templateUrl: './duration-input.component.html',
   styleUrl: './duration-input.component.scss',

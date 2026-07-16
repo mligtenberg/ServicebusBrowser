@@ -1,0 +1,16 @@
+<input
+  #inputEl
+  class="sbb-input"
+  [class.sbb-input--invalid]="invalid()"
+  [class.sbb-input--sm]="size() === 'sm'"
+  [class.sbb-input--lg]="size() === 'lg'"
+  [type]="type()"
+  [attr.id]="inputId() || null"
+  [placeholder]="placeholder()"
+  [readonly]="readonly()"
+  [disabled]="disabled()"
+  [attr.aria-invalid]="invalid() || null"
+  [value]="value()"
+  (input)="handleInput($any($event.target).value)"
+  (blur)="handleBlur()"
+/>

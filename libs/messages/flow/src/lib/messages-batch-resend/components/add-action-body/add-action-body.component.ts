@@ -9,32 +9,36 @@ import {
   AmqpPropertyKeys,
   AmqpPropertyKeys as AmqpPropertyKeysList,
 } from '../../../send-message/form';
-import { DatePicker } from 'primeng/datepicker';
+import {
+  SbbAutocomplete,
+  SbbCheckbox,
+  SbbDatePicker,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputNumber,
+  SbbPopover,
+  SbbSelect,
+} from '@service-bus-browser/shared-ui';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
-import { Select } from 'primeng/select';
-import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { SystemPropertyHelpers } from '../../../systemproperty-helpers';
-import { Checkbox } from 'primeng/checkbox';
 import { MessageFilter } from '@service-bus-browser/filtering';
 import { PropertyValue } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'lib-add-action-body',
   imports: [
-    AutoComplete,
-    DatePicker,
+    SbbAutocomplete,
+    SbbDatePicker,
     DurationInputComponent,
     FormsModule,
-    InputGroup,
-    InputText,
-    Popover,
-    Select,
+    SbbInputGroup,
+    SbbInput,
+    SbbInputNumber,
+    SbbPopover,
+    SbbSelect,
     ReactiveFormsModule,
-    Checkbox,
+    SbbCheckbox,
   ],
   templateUrl: './add-action-body.component.html',
   styleUrl: './add-action-body.component.scss',
@@ -51,18 +55,29 @@ export class AddActionBodyComponent {
   protected propertyName = model<AmqpPropertyKeys | ''>('');
   protected replaceOnDuplicate = model<boolean>(false);
   protected value = model<PropertyValue | undefined>();
+  // Tracks the custom application-property value type. Previously read off a
+  // p-select's own `#ref.value` template variable; SbbSelect keeps no
+  // such public value property, so this is now bound via [(ngModel)] instead.
+  protected applicationPropertyType = signal<string>('string');
 
-  propertyKeys = AmqpPropertyKeysList;
-  typeOptions = ['string', 'datetime', 'number', 'boolean'];
+  propertyKeys = AmqpPropertyKeysList.map((key) => ({ label: key, value: key }));
+  typeOptions = ['string', 'datetime', 'number', 'boolean'].map((type) => ({
+    label: type,
+    value: type,
+  }));
   protected filteredLabels = signal<string[]>([]);
 
-  filterLabels(event: AutoCompleteCompleteEvent) {
-    const query = event.query.toLowerCase();
+  filterLabels(query: string) {
+    const lowered = query.toLowerCase();
     this.filteredLabels.set(
       this.applicationPropertyLabels().filter((l) =>
-        l.toLowerCase().includes(query),
+        l.toLowerCase().includes(lowered),
       ),
     );
+  }
+
+  protected togglePopover(popover: SbbPopover, $event: Event) {
+    popover.toggle($event.currentTarget as HTMLElement);
   }
 
   addAction = computed<AddAction | undefined>(() => {

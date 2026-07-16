@@ -1,0 +1,120 @@
+// SbbDataGrid styles.
+// Consumes the shared `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Minimal local fallbacks are provided via var()'s second argument so the grid
+// still renders sensibly if the global token sheet is not loaded in a host.
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+.sbb-grid {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--sbb-border, #e2e8f0);
+  border-radius: var(--sbb-radius, 0.375rem);
+  overflow: hidden;
+  background: var(--sbb-surface-raised, #ffffff);
+  color: var(--sbb-text, #334155);
+
+  &__header {
+    display: flex;
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--sbb-border, #e2e8f0);
+    background: var(--sbb-surface-raised, #f8fafc);
+    font-weight: 600;
+  }
+
+  &__hcell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--sortable {
+      cursor: pointer;
+
+      &:hover {
+        color: var(--sbb-primary, #0ea5e9);
+      }
+    }
+  }
+
+  &__sort {
+    font-size: 0.7em;
+    color: var(--sbb-primary, #0ea5e9);
+  }
+
+  &__viewport {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--sbb-border, #e2e8f0);
+    cursor: default;
+
+    &:nth-child(odd) {
+      background: var(--sbb-surface);
+    }
+
+    &:hover {
+      background: rgb(from var(--sbb-primary) r g b / 14%);
+    }
+
+    &--selected,
+    &--selected:hover,
+    &--selected:nth-child(odd) {
+      background: light-dark(
+          oklch(from var(--sbb-primary-100) l 0.01 h),
+          oklch(from var(--sbb-primary-900) l 0.02 h)
+      )
+    }
+  }
+
+  &__cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.sbb-grid__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--sbb-surface-raised, #ffffff) 60%, transparent);
+}
+
+.sbb-grid__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--sbb-border, #e2e8f0);
+  border-top-color: var(--sbb-primary, #3b82f6);
+  border-radius: 50%;
+  animation: sbb-grid-spin 0.7s linear infinite;
+}
+
+@keyframes sbb-grid-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

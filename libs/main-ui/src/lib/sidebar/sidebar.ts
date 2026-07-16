@@ -1,6 +1,6 @@
 import { Component, inject, model, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ScrollPanel } from 'primeng/scrollpanel';
+import { SbbScrollPanel } from '@service-bus-browser/shared-ui';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
@@ -15,7 +15,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
     CommonModule,
     TopologyTreeComponent,
     TasksComponent,
-    ScrollPanel,
+    SbbScrollPanel,
     ReactiveFormsModule,
     FormsModule,
   ],

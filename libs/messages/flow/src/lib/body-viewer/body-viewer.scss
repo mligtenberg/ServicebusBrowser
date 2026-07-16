@@ -10,10 +10,6 @@
   box-sizing: border-box;
 }
 
-.csv-table-wrapper {
-  height: 100%;
-}
-
 .editor-container {
   display: flex;
   flex-direction: column;
@@ -39,36 +35,47 @@
   gap: .5rem;
   margin-top: .5rem;
 
-  p-select-button {
+  sbb-select-button {
     font-size: 0.75rem;
-
-    ::ng-deep .p-togglebutton.p-togglebutton-sm {
-      padding: 0.15rem 0.5rem;
-      font-size: 0.75rem;
-    }
   }
 }
 
+// Preserves the previous p-table `[scrollable]="true" scrollHeight="flex"`
+// behavior: the wrapper fills the remaining flex space and scrolls its own
+// content instead of growing the page.
 .csv-table-wrapper {
+  height: 100%;
+  overflow: auto;
   user-select: text;
   -webkit-user-select: text;
+}
+
+.csv-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--sbb-border, #d9d9d9);
+    white-space: nowrap;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--sbb-surface, #fff);
+    font-weight: 600;
+  }
 }
 
 .csv-delimiter-selector {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  --p-select-padding-y: 0.3rem;
-  --p-select-padding-x: 0.5rem;
-  --p-select-editable-padding: 0.3rem 0.5rem;
 
-  p-select {
+  sbb-select {
     width: 8rem;
   }
-}
-
-.csv-delimiter-label {
-  font-size: 0.8rem;
-  color: var(--p-text-muted-color);
-  white-space: nowrap;
 }

@@ -1,18 +1,19 @@
 <form class="send-message-container" #formContainer>
   <div class="edit-area">
-    <p-splitter
-      [panelSizes]="[70, 30]"
-      [layout]="containerWidth() < 600 ? 'vertical' : 'horizontal'"
+    <sbb-splitter
+      [orientation]="containerWidth() < 600 ? 'vertical' : 'horizontal'"
     >
-      <ng-template #panel>
-        <div class="header">
-          <h2>Message body</h2>
+      <sbb-splitter-panel [size]="70">
+        <div class="message-body-container">
+          <div class="header">
+            <h2>Message body</h2>
+          </div>
+          <ng-container *ngTemplateOutlet="bodyTemplate" />
         </div>
-        <ng-container *ngTemplateOutlet="bodyTemplate" />
-      </ng-template>
-      <ng-template #panel>
+      </sbb-splitter-panel>
+      <sbb-splitter-panel [size]="30">
         <div class="all-properties-container">
-          <p-scroll-panel style="width: 100%; height: 100%">
+          <sbb-scroll-panel style="width: 100%; height: 100%">
             <div class="system-properties">
               <div class="header">
                 <h2>Properties</h2>
@@ -54,42 +55,35 @@
                 />
               </div>
             </div>
-          </p-scroll-panel>
+          </sbb-scroll-panel>
         </div>
-      </ng-template>
-    </p-splitter>
+      </sbb-splitter-panel>
+    </sbb-splitter>
   </div>
   <div class="message-actions">
     <sbb-tpl-endpoint-selector-input [formField]="form.endpoint" />
-    <button
-      pButton
-      type="button"
-      (click)="send()"
-      [disabled]="form().invalid()"
-    >
+    <sbb-button type="button" (click)="send()" [disabled]="form().invalid()">
       Send
-    </button>
+    </sbb-button>
   </div>
 </form>
 
 <ng-template #propertiesTemplate>
-  <p-floatlabel variant="on">
+  <sbb-float-label label="Content type" for="contentType">
     <lib-auto-complete-form-input
       [suggestions]="contentTypeSuggestions()"
       (completeMethod)="contentTypeSearch.set($event.query)"
       (hide)="contentTypeSearch.set(null)"
       [formField]="form.contentType"
     />
-    <!--suppress XmlInvalidId -->
-    <label for="contentType">Content type</label>
-  </p-floatlabel>
+  </sbb-float-label>
   @for (
     control of form.properties().value();
     let index = $index;
     track $index
   ) {
     @let property = form.properties[index];
-    <p-input-group class="kv-group kv-group--two-col">
+    <sbb-input-group class="kv-group kv-group--two-col">
       <lib-select-signal-form-input
         class="kv-key"
         [formField]="property.key"
@@ -99,9 +93,8 @@
       />
 
       @if (propertyIsText($index)) {
-        <input
+        <sbb-input
           class="kv-value"
-          pInputText
           [formField]="formHelpers.asStringValueTree(property.value)"
           placeholder="Value"
         />
@@ -113,60 +106,56 @@
         />
       }
       @if (propertyIsTimeSpan($index)) {
-        <input
-          class="kv-value"
-          (click)="popover.toggle($event)"
-          pInputText
-          readonly
-          [value]="property.value().value()"
-          class="time-span-trigger"
+        <sbb-input
+          class="kv-value time-span-trigger"
+          (click)="togglePopover(popover, $event)"
+          [readonly]="true"
+          [ngModel]="property.value().value()"
           aria-disabled="false"
           placeholder="Value"
         />
-        <p-popover appendTo="body" #popover>
+        <sbb-popover #popover>
           <sbb-duration-input
             [formField]="formHelpers.asStringValueTree(property.value)"
           />
-        </p-popover>
+        </sbb-popover>
       }
       @if (propertyIsNumber($index)) {
-        <input
+        <sbb-input-number
           class="kv-value"
-          pInputText
-          type="number"
           [formField]="formHelpers.asNumberValueTree(property.value)"
           placeholder="Value"
         />
       }
 
       @if (propertyUnknownType($index)) {
-        <input
+        <sbb-input
           class="kv-value"
-          pInputText
           [formField]="formHelpers.asStringValueTree(property.value)"
           placeholder="Value"
         />
       }
 
-      <p-inputgroup-addon class="kv-remove">
-        <p-button
-          type="button"
-          icon="pi pi-times"
-          [text]="true"
-          severity="danger"
-          (click)="removeProperty($index)"
-        />
-      </p-inputgroup-addon>
-    </p-input-group>
+      <sbb-button
+        class="kv-remove"
+        type="button"
+        [icon]="removeIcon"
+        [iconOnly]="true"
+        severity="danger"
+        variant="text"
+        aria-label="Remove"
+        (click)="removeProperty($index)"
+      />
+    </sbb-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addProperty()">Add</button>
+    <sbb-button type="button" (click)="addProperty()">Add</sbb-button>
   </div>
 </ng-template>
 <ng-template #headersTemplate>
   @for (control of form.headers().value(); let index = $index; track $index) {
     @let header = form.headers[index];
-    <p-input-group class="kv-group kv-group--two-col">
+    <sbb-input-group class="kv-group kv-group--two-col">
       <lib-select-signal-form-input
         class="kv-key"
         [formField]="header.key"
@@ -190,35 +179,28 @@
           ]"
         />
       } @else if (headerIsNumber($index)) {
-        <input
+        <sbb-input-number
           class="kv-value"
-          pInputText
-          type="number"
           [formField]="formHelpers.asNumberValueTree(header.value)"
           placeholder="Value"
         />
       } @else {
-        <input
-          class="kv-value"
-          pInputText
-          type="number"
-          disabled
-          placeholder="Value"
-        />
+        <sbb-input-number class="kv-value" placeholder="Value" />
       }
-      <p-inputgroup-addon class="kv-remove">
-        <p-button
-          type="button"
-          icon="pi pi-times"
-          [text]="true"
-          severity="danger"
-          (click)="removeHeaderProperty($index)"
-        />
-      </p-inputgroup-addon>
-    </p-input-group>
+      <sbb-button
+        class="kv-remove"
+        type="button"
+        [icon]="removeIcon"
+        [iconOnly]="true"
+        severity="danger"
+        variant="text"
+        aria-label="Remove"
+        (click)="removeHeaderProperty($index)"
+      />
+    </sbb-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addHeaderProperty()">Add</button>
+    <sbb-button type="button" (click)="addHeaderProperty()">Add</sbb-button>
   </div>
 </ng-template>
 <ng-template #messageAnnotationsTemplate>
@@ -228,7 +210,7 @@
     track $index
   ) {
     @let messageAnnotation = form.messageAnnotations[index];
-    <p-input-group class="kv-group kv-group--three-col">
+    <sbb-input-group class="kv-group kv-group--three-col">
       <lib-auto-complete-form-input
         class="kv-key"
         [suggestions]="messageAnnotationKeySuggestions()"
@@ -244,9 +226,8 @@
         optionValue="value"
       />
       @if (control.type === 'string') {
-        <input
+        <sbb-input
           class="kv-value"
-          pInputText
           [formField]="formHelpers.asStringValueTree(messageAnnotation.value)"
           placeholder="Value"
         />
@@ -258,10 +239,8 @@
         />
       }
       @if (control.type === 'number') {
-        <input
+        <sbb-input-number
           class="kv-value"
-          pInputText
-          type="number"
           [formField]="formHelpers.asNumberValueTree(messageAnnotation.value)"
           placeholder="Value"
         />
@@ -282,28 +261,29 @@
           ]"
         />
       }
-      <p-inputgroup-addon class="kv-remove">
-        <p-button
-          type="button"
-          icon="pi pi-times"
-          [text]="true"
-          severity="danger"
-          (click)="removeMessageAnnotation($index)"
-        />
-      </p-inputgroup-addon>
+      <sbb-button
+        class="kv-remove"
+        type="button"
+        [icon]="removeIcon"
+        [iconOnly]="true"
+        severity="danger"
+        variant="text"
+        aria-label="Remove"
+        (click)="removeMessageAnnotation($index)"
+      />
       @if (!isSupportedMessageAnnotationKey(control.key)) {
         <div class="unsupported-annotation-hint">
-          <i class="pi pi-exclamation-triangle"></i>
+          <fa-icon [icon]="warningIcon" aria-hidden="true"></fa-icon>
           <span>
             This key is not listed in the selected endpoint's supported message
             annotations.
           </span>
         </div>
       }
-    </p-input-group>
+    </sbb-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addMessageAnnotation()">Add</button>
+    <sbb-button type="button" (click)="addMessageAnnotation()">Add</sbb-button>
   </div>
 </ng-template>
 <ng-template
@@ -314,13 +294,8 @@
 >
   @for (control of formArray().value(); let index = $index; track $index) {
     @let property = formArray[index];
-    <p-input-group class="kv-group kv-group--three-col">
-      <input
-        class="kv-key"
-        pInputText
-        [formField]="property.key"
-        placeholder="Key"
-      />
+    <sbb-input-group class="kv-group kv-group--three-col">
+      <sbb-input class="kv-key" [formField]="property.key" placeholder="Key" />
       <lib-select-signal-form-input
         class="kv-type"
         [formField]="property.type"
@@ -329,9 +304,8 @@
         optionValue="value"
       />
       @if (control.type === 'string') {
-        <input
+        <sbb-input
           class="kv-value"
-          pInputText
           [formField]="formHelpers.asStringValueTree(property.value)"
           placeholder="Value"
         />
@@ -343,10 +317,8 @@
         />
       }
       @if (control.type === 'number') {
-        <input
+        <sbb-input-number
           class="kv-value"
-          pInputText
-          type="number"
           [formField]="formHelpers.asNumberValueTree(property.value)"
           placeholder="Value"
         />
@@ -367,19 +339,20 @@
           ]"
         />
       }
-      <p-inputgroup-addon class="kv-remove">
-        <p-button
-          type="button"
-          icon="pi pi-times"
-          [text]="true"
-          severity="danger"
-          (click)="removeFn($index)"
-        />
-      </p-inputgroup-addon>
-    </p-input-group>
+      <sbb-button
+        class="kv-remove"
+        type="button"
+        [icon]="removeIcon"
+        [iconOnly]="true"
+        severity="danger"
+        variant="text"
+        aria-label="Remove"
+        (click)="removeFn($index)"
+      />
+    </sbb-input-group>
   }
   <div class="actions">
-    <button pButton type="button" (click)="addFn()">Add</button>
+    <sbb-button type="button" (click)="addFn()">Add</sbb-button>
   </div>
 </ng-template>
 <ng-template #bodyTemplate>

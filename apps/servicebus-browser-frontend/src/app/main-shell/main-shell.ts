@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
-import { MenuItem } from 'primeng/api';
+import { SbbMenuItem } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { Store } from '@ngrx/store';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
@@ -24,6 +25,7 @@ export class MainShell {
   private electron = (window as unknown as ElectronWindow).electron;
   isMac = this.electron?.platform === 'darwin';
 
+  private readonly router = inject(Router);
   store = inject(Store);
 
   fullscreen = signal<boolean>(false);
@@ -33,17 +35,15 @@ export class MainShell {
   messagePreferences = inject(MessagePreferencesService);
   darkMode = this.themeService.darkMode;
 
-  menuItems = computed<MenuItem[]>(() => {
-    const themePref = this.themeService.preference();
-    const bodyView = this.messagePreferences.defaultBodyView();
-    const selectionMarks = (selected: boolean, label: string) =>
-      selected
-        ? {
-            label: `${label}<i class="pi pi-check menu-item-selected-check"></i>`,
-            escape: false,
-            styleClass: 'menu-item-selected',
-          }
-        : { label };
+  menuItems = computed<SbbMenuItem<unknown>[]>(() => {
+    // styleClass must be a live function, not a frozen string: the menu panel
+    // renders in a CDK overlay that captures the item objects when it opens, so
+    // a baked-in string can't update the checkmark while the panel is open.
+    // resolve() re-invokes these on every signal-driven refresh.
+    const selectionMarks = (selected: () => boolean, label: string) => ({
+      label,
+      styleClass: () => (selected() ? 'menu-item-selected' : ''),
+    });
 
     return [
       {
@@ -51,8 +51,8 @@ export class MainShell {
         items: [
           {
             label: 'Add Connection',
-            icon: 'pi pi-plus',
-            routerLink: '/connections/add',
+            icon: 'fa-solid fa-plus',
+            onSelect: () => this.router.navigateByUrl('/connections/add'),
           },
         ],
       },
@@ -61,13 +61,13 @@ export class MainShell {
         items: [
           {
             label: 'Send',
-            icon: 'pi pi-send',
-            routerLink: '/messages/send',
+            icon: 'fa-solid fa-paper-plane',
+            onSelect: () => this.router.navigateByUrl('/messages/send'),
           },
           {
             label: 'Import',
-            icon: 'pi pi-upload',
-            command: () => {
+            icon: 'fa-solid fa-upload',
+            onSelect: () => {
               this.importMessages();
             },
           },
@@ -78,50 +78,50 @@ export class MainShell {
         items: [
           {
             label: 'Application Theme',
-            icon: 'pi pi-desktop',
+            icon: 'fa-solid fa-desktop',
             items: [
               {
-                ...selectionMarks(themePref === 'sync', 'Sync with OS'),
-                icon: 'pi pi-desktop',
-                command: () => this.themeService.setPreference('sync'),
+                ...selectionMarks(() => this.themeService.preference() === 'sync', 'Sync with OS'),
+                icon: 'fa-solid fa-desktop',
+                onSelect: () => this.themeService.setPreference('sync'),
               },
               {
-                ...selectionMarks(themePref === 'light', 'Light theme'),
-                icon: 'pi pi-sun',
-                command: () => this.themeService.setPreference('light'),
+                ...selectionMarks(() => this.themeService.preference() === 'light', 'Light theme'),
+                icon: 'fa-solid fa-sun',
+                onSelect: () => this.themeService.setPreference('light'),
               },
               {
-                ...selectionMarks(themePref === 'dark', 'Dark theme'),
-                icon: 'pi pi-moon',
-                command: () => this.themeService.setPreference('dark'),
+                ...selectionMarks(() => this.themeService.preference() === 'dark', 'Dark theme'),
+                icon: 'fa-solid fa-moon',
+                onSelect: () => this.themeService.setPreference('dark'),
               },
             ],
           },
           {
             label: 'Default Body View',
-            icon: 'pi pi-eye',
+            icon: 'fa-solid fa-eye',
             items: [
               {
-                ...selectionMarks(bodyView === 'raw', 'Raw'),
-                icon: 'pi pi-file',
-                command: () => this.messagePreferences.setDefaultBodyView('raw'),
+                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'raw', 'Raw'),
+                icon: 'fa-solid fa-file',
+                onSelect: () => this.messagePreferences.setDefaultBodyView('raw'),
               },
               {
-                ...selectionMarks(bodyView === 'pretty', 'Pretty'),
-                icon: 'pi pi-sparkles',
-                command: () => this.messagePreferences.setDefaultBodyView('pretty'),
+                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'pretty', 'Pretty'),
+                icon: 'fa-solid fa-wand-magic-sparkles',
+                onSelect: () => this.messagePreferences.setDefaultBodyView('pretty'),
               },
             ],
           },
           {
             label: 'Search for Updates',
-            icon: 'pi pi-refresh',
-            command: () => this.electron?.checkForUpdates?.(),
+            icon: 'fa-solid fa-arrows-rotate',
+            onSelect: () => this.electron?.checkForUpdates?.(),
           },
           {
             label: 'About',
-            icon: 'pi pi-info-circle',
-            routerLink: '/about',
+            icon: 'fa-solid fa-circle-info',
+            onSelect: () => this.router.navigateByUrl('/about'),
           },
         ],
       },

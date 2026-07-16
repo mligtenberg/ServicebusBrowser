@@ -1,49 +1,10 @@
-:host {
-  ::ng-deep .p-tree-node-label {
-    width: calc(100% - var(--p-tree-node-toggle-button-size));
-  }
-
-  ::ng-deep .p-tree-node-leaf .p-tree-node-label {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  ::ng-deep .p-tree-node-leaf .p-tree-node-toggle-button {
-    display: none;
-  }
-
-  ::ng-deep .p-tree-node-leaf {
-    line-height: 28px;
-    .p-tree-node-content sbb-tpl-topic-tree-node.show-subscriptions {
-      padding: 0 0 0 var(--p-tree-node-toggle-button-size);
-    }
-  }
-}
-
 .main-container {
   display: flex;
   flex-direction: column;
-}
 
-p-tree {
-  --p-tree-padding: 0.6rem;
-  --p-tree-node-padding: 0;
-  --p-tree-node-toggle-button-size: 1.2rem;
-  --p-tree-indent: var(--p-tree-node-toggle-button-size);
-  --p-tree-node-gap: 0;
-}
-
-.category-divider {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  --p-button-icon-only-width: 1.5rem;
-}
-
-.spin {
-  animation: spin 1s linear infinite;
+  // Tighten the tree row density back to the pre-migration look (SbbTree
+  // defaults to 28px; the old p-tree/p-button rows were ~24px).
+  --sbb-tree-leaf-line-height: 1.5rem;
 }
 
 .error {
@@ -55,7 +16,7 @@ p-tree {
 .search-container {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid var(--p-inputtext-border-color, #ced4da);
+  border-bottom: 1px solid var(--sbb-border);
 }
 
 // ── Chips ─────────────────────────────────────────────────────────────────
@@ -64,15 +25,15 @@ p-tree {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-  padding: 0.35rem 0.5rem 0;
+  padding: 0.35rem 0.5rem;
 }
 
 .search-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
-  background: var(--p-highlight-background, #e9ecef);
-  color: var(--p-highlight-color, #212529);
+  background: var(--sbb-surface-hover);
+  color: var(--sbb-text);
   border-radius: 1rem;
   padding: 0.1rem 0.5rem;
   font-size: 0.8rem;
@@ -101,26 +62,17 @@ p-tree {
 }
 
 // ── AutoComplete input ─────────────────────────────────────────────────────
+// SbbAutocomplete carries its own panel/input styling; here we just make it
+// fill the container and drop the standalone border/radius for the integrated
+// sidebar-search look the version had.
 
 .search-autocomplete {
+  display: block;
   width: 100%;
 
-  ::ng-deep .p-autocomplete {
-    width: 100%;
-  }
-
-  ::ng-deep .p-autocomplete-input {
-    width: 100%;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
+  ::ng-deep .sbb-autocomplete__input {
+    border: none;
     border-radius: 0;
-    box-shadow: none;
-
-    &:focus {
-      box-shadow: none;
-    }
   }
 }
 
@@ -131,7 +83,7 @@ p-tree {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--p-text-muted-color, #6c757d);
+  color: var(--sbb-text-muted);
 }
 
 .suggestion-entity {
@@ -142,12 +94,7 @@ p-tree {
 
 .no-results {
   padding: 1rem;
-  color: var(--p-text-muted-color, #6c757d);
+  color: var(--sbb-text-muted);
   font-style: italic;
   text-align: center;
-}
-
-@keyframes spin {
-  from {transform:rotate(0deg);}
-  to {transform:rotate(360deg);}
 }

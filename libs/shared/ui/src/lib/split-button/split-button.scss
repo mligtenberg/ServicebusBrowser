@@ -1,0 +1,17 @@
+.sbb-split-button-host {
+  display: inline-block;
+}
+
+.sbb-split-button {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 1px;
+}
+
+.sbb-split-button__primary,
+.sbb-split-button__toggle {
+  display: inline-flex;
+}
+
+// The dropdown panel is rendered and styled by the embedded `SbbMenu`
+// (`.sbb-menu-panel`); this component only owns the two joined buttons.

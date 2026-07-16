@@ -1,0 +1,91 @@
+// SbbAccordionPanel — single expandable panel built on native disclosure
+// markup (button[aria-expanded] + [role="region"]).
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks are declared so the component renders correctly even if the
+// global sheet is not yet loaded.
+
+:host {
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-text-muted-local: var(--sbb-text-muted, #64748b);
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #ffffff);
+  --sbb-surface-local: var(--sbb-surface, #f8fafc);
+  --sbb-focus-ring-local: var(--sbb-focus-ring, var(--sbb-primary, #0ea5e9));
+
+  display: block;
+  background-color: var(--sbb-surface-raised-local);
+
+  &:not(:last-of-type) {
+    border-bottom: 1px solid var(--sbb-border-local);
+  }
+}
+
+.sbb-accordion-panel__heading {
+  margin: 0;
+}
+
+.sbb-accordion-panel__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  color: var(--sbb-text-local);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--sbb-focus-ring-local);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    color: var(--sbb-text-muted-local);
+    cursor: not-allowed;
+  }
+}
+
+.sbb-accordion-panel__title {
+  display: contents;
+}
+
+.sbb-accordion-panel__chevron {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--sbb-text-muted-local);
+  transition: transform 0.15s ease;
+}
+
+.sbb-accordion-panel__trigger[aria-expanded='true'] .sbb-accordion-panel__chevron {
+  transform: rotate(180deg);
+}
+
+.sbb-accordion-panel__content {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.15s ease;
+}
+
+.sbb-accordion-panel__content--open {
+  grid-template-rows: 1fr;
+}
+
+.sbb-accordion-panel__content-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 1rem;
+  background-color: var(--sbb-surface-local);
+}
+
+.sbb-accordion-panel__content--open .sbb-accordion-panel__content-inner {
+  padding: 0 1rem 1rem;
+}

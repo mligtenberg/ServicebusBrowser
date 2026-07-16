@@ -4,20 +4,17 @@
   </div>
 }
 <div class="input">
-  <input
+  <sbb-input
     #input
-    pInputText
     type="text"
     [(ngModel)]="value"
     (keyup.enter)="confirm()" />
 </div>
 <div class="buttons">
-  <p-button
-    [label]="cancelLabel()"
+  <sbb-button
     severity="secondary"
-    (click)="cancel()" />
-  <p-button
-    [label]="okLabel()"
+    (click)="cancel()">{{ cancelLabel() }}</sbb-button>
+  <sbb-button
     [disabled]="!value().trim()"
-    (click)="confirm()" />
+    (click)="confirm()">{{ okLabel() }}</sbb-button>
 </div>

@@ -2,22 +2,20 @@
   <div class="field-selection">
     @let isProperty = target() === 'properties';
     @if (isProperty) {
-      <p-select
-        appendTo="body"
+      <sbb-select
         required
         [(ngModel)]="propertyName"
         [options]="propertyKeys"
         placeholder="Select property to remove"/>
     }
     @else {
-      <p-autocomplete
+      <sbb-autocomplete
         required
         [(ngModel)]="applicationPropertyName"
         [suggestions]="filteredLabels()"
-        (completeMethod)="filterLabels($event)"
+        (completeChange)="filterLabels($event)"
         placeholder="Application property key to remove"
         [forceSelection]="false"
-        appendTo="body"
       />
     }
   </div>

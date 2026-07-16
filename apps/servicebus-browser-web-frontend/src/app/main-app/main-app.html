@@ -8,15 +8,16 @@
 
     <ng-template #menuEnd>
       <div class="account">
-        <p-button
-          [text]="true"
+        <sbb-button
+          variant="text"
           class="name-button"
           severity="secondary"
-          icon="pi pi-user"
-          [label]="userName()"
-          (click)="accountMenu.toggle($event)"/>
+          [icon]="faUser"
+          (click)="accountMenu.open($event)">
+          {{ userName() }}
+        </sbb-button>
 
-        <p-menu #accountMenu [model]="accountMenuItems" [popup]="true" />
+        <sbb-menu #accountMenu [model]="accountMenuItems" />
       </div>
     </ng-template>
   </lib-main-ui>

@@ -1,0 +1,22 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": [
+    "../../../libs/shared/ui/src/**/*.stories.ts",
+    "../../../libs/shared/components/src/**/*.stories.ts",
+    "../../../libs/logs/components/src/**/*.stories.ts",
+    "./*.ts"
+  ]
+}

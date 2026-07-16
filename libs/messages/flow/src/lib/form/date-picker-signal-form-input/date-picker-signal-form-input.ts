@@ -1,11 +1,11 @@
 import { Component, input, model } from '@angular/core';
-import { DatePicker } from 'primeng/datepicker';
+import { SbbDatePicker } from '@service-bus-browser/shared-ui';
 import { FormValueControl } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'lib-date-picker-signal-form-input',
-  imports: [DatePicker, FormsModule],
+  imports: [SbbDatePicker, FormsModule],
   templateUrl: './date-picker-signal-form-input.html',
   styleUrl: './date-picker-signal-form-input.scss',
 })

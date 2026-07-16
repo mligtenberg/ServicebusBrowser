@@ -1,16 +1,19 @@
-<p-input-group>
-  <p-select
+<sbb-input-group>
+  <sbb-select
     placeholder="Action type"
     [(ngModel)]="currentActionType"
     [options]="actionTypes"
   />
-  <p-select placeholder="Target" [(ngModel)]="target" [options]="targets()" />
-  <p-button
-    [icon]="isFilterActive() ? 'pi pi-filter-fill' : 'pi pi-filter'"
-    ariaLabel="filter messages"
+  <sbb-select placeholder="Target" [(ngModel)]="target" [options]="targets()" />
+  <sbb-button
+    [icon]="filterIcon"
+    [iconOnly]="true"
+    variant="text"
+    [severity]="isFilterActive() ? 'primary' : 'secondary'"
+    aria-label="filter messages"
     (click)="filterMenuVisable.set(true)"
   />
-</p-input-group>
+</sbb-input-group>
 
 @let currentTarget = target();
 @if (

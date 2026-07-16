@@ -14,15 +14,15 @@ export class LogLineComponent {
     const logLevel = this.logLine().severity;
     switch (logLevel) {
       case 'info':
-        return 'var(--p-blue-400)';
+        return 'var(--sbb-info)';
       case 'warn':
-        return 'var(--p-amber-500)';
+        return 'var(--sbb-warning)';
       case 'error':
-        return 'var(--p-red-400)';
+        return 'var(--sbb-danger)';
       case 'critical':
-        return 'var(--p-red-900)';
+        return 'var(--sbb-danger)';
       default:
-        return 'var(--p-slate-400)';
+        return 'var(--sbb-text-muted)';
     }
   });
 }

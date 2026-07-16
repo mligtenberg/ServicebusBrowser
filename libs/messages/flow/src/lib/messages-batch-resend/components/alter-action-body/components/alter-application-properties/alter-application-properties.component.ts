@@ -8,26 +8,30 @@ import {
   AlterType,
 } from '@service-bus-browser/message-modification-engine';
 import { FormsModule } from '@angular/forms';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
-import { Select } from 'primeng/select';
-import { DatePicker } from 'primeng/datepicker';
-import { Tooltip } from 'primeng/tooltip';
-import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import {
+  SbbAutocomplete,
+  SbbDatePicker,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputNumber,
+  SbbSelect,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import { PropertyValue } from '@service-bus-browser/api-contracts';
 
 @Component({
   selector: 'lib-alter-application-properties',
   standalone: true,
   imports: [
-    AutoComplete,
+    SbbAutocomplete,
     FormsModule,
-    InputGroup,
-    InputText,
-    Select,
-    DatePicker,
-    Tooltip
-],
+    SbbInputGroup,
+    SbbInput,
+    SbbInputNumber,
+    SbbSelect,
+    SbbDatePicker,
+    SbbTooltip,
+  ],
   templateUrl: './alter-application-properties.component.html',
   styleUrls: ['./alter-application-properties.component.scss'],
 })
@@ -43,13 +47,22 @@ export class AlterApplicationPropertiesComponent {
   protected propertyType = model<string>('string');
   protected filteredLabels = signal<string[]>([]);
 
-  typeOptions = ['string', 'datetime', 'number', 'boolean'];
+  typeOptions = ['string', 'datetime', 'number', 'boolean'].map((type) => ({
+    label: type,
+    value: type,
+  }));
 
-  filterLabels(event: AutoCompleteCompleteEvent) {
-    const query = event.query.toLowerCase();
+  // Rich-content pTooltip (with <pre> capture-group examples) has no
+  // equivalent in SbbTooltip, which only accepts a plain string. Collapsed to
+  // an equivalent plain-text hint — see migration report for details.
+  protected readonly regexHelpText =
+    'Use named capture groups: (?<name>pattern). Reference the captured value in the replacement with $<name>';
+
+  filterLabels(query: string) {
+    const lowered = query.toLowerCase();
     this.filteredLabels.set(
       this.applicationPropertyLabels().filter((l) =>
-        l.toLowerCase().includes(query),
+        l.toLowerCase().includes(lowered),
       ),
     );
   }

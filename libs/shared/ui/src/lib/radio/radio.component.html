@@ -1,0 +1,14 @@
+<input
+  #inputEl
+  type="radio"
+  class="sbb-radio__input"
+  [id]="inputId"
+  [name]="groupName()"
+  [checked]="isChecked()"
+  [disabled]="isDisabled()"
+  (change)="onSelect()"
+  (keydown)="onKeydown($event)"
+/>
+<label class="sbb-radio__label" [for]="inputId">
+  <ng-content></ng-content>
+</label>

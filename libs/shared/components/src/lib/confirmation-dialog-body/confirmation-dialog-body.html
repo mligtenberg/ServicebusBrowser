@@ -2,11 +2,9 @@
   <p>{{message()}}</p>
 </div>
 <div class="buttons">
-  <p-button
-    [label]="cancelLabel()"
+  <sbb-button
     severity="secondary"
-    (click)="cancel()"/>
-  <p-button
-    [label]="okLabel()"
-    (click)="confirm()"/>
+    (click)="cancel()">{{ cancelLabel() }}</sbb-button>
+  <sbb-button
+    (click)="confirm()">{{ okLabel() }}</sbb-button>
 </div>

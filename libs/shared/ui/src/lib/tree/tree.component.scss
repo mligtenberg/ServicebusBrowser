@@ -1,0 +1,110 @@
+// SbbTree — styled headless tree on @angular/cdk/tree.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Tree-specific sizing tokens are declared locally with fallbacks so the
+// component renders correctly even if the global sheet is not yet loaded.
+// Sizing mirrors the current topology tree for visual parity:
+//   p-tree-padding            0.6rem   -> --sbb-tree-padding
+//   p-tree-node-toggle-size   1.2rem   -> --sbb-tree-toggle-size
+//   p-tree-indent             = toggle -> --sbb-tree-indent
+//   leaf row line-height      28px     -> --sbb-tree-leaf-line-height
+
+:host {
+  // Sizing tokens are read inline as `var(--token, fallback)` at each usage
+  // below, so a consumer (or :root) can override them by inheritance. They are
+  // deliberately NOT declared here: a declaration on :host would win over the
+  // inherited value and make the token un-overridable.
+
+  // Fallbacks for the semantic tokens the component reads, so a missing
+  // global sheet still yields a usable (light) rendering.
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-primary-local: var(--sbb-primary, #0ea5e9);
+  --sbb-radius-local: var(--sbb-radius, 0.375rem);
+
+  display: block;
+  color: var(--sbb-text-local);
+}
+
+.sbb-tree {
+  display: block;
+  padding: var(--sbb-tree-padding, 0.6rem);
+}
+
+// cdk-nested-tree-node renders as a block; each child level is nested inside
+// .sbb-tree__children, which supplies the per-level indentation.
+.sbb-tree__node {
+  display: block;
+}
+
+.sbb-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  border-radius: var(--sbb-radius-local);
+  line-height: var(--sbb-tree-leaf-line-height, 28px);
+
+  &:hover {
+    background: color-mix(in srgb, var(--sbb-primary-local) 8%, transparent);
+  }
+}
+
+// Non-selectable rows are still expandable but do not read as clickable.
+.sbb-tree__row--unselectable {
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+.sbb-tree__node--selected > .sbb-tree__row {
+  background: color-mix(in srgb, var(--sbb-primary-local) 16%, transparent);
+}
+
+// Toggle button + leaf spacer share the same footprint so labels line up
+// whether or not a node has children (mirrors p-tree toggle-button-size).
+.sbb-tree__toggle {
+  flex: 0 0 auto;
+  width: var(--sbb-tree-toggle-size, 1.2rem);
+  height: var(--sbb-tree-toggle-size, 1.2rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.sbb-tree__toggle--spacer {
+  cursor: default;
+}
+
+// Simple chevron via CSS border triangle; rotates when expanded.
+.sbb-tree__toggle-icon {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0.3rem 0 0.3rem 0.42rem;
+  border-color: transparent transparent transparent currentColor;
+  transition: transform 0.15s ease;
+}
+
+.sbb-tree__toggle-icon--open {
+  transform: rotate(90deg);
+}
+
+.sbb-tree__content {
+  // Label occupies the remaining row width, matching p-tree-node-label:
+  //   width: calc(100% - toggle-size)
+  flex: 1 1 auto;
+  min-width: 0;
+  width: calc(100% - var(--sbb-tree-toggle-size, 1.2rem));
+}
+
+// Each descendant level is inset by one indent step.
+.sbb-tree__children {
+  padding-left: var(--sbb-tree-indent, var(--sbb-tree-toggle-size, 1.2rem));
+}

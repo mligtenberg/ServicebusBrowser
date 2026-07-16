@@ -1,35 +1,38 @@
-<p-input-group>
-  <input pInputText readonly [value]="value()?.endpointDisplay" (click)="dialogVisible.set(true)" />
-  <p-inputgroup-addon>
-    <p-button icon="pi pi-times"
-              ariaLabel="clear selection"
-              severity="danger"
-              [disabled]="value() === null || disabled()"
-              [text]="true"
-              (click)="value.set(null)"></p-button>
-  </p-inputgroup-addon>
-  <p-inputgroup-addon>
-    <p-button
-      icon="pi pi-search"
-      ariaLabel="select endpoint"
-      [text]="true"
+<sbb-input-group>
+  <sbb-input
+    [readonly]="true"
+    [ngModel]="value()?.endpointDisplay"
+    (click)="dialogVisible.set(true)"
+  />
+  <sbb-input-group-addon>
+    <sbb-button
+      [icon]="clearIcon"
+      [iconOnly]="true"
+      aria-label="clear selection"
+      severity="danger"
+      variant="text"
+      [disabled]="value() === null || disabled()"
+      (click)="value.set(null)"
+    ></sbb-button>
+  </sbb-input-group-addon>
+  <sbb-input-group-addon>
+    <sbb-button
+      [icon]="searchIcon"
+      [iconOnly]="true"
+      aria-label="select endpoint"
+      variant="text"
       [disabled]="disabled()"
-      (click)="dialogVisible.set(true)"></p-button>
-  </p-inputgroup-addon>
-</p-input-group>
+      (click)="dialogVisible.set(true)"
+    ></sbb-button>
+  </sbb-input-group-addon>
+</sbb-input-group>
 
-<p-dialog
-  header="Select endpoint"
-  appendTo="body"
-  [visible]="dialogVisible()"
-  (visibleChange)="dialogVisible.set($event)"
-  [modal]="true"
->
-  <p-scroll-panel>
+<sbb-dialog header="Select endpoint" [(open)]="dialogVisible" [modal]="true">
+  <sbb-scroll-panel>
     <sbb-tpl-endpoint-selector-tree-input
       [(ngModel)]="value"
       (ngModelChange)="dialogVisible.set(false)"
       [connectionsFilter]="connectionsFilter()"
     />
-  </p-scroll-panel>
-</p-dialog>
+  </sbb-scroll-panel>
+</sbb-dialog>

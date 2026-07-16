@@ -1,108 +1,89 @@
 <div class="error-handling">
-  <p-check-box
-    [value]="true"
-    ariaLabel="replace duplicates"
+  <sbb-checkbox
+    label="Replace on duplicate"
     [(ngModel)]="replaceOnDuplicate"
-    inputId="replaceOnDuplicate"
   />
-  <label for="replaceOnDuplicate">Replace on duplicate</label>
 </div>
 
 <div class="add-action-body">
   @let isProperty = target() === 'properties';
   @if (isProperty) {
-    <p-input-group>
-      <p-select
-        appendTo="body"
+    <sbb-input-group>
+      <sbb-select
         required
         [(ngModel)]="propertyName"
         [options]="propertyKeys"
       />
 
       @if (propertyIsText(propertyName())) {
-        <input pInputText required [(ngModel)]="value" placeholder="Value" />
+        <sbb-input required [(ngModel)]="value" placeholder="Value" />
       }
       @if (propertyIsDate(propertyName())) {
-        <p-date-picker
+        <sbb-date-picker
           [(ngModel)]="value"
-          required
-          appendTo="body"
+          [required]="true"
           [showTime]="true"
-          hourFormat="24"
           placeholder="Value"
         />
       }
       @if (propertyIsTimeSpan(propertyName())) {
-        <input
-          #timeSpanInput
-          (click)="popover.toggle($event)"
-          pInputText
+        <sbb-input
+          (click)="togglePopover(popover, $event)"
           required
-          readonly
+          [readonly]="true"
           [ngModel]="value()"
           class="time-span-trigger"
           aria-disabled="false"
           placeholder="Value"
         />
-        <p-popover appendTo="body" #popover>
+        <sbb-popover #popover>
           <sbb-duration-input required [(ngModel)]="value" />
-        </p-popover>
+        </sbb-popover>
       }
 
       @if (propertyIsNumber(propertyName())) {
-        <input
-          pInputText
-          type="number"
-          required
-          [(ngModel)]="value"
-          placeholder="Value"
-        />
+        <sbb-input-number required [(ngModel)]="value" placeholder="Value" />
       }
 
       @if (propertyUnknownType(propertyName())) {
-        <input pInputText required [(ngModel)]="value" placeholder="Value" />
+        <sbb-input required [(ngModel)]="value" placeholder="Value" />
       }
-    </p-input-group>
+    </sbb-input-group>
   } @else {
-    <p-input-group>
-      <p-autocomplete
+    <sbb-input-group>
+      <sbb-autocomplete
         required
         [(ngModel)]="applicationPropertyName"
         [suggestions]="filteredLabels()"
-        (completeMethod)="filterLabels($event)"
+        (completeChange)="filterLabels($event)"
         placeholder="Key"
         [forceSelection]="false"
-        appendTo="body"
       />
-      <p-select
-        appendTo="body"
-        #customPropertyTypeSelect
+      <sbb-select
+        [(ngModel)]="applicationPropertyType"
         [options]="typeOptions"
       />
-      @if (customPropertyTypeSelect.value === 'string') {
-        <input pInputText required [(ngModel)]="value" placeholder="Value" />
+      @if (applicationPropertyType() === 'string') {
+        <sbb-input required [(ngModel)]="value" placeholder="Value" />
       }
-      @if (customPropertyTypeSelect.value === 'datetime') {
-        <p-date-picker
-          required
+      @if (applicationPropertyType() === 'datetime') {
+        <sbb-date-picker
+          [required]="true"
           [showTime]="true"
-          hourFormat="24"
           [(ngModel)]="value"
-          appendTo="body"
           placeholder="Value"
         />
       }
-      @if (customPropertyTypeSelect.value === 'number') {
-        <input pInputText required [(ngModel)]="value" placeholder="Value" />
+      @if (applicationPropertyType() === 'number') {
+        <sbb-input-number required [(ngModel)]="value" placeholder="Value" />
       }
-      @if (customPropertyTypeSelect.value === 'boolean') {
-        <p-select
-          appendTo="body"
+      @if (applicationPropertyType() === 'boolean') {
+        <sbb-select
           required
           [(ngModel)]="value"
-          [options]="[true, false]"
+          [options]="[{ label: 'True', value: true }, { label: 'False', value: false }]"
         />
       }
-    </p-input-group>
+    </sbb-input-group>
   }
 </div>

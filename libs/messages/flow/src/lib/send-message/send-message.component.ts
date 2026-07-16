@@ -19,14 +19,22 @@ import {
 } from './form';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { FloatLabel } from 'primeng/floatlabel';
-import { ScrollPanel } from 'primeng/scrollpanel';
-import { Button, ButtonDirective } from 'primeng/button';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import {
+  faTriangleExclamation,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  SbbButton,
+  SbbFloatLabel,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputNumber,
+  SbbPopover,
+  SbbScrollPanel,
+  SbbSplitter,
+  SbbSplitterPanel,
+} from '@service-bus-browser/shared-ui';
 import {
   DurationInputComponent,
   FormEditor,
@@ -45,7 +53,7 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
 getMessagesRepository().then((r) => (repository = r));
 import { NgTemplateOutlet } from '@angular/common';
-import { Splitter } from 'primeng/splitter';
+import { FormsModule } from '@angular/forms';
 import { applyEach, form, FormField, required } from '@angular/forms/signals';
 import { formHelpers } from '../form-helpers';
 import { SelectSignalFormInput } from '../form/select-signal-form-input/select-signal-form-input';
@@ -62,20 +70,21 @@ import { routerNavigatedAction } from '@ngrx/router-store';
 @Component({
   selector: 'lib-send-message',
   imports: [
-    AutoCompleteModule,
-    FloatLabel,
-    ScrollPanel,
-    ButtonDirective,
-    InputGroup,
-    Button,
-    InputGroupAddon,
-    InputText,
-    Popover,
+    FaIconComponent,
+    FormsModule,
+    SbbFloatLabel,
+    SbbScrollPanel,
+    SbbButton,
+    SbbInputGroup,
+    SbbInput,
+    SbbInputNumber,
+    SbbPopover,
+    SbbSplitter,
+    SbbSplitterPanel,
     DurationInputComponent,
     EndpointSelectorInputComponent,
     FormEditor,
     NgTemplateOutlet,
-    Splitter,
     FormField,
     SelectSignalFormInput,
     DatePickerSignalFormInput,
@@ -89,6 +98,9 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
   formContainer = viewChild.required('formContainer', {
     read: ElementRef,
   });
+
+  protected readonly removeIcon = faXmark;
+  protected readonly warningIcon = faTriangleExclamation;
 
   formHelpers = formHelpers;
   value = model<SendMessagesForm>(this.getEmptyForm());
@@ -375,6 +387,10 @@ export class SendMessageComponent implements AfterViewInit, OnDestroy {
       ),
     }));
   };
+
+  togglePopover(popover: SbbPopover, event: Event): void {
+    popover.toggle(event.currentTarget as HTMLElement);
+  }
 
   addMessageAnnotation = () => {
     this.value.update((v) => ({

@@ -2,39 +2,42 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SubscriptionRuleForm } from './form';
-import { Card } from 'primeng/card';
-import { InputText } from 'primeng/inputtext';
-import { RadioButton } from 'primeng/radiobutton';
-import { Button, ButtonDirective } from 'primeng/button';
 import { combineLatest, from, map, Subject, takeUntil } from 'rxjs';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { ActivatedRoute } from '@angular/router';
 import { SubscriptionRule, systemPropertyKeys } from '@service-bus-browser/service-bus-api-contracts';
-import { Select } from 'primeng/select';
-import { InputGroup } from 'primeng/inputgroup';
-import { DatePicker } from 'primeng/datepicker';
-import { InputNumber } from 'primeng/inputnumber';
-import { Textarea } from 'primeng/textarea';
+import {
+  SbbCard,
+  SbbInput,
+  SbbRadio,
+  SbbButton,
+  SbbSelect,
+  SbbInputGroup,
+  SbbDatePicker,
+  SbbInputNumber,
+  SbbSelectOption,
+  SbbFloatLabel,
+} from '@service-bus-browser/shared-ui';
 import { ColorThemeService } from '@service-bus-browser/services';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'lib-subscription-rule-management',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    Card,
-    InputText,
-    RadioButton,
-    ButtonDirective,
-    Select,
-    InputGroup,
-    Button,
-    DatePicker,
-    InputNumber,
-    Textarea,
+    SbbCard,
+    SbbFloatLabel,
+    SbbInput,
+    SbbRadio,
+    SbbButton,
+    SbbSelect,
+    SbbInputGroup,
+    SbbDatePicker,
+    SbbInputNumber,
   ],
   templateUrl: './subscription-rule-management.component.html',
   styleUrl: './subscription-rule-management.component.scss',
@@ -49,19 +52,30 @@ export class SubscriptionRuleManagementComponent implements OnDestroy {
   destroy$ = new Subject<void>();
   newParams$ = new Subject<void>();
   action: 'create' | 'modify' = 'create';
-  systemFieldOptions: systemPropertyKeys[] = [
-    'to',
-    'subject',
-    'replyTo',
-    'contentType',
-    'messageId',
-    'correlationId',
-    'replyToSessionId',
-    'sessionId',
+  systemFieldOptions: SbbSelectOption<systemPropertyKeys>[] = [
+    { label: 'To', value: 'to' },
+    { label: 'Subject', value: 'subject' },
+    { label: 'Reply To', value: 'replyTo' },
+    { label: 'Content Type', value: 'contentType' },
+    { label: 'Message Id', value: 'messageId' },
+    { label: 'Correlation Id', value: 'correlationId' },
+    { label: 'Reply To Session Id', value: 'replyToSessionId' },
+    { label: 'Session Id', value: 'sessionId' },
   ];
 
-  dataTypeOptions = ['string', 'number', 'boolean', 'date'];
+  dataTypeOptions: SbbSelectOption<string>[] = [
+    { label: 'String', value: 'string' },
+    { label: 'Number', value: 'number' },
+    { label: 'Boolean', value: 'boolean' },
+    { label: 'Date', value: 'date' },
+  ];
+
+  booleanOptions: SbbSelectOption<boolean>[] = [
+    { label: 'True', value: true },
+    { label: 'False', value: false },
+  ];
   darkMode = inject(ColorThemeService).darkMode;
+  faTrash = faTrash;
 
   constructor() {
     combineLatest([this.activeRoute.params, this.activeRoute.data])

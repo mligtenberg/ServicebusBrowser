@@ -13,44 +13,26 @@ import {
   PreloadAllModules, withRouterConfig,
 } from '@angular/router';
 import { appRoutes } from './app.routes';
-import { providePrimeNG } from 'primeng/config';
-import { theme } from './theme';
 import { provideLogsState } from '@service-bus-browser/logs-store';
-import { provideStore } from '@ngrx/store';
+import { provideStore, Store } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideTopologyState } from '@service-bus-browser/topology-store';
 import { provideServiceBusElectronClient } from '@service-bus-browser/service-bus-angular-providers';
-import { MessageService } from 'primeng/api';
+
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import { provideHttpClient } from '@angular/common/http';
-import { provideMainUi } from '@service-bus-browser/main-ui';
+import { provideMainUi, pagesActions } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
-import { DialogService } from 'primeng/dynamicdialog';
+
 import { WorkspaceService } from '@service-bus-browser/services';
 import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // primeng
-    providePrimeNG({
-      theme: {
-        preset: theme,
-        options: {
-          darkModeSelector: '.darkMode',
-        },
-      },
-    }),
-    {
-      provide: DialogService,
-      useClass: DialogService,
-    },
-    {
-      provide: MessageService,
-      useClass: MessageService,
-    },
+
 
     // config
     provideZonelessChangeDetection(),
@@ -84,13 +66,17 @@ export const appConfig: ApplicationConfig = {
       logOnly: !isDevMode(),
     }),
 
-    // workspace initialization — must complete before NgRx effects start
+    // workspace initialization — NgRx effects register when the injector is
+    // created, so anything that depends on the active workspace must be
+    // triggered explicitly (via workspaceActivated) once it is known.
     provideAppInitializer(async () => {
       const workspaceService = inject(WorkspaceService);
       const workspacesClient = inject(WorkspacesFrontendClient);
+      const store = inject(Store);
 
       const workspaces = await workspacesClient.listWorkspaces();
       const workspace = workspaceService.initialize(workspaces);
+      store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
 
       // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet
       // when we move files. The migration scans the OPFS directory directly.

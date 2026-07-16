@@ -1,0 +1,9 @@
+@if (indeterminate()) {
+  <div class="sbb-progress-bar__track">
+    <div class="sbb-progress-bar__indicator sbb-progress-bar__indicator--indeterminate"></div>
+  </div>
+} @else {
+  <div class="sbb-progress-bar__track">
+    <div class="sbb-progress-bar__indicator" [style.width.%]="clampedValue()"></div>
+  </div>
+}

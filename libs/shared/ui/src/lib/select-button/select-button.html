@@ -1,0 +1,24 @@
+<div
+  class="sbb-select-button"
+  role="radiogroup"
+  [attr.aria-disabled]="isDisabled()"
+  (focusout)="handleTouched()"
+  [attr.data-size]="size()"
+>
+  @for (option of normalizedOptions(); track option.value; let i = $index) {
+    <button
+      #optionButton
+      type="button"
+      role="radio"
+      class="sbb-select-button__option"
+      [attr.aria-checked]="option.value === value()"
+      [attr.data-state]="option.value === value() ? 'on' : 'off'"
+      [attr.tabindex]="i === focusableIndex() ? 0 : -1"
+      [disabled]="isOptionDisabled(option)"
+      (click)="handleValueChange(option.value)"
+      (keydown)="onOptionKeydown($event, i)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>

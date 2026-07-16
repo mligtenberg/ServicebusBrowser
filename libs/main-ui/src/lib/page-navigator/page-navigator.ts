@@ -14,21 +14,26 @@ import { pagesActions } from '../ngrx/route.actions';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Actions, ofType } from '@ngrx/effects';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { delay } from 'rxjs';
 import { contentResize } from '@service-bus-browser/actions';
 import { messagePagesActions } from '@service-bus-browser/messages-store';
 import { FormsModule } from '@angular/forms';
-import { ContextMenu } from 'primeng/contextmenu';
-import { MenuItem } from 'primeng/api';
+import {
+  SbbContextMenu,
+  SbbMenuItem,
+  SbbTabHeaderDef,
+  SbbTabPanel,
+  SbbTabs,
+  SbbTabsReorderEvent,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
-  imports: [NgClass, RouterLink, CdkDropList, CdkDrag, FormsModule, ContextMenu],
+  imports: [NgClass, RouterLink, FormsModule, SbbContextMenu, SbbTabs, SbbTabPanel, SbbTabHeaderDef],
 })
 export class PageNavigator {
   store = inject(Store);
@@ -36,14 +41,10 @@ export class PageNavigator {
   private injector = inject(Injector);
 
   navigator = viewChild<ElementRef<HTMLDivElement>>('pageNavigator');
-  contextMenuRef = viewChild<ContextMenu>('contextMenu');
   scrollAtStart = signal(false);
   scrollAtEnd = signal(false);
   editingPageId = signal<UUID | undefined>(undefined);
   editingPageName = signal('');
-  contextMenuPageId = signal<UUID | undefined>(undefined);
-  contextMenuPageIndex = signal<number>(0);
-  contextMenuItems = signal<MenuItem[]>([]);
 
   pages = this.store.selectSignal(selectPages);
   pages$ = toObservable(this.pages);
@@ -65,45 +66,41 @@ export class PageNavigator {
       .subscribe(() => this.onElementChange());
   }
 
-  openContextMenu(event: MouseEvent, pageId: UUID, pageName: string, index: number) {
-    event.preventDefault();
-    this.contextMenuPageId.set(pageId);
-    this.contextMenuPageIndex.set(index);
+  protected pageMenu(pageId: UUID, pageName: string, index: number): SbbMenuItem<UUID>[] {
     const pageCount = this.pages().length;
-    this.contextMenuItems.set([
+    return [
       {
         label: 'Rename',
-        icon: 'pi pi-pencil',
-        command: () => this.startRename(pageId, pageName),
+        icon: 'fa-solid fa-pencil',
+        onSelect: () => this.startRename(pageId, pageName),
       },
       {
         label: 'Close',
-        icon: 'pi pi-times',
-        command: () => this.store.dispatch(pagesActions.closePage({ id: pageId, position: index })),
+        icon: 'fa-solid fa-xmark',
+        onSelect: () => this.store.dispatch(pagesActions.closePage({ id: pageId, position: index })),
       },
       {
         separator: true,
       },
       {
         label: 'Close tabs to the left',
-        icon: 'pi pi-angle-double-left',
+        icon: 'fa-solid fa-angles-left',
         disabled: index === 0,
-        command: () => this.closePagesInRange(0, index - 1),
+        onSelect: () => this.closePagesInRange(0, index - 1),
       },
       {
         label: 'Close tabs to the right',
-        icon: 'pi pi-angle-double-right',
+        icon: 'fa-solid fa-angles-right',
         disabled: index >= pageCount - 1,
-        command: () => this.closePagesInRange(index + 1, pageCount - 1),
+        onSelect: () => this.closePagesInRange(index + 1, pageCount - 1),
       },
       {
         label: 'Close all tabs',
-        icon: 'pi pi-times-circle',
+        icon: 'fa-solid fa-circle-xmark',
         disabled: pageCount === 0,
-        command: () => this.closePagesInRange(0, pageCount - 1),
+        onSelect: () => this.closePagesInRange(0, pageCount - 1),
       },
-    ]);
-    this.contextMenuRef()?.show(event);
+    ];
   }
 
   private closePagesInRange(fromIndex: number, toIndex: number) {
@@ -129,13 +126,14 @@ export class PageNavigator {
     this.onElementChange();
   }
 
-  protected drop($event: CdkDragDrop<any, any>) {
+  protected onReordered({ previousIndex, currentIndex }: SbbTabsReorderEvent) {
+    const page = this.pages()[previousIndex];
+    if (!page) {
+      return;
+    }
+
     this.store.dispatch(
-      pagesActions.movePage({
-        id: $event.item.data,
-        fromPosition: $event.previousIndex,
-        newPosition: $event.currentIndex,
-      }),
+      pagesActions.movePage({ id: page.id, fromPosition: previousIndex, newPosition: currentIndex }),
     );
   }
 

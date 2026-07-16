@@ -1,82 +1,60 @@
 <div class="alter-application-properties-container">
-  <p-input-group>
-    <p-autocomplete
+  <sbb-input-group>
+    <sbb-autocomplete
       required
       [(ngModel)]="fieldName"
       [suggestions]="filteredLabels()"
-      (completeMethod)="filterLabels($event)"
+      (completeChange)="filterLabels($event)"
       placeholder="Property Key"
       [forceSelection]="false"
-      appendTo="body"
     />
 
-    <p-select
+    <sbb-select
       [options]="alterTypes()"
       [(ngModel)]="alterType"
       placeholder="Alter Type"
-      appendTo="body"
     />
-  </p-input-group>
+  </sbb-input-group>
 
   @if (alterType() !== 'fullReplace') {
-    <input
-      pInputText
+    <sbb-input
       required
       [(ngModel)]="searchValue"
       placeholder="Search value"
-      [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-      tooltipPosition="top"
+      [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+      sbbTooltipPlacement="top"
     />
   }
 
-  <p-input-group>
-    <p-select
-      appendTo="body"
-      #customPropertyTypeSelect
+  <sbb-input-group>
+    <sbb-select
       [(ngModel)]="propertyType"
       [options]="typeOptions"
     />
 
     @if (propertyType() === 'string') {
-      <input
-        pInputText
+      <sbb-input
         required
         [(ngModel)]="value"
-        [pTooltip]="alterType() === 'regexReplace' ? regexEplain : undefined"
-        tooltipPosition="top"
+        [sbbTooltip]="alterType() === 'regexReplace' ? regexHelpText : undefined"
+        sbbTooltipPlacement="top"
         placeholder="Value"/>
     }
     @if (propertyType() === 'datetime') {
-      <p-date-picker
-        required
+      <sbb-date-picker
+        [required]="true"
         [showTime]="true"
-        hourFormat="24"
         [(ngModel)]="value"
-        appendTo="body"
         placeholder="Value"/>
     }
     @if (propertyType() === 'number') {
-      <input
-        pInputText
-        required
-        [(ngModel)]="value"
-        placeholder="Value"/>
+      <sbb-input-number required [(ngModel)]="value" placeholder="Value"/>
     }
     @if (propertyType() === 'boolean') {
-      <p-select
-        appendTo="body"
+      <sbb-select
         required
         [(ngModel)]="value"
-        [options]="[true, false]"/>
+        [options]="[{ label: 'True', value: true }, { label: 'False', value: false }]"/>
     }
-  </p-input-group>
+  </sbb-input-group>
 </div>
-
-<ng-template #regexEplain>
-  <div class="regex-explanation">
-    <p>Within the regex you can define named capture groups by using</p>
-    <pre>(?&lt;name&gt;pattern)</pre>
-    <p>the values can be referenced in the replacement with</p>
-    <pre>$&lt;name&gt;</pre>
-  </div>
-</ng-template>

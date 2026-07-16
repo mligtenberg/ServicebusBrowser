@@ -1,0 +1,31 @@
+{
+  "name": "storybook-host",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/storybook-host/.storybook",
+  "tags": [],
+  "targets": {
+    "storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "storybook dev -p 6006 --no-open",
+        "cwd": "apps/storybook-host"
+      }
+    },
+    "build-storybook": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/storybook/storybook-host"],
+      "options": {
+        "command": "storybook build -o ../../dist/storybook/storybook-host",
+        "cwd": "apps/storybook-host"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run",
+        "cwd": "apps/storybook-host"
+      }
+    }
+  }
+}

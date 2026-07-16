@@ -5,8 +5,10 @@ import {
   AmqpPropertyKeys as AmqpPropertyKeysList,
 } from '../../../send-message/form';
 import { FormsModule } from '@angular/forms';
-import { Select } from 'primeng/select';
-import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import {
+  SbbAutocomplete,
+  SbbSelect,
+} from '@service-bus-browser/shared-ui';
 import {
   BatchActionTarget,
   MessageModificationAction,
@@ -16,7 +18,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
 
 @Component({
   selector: 'lib-remove-action-body',
-  imports: [AutoComplete, FormsModule, Select],
+  imports: [SbbAutocomplete, FormsModule, SbbSelect],
   templateUrl: './remove-action-body.component.html',
   styleUrl: './remove-action-body.component.scss',
 })
@@ -31,13 +33,13 @@ export class RemoveActionBodyComponent {
   protected propertyName = model<AmqpPropertyKeys | ''>('');
   protected filteredLabels = signal<string[]>([]);
 
-  propertyKeys = AmqpPropertyKeysList;
+  propertyKeys = AmqpPropertyKeysList.map((key) => ({ label: key, value: key }));
 
-  filterLabels(event: AutoCompleteCompleteEvent) {
-    const query = event.query.toLowerCase();
+  filterLabels(query: string) {
+    const lowered = query.toLowerCase();
     this.filteredLabels.set(
       this.applicationPropertyLabels().filter((l) =>
-        l.toLowerCase().includes(query),
+        l.toLowerCase().includes(lowered),
       ),
     );
   }

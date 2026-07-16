@@ -1,11 +1,10 @@
-  <p-input-group>
-    <p-inputgroup-addon>
-      <p-checkbox
-        [binary]="true"
+  <sbb-input-group>
+    <sbb-input-group-addon>
+      <sbb-checkbox
         class="isActive"
         [formField]="propertyForm.isActive"
       />
-    </p-inputgroup-addon>
+    </sbb-input-group-addon>
 
     <lib-select-signal-form-input
       [options]="systemPropertyOptions()"
@@ -62,8 +61,7 @@
     }
 
     @if (propertyForm.fieldType().value() === 'string') {
-      <input
-        pInputText
+      <sbb-input
         [formField]="asStringValueTree(propertyForm.value)"
         placeholder="Value"
         class="value"
@@ -78,44 +76,44 @@
     }
 
     @if (propertyForm.fieldType().value() === 'number') {
-      <input type="number" pInputText
-             [formField]="asNumberValueTree(propertyForm.value)"
-             class="value"
+      <sbb-input-number
+        [formField]="asNumberValueTree(propertyForm.value)"
+        class="value"
       />
     }
 
     @if (propertyForm.fieldType().value() === 'boolean') {
-      <p-checkbox
+      <sbb-checkbox
         [formField]="asBooleanValueTree(propertyForm.value)"
-        [binary]="true"
         class="value"
       />
     }
 
     @if (propertyForm.fieldType().value() === 'timespan') {
-      <input
-        (click)="popover.toggle($event)"
-        pInputText
-        readonly
-        [value]="propertyForm.value().value()"
+      <sbb-input
+        (click)="togglePopover(popover, $event)"
+        [readonly]="true"
+        [ngModel]="propertyForm.value().value()"
         class="time-span-trigger"
         aria-disabled="false"
         placeholder="Value" />
-      <p-popover
-        appendTo="body"
+      <sbb-popover
         #popover
       >
         <sbb-duration-input
           [formField]="asStringValueTree(propertyForm.value)"
         />
-      </p-popover>
+      </sbb-popover>
     }
 
     @if (removable()) {
-      <p-button
-        icon="pi pi-trash"
+      <sbb-button
+        [icon]="removeIcon"
+        [iconOnly]="true"
         severity="danger"
+        variant="text"
+        aria-label="Remove"
         (click)="remove()"
-      ></p-button>
+      ></sbb-button>
     }
-  </p-input-group>
+  </sbb-input-group>

@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.sbb-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--sbb-text);
+  background-color: var(--sbb-surface-raised);
+  border: 1px solid var(--sbb-border);
+  border-radius: var(--sbb-radius);
+  padding: 0.5rem 0.75rem;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+
+  &::placeholder {
+    color: var(--sbb-text-muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring);
+    outline-offset: 1px;
+    border-color: var(--sbb-primary);
+  }
+
+  &:disabled {
+    color: var(--sbb-text-muted);
+    background-color: var(--sbb-surface);
+    cursor: not-allowed;
+    resize: none;
+  }
+
+  &--auto-resize {
+    resize: none;
+    overflow: hidden;
+    field-sizing: content;
+  }
+}

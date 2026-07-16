@@ -1,0 +1,23 @@
+// SbbSplitter — a resizable split-pane container. The group itself is just
+// the flex container; individual panel sizing and the draggable gutter live
+// on `SbbSplitterPanel` (see splitter-panel.component.scss).
+
+:host {
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-radius-local: var(--sbb-radius, 0.375rem);
+
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--sbb-radius-local);
+  min-width: 0;
+  min-height: 0;
+}
+
+:host([data-layout='horizontal']) {
+  flex-direction: row;
+}
+
+:host([data-layout='vertical']) {
+  flex-direction: column;
+}

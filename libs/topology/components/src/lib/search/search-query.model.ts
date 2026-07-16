@@ -41,7 +41,7 @@ export type SuggestionItem =
   | { kind: 'truncation'; label: string };
 
 /**
- * A grouped suggestion row passed to PrimeNG AutoComplete when `[group]="true"`.
+ * A grouped suggestion row passed to AutoComplete when `[group]="true"`.
  */
 export interface SuggestionGroup {
   groupLabel: string;

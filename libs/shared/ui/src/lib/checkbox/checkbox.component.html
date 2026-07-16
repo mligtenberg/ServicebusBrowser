@@ -1,0 +1,35 @@
+<!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- the button self-associates via `closest('label')` at runtime, same as a native <input> -->
+<label class="sbb-checkbox" [class.sbb-checkbox--disabled]="isDisabled()">
+  <button
+    type="button"
+    role="checkbox"
+    class="sbb-checkbox__control"
+    [attr.aria-checked]="indeterminate() ? 'mixed' : checked()"
+    [attr.aria-label]="ariaLabelAttr()"
+    [attr.aria-labelledby]="labelledBy()"
+    [disabled]="isDisabled()"
+    (click)="onCheckedChange(!checked())"
+    (blur)="onTouchedHandler()"
+  >
+    <span
+      class="sbb-checkbox__box"
+      [class.sbb-checkbox__box--checked]="checked()"
+      [class.sbb-checkbox__box--indeterminate]="indeterminate()"
+      aria-hidden="true"
+    >
+      @if (checked() && !indeterminate()) {
+        <svg class="sbb-checkbox__icon" viewBox="0 0 16 16" focusable="false">
+          <path d="M3 8.5 6.5 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      }
+      @if (indeterminate()) {
+        <svg class="sbb-checkbox__icon" viewBox="0 0 16 16" focusable="false">
+          <path d="M3 8h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      }
+    </span>
+  </button>
+  @if (label()) {
+    <span [id]="labelId" class="sbb-checkbox__label">{{ label() }}</span>
+  }
+</label>

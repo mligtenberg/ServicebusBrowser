@@ -1,0 +1,9 @@
+<div
+  #panel
+  class="sbb-popover-panel"
+  [attr.popover]="mode()"
+  [attr.data-align]="align()"
+  (toggle)="onToggle($event)"
+>
+  <ng-content />
+</div>

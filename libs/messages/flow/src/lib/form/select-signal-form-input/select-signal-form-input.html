@@ -1,12 +1,7 @@
-<p-select
-  [options]="options()"
-  [optionLabel]="optionLabel()"
-  [optionValue]="optionValue()"
-  [placeholder]="placeholder()"
+<sbb-select
+  [options]="sbbOptions()"
+  [placeholder]="placeholder() ?? ''"
   [(ngModel)]="value"
   [disabled]="disabled()"
-  [readonly]="readonly()"
   [hidden]="hidden()"
-  [required]="required()"
-  appendTo="body"
 />

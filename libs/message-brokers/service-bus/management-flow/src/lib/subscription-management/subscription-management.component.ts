@@ -1,47 +1,48 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Card } from 'primeng/card';
-import { Checkbox } from 'primeng/checkbox';
+import { CommonModule, DatePipe } from '@angular/common';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import {
   EndpointStringSelectorInputComponent
 } from '@service-bus-browser/topology-components';
-import { FloatLabel } from 'primeng/floatlabel';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputNumber } from 'primeng/inputnumber';
-import { InputText } from 'primeng/inputtext';
 import { SubscriptionForm } from './form';
-import { Textarea } from 'primeng/textarea';
 import { combineLatest, from, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { UUID } from '@service-bus-browser/shared-contracts';
-import { ButtonDirective } from 'primeng/button';
 import { Subscription, SubscriptionWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
-import { PrimeTemplate } from 'primeng/api';
-import { TableModule } from 'primeng/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
+import {
+  SbbCard,
+  SbbInput,
+  SbbFloatLabel,
+  SbbInputNumber,
+  SbbTextarea,
+  SbbCheckbox,
+  SbbButton,
+  SbbDataGrid,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-subscription-management',
   imports: [
     CommonModule,
-    Card,
-    Checkbox,
+    SbbCard,
+    SbbCheckbox,
     DurationInputComponent,
-    FloatLabel,
+    SbbFloatLabel,
     FormsModule,
-    InputNumber,
-    InputText,
+    SbbInputNumber,
+    SbbInput,
     ReactiveFormsModule,
-    Textarea,
-    ButtonDirective,
-    PrimeTemplate,
-    TableModule,
+    SbbTextarea,
+    SbbButton,
+    SbbDataGrid,
     EndpointStringSelectorInputComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './subscription-management.component.html',
   styleUrl: './subscription-management.component.scss',
 })
@@ -50,6 +51,7 @@ export class SubscriptionManagementComponent {
   refreshUtil = inject(RefreshUtil);
   managementClient = inject(ServiceBusManagementFrontendClient);
   saveFeedback = inject(SaveFeedbackService);
+  datePipe = inject(DatePipe);
 
   form = this.createForm();
   action = signal<'create' | 'modify'>('create');
@@ -62,7 +64,7 @@ export class SubscriptionManagementComponent {
 
     return Object.entries(subscription.metaData).map(([key, value]) => ({
       key,
-      value,
+      value: value instanceof Date ? this.datePipe.transform(value, 'medium') : value,
     }));
   });
   endpointFilter = computed(() => {
@@ -261,7 +263,5 @@ export class SubscriptionManagementComponent {
     });
   }
 
-  isDate(value: unknown): boolean {
-    return value instanceof Date;
-  }
+
 }

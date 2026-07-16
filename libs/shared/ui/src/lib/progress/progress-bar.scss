@@ -1,0 +1,40 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 6px;
+}
+
+.sbb-progress-bar__track {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--sbb-border);
+  border-radius: var(--sbb-radius);
+}
+
+.sbb-progress-bar__indicator {
+  height: 100%;
+  background-color: var(--sbb-primary);
+  border-radius: var(--sbb-radius);
+  transition: width 0.2s ease;
+}
+
+.sbb-progress-bar__indicator--indeterminate {
+  width: 40%;
+  animation: sbb-progress-bar-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes sbb-progress-bar-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sbb-progress-bar__indicator--indeterminate {
+    animation-duration: 3s;
+  }
+}

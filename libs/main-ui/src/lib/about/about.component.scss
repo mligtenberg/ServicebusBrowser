@@ -53,25 +53,10 @@
       margin-bottom: 1rem;
       color: var(--text-color);
     }
-
-    :host ::ng-deep {
-      .p-datatable {
-        .p-datatable-thead > tr > th {
-          background-color: var(--surface-ground);
-          color: var(--text-color);
-        }
-
-        .p-datatable-tbody > tr > td {
-          a {
-            color: var(--primary-color);
-            text-decoration: none;
-
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-        }
-      }
+    
+    .packages-grid {
+      display: block;
+      height: 400px;
     }
   }
 }

@@ -1,0 +1,16 @@
+// Must be `:host`, not `.sbb-context-menu-host` — under emulated encapsulation a
+// bare class selector is scoped to descendants ([_ngcontent]) and never matches
+// the host element ([_nghost]), so the display would silently fall back to the
+// custom element's default `inline`. That collapses the trigger to a shrink-wrap
+// flex item (e.g. inside a flex data-grid row, fixed-width cells squash to the
+// left). `:host` targets the element itself so the wrapper is a true passthrough.
+:host {
+  display: contents;
+}
+
+.sbb-context-menu-trigger {
+  display: contents;
+}
+
+// The menu panel itself is rendered and styled by the embedded `SbbMenu`
+// (`.sbb-menu-panel`); this component only owns the passthrough trigger.

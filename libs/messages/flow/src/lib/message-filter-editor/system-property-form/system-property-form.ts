@@ -1,12 +1,17 @@
 import { Component, computed, input, model, output } from '@angular/core';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
+import { FormsModule } from '@angular/forms';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  SbbButton,
+  SbbCheckbox,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputGroupAddon,
+  SbbInputNumber,
+  SbbPopover,
+} from '@service-bus-browser/shared-ui';
 import { DatePickerSignalFormInput } from '../../form/date-picker-signal-form-input/date-picker-signal-form-input';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
-import { Popover } from 'primeng/popover';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { FieldTree, form, FormField, FormValueControl, required, disabled as formDisabled } from '@angular/forms/signals';
 import {
@@ -20,16 +25,18 @@ import { PropertyFilter } from '@service-bus-browser/filtering';
 @Component({
   selector: 'lib-system-property-form',
   imports: [
-    Button,
-    Checkbox,
+    SbbButton,
+    SbbCheckbox,
     DatePickerSignalFormInput,
     DurationInputComponent,
-    InputGroup,
-    InputGroupAddon,
-    InputText,
-    Popover,
+    SbbInputGroup,
+    SbbInputGroupAddon,
+    SbbInput,
+    SbbInputNumber,
+    SbbPopover,
     SelectSignalFormInput,
     FormField,
+    FormsModule,
   ],
   templateUrl: './system-property-form.html',
   styleUrl: './system-property-form.scss',
@@ -106,8 +113,14 @@ export class SystemPropertyForm implements FormValueControl<PropertyFilter> {
     return value as FieldTree<boolean, string>;
   }
 
+  protected readonly removeIcon = faTrash;
+
   protected remove() {
     this.removedPressed.emit();
+  }
+
+  protected togglePopover(popover: SbbPopover, $event: Event) {
+    popover.toggle($event.currentTarget as HTMLElement);
   }
 
   protected onSystemPropertyChange($event: string | undefined) {

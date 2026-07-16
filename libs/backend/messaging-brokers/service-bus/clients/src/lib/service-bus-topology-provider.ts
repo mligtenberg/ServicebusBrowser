@@ -77,7 +77,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       type: 'connection',
       actions: [
         {
-          icon: 'pi pi-plus',
+          icon: 'fa-solid fa-plus',
           displayName: 'Add queue',
           actionGroup: 'topo',
           actionType: 'service-bus:queue:add',
@@ -86,7 +86,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           },
         },
         {
-          icon: 'pi pi-plus',
+          icon: 'fa-solid fa-plus',
           displayName: 'Add topic',
           actionGroup: 'topo',
           actionType: 'service-bus:topic:add',
@@ -165,7 +165,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         children: childNodes,
         actions: [
           {
-            icon: 'pi pi-plus',
+            icon: 'fa-solid fa-plus',
             displayName: 'Add queue',
             actionType: 'service-bus:queue:add',
             parameters: {
@@ -214,7 +214,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         children: childNodes,
         actions: [
           {
-            icon: 'pi pi-plus',
+            icon: 'fa-solid fa-plus',
             displayName: 'Add topic',
             actionType: 'service-bus:topic:add',
             parameters: {
@@ -277,7 +277,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         },
       ],
       defaultAction: {
-        icon: 'pi pi-pencil',
+        icon: 'fa-solid fa-pencil',
         displayName: 'Edit queue',
         actionType: 'service-bus:queue:edit',
         parameters: {
@@ -332,7 +332,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       ],
       actions: [
         {
-          icon: 'pi pi-pencil',
+          icon: 'fa-solid fa-pencil',
           displayName: 'Edit queue',
           actionType: 'service-bus:queue:edit',
           parameters: {
@@ -341,7 +341,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           },
         },
         {
-          icon: 'pi pi-trash',
+          icon: 'fa-solid fa-trash',
           displayName: 'Delete queue',
           actionType: 'service-bus:queue:delete',
           parameters: {
@@ -376,7 +376,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         ]
       },
       defaultAction: {
-        icon: 'pi pi-pencil',
+        icon: 'fa-solid fa-pencil',
         displayName: 'Edit topic',
         actionType: 'service-bus:topic:edit',
         parameters: {
@@ -388,7 +388,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       children: subscriptions,
       actions: [
         {
-          icon: 'pi pi-plus',
+          icon: 'fa-solid fa-plus',
           displayName: 'Add subscription',
           actionType: 'service-bus:subscription:add',
           parameters: {
@@ -398,7 +398,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           actionGroup: 'subscriptions',
         },
         {
-          icon: 'pi pi-pencil',
+          icon: 'fa-solid fa-pencil',
           displayName: 'Edit topic',
           actionType: 'service-bus:topic:edit',
           parameters: {
@@ -408,7 +408,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           actionGroup: 'topic',
         },
         {
-          icon: 'pi pi-trash',
+          icon: 'fa-solid fa-trash',
           displayName: 'Delete topic',
           actionType: 'service-bus:topic:delete',
           parameters: {
@@ -489,7 +489,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
       ],
       actions: [
         {
-          icon: 'pi pi-plus',
+          icon: 'fa-solid fa-plus',
           displayName: 'Add rule',
           actionType: 'service-bus:subscription-rule:add',
           parameters: {
@@ -500,7 +500,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           actionGroup: 'rule',
         },
         {
-          icon: 'pi pi-pencil',
+          icon: 'fa-solid fa-pencil',
           displayName: 'Edit subscription',
           actionType: 'service-bus:subscription:edit',
           parameters: {
@@ -511,7 +511,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           actionGroup: 'subscription',
         },
         {
-          icon: 'pi pi-trash',
+          icon: 'fa-solid fa-trash',
           displayName: 'Delete subscription',
           actionType: 'service-bus:subscription:delete',
           parameters: {
@@ -523,7 +523,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
         },
       ],
       defaultAction: {
-        icon: 'pi pi-pencil',
+        icon: 'fa-solid fa-pencil',
         displayName: 'Edit subscription',
         actionType: 'service-bus:subscription:edit',
         parameters: {
@@ -542,7 +542,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           selectable: true,
           type: 'rule',
           defaultAction: {
-            icon: 'pi pi-pencil',
+            icon: 'fa-solid fa-pencil',
             displayName: 'edit rule',
             actionType: 'service-bus:subscription-rule:edit',
             parameters: {
@@ -554,7 +554,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
           },
           actions: [
             {
-              icon: 'pi pi-pencil',
+              icon: 'fa-solid fa-pencil',
               displayName: 'edit rule',
               actionType: 'service-bus:subscription-rule:edit',
               parameters: {
@@ -565,7 +565,7 @@ export class ServiceBusTopologyProvider implements TopologyProvider {
               },
             },
             {
-              icon: 'pi pi-trash',
+              icon: 'fa-solid fa-trash',
               displayName: 'Remove rule',
               actionType: 'service-bus:subscription-rule:delete',
               parameters: {

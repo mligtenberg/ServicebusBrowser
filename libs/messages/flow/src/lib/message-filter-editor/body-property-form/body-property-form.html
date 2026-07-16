@@ -1,11 +1,10 @@
-<p-input-group>
-  <p-inputgroup-addon>
-    <p-checkbox
+<sbb-input-group>
+  <sbb-input-group-addon>
+    <sbb-checkbox
       [formField]="bodyForm.isActive"
-      [binary]="true"
       class="isActive"
     />
-  </p-inputgroup-addon>
+  </sbb-input-group-addon>
 
   <lib-select-signal-form-input
     [options]="bodyFilterTypes"
@@ -16,18 +15,20 @@
     class="filterType"
   />
 
-  <input
-    pInputText
+  <sbb-input
     [formField]="asStringValueTree(bodyForm.value)"
     placeholder="Value"
     class="value"
   />
 
   @if (removable()) {
-    <p-button
-      icon="pi pi-trash"
+    <sbb-button
+      [icon]="removeIcon"
+      [iconOnly]="true"
       severity="danger"
+      variant="text"
+      aria-label="Remove"
       (click)="removeBody()"
-    ></p-button>
+    ></sbb-button>
   }
-</p-input-group>
+</sbb-input-group>

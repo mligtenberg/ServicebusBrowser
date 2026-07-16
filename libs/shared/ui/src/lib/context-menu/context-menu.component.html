@@ -1,0 +1,5 @@
+<span class="sbb-context-menu-trigger" (contextmenu)="onContextMenu($event)">
+  <ng-content></ng-content>
+</span>
+
+<sbb-menu #menu [model]="model()" [data]="data()" />

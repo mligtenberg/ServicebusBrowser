@@ -1,44 +1,43 @@
-<p-menubar
+<sbb-menubar
   class="main-menu"
   [model]="menuItems()"
-  breakpoint="10px"
   [ngClass]="{windowControlSpacing: electronWindowControlSpacing(), useLowProfileMenu: useLowProfileMenu() }"
 >
-  <ng-template #start>
-    @if (menuStart(); as ref) {
+  @if (menuStart(); as ref) {
+    <div sbbMenubarStart>
       <ng-container *ngTemplateOutlet="ref"></ng-container>
-    }
-  </ng-template>
+    </div>
+  }
 
-  <ng-template #end>
-    @if (menuEnd(); as ref) {
+  @if (menuEnd(); as ref) {
+    <div sbbMenubarEnd>
       <ng-container *ngTemplateOutlet="ref"></ng-container>
-    }
-  </ng-template>
-</p-menubar>
-<p-splitter [panelSizes]="[25,75]" (onResizeEnd)="onResizeEnd()" class="main-splitter" style="border-radius: 0;">
-  <ng-template pTemplate>
+    </div>
+  }
+</sbb-menubar>
+<sbb-splitter (resizeEnd)="onResizeEnd()" class="main-splitter">
+  <sbb-splitter-panel [size]="25">
     <div class="sidebar">
       <lib-sidebar/>
     </div>
-  </ng-template>
-  <ng-template pTemplate>
+  </sbb-splitter-panel>
+  <sbb-splitter-panel [size]="75">
     <div class="main-content">
       <lib-page-navigator/>
       <div class="router-outlet">
         <div class="main-content-container">
-          <p-scroll-panel>
+          <sbb-scroll-panel>
             <router-outlet></router-outlet>
-          </p-scroll-panel>
+          </sbb-scroll-panel>
         </div>
       </div>
       <div class="logs">
         <button class="logs-header" (click)="toggleLogs()">
           <span class="text">Logs</span>
           @if (logsOpened()) {
-            <span class="icon pi pi-chevron-down"></span>
+            <span class="icon fa-solid fa-chevron-down"></span>
           } @else {
-            <span class="icon pi pi-chevron-left"></span>
+            <span class="icon fa-solid fa-chevron-left"></span>
           }
         </button>
 
@@ -49,6 +48,5 @@
         }
       </div>
     </div>
-  </ng-template>
-</p-splitter>
-<p-toast position="top-right" />
+  </sbb-splitter-panel>
+</sbb-splitter>

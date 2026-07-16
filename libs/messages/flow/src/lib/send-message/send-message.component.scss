@@ -4,18 +4,6 @@
   --kv-key-width: 38%;
   --kv-type-width: 20%;
   --kv-gap: 0.375rem;
-  --p-inputtext-padding-y: 0.4rem;
-  --p-inputtext-padding-x: 0.5rem;
-  --p-select-padding-y: 0.4rem;
-  --p-select-padding-x: 0.5rem;
-  --p-button-padding-y: 0.35rem;
-  --p-button-padding-x: 0.6rem;
-
-  ::ng-deep {
-    .p-autocomplete {
-      width: 100%;
-    }
-  }
 }
 
 .body-title h2 {
@@ -33,7 +21,25 @@
 .edit-area {
   flex: 1;
   overflow: hidden;
-  border-bottom: 1px solid var(--p-splitter-gutter-background);
+  border-bottom: 1px solid var(--sbb-border);
+  display: flex;
+  flex-direction: column;
+
+  sbb-splitter {
+    flex: 1;
+  }
+}
+
+.message-body-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  sbb-form-editor {
+    flex: 1;
+    overflow: hidden;
+  }
 }
 
 .all-properties-container {
@@ -57,7 +63,7 @@
 }
 
 .header {
-  border-bottom: 2px solid var(--p-splitter-gutter-background);
+  border-bottom: 2px solid var(--sbb-border);
 }
 
 ::ng-deep h2 {
@@ -76,7 +82,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0 0.25rem;
-  color: var(--p-orange-500);
+  color: var(--sbb-warning);
   font-size: 0.75rem;
 }
 
@@ -91,38 +97,39 @@
   }
 }
 
-p-auto-complete {
+sbb-float-label {
+  width: 100%;
+  display: block;
+}
+
+lib-auto-complete-form-input,
+sbb-autocomplete {
   width: 100%;
   display: flex;
   justify-content: stretch;
   align-items: stretch;
+  flex: 1;
 }
 
-p-virtual-scroller {
-  width: 100%;
-  height: 100%;
-}
-
-p-input-group {
+sbb-input-group {
   width: 100%;
 
   lib-select-signal-form-input:first-child {
-    border-radius: var(--p-select-border-radius) 0 0
-      var(--p-select-border-radius);
+    border-radius: var(--sbb-radius) 0 0 var(--sbb-radius);
   }
 
   lib-select-signal-form-input,
   lib-date-picker-signal-form-input {
-    color: var(--p-inputtext-color);
-    background: var(--p-inputtext-background);
-    border: 1px solid var(--p-inputtext-border-color);
+    color: var(--sbb-text);
+    background: var(--sbb-surface-raised);
+    border: 1px solid var(--sbb-border);
 
     ::ng-deep {
-      p-select {
+      sbb-select {
         border: none;
       }
 
-      p-date-picker > input {
+      sbb-date-picker > input {
         border: none;
       }
     }
@@ -148,7 +155,8 @@ p-input-group {
     min-width: 10em;
   }
 
-  input {
+  sbb-input,
+  sbb-input-number {
     font-size: 0.875rem;
   }
 

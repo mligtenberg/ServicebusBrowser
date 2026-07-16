@@ -9,7 +9,6 @@
   flex-direction: row;
   justify-content: space-between;
   overflow: hidden;
-  --p-button-icon-only-width: 1.5rem;
   align-items: center;
 }
 
@@ -18,29 +17,24 @@ span {
   display: inline-block;
 }
 
+// Keep the icon-only refresh button within the tree row height so refreshable
+// rows stay the same height as plain rows (matches the pre-migration ~24px
+// zero-padding p-button). Higher specificity than SbbButton's own size rule.
+.refresh-button ::ng-deep .sbb-button.sbb-button--icon-only.sbb-button--small {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+}
+
 .name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 
   mark.search-highlight {
-    background-color: var(--p-highlight-background, #fff3cd);
+    background-color: var(--sbb-warning-bg);
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;
   }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-p-button {
-  --p-button-padding-x: 0;
-  --p-button-padding-y: 0;
-}
-
-@keyframes spin {
-  from {transform:rotate(0deg);}
-  to {transform:rotate(360deg);}
 }

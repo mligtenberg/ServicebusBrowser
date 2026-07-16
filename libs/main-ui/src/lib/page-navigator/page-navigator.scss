@@ -6,11 +6,24 @@
 .navigator {
   display: flex;
   overflow-x: auto;
+  // Without an explicit overflow-y, the CSS overflow spec silently upgrades it
+  // to `auto` too (since overflow-x is non-visible) — any sub-pixel vertical
+  // overflow then lets native HTML5 drag-and-drop auto-scroll this strip
+  // vertically while dragging a tab, instead of only horizontally.
+  overflow-y: hidden;
   text-wrap: nowrap;
   scrollbar-width: none;
   scrollbar-color: light-dark(hsla(0, 0%, 88%, 70%),hsla(0, 0%, 31%, 70%)) transparent;
   position: relative;
   height: 30px;
+
+  // sbb-tabs renders its own tablist wrapper + spacing/border designed for its
+  // generic text-label look; this navigator supplies its own per-page markup
+  // (via sbbTabHeader) and border/active-indicator styling below, so reset those.
+  ::ng-deep .sbb-tabs__list {
+    gap: 0;
+    border-bottom: none;
+  }
 }
 
 .navigator-border {
@@ -29,7 +42,7 @@
   height: 29px;
   width: 29px;
   cursor: pointer;
-  background: var(--p-menubar-background);
+  background: var(--sbb-surface);
   border: none;
 
   &.move-left {
@@ -40,7 +53,7 @@
       left: 29px;
       top: 0;
       bottom: 0;
-      background: linear-gradient(to left, transparent, var(--p-menubar-background));
+      background: linear-gradient(to left, transparent, var(--sbb-surface));
       width: 20px;
     }
   }
@@ -52,38 +65,35 @@
       right: 29px;
       top: 0;
       bottom: 0;
-      background: linear-gradient(to right, transparent, var(--p-menubar-background));
+      background: linear-gradient(to right, transparent, var(--sbb-surface));
       width: 20px;
     }
   }
 }
 
 .page {
-  --color-active: var(--p-primary-color);
+  --color-active: var(--sbb-primary);
   font-weight: bold;
   display: flex;
+  align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-bottom: solid 1px transparent;
+  border-bottom: solid 2px transparent;
   height: 30px;
-  padding: 5px 2px 3px 6px;
+  box-sizing: border-box;
+  padding: 0 4px 0 8px;
   z-index: 2;
+  gap: 6px;
+  color: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 65%));
+  transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+              border-color var(--sbb-transition-duration) var(--sbb-transition-ease);
 
   &.active {
-    > div {
-      color: var(--color-active);
-    }
-    border-bottom: solid 1px var(--color-active);
+    color: var(--color-active);
+    border-bottom-color: var(--color-active);
   }
 
-  &:not(.active) > div {
-    color: light-dark(hsl(0, 0%, 40%), hsl(0, 0%, 65%));
-
-    &:focus-visible {
-      outline: var(--color-active) solid 2px;
-      outline-offset: -2px;
-    }
-
+  &:not(.active):not(.disabled) {
     &:hover {
       color: light-dark(hsl(0, 0%, 15%), hsl(0, 0%, 100%));
     }
@@ -91,16 +101,38 @@
 
   &.disabled {
     cursor: default;
-    opacity: 0.7;
+    opacity: 0.5;
+  }
+
+  span[routerLink],
+  > span {
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+
+    &:focus-visible {
+      outline: var(--color-active) solid 2px;
+      outline-offset: -2px;
+    }
   }
 
   .close-button {
     color: hsl(0, 60%, 60%);
     background: none;
     border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: var(--sbb-radius);
+    transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+                background-color var(--sbb-transition-duration) var(--sbb-transition-ease);
 
-    :hover {
+    &:hover {
       color: light-dark(hsl(0, 20%, 41%), hsl(0, 23%, 70%));
+      background-color: var(--sbb-surface-hover);
     }
   }
 
@@ -111,6 +143,14 @@
     padding: 0 4px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    border-radius: var(--sbb-radius);
+    transition: color var(--sbb-transition-duration) var(--sbb-transition-ease),
+                background-color var(--sbb-transition-duration) var(--sbb-transition-ease);
+
+    &:hover {
+      background-color: var(--sbb-surface-hover);
+    }
 
     &.accept-button {
       color: hsl(120, 50%, 45%);
@@ -138,22 +178,6 @@
     min-width: 4rem;
     padding: 0 0;
     margin: 0;
-    margin-top: -2px;
     outline: none;
   }
-}
-
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow:
-    0 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0 8px 10px 1px rgba(0, 0, 0, 0.14),
-    0 3px 14px 2px rgba(0, 0, 0, 0.12);
-}
-.cdk-drag-placeholder {
-  opacity: 0;
-}
-.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

@@ -1,20 +1,10 @@
 :host {
-  ::ng-deep .p-card.p-component {
+  sbb-card {
     height: 100%;
-  }
-
-  ::ng-deep .p-card-body {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .p-card-content {
-      height: 100%;
-    }
   }
 }
 
-input, textarea, p-inputnumber {
+input, textarea, sbb-input-number {
   width: 100%;
 }
 
@@ -91,9 +81,9 @@ form {
 .table-container {
   height: 100%;
   container: table / size;
-  min-height: 20rm;
+  min-height: 20rem;
 }
 
-p-card {
+sbb-card {
   height: 100%;
 }

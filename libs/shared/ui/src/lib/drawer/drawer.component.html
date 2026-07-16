@@ -1,0 +1,31 @@
+<ng-template #drawerTemplate>
+  <div
+    class="sbb-drawer"
+    [class.sbb-drawer--left]="position() === 'left'"
+    [class.sbb-drawer--right]="position() === 'right'"
+    [class.sbb-drawer--closing]="isClosing()"
+    [style.width]="width()"
+  >
+    @if (header() || closable()) {
+      <div class="sbb-drawer__header">
+        <h2 class="sbb-drawer__title">{{ header() }}</h2>
+        @if (closable()) {
+          <button
+            type="button"
+            class="sbb-drawer__close"
+            aria-label="Close"
+            (click)="requestClose()"
+          >
+            <span aria-hidden="true" style="pointer-events: none;">&times;</span>
+          </button>
+        }
+      </div>
+    }
+    <div class="sbb-drawer__body">
+      <ng-content></ng-content>
+    </div>
+    <div class="sbb-drawer__footer">
+      <ng-content select="[sbbDrawerFooter]"></ng-content>
+    </div>
+  </div>
+</ng-template>

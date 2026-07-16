@@ -56,7 +56,9 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-width: 360px;
+  // Definite, viewport-safe width so the popover is a stable size and the
+  // filter form fills it 100% (rather than shrink-wrapping to its content).
+  width: min(38rem, calc(100vw - 2rem));
 
   .filter-popover-title {
     margin: 0;
@@ -69,7 +71,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid var(--p-content-border-color);
+    border-top: 1px solid var(--sbb-border);
   }
 }
 

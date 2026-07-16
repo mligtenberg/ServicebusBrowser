@@ -1,0 +1,20 @@
+<div class="sbb-toast-stack">
+  @for (toast of toasts(); track toast.id) {
+    <div class="sbb-toast sbb-toast--{{ toast.severity }}" role="alert">
+      <div class="sbb-toast__content">
+        <p class="sbb-toast__summary">{{ toast.summary }}</p>
+        @if (toast.detail) {
+          <p class="sbb-toast__detail">{{ toast.detail }}</p>
+        }
+      </div>
+      <button
+        type="button"
+        class="sbb-toast__close"
+        aria-label="Dismiss notification"
+        (click)="dismiss(toast.id)"
+      >
+        <span aria-hidden="true" style="pointer-events: none;">&times;</span>
+      </button>
+    </div>
+  }
+</div>

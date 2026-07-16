@@ -1,0 +1,74 @@
+// SbbInputGroup styles.
+// Consumes the shared `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+//
+// The frame lives on the group (one border + radius on the host). Each child is
+// an equal-width slot separated by a left divider, and inner controls drop their
+// own border/background so the group's frame is the only one. This is
+// type-agnostic — no per-element special-casing needed to wrap/separate a
+// select, input, number, checkbox, button or custom form wrapper.
+
+:host {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: 2.5rem;
+  background: var(--sbb-surface-raised, #ffffff);
+  border: 1px solid var(--sbb-border, #cbd5e1);
+  border-radius: var(--sbb-radius, 4px);
+
+  &:focus-within {
+    outline: 2px solid var(--sbb-focus-ring, #0ea5e9);
+    outline-offset: -1px;
+  }
+
+  // Slots share the width equally; addons and the trailing button size to their
+  // content. `sbb-popover` has no box (display: contents) and is skipped.
+  ::ng-deep > * {
+    flex: 1 1 0;
+    min-width: 0;
+    background: transparent;
+  }
+  ::ng-deep > sbb-input-group-addon,
+  ::ng-deep > sbb-button {
+    flex: 0 0 auto;
+    padding: 0 0.5rem;
+  }
+
+  // Divider between slots.
+  ::ng-deep > *:not(:first-child):not(sbb-popover) {
+    border-left: 1px solid var(--sbb-border, #cbd5e1);
+  }
+
+  // A checkbox used as a value slot: left-aligned box with matching padding.
+  ::ng-deep > sbb-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+  }
+
+  // Inner controls fill their slot and drop their own chrome. Stretching the
+  // select's inner wrapper lets its (shorter) trigger fill the row, keeping its
+  // text vertically aligned with the inputs. The `&.sbb-input-group` anchor adds
+  // the specificity needed to beat each control's own border/background rules.
+  &.sbb-input-group ::ng-deep {
+    .sbb-select,
+    .sbb-select-trigger,
+    input.sbb-input,
+    input.sbb-input-number__field {
+      width: 100%;
+      height: 100%;
+    }
+
+    .sbb-select-trigger,
+    input.sbb-input,
+    input.sbb-input-number__field {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}

@@ -1,19 +1,21 @@
 import { Component, computed, effect, inject, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FloatLabel } from 'primeng/floatlabel';
-import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import {
   ConnectionsActions,
   ConnectionsSelectors,
 } from '@service-bus-browser/connections-store';
-import { ButtonDirective } from 'primeng/button';
 import {
   Connection,
   MessageQueueTargetType,
 } from '@service-bus-browser/api-contracts';
-import { Select } from 'primeng/select';
+import {
+  SbbButton,
+  SbbFloatLabel,
+  SbbInput,
+  SbbSelect,
+} from '@service-bus-browser/shared-ui';
 import { ServiceBusConnectionTargetComponent } from './connection-targets/service-bus/service-bus-connection-target.component';
 import { RabbitmqConnectionTargetComponent } from './connection-targets/rabbitmq/rabbitmq-connection-target.component';
 import { EventHubConnectionTargetComponent } from './connection-targets/event-hub/event-hub-connection-target.component';
@@ -22,11 +24,11 @@ import { EventHubConnectionTargetComponent } from './connection-targets/event-hu
   selector: 'lib-add-connection',
   imports: [
     CommonModule,
-    FloatLabel,
-    InputText,
     FormsModule,
-    ButtonDirective,
-    Select,
+    SbbButton,
+    SbbFloatLabel,
+    SbbInput,
+    SbbSelect,
     ServiceBusConnectionTargetComponent,
     RabbitmqConnectionTargetComponent,
     EventHubConnectionTargetComponent,

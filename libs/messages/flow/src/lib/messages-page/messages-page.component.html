@@ -35,82 +35,72 @@
           [ngClass]="{ 'dark-mode': !colorThemeService.lightMode() }"
         >
           <div
-            type="button"
             class="badge filtered"
             title="Filtered messages"
             aria-label="Filtered messages count"
-            pTooltip="Filtered messages count"
-            tooltipPosition="bottom"
+            [sbbTooltip]="'Filtered messages count'"
+            sbbTooltipPlacement="bottom"
           >
-            <i class="pi pi-search"></i>
+            <i class="fa-solid fa-magnifying-glass"></i>
             @if (filteredMessageCount() !== undefined) {
               <span class="count">{{ filteredMessageCount() | number }}</span>
               <span class="subtext"
                 >({{ filteredPercentage() | number: '1.1-1' }}%)</span
               >
             } @else {
-              <i class="pi pi-spin pi-spinner"></i>
+              <i class="fa-solid fa-spin fa-spinner"></i>
             }
           </div>
           <div
-            type="button"
             class="badge total"
             title="Total messages count"
             aria-label="Total messages count"
-            pTooltip="Total messages count"
-            tooltipPosition="bottom"
+            [sbbTooltip]="'Total messages count'"
+            sbbTooltipPlacement="bottom"
           >
-            <i class="pi pi-inbox"></i>
+            <i class="fa-solid fa-inbox"></i>
             @if (totalMessageCount() !== undefined) {
               <span class="count">{{ totalMessageCount() | number }}</span>
             } @else {
-              <i class="pi pi-spin pi-spinner"></i>
+              <i class="fa-solid fa-spin fa-spinner"></i>
             }
           </div>
         </div>
       </ng-template>
       <ng-template #messagesHeaderActions>
-        <p-menu
-          #menu
-          [model]="allMessagesMenu()"
-          [popup]="true"
-          appendTo="body"
-        />
-        <p-button
+        <sbb-menu #menu [model]="allMessagesMenu()" />
+        <sbb-button
           (click)="openFilterDialog()"
-          [icon]="hasActiveFilters() ? 'pi pi-filter-fill' : 'pi pi-filter'"
-          text="true"
+          [icon]="faFilter"
+          [iconOnly]="true"
+          variant="text"
+          [severity]="hasActiveFilters() ? 'primary' : 'secondary'"
         />
-        <p-button
-          (click)="menu.show($event)"
-          icon="pi pi-ellipsis-v"
-          text="true"
+        <sbb-button
+          (click)="menu.open($event)"
+          [icon]="faEllipsisVertical"
+          [iconOnly]="true"
+          variant="text"
         />
       </ng-template>
     </lib-messages-viewer>
   }
 </div>
 
-<p-dialog
+<sbb-dialog
   header="Send messages"
-  appendTo="body"
-  [(visible)]="displaySendMessages"
+  [(open)]="displaySendMessages"
   [modal]="true"
 >
-  <p-scroll-panel>
+  <sbb-scroll-panel>
     <sbb-tpl-endpoint-selector-tree-input [(ngModel)]="sendEndpoint" />
-  </p-scroll-panel>
-  <div class="actions">
-    <button
-      pButton
-      type="button"
-      [disabled]="!sendEndpoint()"
-      (click)="sendMessages()"
-    >
+  </sbb-scroll-panel>
+  <div sbbDialogFooter class="actions">
+    <sbb-button [disabled]="!sendEndpoint()" (click)="sendMessages()">
       Send
-    </button>
+    </sbb-button>
   </div>
-</p-dialog>
+</sbb-dialog>
 
 <lib-message-filter-editor
   [(visible)]="displayFilterEditor"
@@ -123,11 +113,7 @@
   [knownMessageAnnotations]="knownMessageAnnotations()"
 ></lib-message-filter-editor>
 
-<p-popover
-  #filterPopover
-  appendTo="body"
-  (onHide)="onFilterPopoverHide()"
->
+<sbb-popover #filterPopover (closed)="onFilterPopoverHide()">
   <div class="filter-popover-content">
     <h3 class="filter-popover-title">Add {{ filterSectionLabel() }} Filter</h3>
     @if (filterPopoverVisible()) {
@@ -151,17 +137,13 @@
       }
     }
     <div class="filter-popover-footer">
-      <p-button
-        label="Cancel"
+      <sbb-button
         severity="secondary"
-        icon="pi pi-times"
         (click)="cancelFilterPopover()"
-      ></p-button>
-      <p-button
-        label="Add Filter"
-        icon="pi pi-filter"
-        (click)="saveFilterPopover()"
-      ></p-button>
+      >
+        Cancel
+      </sbb-button>
+      <sbb-button (click)="saveFilterPopover()">Add Filter</sbb-button>
     </div>
   </div>
-</p-popover>
+</sbb-popover>

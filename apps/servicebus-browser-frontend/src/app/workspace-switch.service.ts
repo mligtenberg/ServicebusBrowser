@@ -23,7 +23,7 @@ export class WorkspaceSwitchService {
     await this.workspaceService.setActive(workspace);
     switchMessagesDbWorkspace(workspace.id);
     this.store.dispatch(messagePagesEffectActions.workspaceSwitched());
-    this.store.dispatch(pagesActions.loadPageOrderFromStorage({ orderOverrides: {} }));
+    this.store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
     this.store.dispatch(TopologyActions.loadTopologyRootNodes());
   }
 

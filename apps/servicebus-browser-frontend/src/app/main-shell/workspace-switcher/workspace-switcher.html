@@ -9,14 +9,14 @@
       {{ activeInitials() }}
     </span>
     <span class="ws-name">{{ ws.name }}</span>
-    <span class="pi pi-chevron-down ws-chevron"></span>
+    <fa-icon class="ws-chevron" [icon]="chevronIcon" aria-hidden="true"></fa-icon>
   }
 </button>
 
-<p-popover #op styleClass="ws-popover">
+<sbb-popover #op>
   <div class="ws-dropdown">
     <button class="ws-new-action" (click)="openCreateDialog()" type="button">
-      <span class="pi pi-plus"></span>
+      <fa-icon [icon]="plusIcon" aria-hidden="true"></fa-icon>
       New Workspace…
     </button>
 
@@ -32,11 +32,11 @@
         <button
           class="ws-action-btn"
           type="button"
-          pTooltip="Rename workspace"
-          tooltipPosition="top"
+          [sbbTooltip]="'Rename workspace'"
+          sbbTooltipPlacement="top"
           (click)="openRenameDialog()"
         >
-          <span class="pi pi-pencil"></span>
+          <fa-icon [icon]="pencilIcon" aria-hidden="true"></fa-icon>
         </button>
       </div>
     }
@@ -53,31 +53,23 @@
           <button
             class="ws-action-btn ws-action-btn--danger"
             type="button"
-            pTooltip="Delete workspace"
-            tooltipPosition="top"
+            [sbbTooltip]="'Delete workspace'"
+            sbbTooltipPlacement="top"
             (click)="$event.stopPropagation(); openDeleteDialog(ws)"
           >
-            <span class="pi pi-trash"></span>
+            <fa-icon [icon]="trashIcon" aria-hidden="true"></fa-icon>
           </button>
         </button>
       }
     }
   </div>
-</p-popover>
+</sbb-popover>
 
-<p-dialog
-  header="New Workspace"
-  [visible]="showCreateDialog()"
-  (visibleChange)="showCreateDialog.set($event)"
-  [modal]="true"
-  [style]="{ width: '360px' }"
-  [draggable]="false"
->
+<sbb-dialog header="New Workspace" [(open)]="showCreateDialog" [width]="'360px'">
   <div class="create-form">
     <label for="wsName" class="create-label">Workspace name</label>
-    <input
-      id="wsName"
-      pInputText
+    <sbb-input
+      inputId="wsName"
       type="text"
       placeholder="e.g. Production"
       [ngModel]="newWorkspaceName()"
@@ -86,34 +78,26 @@
       class="create-input"
     />
   </div>
-  <ng-template #footer>
-    <p-button
-      label="Cancel"
-      severity="secondary"
-      (click)="cancelCreate()"
-    />
-    <p-button
-      label="Create"
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelCreate()">Cancel</sbb-button>
+    <sbb-button
       [disabled]="!newWorkspaceName().trim() || creating()"
       [loading]="creating()"
       (click)="submitCreate()"
-    />
-  </ng-template>
-</p-dialog>
+    >Create</sbb-button>
+  </div>
+</sbb-dialog>
 
-<p-dialog
+<sbb-dialog
   header="Rename Workspace"
-  [visible]="showRenameDialog()"
-  (visibleChange)="!$event && cancelRename()"
-  [modal]="true"
-  [style]="{ width: '360px' }"
-  [draggable]="false"
+  [open]="showRenameDialog()"
+  (openChange)="onRenameDialogOpenChange($event)"
+  [width]="'360px'"
 >
   <div class="create-form">
     <label for="wsRenameName" class="create-label">Workspace name</label>
-    <input
-      id="wsRenameName"
-      pInputText
+    <sbb-input
+      inputId="wsRenameName"
       type="text"
       [ngModel]="renameWorkspaceName()"
       (ngModelChange)="renameWorkspaceName.set($event)"
@@ -121,54 +105,37 @@
       class="create-input"
     />
   </div>
-  <ng-template #footer>
-    <p-button
-      label="Cancel"
-      severity="secondary"
-      (click)="cancelRename()"
-    />
-    <p-button
-      label="Rename"
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelRename()">Cancel</sbb-button>
+    <sbb-button
       [disabled]="!renameWorkspaceName().trim() || renaming()"
       [loading]="renaming()"
       (click)="submitRename()"
-    />
-  </ng-template>
-</p-dialog>
+    >Rename</sbb-button>
+  </div>
+</sbb-dialog>
 
-<p-dialog
+<sbb-dialog
   header="Switch Workspace"
-  [visible]="showConfirmDialog()"
-  (visibleChange)="!$event && cancelSwitch()"
-  [modal]="true"
-  [style]="{ width: '420px' }"
-  [draggable]="false"
+  [open]="showConfirmDialog()"
+  (openChange)="onConfirmDialogOpenChange($event)"
+  [width]="'420px'"
 >
   <p class="confirm-text">
     One or more message loads are currently in progress. Switching workspaces
     will cancel all active loads. Do you want to continue?
   </p>
-  <ng-template #footer>
-    <p-button
-      label="Cancel"
-      severity="secondary"
-      (click)="cancelSwitch()"
-    />
-    <p-button
-      label="Continue"
-      severity="danger"
-      (click)="confirmSwitch()"
-    />
-  </ng-template>
-</p-dialog>
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelSwitch()">Cancel</sbb-button>
+    <sbb-button severity="danger" (click)="confirmSwitch()">Continue</sbb-button>
+  </div>
+</sbb-dialog>
 
-<p-dialog
+<sbb-dialog
   [header]="'Delete ' + (deleteTarget()?.name ?? 'Workspace')"
-  [visible]="showDeleteDialog()"
-  (visibleChange)="!$event && cancelDelete()"
-  [modal]="true"
-  [style]="{ width: '440px' }"
-  [draggable]="false"
+  [open]="showDeleteDialog()"
+  (openChange)="onDeleteDialogOpenChange($event)"
+  [width]="'440px'"
 >
   @if (deleteStats(); as stats) {
     <p class="confirm-text">
@@ -181,18 +148,13 @@
   } @else {
     <p class="confirm-text">Loading workspace details…</p>
   }
-  <ng-template #footer>
-    <p-button
-      label="Cancel"
-      severity="secondary"
-      (click)="cancelDelete()"
-    />
-    <p-button
-      label="Delete"
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelDelete()">Cancel</sbb-button>
+    <sbb-button
       severity="danger"
       [disabled]="!deleteStats() || deleting()"
       [loading]="deleting()"
       (click)="confirmDelete()"
-    />
-  </ng-template>
-</p-dialog>
+    >Delete</sbb-button>
+  </div>
+</sbb-dialog>

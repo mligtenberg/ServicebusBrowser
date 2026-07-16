@@ -1,0 +1,22 @@
+<div class="sbb-split-button">
+  <sbb-button
+    class="sbb-split-button__primary"
+    [severity]="severity()"
+    [icon]="icon()"
+    [disabled]="disabled()"
+    (click)="clicked.emit()"
+    >{{ label() }}</sbb-button
+  >
+
+  <sbb-button
+    class="sbb-split-button__toggle"
+    [severity]="severity()"
+    [icon]="caretIcon"
+    [iconOnly]="true"
+    [disabled]="disabled()"
+    aria-label="More actions"
+    (click)="menu.open($event)"
+  ></sbb-button>
+</div>
+
+<sbb-menu #menu [model]="model()" />

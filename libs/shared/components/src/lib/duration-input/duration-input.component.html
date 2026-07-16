@@ -1,41 +1,34 @@
 <form [formGroup]="form" [id]="inputId()">
-  <p-input-group>
+  <sbb-input-group>
     @if (!disableYears()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="years" formControlName="years" />
-        <label for="years">Years</label>
-      </p-floatlabel>
+      <sbb-float-label variant="on" label="Years" for="years">
+        <sbb-input-number id="years" formControlName="years"></sbb-input-number>
+      </sbb-float-label>
     }
     @if (!disableMonths()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="months" formControlName="months" />
-        <label for="months">Months</label>
-      </p-floatlabel>
-
+      <sbb-float-label variant="on" label="Months" for="months">
+        <sbb-input-number id="months" formControlName="months"></sbb-input-number>
+      </sbb-float-label>
     }
     @if (!disableDays()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="days" formControlName="days" />
-        <label for="days">Days</label>
-      </p-floatlabel>
+      <sbb-float-label variant="on" label="Days" for="days">
+        <sbb-input-number id="days" formControlName="days"></sbb-input-number>
+      </sbb-float-label>
     }
     @if (!disableHours()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="hours" formControlName="hours" />
-        <label for="hours">Hours</label>
-      </p-floatlabel>
+      <sbb-float-label variant="on" label="Hours" for="hours">
+        <sbb-input-number id="hours" formControlName="hours"></sbb-input-number>
+      </sbb-float-label>
     }
     @if (!disableMinutes()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="minutes" formControlName="minutes" />
-        <label for="minutes">Minutes</label>
-      </p-floatlabel>
+      <sbb-float-label variant="on" label="Minutes" for="minutes">
+        <sbb-input-number id="minutes" formControlName="minutes"></sbb-input-number>
+      </sbb-float-label>
     }
     @if (!disableSeconds()) {
-      <p-floatlabel variant="on">
-        <p-input-number inputId="seconds" formControlName="seconds" />
-        <label for="seconds">Seconds</label>
-      </p-floatlabel>
+      <sbb-float-label variant="on" label="Seconds" for="seconds">
+        <sbb-input-number id="seconds" formControlName="seconds"></sbb-input-number>
+      </sbb-float-label>
     }
-  </p-input-group>
+  </sbb-input-group>
 </form>

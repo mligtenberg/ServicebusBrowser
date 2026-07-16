@@ -1,15 +1,14 @@
 import { Component, inject, input } from '@angular/core';
-import { Button } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SbbButton, SbbDialogRef } from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'sbb-confirmation-dialog-body',
-  imports: [Button],
+  imports: [SbbButton],
   templateUrl: './confirmation-dialog-body.html',
   styleUrl: './confirmation-dialog-body.scss',
 })
 export class ConfirmationDialogBody {
-  dialogRef = inject(DynamicDialogRef);
+  dialogRef = inject<SbbDialogRef<boolean>>(SbbDialogRef);
 
   message = input.required<string>();
   okLabel = input('confirm');

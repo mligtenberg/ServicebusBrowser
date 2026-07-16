@@ -25,26 +25,26 @@ describe('LogLineComponent', () => {
   it('returns correct color for info', () => {
     host.log = { ...host.log, severity: 'info' };
     fixture.detectChanges();
-    expect(component.logLineColor()).toBe('var(--p-blue-400)');
+    expect(component.logLineColor()).toBe('var(--sbb-info)');
   });
   it('returns correct color for warn', () => {
     host.log = { ...host.log, severity: 'warn' };
     fixture.detectChanges();
-    expect(component.logLineColor()).toBe('var(--p-amber-500)');
+    expect(component.logLineColor()).toBe('var(--sbb-warning)');
   });
   it('returns correct color for error', () => {
     host.log = { ...host.log, severity: 'error' };
     fixture.detectChanges();
-    expect(component.logLineColor()).toBe('var(--p-red-400)');
+    expect(component.logLineColor()).toBe('var(--sbb-danger)');
   });
   it('returns correct color for critical', () => {
     host.log = { ...host.log, severity: 'critical' };
     fixture.detectChanges();
-    expect(component.logLineColor()).toBe('var(--p-red-900)');
+    expect(component.logLineColor()).toBe('var(--sbb-danger)');
   });
   it('returns default color otherwise', () => {
     host.log = { ...host.log, severity: 'verbose' };
     fixture.detectChanges();
-    expect(component.logLineColor()).toBe('var(--p-slate-400)');
+    expect(component.logLineColor()).toBe('var(--sbb-text-muted)');
   });
 });

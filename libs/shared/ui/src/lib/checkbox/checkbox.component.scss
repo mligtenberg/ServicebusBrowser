@@ -1,0 +1,96 @@
+// SbbCheckbox — styled checkbox on a native <button role="checkbox">.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks are declared so the component renders correctly even if the
+// global sheet is not yet loaded. Sizing mirrors the current checkbox
+// (`p-checkbox`, 1.25rem x 1.25rem box) for visual parity.
+//
+// The visual box is a dedicated <span class="sbb-checkbox__box"> inside the
+// button. Its checked/indeterminate state is driven directly by Angular signal
+// class bindings in the template, not by CSS attribute selectors.
+
+:host {
+  --sbb-checkbox-size: 1.25rem;
+
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-text-muted-local: var(--sbb-text-muted, #64748b);
+  --sbb-primary-local: var(--sbb-primary, #0ea5e9);
+  --sbb-border-local: var(--sbb-border, #e2e8f0);
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #ffffff);
+  --sbb-focus-ring-local: var(--sbb-focus-ring, var(--sbb-primary-local));
+  --sbb-radius-local: calc(var(--sbb-radius, 0.375rem) / 1.5);
+
+  display: inline-block;
+}
+
+// The label wrapper — makes the whole thing clickable
+.sbb-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--sbb-text-local);
+
+  &--disabled {
+    cursor: not-allowed;
+    color: var(--sbb-text-muted-local);
+  }
+}
+
+.sbb-checkbox__control {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: inherit;
+}
+
+// The actual visual box — a dedicated <span> inside the control button.
+.sbb-checkbox__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sbb-checkbox-size);
+  height: var(--sbb-checkbox-size);
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border: 1px solid var(--sbb-border-local);
+  border-radius: var(--sbb-radius-local);
+  background-color: var(--sbb-surface-raised-local);
+  color: var(--sbb-on-primary, #ffffff);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  pointer-events: none; // clicks are handled by the button above
+
+  &--checked,
+  &--indeterminate {
+    background-color: var(--sbb-primary-local);
+    border-color: var(--sbb-primary-local);
+  }
+}
+
+// Focus ring — target the box when the control button is focused
+.sbb-checkbox__control:focus-visible .sbb-checkbox__box {
+  box-shadow: 0 0 0 2px var(--sbb-surface-raised-local), 0 0 0 4px var(--sbb-focus-ring-local);
+}
+
+.sbb-checkbox__control:disabled .sbb-checkbox__box {
+  opacity: 0.5;
+}
+
+// The icon SVG rendered inside the box
+.sbb-checkbox__icon {
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  box-sizing: border-box;
+  display: block;
+}
+
+// Optional text label alongside the checkbox
+.sbb-checkbox__label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

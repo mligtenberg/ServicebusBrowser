@@ -1,0 +1,14 @@
+<input
+  class="sbb-input-number__field"
+  type="number"
+  [id]="inputId()"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.min]="min() ?? null"
+  [attr.max]="max() ?? null"
+  [step]="step()"
+  [placeholder]="placeholder() ?? ''"
+  [disabled]="disabledState()"
+  [value]="value() ?? ''"
+  (input)="onInput($any($event.target).value)"
+  (blur)="onBlur()"
+/>

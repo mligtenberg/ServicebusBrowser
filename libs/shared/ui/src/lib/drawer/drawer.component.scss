@@ -1,0 +1,144 @@
+// Edge-anchored, full-height panel chrome. Mirrors the dialog chrome tokens so
+// drawers and dialogs read as one family. The overlay pane is positioned by a
+// CDK global position strategy (see SbbDrawer); the panel itself is stretched
+// to the viewport height here.
+//
+// ponytail: no slide-in animation — CDK Dialog attaches the pane already-open.
+// Add a class-toggle-after-attach transform transition if the jump bothers.
+
+.sbb-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 90vw;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--sbb-text);
+  background-color: var(--sbb-surface-raised);
+  border: 1px solid var(--sbb-border);
+  box-shadow: var(--sbb-shadow-overlay);
+
+  &.sbb-drawer--left {
+    animation: sbb-drawer-fly-in-left var(--sbb-transition-duration-slow) var(--sbb-transition-ease);
+  }
+
+  &.sbb-drawer--right {
+    animation: sbb-drawer-fly-in-right var(--sbb-transition-duration-slow) var(--sbb-transition-ease);
+  }
+
+  &.sbb-drawer--closing {
+    &.sbb-drawer--left {
+      animation: sbb-drawer-fly-out-left var(--sbb-transition-duration-slow) var(--sbb-transition-ease) forwards;
+    }
+
+    &.sbb-drawer--right {
+      animation: sbb-drawer-fly-out-right var(--sbb-transition-duration-slow) var(--sbb-transition-ease) forwards;
+    }
+  }
+}
+
+@keyframes sbb-drawer-fly-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sbb-drawer-fly-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sbb-drawer-fly-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes sbb-drawer-fly-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.sbb-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sbb-border);
+}
+
+.sbb-drawer__title {
+  flex: 1 1 auto;
+  margin: 0;
+  min-width: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.sbb-drawer__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--sbb-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--sbb-radius);
+  cursor: pointer;
+  user-select: none;
+  -webkit-app-region: no-drag;
+
+  span {
+    pointer-events: none;
+  }
+
+  &:hover {
+    color: var(--sbb-text);
+    background-color: var(--sbb-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sbb-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.sbb-drawer__body {
+  flex: 1 1 auto;
+  padding: 1.25rem;
+  overflow: auto;
+}
+
+.sbb-drawer__footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--sbb-border);
+
+  &:empty {
+    display: none;
+  }
+}

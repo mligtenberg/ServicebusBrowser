@@ -16,10 +16,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { ContextMenu } from 'primeng/contextmenu';
-import { DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
-import { MenuItem, PrimeTemplate } from 'primeng/api';
-import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -29,45 +26,64 @@ import { getMessagesRepository } from '@service-bus-browser/messages-db';
 // FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
 getMessagesRepository().then((r) => (repository = r));
-import { Paginator, PaginatorState } from 'primeng/paginator';
 import { BodyViewer } from '../body-viewer/body-viewer';
 import { EditorContextAction } from '@service-bus-browser/shared-components';
 import { MessageModificationAction } from '@service-bus-browser/message-modification-engine';
-import { Splitter } from 'primeng/splitter';
-import { ScrollPanel } from 'primeng/scrollpanel';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
-import { Popover } from 'primeng/popover';
-import { Select } from 'primeng/select';
-import { Button } from 'primeng/button';
 import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+  SbbButton,
+  SbbColumn,
+  SbbContextMenu,
+  SbbDataGrid,
+  SbbLazyLoadEvent,
+  SbbMenuItem,
+  SbbPopover,
+  SbbReorderableList,
+  SbbReorderableListHandle,
+  SbbReorderableListItemDef,
+  SbbReorderableListReorderEvent,
+  SbbScrollPanel,
+  SbbSelect,
+  SbbSelectOptionGroup,
+  SbbSplitter,
+  SbbSplitterPanel,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import {
+  faBars,
+  faPlus,
+  faTableCells,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 
+/** Lazy-load window requested by the viewer (absolute row indices). */
+export interface MessagesLazyLoad {
+  first: number;
+  last: number;
+  rows: number;
+}
 
 @Component({
   selector: 'lib-messages-viewer',
   imports: [
-    ContextMenu,
-    PrimeTemplate,
-    TableModule,
     FormsModule,
     NgTemplateOutlet,
-    Paginator,
-    BodyViewer,
     DatePipe,
-    Splitter,
-    ScrollPanel,
-    NgClass,
-    Popover,
-    Select,
-    Button,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
+    BodyViewer,
+    SbbDataGrid,
+    SbbContextMenu,
+    SbbSplitter,
+    SbbSplitterPanel,
+    SbbScrollPanel,
+    SbbPopover,
+    SbbSelect,
+    SbbButton,
+    SbbTooltip,
+    FaIconComponent,
+    SbbReorderableList,
+    SbbReorderableListItemDef,
+    SbbReorderableListHandle,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
@@ -77,7 +93,11 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   protected resizeObserver?: ResizeObserver;
   private rangeAnchorIndex: number | null = null;
   protected pendingRange = signal<{ from: number; to: number } | null>(null);
-  private suppressIncomingSelectionChange = false;
+
+  protected readonly faTableCells = faTableCells;
+  protected readonly faPlus = faPlus;
+  protected readonly faXmark = faXmark;
+  protected readonly faBars = faBars;
 
   protected showTableLoading = computed(
     () => this.isLoading() || this.pendingRange() !== null,
@@ -87,8 +107,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   messagesHeader = contentChild('messagesHeader', { read: TemplateRef });
   messagesHeaderStatus = contentChild('messagesHeaderStatus', { read: TemplateRef });
   messagesHeaderActions = contentChild('messagesHeaderActions', { read: TemplateRef });
-  messagesTable = viewChild.required('messagesTable', { read: Table });
-  messagesPaginator = viewChild('messagesPaginator', { read: Paginator });
+  messagesGrid = viewChild<SbbDataGrid<ReceivedMessage>>('messagesGrid');
   container = viewChild.required('container', { read: ElementRef });
 
   // inputs
@@ -97,12 +116,12 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   isLoading = input<boolean>(false);
 
   pageId = input.required<UUID>();
-  messagesContextMenu = input<MenuItem[]>([]);
-  applicationPropertiesContextMenu = input<MenuItem[]>([]);
-  headersContextMenu = input<MenuItem[]>([]);
-  propertiesContextMenu = input<MenuItem[]>([]);
-  deliveryAnnotationsContextMenu = input<MenuItem[]>([]);
-  messageAnnotationsContextMenu = input<MenuItem[]>([]);
+  messagesContextMenu = input<SbbMenuItem<ReceivedMessage>[]>([]);
+  applicationPropertiesContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
+  headersContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
+  propertiesContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
+  deliveryAnnotationsContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
+  messageAnnotationsContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
 
   messages = input.required<ReceivedMessage[]>();
   bodyContextActions = input<EditorContextAction[]>([]);
@@ -113,28 +132,17 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   sendMode = input<boolean>(false);
   // Force the stacked (narrow) layout regardless of available width.
   forceNarrow = input<boolean>(false);
-  maxMessagesPerPage = input<number>(100000);
   containerWidth = signal<number>(0);
 
   selection = model<string | string[]>();
-  headersContextMenuSelection = model<
-    { key: string; value: unknown } | undefined
-  >(undefined);
-  propertiesContextMenuSelection = model<
-    { key: string; value: unknown } | undefined
-  >(undefined);
-  deliveryAnnotationsContextMenuSelection = model<
-    { key: string; value: unknown } | undefined
-  >(undefined);
-  messageAnnotationsContextMenuSelection = model<
-    { key: string; value: unknown } | undefined
-  >(undefined);
-  applicationPropertiesContextMenuSelection = model<
-    { key: string; value: unknown } | undefined
-  >(undefined);
+  headersContextMenuSelection = model<PropertyRow | undefined>(undefined);
+  propertiesContextMenuSelection = model<PropertyRow | undefined>(undefined);
+  deliveryAnnotationsContextMenuSelection = model<PropertyRow | undefined>(undefined);
+  messageAnnotationsContextMenuSelection = model<PropertyRow | undefined>(undefined);
+  applicationPropertiesContextMenuSelection = model<PropertyRow | undefined>(undefined);
   isResizing = signal(false);
 
-  lazyLoadTriggered = output<TableLazyLoadEvent>();
+  lazyLoadTriggered = output<MessagesLazyLoad>();
 
   selectedMessage = toSignal(
     combineLatest([
@@ -163,19 +171,13 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     ),
   );
 
-  currentPageNumber = signal(1);
-
-  usePagination = computed(
-    () => this.messages().length > this.maxMessagesPerPage(),
-  );
-  currentPageMessages = computed(() => {
-    const currentPageIndex = this.currentPageNumber() - 1;
-    const maxMessagesPerPage = this.maxMessagesPerPage();
-
-    const startIndex = currentPageIndex * maxMessagesPerPage;
-    const endIndex = startIndex + maxMessagesPerPage;
-
-    return this.messages().slice(startIndex, endIndex);
+  /** Selected message keys as a plain array (empty when nothing selected). */
+  protected selectionKeys = computed<string[]>(() => {
+    const selection = this.selection();
+    if (selection === undefined || selection === null) {
+      return [];
+    }
+    return Array.isArray(selection) ? selection : [selection];
   });
 
   showMessageContextMenu = computed(
@@ -203,70 +205,50 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     return selection;
   });
 
-  headers = computed<Array<{ key: string; value: unknown }>>(() => {
+  headers = computed<PropertyRow[]>(() => {
     const headers = this.selectedMessage()?.headers;
 
     if (!headers) {
       return [];
     }
 
-    return Object.entries(headers).map(([key, value]) => ({
-      key,
-      label: key,
-      value,
-    }));
+    return Object.entries(headers).map(([key, value]) => ({ key, value }));
   });
-  properties = computed<Array<{ key: string; value: unknown }>>(() => {
+  properties = computed<PropertyRow[]>(() => {
     const properties = this.selectedMessage()?.properties;
 
     if (!properties) {
       return [];
     }
 
-    return Object.entries(properties).map(([key, value]) => ({
-      key,
-      label: key,
-      value,
-    }));
+    return Object.entries(properties).map(([key, value]) => ({ key, value }));
   });
-  deliveryAnnotations = computed<Array<{ key: string; value: unknown }>>(() => {
+  deliveryAnnotations = computed<PropertyRow[]>(() => {
     const deliveryAnnotations = this.selectedMessage()?.deliveryAnnotations;
 
     if (!deliveryAnnotations) {
       return [];
     }
 
-    return Object.entries(deliveryAnnotations).map(([key, value]) => ({
-      key,
-      label: key,
-      value,
-    }));
+    return Object.entries(deliveryAnnotations).map(([key, value]) => ({ key, value }));
   });
-  messageAnnotations = computed<Array<{ key: string; value: unknown }>>(() => {
+  messageAnnotations = computed<PropertyRow[]>(() => {
     const messageAnnotations = this.selectedMessage()?.messageAnnotations;
 
     if (!messageAnnotations) {
       return [];
     }
 
-    return Object.entries(messageAnnotations).map(([key, value]) => ({
-      key,
-      label: key,
-      value,
-    }));
+    return Object.entries(messageAnnotations).map(([key, value]) => ({ key, value }));
   });
-  applicationProperties = computed(() => {
+  applicationProperties = computed<PropertyRow[]>(() => {
     const applicationProperties = this.selectedMessage()?.applicationProperties;
 
     if (!applicationProperties) {
       return [];
     }
 
-    return Object.entries(applicationProperties).map(([key, value]) => ({
-      key,
-      label: key,
-      value,
-    }));
+    return Object.entries(applicationProperties).map(([key, value]) => ({ key, value }));
   });
 
   // statics
@@ -345,6 +327,17 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       .filter((col): col is { field: string; header: string } => !!col);
   });
 
+  /** Column defs consumed by the data grid. */
+  gridColumns = computed<SbbColumn<ReceivedMessage>[]>(() =>
+    this.cols().map((col) => ({
+      field: col.field,
+      header: col.header,
+      sortable: false,
+      width: '20%',
+      value: (row: ReceivedMessage) => this.getField(row, col.field),
+    })),
+  );
+
   propertiesCols = [
     { field: 'label', header: 'Key' },
     { field: 'value', header: 'Value' },
@@ -357,20 +350,21 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     );
   });
 
-  optionsForRow(index: number) {
+  /** Grouped select options for the column picker row at `index`. */
+  columnOptionsForRow(index: number): SbbSelectOptionGroup<string>[] {
     const fields = this.selectedColumnFields();
     const currentField = fields[index];
-    const usedElsewhere = new Set(
-      fields.filter((_, i) => i !== index),
-    );
+    const usedElsewhere = new Set(fields.filter((_, i) => i !== index));
     return this.availableColumnGroups()
       .map((g) => ({
-        ...g,
-        items: g.items.filter(
-          (it) => it.field === currentField || !usedElsewhere.has(it.field),
-        ),
+        label: g.label,
+        options: g.items
+          .filter(
+            (it) => it.field === currentField || !usedElsewhere.has(it.field),
+          )
+          .map((it) => ({ label: it.header, value: it.field })),
       }))
-      .filter((g) => g.items.length > 0);
+      .filter((g) => g.options.length > 0);
   }
 
   protected addColumn() {
@@ -400,16 +394,18 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     );
   }
 
-  protected dropColumn(event: CdkDragDrop<string[]>) {
-    if (event.previousIndex === event.currentIndex) {
-      return;
-    }
+  protected dropColumn(event: SbbReorderableListReorderEvent) {
+    const { previousIndex, currentIndex } = event;
     this.selectedColumnFields.update((f) => {
       const arr = [...f];
-      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      const [moved] = arr.splice(previousIndex, 1);
+      arr.splice(currentIndex, 0, moved);
       return arr;
     });
   }
+
+  protected readonly trackByKey = (row: ReceivedMessage, index: number) =>
+    row?.key ?? index;
 
   constructor() {
     effect((onCleanup) => {
@@ -440,11 +436,6 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       repository.setVisibleColumns(pageId, fields).catch(() => {
         // ignore persistence errors
       });
-    });
-
-    effect(() => {
-      this.currentPageNumber();
-      this.messagesTable().reset();
     });
 
     // Finalize a pending range selection once the table data has been
@@ -483,80 +474,84 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   }
 
   reset() {
-    this.messagesTable().reset();
-    this.currentPageNumber.set(1);
-    this.messagesPaginator()?.changePage(0);
+    this.messagesGrid()?.resetLazyState();
+    this.messagesGrid()?.scrollToIndex(0);
   }
 
-  protected onSelectionChange($event: (string | ReceivedMessage)[] | string) {
-    if (this.pendingRange() !== null || this.suppressIncomingSelectionChange) {
+  /** Single-select mode: reflect the grid's own selection back into the model. */
+  protected onGridSelectionChange(ids: readonly unknown[]) {
+    if (this.multiselect()) {
       return;
     }
-
-    if (typeof $event === 'string') {
-      this.selection.set($event);
-      return;
-    }
-
-    if ($event.some((e) => !e)) {
-      return;
-    }
-
-    const selection = $event
-      .map((e) => (typeof e === 'string' ? e : (e.sequence ?? '')))
-      .filter((e) => e !== '')
-      // Distinct messages by sequence number
-      .filter((e, i, arr) => arr.indexOf(e) === i);
-
-    this.selection.set(selection);
-    setTimeout(() => this.cdRef.detectChanges(), 100);
+    this.selection.set((ids[0] as string) ?? undefined);
   }
 
-  protected onRowMouseDown(event: MouseEvent) {
-    if (event.shiftKey && this.multiselect()) {
-      event.preventDefault();
-      // Set BEFORE PrimeNG's click handler runs so its synchronous
-      // selectionChange (which only sees the currently rendered subset of the
-      // range) gets ignored.
-      this.suppressIncomingSelectionChange = true;
+  protected onGridRowMouseDown(payload: {
+    event: MouseEvent;
+    row: ReceivedMessage | null;
+    index: number;
+  }) {
+    if (payload.event.shiftKey && this.multiselect()) {
+      // Avoid the browser's native text selection during a shift-range drag.
+      payload.event.preventDefault();
     }
   }
 
-  protected onRowClick(event: MouseEvent, rowIndex: number) {
+  protected onGridRowClick(payload: {
+    event: MouseEvent;
+    row: ReceivedMessage | null;
+    index: number;
+  }) {
     if (!this.multiselect()) {
-      this.suppressIncomingSelectionChange = false;
+      // Single-select is handled by the grid's own selection + selectionChange.
       return;
     }
 
-    const offset =
-      (this.currentPageNumber() - 1) * this.maxMessagesPerPage();
-    const absoluteIndex = offset + rowIndex;
+    const { event, row, index } = payload;
+    const absoluteIndex = index;
 
-    if (!event.shiftKey) {
-      this.rangeAnchorIndex = absoluteIndex;
-      this.suppressIncomingSelectionChange = false;
+    if (event.shiftKey && this.rangeAnchorIndex !== null) {
+      event.preventDefault();
+      event.stopPropagation();
+      const fromIdx = Math.min(this.rangeAnchorIndex, absoluteIndex);
+      const toIdx = Math.max(this.rangeAnchorIndex, absoluteIndex);
+      this.startRangeSelection(fromIdx, toIdx);
       return;
     }
 
-    if (this.rangeAnchorIndex === null) {
-      this.rangeAnchorIndex = absoluteIndex;
-      this.suppressIncomingSelectionChange = false;
+    this.rangeAnchorIndex = absoluteIndex;
+    const key = row?.key;
+    if (!key) {
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
+    const current = this.selectionKeys();
+    if (event.ctrlKey || event.metaKey) {
+      const next = current.includes(key)
+        ? current.filter((k) => k !== key)
+        : [...current, key];
+      this.selection.set(next);
+    } else {
+      this.selection.set([key]);
+    }
+  }
 
-    const fromIdx = Math.min(this.rangeAnchorIndex, absoluteIndex);
-    const toIdx = Math.max(this.rangeAnchorIndex, absoluteIndex);
-    this.startRangeSelection(fromIdx, toIdx);
+  /** Right-click on a message row: join it to the selection, then open menu. */
+  protected onMessageContextMenu(row: ReceivedMessage) {
+    if (!row?.key) {
+      return;
+    }
+    if (this.multiselect()) {
+      const current = this.selectionKeys();
+      if (!current.includes(row.key)) {
+        this.selection.set([...current, row.key]);
+      }
+    } else {
+      this.selection.set(row.key);
+    }
   }
 
   private startRangeSelection(absoluteFrom: number, absoluteTo: number) {
-    // Hand off from click-event suppression to the long-lived pendingRange
-    // flag (used as the "multiselect ongoing" indicator).
-    this.suppressIncomingSelectionChange = false;
-
     const messages = this.messages();
     let needsLoad = false;
     for (let i = absoluteFrom; i <= absoluteTo; i++) {
@@ -572,17 +567,15 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Mark multiselect as ongoing so any selectionChange events triggered by
-    // the upcoming table refresh are ignored. The constructor effect will
-    // finalize the selection as soon as messages() reports every row in the
-    // range as loaded.
+    // Mark multiselect as ongoing; the constructor effect will finalize the
+    // selection as soon as messages() reports every row in the range as loaded.
     this.pendingRange.set({ from: absoluteFrom, to: absoluteTo });
 
     this.lazyLoadTriggered.emit({
       first: absoluteFrom,
       last: absoluteTo + 1,
       rows: absoluteTo - absoluteFrom + 1,
-    } as TableLazyLoadEvent);
+    });
   }
 
   private finalizeRangeSelection(
@@ -598,28 +591,17 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       }
     }
 
-    // Clear the flag before we set the selection so the resulting model
-    // emission is allowed through onSelectionChange downstream paths.
     this.pendingRange.set(null);
     this.selection.set(keys);
     this.cdRef.detectChanges();
   }
 
-  protected onLazyLoad($event: TableLazyLoadEvent) {
-    const previousPagesMessagesCount =
-      (this.currentPageNumber() - 1) * this.maxMessagesPerPage();
-    $event = {
-      ...$event,
-      first: previousPagesMessagesCount + ($event.first ?? 0),
-      last: previousPagesMessagesCount + ($event.last ?? 0),
-    };
-
-    this.lazyLoadTriggered?.emit($event);
-  }
-
-  protected setPage($event: PaginatorState) {
-    this.currentPageNumber.set(($event.page ?? 0) + 1);
-    this.messagesTable().scrollToVirtualIndex(0);
+  protected onGridLazyLoad($event: SbbLazyLoadEvent) {
+    this.lazyLoadTriggered.emit({
+      first: $event.first,
+      last: $event.last,
+      rows: $event.rows,
+    });
   }
 
   protected dateGuard(value: unknown): value is Date {
@@ -628,6 +610,10 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
 
   protected onResize() {
     this.cdRef.detectChanges();
+  }
+
+  protected toggleColumnPicker(popover: SbbPopover, event: Event) {
+    popover.toggle(event.currentTarget as HTMLElement);
   }
 
   getField(data: unknown, field: string) {
@@ -646,6 +632,12 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   }
 
   protected readonly Date = Date;
+}
+
+/** Key/value row shown in the message property side tables. */
+interface PropertyRow {
+  key: string;
+  value: unknown;
 }
 
 export default MessagesViewer;

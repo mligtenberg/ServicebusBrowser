@@ -9,10 +9,16 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Tree, TreeNodeCollapseEvent, TreeNodeExpandEvent } from 'primeng/tree';
-import { PrimeTemplate, TreeNode } from 'primeng/api';
+import {
+  SbbAutocomplete,
+  SbbAutocompleteGroup,
+  SbbAutocompleteGroupLabelDef,
+  SbbAutocompleteItemDef,
+  SbbTree,
+  SbbTreeNode,
+  SbbTreeNodeDef,
+} from '@service-bus-browser/shared-ui';
 import { Store } from '@ngrx/store';
 import { TopologySelectors } from '@service-bus-browser/topology-store';
 import { GenericTreeNodeComponent } from '../generic-tree-node/generic-tree-node.component';
@@ -30,7 +36,6 @@ import { ConfirmationService } from '@service-bus-browser/shared-components';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, Subject } from 'rxjs';
-import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 import {
   EMPTY_QUERY,
   EXCLUDED_TAG_TYPES,
@@ -44,23 +49,32 @@ import {
   SuggestionItem,
 } from '../search/search-query.model';
 
+/**
+ * View-model node handed to {@link SbbTree}. `id` is the topology `path`; the
+ * `data` payload rides along for the node template. `placeholder` nodes are the
+ * synthetic "No topology found" rows shown under a childless root.
+ */
+interface TopologyTreeNode extends SbbTreeNode {
+  id: string;
+  data?: TopologyNode;
+  placeholder?: boolean;
+  selectable?: boolean;
+}
+
 @Component({
   selector: 'sbb-tpl-topology-tree',
   imports: [
-    CommonModule,
     FormsModule,
-    Tree,
-    PrimeTemplate,
+    SbbTree,
+    SbbTreeNodeDef,
+    SbbAutocomplete,
+    SbbAutocompleteItemDef,
+    SbbAutocompleteGroupLabelDef,
     GenericTreeNodeComponent,
     ReceiveMessagesDialog,
-    AutoComplete,
   ],
   templateUrl: './topology-tree.component.html',
   styleUrl: './topology-tree.component.scss',
-  host: {
-    '(document:keydown)': 'onKeyDown($event)',
-    '(document:keyup)': 'onKeyUp($event)',
-  },
 })
 export class TopologyTreeComponent {
   store = inject(Store);
@@ -71,19 +85,11 @@ export class TopologyTreeComponent {
   selectionMode = input<'actions' | 'send'>('actions');
   sendEndpointSelected = output<SendEndpoint>();
 
-  treeSelection = signal<TreeNode<TopologyNode>[]>([]);
-  shiftSelected = signal<boolean>(false);
+  treeSelection = signal<TopologyTreeNode[]>([]);
 
   selectedReceiveEndpoint = model<ReceiveEndpoint | undefined>(undefined);
 
   multiSelectEnabled = computed(() => this.selectionMode() === 'actions');
-  treeSelectionMode = computed<'single' | 'multiple'>(() => {
-    if (!this.multiSelectEnabled()) {
-      return 'single';
-    }
-
-    return this.shiftSelected() ? 'multiple' : 'single';
-  });
   nodeSelectionMode = computed<'actions' | 'send' | 'none'>(() => {
     if (this.treeSelection().length > 1) {
       return 'none';
@@ -108,6 +114,9 @@ export class TopologyTreeComponent {
    */
   searchInputText = signal('');
 
+  /** Text bound to the autocomplete input; set to '' to clear it after a chip is added. */
+  autocompleteText = signal<string>('');
+
   // Debounced free-text term (~150 ms) — used for actual tree filtering
   private readonly freeText$ = new Subject<string>();
   debouncedFreeText = toSignal(
@@ -124,16 +133,30 @@ export class TopologyTreeComponent {
     freeText: this.debouncedFreeText(),
   }));
 
-  // The autocomplete value binding — we only ever use the chip model internally;
-  // PrimeNG multiple mode needs the chip objects bound, so we bind currentChips.
-  // We use a fake ngModel value (not chips) since our chips are managed manually.
-  autocompleteValue = signal<SuggestionItem[]>([]);
-
   // ── Suggestion state ──────────────────────────────────────────────────────
 
   suggestions = signal<SuggestionGroup[]>([]);
 
+  /** Adapts SuggestionGroup → SbbAutocompleteGroup for the SbbAutocomplete input. */
+  protected suggestionGroups = computed<SbbAutocompleteGroup<SuggestionItem>[]>(
+    () => this.suggestions().map((g) => ({ label: g.groupLabel, items: g.items })),
+  );
+
   opened = signal<string[]>([]);
+
+  /**
+   * Restricts shift-range selection to nodes of the same topology type
+   * (SbbTree evaluates this against the just-clicked node). Replaces the old
+   * hand-rolled same-type range logic.
+   */
+  protected readonly rangeFilter = (
+    candidate: TopologyTreeNode,
+    clicked: TopologyTreeNode,
+  ): boolean => candidate.data?.type === clicked.data?.type;
+
+  /** Narrows the base `SbbTreeNode` handed to the node template back to our view-model. */
+  protected readonly asTreeNode = (node: SbbTreeNode): TopologyTreeNode =>
+    node as TopologyTreeNode;
 
   // ── Stage 1: selectability filter ────────────────────────────────────────
 
@@ -183,15 +206,14 @@ export class TopologyTreeComponent {
 
   // ── Stage 2: chip + free-text filter ─────────────────────────────────────
 
-  treeNodes = computed<TreeNode<TopologyNode>[]>(() => {
+  treeNodes = computed<TopologyTreeNode[]>(() => {
     const chips = this.searchQuery().chips;
     const term = this.debouncedFreeText().trim().toLowerCase();
     const isFilterActive = chips.length > 0 || term !== '';
-    const opened = this.opened();
 
     if (!isFilterActive) {
       return this.selectabilityFilteredNodes().map((node) =>
-        this.toTreeNode(node, false, opened),
+        this.toTreeNode(node),
       );
     }
 
@@ -270,7 +292,7 @@ export class TopologyTreeComponent {
     // Build filtered tree: keep matched nodes (full subtree) and ancestors
     const buildFilteredTree = (
       node: TopologyNode,
-    ): TreeNode<TopologyNode> | null => {
+    ): TopologyTreeNode | null => {
       const selfMatches = matchedPaths.has(node.path);
       const isAncestor = ancestorPaths.has(node.path);
 
@@ -279,27 +301,25 @@ export class TopologyTreeComponent {
       }
 
       if (selfMatches) {
-        return this.toTreeNode(node, true, opened);
+        return this.toTreeNode(node);
       }
 
-      // Ancestor: filter children, force expanded
+      // Ancestor: keep only the surviving children.
       const filteredChildren = (node.children ?? [])
         .map(buildFilteredTree)
-        .filter((n): n is TreeNode<TopologyNode> => n !== null);
+        .filter((n): n is TopologyTreeNode => n !== null);
 
       return {
-        key: node.path,
+        id: node.path,
         data: structuredClone(node),
-        expanded: true,
         children: filteredChildren,
-        leaf: filteredChildren.length === 0,
         selectable: node.selectable,
       };
     };
 
     return this.selectabilityFilteredNodes()
       .map(buildFilteredTree)
-      .filter((n): n is TreeNode<TopologyNode> => n !== null);
+      .filter((n): n is TopologyTreeNode => n !== null);
   });
 
   // Whether the current search has no results
@@ -307,16 +327,27 @@ export class TopologyTreeComponent {
     () => this.searchActive() && this.treeNodes().length === 0,
   );
 
-  flatTreeNodes = computed<TreeNode<TopologyNode>[]>(() => {
-    const flatten = (
-      nodes: TreeNode<TopologyNode>[],
-    ): TreeNode<TopologyNode>[] => {
-      return nodes.flatMap((node) => {
-        return [node, ...(node.children ? flatten(node.children) : [])];
-      });
+  /**
+   * Ids of expanded nodes fed to SbbTree. While a search filter is active every
+   * non-leaf node in the (already-pruned) result is force-expanded — mirroring
+   * the old `expanded: true` on matches/ancestors; otherwise expansion
+   * follows the user's manual `opened` set.
+   */
+  expandedIds = computed<string[]>(() => {
+    if (!this.searchActive()) {
+      return this.opened();
+    }
+    const ids: string[] = [];
+    const walk = (nodes: TopologyTreeNode[]) => {
+      for (const n of nodes) {
+        if (n.children && n.children.length > 0) {
+          ids.push(n.id);
+          walk(n.children);
+        }
+      }
     };
-
-    return flatten(this.treeNodes());
+    walk(this.treeNodes());
+    return ids;
   });
 
   // ── Chip exact-match set (for highlight) ─────────────────────────────────
@@ -364,7 +395,18 @@ export class TopologyTreeComponent {
   // ── Autosuggest ───────────────────────────────────────────────────────────
 
   /**
-   * Called by PrimeNG AutoComplete on every keystroke.
+   * emits (onClear) when the input is emptied (including via backspace),
+   * and in that case it does NOT call completeMethod — so we must reset the
+   * free-text filter here, otherwise the last term keeps filtering/highlighting.
+   */
+  onSearchCleared() {
+    this.searchInputText.set('');
+    this.freeText$.next('');
+    this.suggestions.set([]);
+  }
+
+  /**
+   * Called by the AutoComplete on every keystroke (and on focus-complete).
    *
    * Two modes:
    *
@@ -375,8 +417,7 @@ export class TopologyTreeComponent {
    * entity rows are emitted (one-chip-per-type still applies).
    *
    * **Blended mode** — the fragment does NOT start with `key:`.  All eligible
-   * entity types are shown, each filtered by the full fragment (existing
-   * behaviour, unchanged).
+   * entity types are shown, each filtered by the full fragment.
    *
    * In both modes:
    * - Typed text drives live free-text tree filtering on every keystroke.
@@ -385,19 +426,8 @@ export class TopologyTreeComponent {
    * - At most SUGGESTION_TOTAL_CAP entity rows are shown in total across all groups.
    * - Suggestions are only shown when the typed query is >= 3 characters.
    */
-  /**
-   * PrimeNG emits (onClear) when the input is emptied (including via backspace),
-   * and in that case it does NOT call completeMethod — so we must reset the
-   * free-text filter here, otherwise the last term keeps filtering/highlighting.
-   */
-  onSearchCleared() {
-    this.searchInputText.set('');
-    this.freeText$.next('');
-    this.suggestions.set([]);
-  }
-
-  onComplete(event: AutoCompleteCompleteEvent) {
-    const typed = event.query.trim();
+  onComplete(query: string) {
+    const typed = query.trim();
 
     // Point 1: drive live free-text filtering from every keystroke
     this.searchInputText.set(typed);
@@ -541,14 +571,9 @@ export class TopologyTreeComponent {
 
   /**
    * Called when the user selects an item from the suggestion dropdown.
-   * Entity suggestions → create a chip; free-text row → set trailing free text.
-   *
-   * We use `onSelect` from the AutoComplete (not `(ngModelChange)`) so we can
-   * distinguish entity vs. free-text choices.
+   * Entity suggestions → create a chip.
    */
-  onSuggestionSelect(event: AutoCompleteSelectEvent) {
-    const item = event.value as SuggestionItem;
-
+  onSuggestionSelect(item: SuggestionItem) {
     if (item.kind === 'entity') {
       const newChip: SearchChip = { type: item.type, value: item.label };
       this.searchQuery.update((q) => ({
@@ -563,12 +588,11 @@ export class TopologyTreeComponent {
     // 'truncation' items are informational only — clicking them is a no-op.
 
     // Reset the autocomplete's visible value back to empty so the field is clear
-    this.autocompleteValue.set([]);
+    this.autocompleteText.set('');
   }
 
   /**
-   * Called when the user removes a chip via the AutoComplete's × button.
-   * We ignore the PrimeNG ngModel update and manage chips manually.
+   * Called when the user removes a chip via its × button.
    */
   removeChip(chip: SearchChip) {
     this.searchQuery.update((q) => ({
@@ -586,58 +610,30 @@ export class TopologyTreeComponent {
 
   // ── Tree helpers ──────────────────────────────────────────────────────────
 
-  private toTreeNode(
-    node: TopologyNode,
-    forceExpand = false,
-    opened: string[] = this.opened(),
-  ): TreeNode<TopologyNode> {
-    const mapper = (
-      node: TopologyNode,
-      isRoot: boolean,
-    ): TreeNode<TopologyNode> => {
-      let children = node.children?.map((node) => mapper(node, false)) ?? [];
+  private toTreeNode(node: TopologyNode): TopologyTreeNode {
+    const mapper = (node: TopologyNode, isRoot: boolean): TopologyTreeNode => {
+      let children = node.children?.map((child) => mapper(child, false)) ?? [];
       if (isRoot && children.length === 0) {
         children = [
-          {
-            type: 'no-children',
-            key: 'no-children',
-            label: 'No children',
-            leaf: true,
-          },
+          { id: `${node.path}\0no-children`, placeholder: true, selectable: false },
         ];
       }
       return {
-        key: node.path,
+        id: node.path,
         data: structuredClone(node),
-        expanded: forceExpand || opened.includes(node.path),
-        children: children,
-        leaf: children.length === 0,
+        children,
         selectable: node.selectable,
       };
     };
     return mapper(node, true);
   }
 
-  onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Shift') {
-      this.shiftSelected.set(true);
-    }
+  onNodeExpand(node: TopologyTreeNode) {
+    this.opened.update((opened) => [...opened, node.id]);
   }
 
-  onKeyUp(event: KeyboardEvent) {
-    if (event.key === 'Shift') {
-      this.shiftSelected.set(false);
-    }
-  }
-
-  onNodeExpand(event: TreeNodeExpandEvent) {
-    this.opened.update((opened) => [...opened, event.node.data.path]);
-  }
-
-  onNodeCollapse(event: TreeNodeCollapseEvent) {
-    this.opened.update((opened) =>
-      opened.filter((key) => key !== event.node.data.path),
-    );
+  onNodeCollapse(node: TopologyTreeNode) {
+    this.opened.update((opened) => opened.filter((id) => id !== node.id));
   }
 
   protected onActionSelected(event: TopologyAction) {
@@ -672,60 +668,30 @@ export class TopologyTreeComponent {
     );
   }
 
-  protected onSelectionChange(
-    event: TreeNode<TopologyNode> | TreeNode<TopologyNode>[] | null | undefined,
-  ) {
-    // should not be an array since we have selection mode single
-    if (!event || (event instanceof Array && event.length === 0)) {
-      this.treeSelection.set([]);
+  /** Mirrors the tree's selection so `nodeSelectionMode` can react to its size. */
+  protected onSelectionChange(nodes: TopologyTreeNode[]) {
+    this.treeSelection.set(nodes);
+  }
+
+  /**
+   * Fires a node's default action / send-endpoint on a plain navigational
+   * click (which resolves to a single selection). Shift/Ctrl multi-selections
+   * do not navigate — they only build the selection for bulk actions.
+   */
+  protected onNodeSelect(node: TopologyTreeNode) {
+    if (this.treeSelection().length !== 1) {
       return;
     }
-
-    if (!(event instanceof Array)) {
-      event = [event];
+    const data = node.data;
+    if (!data) {
+      return;
     }
-
-    if (this.treeSelectionMode() === 'multiple') {
-      if (this.shiftSelected()) {
-        const flatNodes = this.flatTreeNodes();
-        const newestSelected = event[event.length - 1];
-        const oneBefore = event[event.length - 2];
-        const nodeType = newestSelected.type;
-
-        const newestSelectedIndex = flatNodes.findIndex(
-          (node) => node.key === newestSelected.key,
-        );
-        const oneBeforeIndex = flatNodes.findIndex(
-          (node) => node.key === oneBefore.key,
-        );
-
-        const inbetweenNodes = flatNodes
-          .slice(
-            Math.min(oneBeforeIndex, newestSelectedIndex),
-            Math.max(oneBeforeIndex, newestSelectedIndex) + 1,
-          )
-          .filter((node) => node.type === nodeType);
-
-        event = [
-          ...event.filter((node) => !inbetweenNodes.includes(node)),
-          ...inbetweenNodes,
-        ].filter((node) => node.data?.selectable ?? false);
-      }
+    if (this.selectionMode() === 'send' && data.sendEndpoint) {
+      this.sendEndpointSelected.emit(data.sendEndpoint);
     }
-
-    if (this.treeSelectionMode() === 'single') {
-      // last item
-      event = event.slice(-1);
-
-      if (this.selectionMode() === 'send' && event[0]?.data?.sendEndpoint) {
-        this.sendEndpointSelected.emit(event[0].data.sendEndpoint);
-      }
-      if (this.selectionMode() === 'actions' && event[0]?.data?.defaultAction) {
-        this.onActionSelected(event[0].data.defaultAction);
-      }
+    if (this.selectionMode() === 'actions' && data.defaultAction) {
+      this.onActionSelected(data.defaultAction);
     }
-
-    this.treeSelection.set(event);
   }
 
   /**

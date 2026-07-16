@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { SbbToastService } from '@service-bus-browser/shared-ui';
 import { Logger } from '@service-bus-browser/logs-services';
 import { Problem } from '@service-bus-browser/shared-contracts';
 
@@ -9,7 +9,7 @@ type SaveMode = 'create' | 'update';
   providedIn: 'root',
 })
 export class SaveFeedbackService {
-  private readonly messageService = inject(MessageService);
+  private readonly toastService = inject(SbbToastService);
   private readonly logger = inject(Logger);
 
   async run(options: {
@@ -35,7 +35,7 @@ export class SaveFeedbackService {
       } successfully`;
 
       this.logger.info(successMessage);
-      this.messageService.add({
+      this.toastService.show({
         severity: 'success',
         summary: mode === 'create' ? `${entityType} created` : `${entityType} updated`,
         detail: successMessage,
@@ -49,7 +49,7 @@ export class SaveFeedbackService {
         `Failed to ${mode === 'create' ? 'create' : 'save'} ${entityLabel} ${entityName}: ${errorDetail}`,
         error,
       );
-      this.messageService.add({
+      this.toastService.show({
         severity: 'error',
         summary:
           mode === 'create'

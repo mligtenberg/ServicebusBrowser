@@ -12,6 +12,7 @@ export const pagesActions = createActionGroup({
     'load page order from storage': props<{
       orderOverrides: Record<number, UUID>;
     }>(),
+    'workspace activated': props<{ workspaceId: UUID }>(),
     'close page': props<{ id: UUID; position: number }>(),
   },
 });

@@ -1,0 +1,17 @@
+@use './dialog-chrome';
+
+.sbb-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--sbb-border);
+
+  // Hides the footer bar entirely when nothing is projected into
+  // `[sbbDialogFooter]` — comment nodes (Angular's content-projection
+  // anchors) don't count against `:empty`.
+  &:empty {
+    display: none;
+  }
+}

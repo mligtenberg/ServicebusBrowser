@@ -2,24 +2,27 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, effect, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
+
 import { Store } from '@ngrx/store';
 import {
   messagePagesActions,
   messagesActions,
 } from '@service-bus-browser/messages-store';
-import { ButtonModule } from 'primeng/button';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { DividerModule } from 'primeng/divider';
-import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { MessageService, MenuItem } from 'primeng/api';
+import {
+  SbbButton,
+  SbbMenuItem,
+  SbbPopover,
+  SbbReorderableList,
+  SbbReorderableListItemDef,
+  SbbReorderableListHandle,
+  SbbReorderableListReorderEvent,
+  SbbScrollPanel,
+  SbbSplitButton,
+  SbbSplitter,
+  SbbSplitterPanel,
+  SbbToastService,
+  SbbTooltip,
+} from '@service-bus-browser/shared-ui';
 import {
   SendEndpoint,
   ToMessageToSend,
@@ -28,8 +31,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
 import { ColorThemeService, FilesService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
-import { Popover } from 'primeng/popover';
 import { EditorContextAction } from '@service-bus-browser/shared-components';
+import {
+  faDownload,
+  faPaperPlane,
+  faPen,
+  faPlus,
+  faTrash,
+  faUpload,
+} from '@fortawesome/free-solid-svg-icons';
 
 // FIRE_AND_FORGET_REPOSITORY: assigned in a microtask before NgRx effects run
 let repository!: Awaited<ReturnType<typeof getMessagesRepository>>;
@@ -45,8 +55,6 @@ import {
   MessageModificationAction,
   RemoveAction,
 } from '@service-bus-browser/message-modification-engine';
-import { Splitter } from 'primeng/splitter';
-import { SplitButton } from 'primeng/splitbutton';
 
 
 @Component({
@@ -56,21 +64,19 @@ import { SplitButton } from 'primeng/splitbutton';
     CommonModule,
     FormsModule,
     ActionComponent,
-    ButtonModule,
-    ScrollPanelModule,
-    DividerModule,
-    ToastModule,
-    TooltipModule,
+    SbbButton,
+    SbbScrollPanel,
     EndpointSelectorInputComponent,
     PreviewBatch,
-    Splitter,
-    SplitButton,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
-    Popover,
+    SbbSplitter,
+    SbbSplitterPanel,
+    SbbSplitButton,
+    SbbReorderableList,
+    SbbReorderableListItemDef,
+    SbbReorderableListHandle,
+    SbbPopover,
+    SbbTooltip,
   ],
-  providers: [MessageService],
   templateUrl: './messages-batch-resend.component.html',
   styleUrl: './messages-batch-resend.component.scss',
 })
@@ -114,13 +120,20 @@ export class MessagesBatchResendComponent {
   );
 
   actionEditor = viewChild<ActionComponent>('actionEditor');
-  actionPopover = viewChild<Popover>('actionPopover');
+  actionPopover = viewChild<SbbPopover>('actionPopover');
   addActionBtn = viewChild('addActionBtn', { read: ElementRef });
 
   private store = inject(Store);
-  private messageService = inject(MessageService);
+  private toastService = inject(SbbToastService);
   private router = inject(Router);
   private fileService = inject(FilesService);
+
+  protected readonly uploadIcon = faUpload;
+  protected readonly downloadIcon = faDownload;
+  protected readonly plusIcon = faPlus;
+  protected readonly penIcon = faPen;
+  protected readonly trashIcon = faTrash;
+  protected readonly sendIcon = faPaperPlane;
 
   // Exposed in the preview body editor's right-click menu: select text in the
   // body, then turn the selection into a search & replace body action.
@@ -170,29 +183,29 @@ export class MessagesBatchResendComponent {
     () => !this.selectedMessageSequence(),
   );
 
-  protected splitButtonItems = computed<MenuItem[]>(() => [
+  // Icons intentionally omitted here (never had them). SbbMenuItem.icon is a
+  // CSS-class string and the FontAwesome webfont is now loaded globally, so a
+  // `fa-solid fa-*` class could be set here if these entries want icons.
+  protected splitButtonItems = computed<SbbMenuItem<void>[]>(() => [
     {
       label: 'Send selection',
-      icon: 'pi pi-send',
       disabled: this.sendSelectionDisabled(),
-      command: () => this.resendSelectedMessage(),
+      onSelect: () => this.resendSelectedMessage(),
     },
   ]);
 
   // Context menus for the five property tables in the preview panel
-  private actionMenuItems(key: string, target: BatchActionTarget): MenuItem[] {
+  private actionMenuItems(key: string, target: BatchActionTarget): SbbMenuItem[] {
     return [
       {
         label: `Alter ${key}`,
-        icon: 'pi pi-pencil',
-        command: () => this.openDraftActionPopover(key, target),
+        onSelect: () => this.openDraftActionPopover(key, target),
       },
       {
         label: `Remove ${key}`,
-        icon: 'pi pi-trash',
         // A remove action is fully defined by its target and field name, so add
         // it directly without opening the editor.
-        command: () => this.addRemoveAction(key, target),
+        onSelect: () => this.addRemoveAction(key, target),
       },
     ];
   }
@@ -218,7 +231,7 @@ export class MessagesBatchResendComponent {
 
     this.actions.update((currentActions) => [...currentActions, removeAction]);
 
-    this.messageService.add({
+    this.toastService.show({
       severity: 'success',
       summary: 'Action Added',
       detail: `Remove action for ${key} added successfully`,
@@ -243,27 +256,27 @@ export class MessagesBatchResendComponent {
     this.showDraftPopover();
   }
 
-  protected propertiesContextMenu = computed<MenuItem[]>(() => {
+  protected propertiesContextMenu = computed<SbbMenuItem[]>(() => {
     const selection = this.propertiesContextMenuSelection() ?? { key: 'subject', value: '' };
     return this.actionMenuItems(selection.key, 'properties');
   });
 
-  protected applicationPropertiesContextMenu = computed<MenuItem[]>(() => {
+  protected applicationPropertiesContextMenu = computed<SbbMenuItem[]>(() => {
     const selection = this.applicationPropertiesContextMenuSelection() ?? { key: 'contentType', value: '' };
     return this.actionMenuItems(selection.key, 'applicationProperties');
   });
 
-  protected headersContextMenu = computed<MenuItem[]>(() => {
+  protected headersContextMenu = computed<SbbMenuItem[]>(() => {
     const selection = this.headersContextMenuSelection() ?? { key: 'durable', value: '' };
     return this.actionMenuItems(selection.key, 'properties');
   });
 
-  protected deliveryAnnotationsContextMenu = computed<MenuItem[]>(() => {
+  protected deliveryAnnotationsContextMenu = computed<SbbMenuItem[]>(() => {
     const selection = this.deliveryAnnotationsContextMenuSelection() ?? { key: 'x-opt-enqueued-time', value: '' };
     return this.actionMenuItems(selection.key, 'properties');
   });
 
-  protected messageAnnotationsContextMenu = computed<MenuItem[]>(() => {
+  protected messageAnnotationsContextMenu = computed<SbbMenuItem[]>(() => {
     const selection = this.messageAnnotationsContextMenuSelection() ?? { key: 'x-opt-sequence-number', value: '' };
     return this.actionMenuItems(selection.key, 'properties');
   });
@@ -271,7 +284,7 @@ export class MessagesBatchResendComponent {
   private document = inject(DOCUMENT);
   private destroyRef = inject(DestroyRef);
   // The pointer coordinates of the last right-click, captured in the capture
-  // phase so it is recorded even though PrimeNG's context menu (and Monaco) stop
+  // phase so it is recorded even though the context menu (and Monaco) stop
   // the event from bubbling. Used to anchor the draft popover at the click.
   private lastContextMenuPosition: { x: number; y: number } | undefined;
   private popoverAnchorEl: HTMLElement | undefined;
@@ -301,7 +314,7 @@ export class MessagesBatchResendComponent {
     this.editModeIndex.set(-1);
     this.currentAction.set(undefined);
     this.actionEditor()?.clear();
-    this.actionPopover()?.show(event);
+    this.actionPopover()?.open(event.currentTarget as HTMLElement);
   }
 
   openEditActionPopover(event: Event, index: number): void {
@@ -315,7 +328,7 @@ export class MessagesBatchResendComponent {
     this.editModeIndex.set(index);
     this.actionEditor()?.clear(action);
     this.currentAction.set(action);
-    this.actionPopover()?.show(event);
+    this.actionPopover()?.open(event.currentTarget as HTMLElement);
   }
 
   openDraftActionPopover(key: string, target: BatchActionTarget): void {
@@ -345,10 +358,10 @@ export class MessagesBatchResendComponent {
   private showDraftPopover(): void {
     const position = this.lastContextMenuPosition;
     if (!position) {
-      this.actionPopover()?.show(
-        new Event('click'),
-        this.addActionBtn()?.nativeElement,
-      );
+      const addActionBtnEl = this.addActionBtn()?.nativeElement;
+      if (addActionBtnEl) {
+        this.actionPopover()?.open(addActionBtnEl);
+      }
       return;
     }
 
@@ -362,7 +375,7 @@ export class MessagesBatchResendComponent {
     this.document.body.appendChild(anchor);
     this.popoverAnchorEl = anchor;
 
-    this.actionPopover()?.show(new Event('click'), anchor);
+    this.actionPopover()?.open(anchor);
   }
 
   private removePopoverAnchor(): void {
@@ -384,18 +397,18 @@ export class MessagesBatchResendComponent {
         this.actions.update((currentActions) => [...currentActions, action]);
       }
 
-      this.messageService.add({
+      this.toastService.show({
         severity: 'success',
         summary: 'Action Saved',
         detail: `${this.getActionTypeLabel(action.type)} action saved successfully`,
       });
     }
 
-    this.actionPopover()?.hide();
+    this.actionPopover()?.close();
   }
 
   cancelPopoverAction(): void {
-    this.actionPopover()?.hide();
+    this.actionPopover()?.close();
   }
 
   onPopoverHide(): void {
@@ -420,7 +433,7 @@ export class MessagesBatchResendComponent {
         this.actions.update((currentActions) => [...currentActions, action]);
       }
 
-      this.messageService.add({
+      this.toastService.show({
         severity: 'success',
         summary: 'Action Added',
         detail: `${this.getActionTypeLabel(
@@ -508,7 +521,7 @@ export class MessagesBatchResendComponent {
     const selectedEndpoint = this.selectedEndpoint();
 
     if (!selectedMessage) {
-      this.messageService.add({
+      this.toastService.show({
         severity: 'error',
         summary: 'No Messages',
         detail: 'No messages to resend',
@@ -516,7 +529,7 @@ export class MessagesBatchResendComponent {
       return;
     }
     if (!selectedEndpoint) {
-      this.messageService.add({
+      this.toastService.show({
         severity: 'error',
         summary: 'Missing endpoints',
         detail: 'Please select a destination endpoint for resending messages',
@@ -543,13 +556,13 @@ export class MessagesBatchResendComponent {
         }),
       );
 
-      this.messageService.add({
+      this.toastService.show({
         severity: 'success',
         summary: 'Message Sent',
         detail: `Selected message has been sent`,
       });
     } catch (error) {
-      this.messageService.add({
+      this.toastService.show({
         severity: 'error',
         summary: 'Error',
         detail: 'Failed to send modified message. Check the logs for details.',
@@ -560,7 +573,7 @@ export class MessagesBatchResendComponent {
   async resendMessages() {
     const selectedEndpoint = this.selectedEndpoint();
     if (!selectedEndpoint) {
-      this.messageService.add({
+      this.toastService.show({
         severity: 'error',
         summary: 'Missing endpoints',
         detail: 'Please select a destination endpoint for resending messages',
@@ -633,13 +646,14 @@ export class MessagesBatchResendComponent {
     }
   }
 
-  dropAction(event: CdkDragDrop<MessageModificationAction[]>) {
+  dropAction(event: SbbReorderableListReorderEvent) {
     if (event.previousIndex === event.currentIndex) {
       return;
     }
     this.actions.update((currentActions) => {
       const arr = [...currentActions];
-      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      const [moved] = arr.splice(event.previousIndex, 1);
+      arr.splice(event.currentIndex, 0, moved);
       return arr;
     });
   }

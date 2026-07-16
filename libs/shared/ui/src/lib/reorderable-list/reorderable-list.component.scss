@@ -1,0 +1,81 @@
+// SbbReorderableList — generic drag-to-reorder list; each row's content is
+// supplied by the consumer's projected template, so styling here is limited
+// to layout + drag feedback, never row content.
+//
+// Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
+// Local fallbacks are declared so the component renders correctly even if the
+// global sheet is not yet loaded.
+
+:host {
+  --sbb-surface-raised-local: var(--sbb-surface-raised, #fff);
+  --sbb-text-local: var(--sbb-text, #334155);
+  --sbb-radius-local: var(--sbb-radius, 4px);
+  --sbb-transition-duration-local: var(--sbb-transition-duration, 200ms);
+  --sbb-transition-ease-local: var(--sbb-transition-ease, cubic-bezier(0, 0, 0.2, 1));
+
+  display: block;
+}
+
+.sbb-reorderable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &[aria-orientation='horizontal'] {
+    flex-direction: row;
+  }
+
+  &.cdk-drop-list-dragging .sbb-reorderable-list__item:not(.cdk-drag-placeholder) {
+    transition: transform var(--sbb-transition-duration-local) var(--sbb-transition-ease-local);
+  }
+
+  &--disabled .sbb-reorderable-list__item {
+    // 0.6 dimmed projected row text below WCAG AA (3.07:1); 0.8 keeps a clear
+    // disabled appearance while letting inherited text clear 4.5:1.
+    opacity: 0.8;
+  }
+}
+
+.sbb-reorderable-list__item {
+  // Deliberately not a flex container itself: the projected row template
+  // renders as this item's only DOM child (an `<ng-container>` doesn't
+  // produce one of its own), but it's instantiated in the CONSUMER's
+  // template, so it keeps the consumer's view-encapsulation attribute — a
+  // selector declared here like `> *` can never match it, `::ng-deep` aside.
+  //
+  // Staying a plain block box (not `display: flex`) means:
+  //  - in the default vertical orientation, this item is stretched to the
+  //    outer drop-list's full cross-axis width by the outer flex container's
+  //    default `align-items: stretch`, and its block-level child (typically
+  //    a `display: flex` row div) in turn defaults to 100% of *this* width —
+  //    matching how the row used to behave as a direct flex child before
+  //    this wrapper existed;
+  //  - in horizontal orientation, the same default stretch instead fills the
+  //    cross-axis height, and this item's own (main-axis) width is left to
+  //    size to its content, as a horizontal chip/tab strip needs.
+  &.cdk-drag-preview {
+    box-shadow:
+      0 5px 5px -3px rgba(0, 0, 0, 0.2),
+      0 8px 10px 1px rgba(0, 0, 0, 0.14),
+      0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    background: var(--sbb-surface-raised-local);
+    color: var(--sbb-text-local);
+    border-radius: var(--sbb-radius-local);
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0;
+  }
+}
+
+.sbb-reorderable-list__handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .sbb-reorderable-list--disabled & {
+    cursor: not-allowed;
+  }
+}

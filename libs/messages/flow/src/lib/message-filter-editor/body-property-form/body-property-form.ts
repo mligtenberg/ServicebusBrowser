@@ -1,9 +1,12 @@
 import { Component, input, model, output } from '@angular/core';
-import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { InputText } from 'primeng/inputtext';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+  SbbButton,
+  SbbCheckbox,
+  SbbInput,
+  SbbInputGroup,
+  SbbInputGroupAddon,
+} from '@service-bus-browser/shared-ui';
 import { SelectSignalFormInput } from '../../form/select-signal-form-input/select-signal-form-input';
 import { bodyFilterTypes } from '../options';
 import {
@@ -19,11 +22,11 @@ import { BodyFilter } from '@service-bus-browser/filtering';
 @Component({
   selector: 'lib-body-property-form',
   imports: [
-    Button,
-    Checkbox,
-    InputGroup,
-    InputGroupAddon,
-    InputText,
+    SbbButton,
+    SbbCheckbox,
+    SbbInputGroup,
+    SbbInputGroupAddon,
+    SbbInput,
     SelectSignalFormInput,
     FormField,
   ],
@@ -47,6 +50,7 @@ export class BodyPropertyForm implements FormValueControl<BodyFilter> {
   removedPressed = output<void>();
 
   protected readonly bodyFilterTypes = bodyFilterTypes;
+  protected readonly removeIcon = faTrash;
 
   bodyForm = form(this.value, (v) => {
     required(v.filterType);

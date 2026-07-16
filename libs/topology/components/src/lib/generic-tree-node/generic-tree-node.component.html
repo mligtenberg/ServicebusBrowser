@@ -1,49 +1,43 @@
-<p-context-menu
-  #contextMenu
-  [model]="contextMenuItems()"
-  appendTo="body"
-/>
+@if (showContextMenu()) {
+  <sbb-context-menu [model]="contextMenuItems()" [data]="node()">
+    <ng-container [ngTemplateOutlet]="row" />
+  </sbb-context-menu>
+} @else {
+  <ng-container [ngTemplateOutlet]="row" />
+}
 
-<div class="line-container" (contextmenu)="showContextMenu() ? contextMenu.toggle($event) : undefined">
-  <span class="name" [pTooltip]="node().name" tooltipPosition="bottom">
-    @if (node().icon; as icon) {
-      <fa-icon [icon]="icon"></fa-icon>
-    }
-    @for (part of highlightParts(); track $index) {
-      @if (part.highlight) {
-        <mark class="search-highlight">{{ part.text }}</mark>
-      } @else {
-        {{ part.text }}
+<ng-template #row>
+  <div class="line-container">
+    <span class="name" [sbbTooltip]="node().name" sbbTooltipPlacement="bottom">
+      @if (node().icon; as icon) {
+        <fa-icon [icon]="icon"></fa-icon>
       }
-    }
-  </span>
-  @if (showMessageCounts()) {
-    <span [pTooltip]="messageCountToolTip">{{messageCountSummary()}}</span>
-    <ng-template #messageCountToolTip>
-      <div class="message-count-tooltip">
-        @for (messageCount of messageCountEntities(); track $index) {
-          <div>
-            {{messageCount.name}}: {{messageCount.count}}
-          </div>
+      @for (part of highlightParts(); track $index) {
+        @if (part.highlight) {
+          <mark class="search-highlight">{{ part.text }}</mark>
+        } @else {
+          {{ part.text }}
         }
-      </div>
-    </ng-template>
-  }
+      }
+    </span>
+    @if (showMessageCounts()) {
+      <span [sbbTooltip]="messageCountTooltip()">{{ messageCountSummary() }}</span>
+    }
 
-  @if (showRefresh()) {
-    <div class="refresh-button">
-      <p-button
-        [severity]="hasError() ? 'danger' : 'primary'"
-        [rounded]="true"
-        [text]="true"
-        (click)="refresh($event)"
-        [disabled]="disableRefresh()"
-      >
-        <fa-icon
+    @if (showRefresh()) {
+      <div class="refresh-button">
+        <sbb-button
+          [severity]="hasError() ? 'danger' : 'primary'"
+          variant="text"
+          size="small"
+          [rounded]="true"
           [icon]="faRotateRight"
-          [ngClass]="{ 'spin': isLoading() }"
+          [iconOnly]="true"
+          [loading]="isLoading()"
+          [disabled]="selectionMode() === 'none'"
+          (click)="refresh($event)"
         />
-      </p-button>
-    </div>
-  }
-</div>
+      </div>
+    }
+  </div>
+</ng-template>

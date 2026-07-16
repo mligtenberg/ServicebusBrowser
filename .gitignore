@@ -54,3 +54,5 @@ openid-config.json
 
 .nx/polygraph
 .nx/self-healing
+
+storybook-static

@@ -1,8 +1,8 @@
-<p-card header="Sign In Failed">
+<sbb-card header="Sign In Failed">
   <p>There was an error while trying to sign in.</p>
   <p>Please try again later or contact your administrator if the problem persists.</p>
   @if (error(); as errorMessage) {
     <p class="error-message">{{ errorMessage }}</p>
   }
-  <a routerLink="/" pButton>Retry signin</a>
-</p-card>
+  <sbb-button routerLink="/">Retry signin</sbb-button>
+</sbb-card>
