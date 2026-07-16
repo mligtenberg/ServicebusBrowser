@@ -15,7 +15,7 @@ import { SbbSelectOption } from '../select';
  * `SbbSelectButton` — a styled, `ControlValueAccessor`-compliant single-select
  * segmented button group.
  *
- * Opinionated-minimal replacement for PrimeNG's `p-select-button`. Public API
+ * Opinionated-minimal replacement for `p-select-button`. Public API
  * derived from the current call sites:
  *  - `receive-messages-dialog`: `[options]="string[]"` bound via
  *    `[ngModel]`/`(ngModelChange)` — single-select over plain string values.

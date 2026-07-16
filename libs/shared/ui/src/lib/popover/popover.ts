@@ -27,7 +27,7 @@ import {
  * rendering, light-dismiss and Escape for free) plus **CSS anchor
  * positioning** (a per-instance `anchor-name` is stamped onto the trigger and
  * the panel's `position-anchor` points at it). No CDK overlay, no
- * `@spartan-ng/brain` — the browser does the positioning, flipping and
+ * the browser does the positioning, flipping and
  * dismissal.
  *
  * The native `toggle` event is the single source of truth for open state, so

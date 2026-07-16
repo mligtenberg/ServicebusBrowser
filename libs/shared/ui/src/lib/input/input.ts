@@ -15,15 +15,15 @@ import { SbbInputSize, SbbInputType } from './input.models';
  * input.
  *
  * Opinionated-minimal replacement for `pInputText` (native `<input>` styled
- * to match the current PrimeNG look). There is no matching brain primitive
+ * to match the current look). there is no matching primitive
  * for a plain text input, so this wraps a plain native `<input>` element
- * directly rather than any `@spartan-ng/brain`/CDK primitive.
+ * directly rather than any CDK primitive.
  *
  * Public API derived from current call sites:
  *  - `type`        text/password/email/search/number/tel/url.
  *  - `placeholder` placeholder text.
  *  - `disabled`    disables the control (also driven by the CVA `setDisabledState`).
- *  - `invalid`     applies error styling (parity with PrimeNG's `p-invalid`).
+ *  - `invalid`     applies error styling (parity with `p-invalid`).
  *  - `size`        `sm` | `md` | `lg`, default `md`.
  */
 @Component({
@@ -53,7 +53,7 @@ export class SbbInput implements ControlValueAccessor {
   /** Visual size. Defaults to `'md'`. */
   readonly size = input<SbbInputSize>('md');
 
-  /** Applies error/invalid styling (parity with PrimeNG's `p-invalid`). */
+  /** Applies error/invalid styling (parity with `p-invalid`). */
   readonly invalid = input<boolean>(false);
 
   /**

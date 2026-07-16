@@ -24,7 +24,7 @@ export class SelectSignalFormInput<T>
   placeholder = input<string>();
 
   /**
-   * Maps the PrimeNG-style `options` + `optionLabel`/`optionValue` key-pair
+   * Maps the `options` + `optionLabel`/`optionValue` key-pair
    * (kept as-is on this component's public API) onto `SbbSelect`'s
    * `SbbSelectOption<T>[]` shape. Falls back to the raw entry when a key is
    * not supplied, mirroring `p-select`'s behaviour of using the whole object

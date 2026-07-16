@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SbbAutocomplete } from '@service-bus-browser/shared-ui';
 
 /**
- * Mirrors the `.query` field of the previous PrimeNG-based autocomplete's
+ * Mirrors the `.query` field of the previous autocomplete's
  * complete event (the only field every call site of `completeMethod` reads).
  * Defined locally so this component no longer depends on that library — the
  * replacement `SbbAutocomplete.completeChange` output only exposes the raw

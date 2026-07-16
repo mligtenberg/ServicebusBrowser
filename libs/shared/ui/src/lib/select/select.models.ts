@@ -1,8 +1,7 @@
 /**
  * A single selectable option for `SbbSelect`.
  *
- * Consumers define their own option shape rather than reusing PrimeNG's
- * `SelectItem` — `label` drives the trigger/list text, `value` is the raw
+ * Consumers define their own option shape rather than reusing * `SelectItem` — `label` drives the trigger/list text, `value` is the raw
  * value written back through `ControlValueAccessor`, `disabled` skips the
  * option during keyboard navigation and selection.
  */

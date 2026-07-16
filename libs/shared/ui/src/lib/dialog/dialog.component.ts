@@ -14,7 +14,7 @@ import { take } from 'rxjs';
 
 /**
  * `SbbDialog` — a declarative modal dialog controlled by a two-way `open`
- * model, replacing PrimeNG's `<p-dialog [(visible)]>` for call sites that
+ * model, replacing `<p-dialog [(visible)]>` for call sites that
  * declare their dialog content inline rather than opening a separate
  * component via `SbbDialogService`.
  *

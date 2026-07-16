@@ -15,7 +15,7 @@ import { SbbMenu } from '../popup-menu';
  * menu built from an `SbbMenuItem` model, invoking each item's `onSelect`
  * with the bound contextual `data`.
  *
- * Opinionated-minimal replacement for the previous PrimeNG `p-contextMenu`
+ * Opinionated-minimal replacement for the previous `p-contextMenu`
  * wrapper. Wrap the trigger content in the component:
  *
  * ```html

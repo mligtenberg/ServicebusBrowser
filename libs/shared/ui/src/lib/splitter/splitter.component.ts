@@ -62,12 +62,12 @@ function resizedPair(
  *
  * Panels are plain `<sbb-splitter-panel [size]="...">` content, not a
  * `<ng-template #panel>` — matches how call sites already structure markup
- * for everything except PrimeNG's splitter today.
+ * for everything except splitter today.
  *
  * Drag/keyboard resizing is implemented directly with pointer events and a
  * `layout` signal rather than a headless primitive: the group only ever
  * needs flexbox percentage math, no overlay/portal, so pulling in
- * `@spartan-ng/brain`'s `BrnResizableGroup`/`BrnResizablePanel` (or CDK's
+ * `BrnResizableGroup`/`BrnResizablePanel` (or CDK's
  * `DragDrop`, built for absolute drag positions rather than
  * percentage-of-container splits) added a dependency for no benefit.
  */

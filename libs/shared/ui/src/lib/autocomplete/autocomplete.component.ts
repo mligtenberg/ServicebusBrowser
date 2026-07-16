@@ -26,7 +26,7 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
  * `SbbAutocomplete<T>` — a text input with a suggestion panel, supporting flat
  * or grouped suggestions, custom item/group templates and free-text entry.
  *
- * Opinionated-minimal replacement for PrimeNG's `<p-autocomplete>`. Public API
+ * Opinionated-minimal replacement for `<p-autocomplete>`. Public API
  * derived from the current call sites:
  *  - simple free-text suggest (messages forms): `[(ngModel)]` a string,
  *    `[suggestions]`, `(completeChange)` as the user types, free text kept.
@@ -40,7 +40,7 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
  * keeps its panel as a DOM descendant, an autocomplete opened *inside* another
  * popover (e.g. the batch-resend "add action" editor) forms a native popover
  * ancestor chain, so clicking a suggestion no longer light-dismisses the
- * surrounding popover. brain/CDK types never surface in the public API.
+ * surrounding popover. CDK types never surface in the public API.
  */
 @Component({
   selector: 'sbb-autocomplete',

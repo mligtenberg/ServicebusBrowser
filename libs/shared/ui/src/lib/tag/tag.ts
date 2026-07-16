@@ -8,7 +8,7 @@ import { SbbTagSeverity } from './tag.models';
  * across the app (`message-filter-editor`): a projected text/value with a
  * severity color. All current call sites use the default severity, so
  * `severity` defaults to `'secondary'` — a neutral pill — while still
- * supporting the full PrimeNG `p-tag` severity palette for future call sites.
+ * supporting the full `p-tag` severity palette for future call sites.
  *
  * Pure display — no inputs/outputs beyond `severity`, no interactivity.
  *

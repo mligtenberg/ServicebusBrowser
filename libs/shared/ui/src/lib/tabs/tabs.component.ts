@@ -27,8 +27,7 @@ let nextGroupId = 0;
  * `SbbTabs` — a tab strip switching between projected `SbbTabPanel` content
  * regions.
  *
- * A new, from-scratch component — this codebase has no existing PrimeNG
- * `p-tabs`/`p-tabview` call site to migrate, so it's built directly to the
+ * A new, from-scratch component — this codebase has no existing * `p-tabs`/`p-tabview` call site to migrate, so it's built directly to the
  * WAI-ARIA APG tabs pattern (https://www.w3.org/WAI/ARIA/apg/patterns/tabs/):
  *  - `value`       currently selected tab, two-way bindable (`[(value)]`);
  *                  defaults to the first non-disabled panel.

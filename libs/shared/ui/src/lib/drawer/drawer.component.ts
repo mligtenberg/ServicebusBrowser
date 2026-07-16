@@ -19,8 +19,7 @@ export type SbbDrawerPosition = 'left' | 'right';
 
 /**
  * `SbbDrawer` — a declarative, edge-anchored, full-height modal panel
- * controlled by a two-way `open` model. Replaces PrimeNG's
- * `<p-drawer [(visible)]>` for inline-declared slide-in panels.
+ * controlled by a two-way `open` model. Replaces * `<p-drawer [(visible)]>` for inline-declared slide-in panels.
  *
  * Built on `@angular/cdk/dialog` (same overlay/focus-trap/backdrop/Escape
  * machinery as {@link SbbDialog}), but anchored to a screen edge and stretched

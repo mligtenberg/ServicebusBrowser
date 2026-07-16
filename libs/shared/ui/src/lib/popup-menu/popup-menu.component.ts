@@ -18,7 +18,7 @@ let nextMenuId = 0;
  * `SbbMenu` — a popup menu built from an `SbbMenuItem` model and opened
  * imperatively at a pointer position or anchored to an element.
  *
- * Opinionated-minimal replacement for PrimeNG's `<p-menu [popup]="true">`,
+ * Opinionated-minimal replacement for `<p-menu [popup]="true">`,
  * which is placed invisibly in the template and shown from a separate trigger
  * via `menu.show($event)`. This mirrors that ergonomic with `open(origin)` /
  * `close()`:

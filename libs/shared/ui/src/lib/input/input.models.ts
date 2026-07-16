@@ -7,5 +7,5 @@
  */
 export type SbbInputType = 'text' | 'password' | 'email' | 'search' | 'number' | 'tel' | 'url';
 
-/** Visual size of {@link SbbInput}, mirrors the current PrimeNG usage (default = normal). */
+/** Visual size of {@link SbbInput}, mirrors the current usage (default = normal). */
 export type SbbInputSize = 'sm' | 'md' | 'lg';

@@ -12,7 +12,7 @@ import { isSbbMenuSeparator, SbbMenuItem, SbbMenuSeparator } from '../menu';
  * model. Top-level entries with nested `items` open submenus; leaf entries
  * invoke their `onSelect`.
  *
- * Opinionated-minimal replacement for PrimeNG's `<p-menubar>`. Built on
+ * Opinionated-minimal replacement for `<p-menubar>`. Built on
  * `@angular/cdk/menu` (`CdkMenuBar` + `CdkMenuTrigger`/`CdkMenu`), reusing the
  * same recursive submenu panel as `SbbContextMenu`/`SbbMenu`. The two custom
  * slots the current call site fills with `#start`/`#end` templates are exposed

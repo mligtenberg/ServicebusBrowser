@@ -28,7 +28,7 @@ import { SbbMenuItem } from '../menu';
 /**
  * Headless, virtualized, selectable data-grid built on Angular CDK.
  *
- * Replaces the PrimeNG `p-table` used by the messages viewer. Renders only a
+ * Replaces the `p-table` used by the messages viewer. Renders only a
  * window of rows (`cdk-virtual-scroll-viewport`), tracks selection via
  * `SelectionModel`, supports client-side single-column sort, and emits a
  * `lazyLoad` event when the viewport nears the end of the loaded window.

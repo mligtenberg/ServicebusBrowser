@@ -8,7 +8,7 @@ import { Observable, Subject, take } from 'rxjs';
  * content component (`inject(SbbDialogRef)`), mirroring the previous
  * `DynamicDialogRef` idiom. The content component calls `close(result)` to
  * dismiss and return a value to the opener; the opener observes `closed`
- * (parity with PrimeNG's `onClose`).
+ * (parity with `onClose`).
  *
  * The underlying `@angular/cdk/dialog` `DialogRef` is an implementation
  * detail bound via {@link _bind} and never exposed through the public API.

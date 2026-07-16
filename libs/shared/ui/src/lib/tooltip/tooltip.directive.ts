@@ -47,7 +47,7 @@ const HIDE_DELAY_MS = 100;
  * call sites (icon-only buttons, truncated labels, action hints).
  *
  * Built directly on `@angular/cdk/overlay` + `@angular/cdk/a11y` — brain's
- * `@spartan-ng/brain/tooltip` secondary entry point ships no public API in
+ * The tooltip secondary entry point ships no public API in
  * the installed version, so it does not fit the sourcing rule's "if it
  * doesn't cleanly fit, prefer CDK" fallback.
  *

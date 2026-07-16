@@ -5,8 +5,7 @@ import { SbbTabHeaderDef } from './tab-header.directive';
 /**
  * `SbbTabPanel` — one tab's content region inside an `SbbTabs` group.
  *
- * A new, from-scratch component — this codebase has no existing PrimeNG
- * `p-tabs`/`p-tabview` call site to migrate, so the public API is kept
+ * A new, from-scratch component — this codebase has no existing * `p-tabs`/`p-tabview` call site to migrate, so the public API is kept
  * intentionally minimal rather than mirroring a specific prior usage:
  *  - `value`    identifies the tab; matches `SbbTabs`'s `value`.
  *  - `label`    plain-text caption shown in the tab strip.

@@ -12,16 +12,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * `SbbDatePicker` — a styled, `ControlValueAccessor`-compliant date (and
  * optionally time) picker over `Date | undefined`.
  *
- * Opinionated-minimal replacement for PrimeNG's `<p-date-picker>`, distilled
+ * Opinionated-minimal replacement for `<p-date-picker>`, distilled
  * from the current call sites — all of which use `showTime` to pick a date
  * plus a 24-hour time and bind a `Date` via `[(ngModel)]`.
  *
  * Implementation note: this wraps a native `<input type="datetime-local">`
  * (or `type="date"` when `showTime` is false) rather than the headless
- * `@spartan-ng/brain/calendar`. brain's calendar is a large grid assembly that
+ * a calendar. The calendar is a large grid assembly that
  * additionally requires `brnSelect`-based month/year pickers and separate time
  * handling; the native control delivers the full date+time behaviour every
- * call site needs today. Because the brain/CDK detail never surfaced in the
+ * call site needs today. Because the CDK detail never surfaced in the
  * public API to begin with, swapping the internals for a brain calendar later
  * (for richer theming) is a localised change behind this same API. Values are
  * formatted/parsed in LOCAL time to match the native control.

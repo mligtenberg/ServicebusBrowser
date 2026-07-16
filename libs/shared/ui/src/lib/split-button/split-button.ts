@@ -9,7 +9,7 @@ import { SbbMenu } from '../popup-menu';
  * `SbbSplitButton` — a primary action button joined to a caret button that
  * opens a dropdown of secondary actions.
  *
- * Opinionated-minimal replacement for PrimeNG's `p-split-button`, distilled
+ * Opinionated-minimal replacement for `p-split-button`, distilled
  * from the real `messages-batch-resend` call site
  * (`label`, `icon`, `severity`, `disabled`, `[model]`, `(onClick)`).
  *

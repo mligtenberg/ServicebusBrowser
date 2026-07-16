@@ -14,12 +14,12 @@ let nextPanelId = 0;
  *  - Expand state is a plain `boolean` signal input/output pair (`open` /
  *    `openChange` via `model()`) — no internal ids or `value` strings are
  *    exposed on the public API.
- *  - `disabled` mirrors PrimeNG's ability to prevent a panel from being
+ *  - `disabled` mirrors ability to prevent a panel from being
  *    toggled by the user.
  *
  * Built on native disclosure markup (`<button aria-expanded>` +
- * `role="region"`) rather than `@spartan-ng/brain`'s headless accordion — see
- * the note on `SbbAccordion` for why brain's directive-based API doesn't fit
+ * `role="region"`) rather than a headless accordion — see
+ * the note on `SbbAccordion` for why directive-based API doesn't fit
  * a content-projected panel component.
  */
 @Component({

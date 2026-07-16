@@ -1,14 +1,14 @@
 /**
  * `SbbMenuItem` — a single entry in a context menu, dropdown menu or menubar.
  *
- * Opinionated-minimal replacement for PrimeNG's `primeng/api` `MenuItem`,
+ * Opinionated-minimal replacement for `/api` `MenuItem`,
  * distilled from the fields actually used across the current call sites
  * (topology tree node menu, page-navigator tab menu, message grid menus):
  * `label`, `icon`, `disabled`, `separator`, nested `items`, plus the
  * repo-local `onSelect`/`supportedMultiSelection` convention carried over
  * from the previous `@service-bus-browser/shared-contracts` `SbbMenuItem`.
  *
- * brain/CDK/PrimeNG menu-item types are NOT referenced here — this is the
+ * CDK/menu-item types are NOT referenced here — this is the
  * canonical, framework-agnostic model that `SbbContextMenu` (and later the
  * menu/menubar wrappers) consume. `T` is the type of the contextual data the
  * menu operates on (e.g. a tree node or a grid row).
@@ -36,7 +36,7 @@ export interface SbbMenuActionItem<T> {
   supportedMultiSelection?: false;
   /** Invoked with the menu's contextual data when the entry is chosen. */
   onSelect?(data: T): void;
-  /** PrimeNG-compatible command callback. */
+  /** command callback. */
   command?(event: any): void;
   /** Nested submenu entries. When present, the entry expands rather than acts. */
   items?: SbbMenuItem<T>[];
@@ -51,7 +51,7 @@ export interface SbbMenuMultiActionItem<T> {
   separator?: boolean;
   supportedMultiSelection?: true;
   onSelect?(data: T | T[]): void;
-  /** PrimeNG-compatible command callback. */
+  /** command callback. */
   command?(event: any): void;
   items?: SbbMenuItem<T>[];
 }

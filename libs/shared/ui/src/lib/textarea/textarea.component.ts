@@ -10,12 +10,12 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 /**
  * Multiline text input.
  *
- * Replaces PrimeNG's `pInputTextarea` call sites. Implements
+ * Replaces `pInputTextarea` call sites. Implements
  * `ControlValueAccessor` so it can be used with template-driven and reactive
  * forms alike (`[(ngModel)]` / `formControlName`).
  *
  * This is an OPINIONATED-MINIMAL API — it wraps a plain, styled native
- * `<textarea>`; there is no hidden brain/CDK primitive to leak.
+ * `<textarea>`; there is no hidden CDK primitive to leak.
  */
 @Component({
   selector: 'sbb-textarea',

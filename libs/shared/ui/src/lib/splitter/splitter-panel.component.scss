@@ -2,7 +2,7 @@
 // splitter group's current layout (see splitter.component.ts). Panels render
 // their own trailing gutter/handle, positioned via `:host` flex layout rather
 // than absolute positioning, so it participates in the splitter's flex flow
-// like PrimeNG's `p-splitter-gutter`.
+// like `p-splitter-gutter`.
 
 :host {
   --sbb-border-local: var(--sbb-border, #e2e8f0);

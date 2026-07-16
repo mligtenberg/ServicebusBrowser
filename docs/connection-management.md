@@ -55,7 +55,7 @@ unset (mutable), so both actions remain.
 ## PromptService (shared component)
 
 `PromptService` (`@service-bus-browser/shared-components`) is the text-input
-counterpart to `ConfirmationService`. It opens a PrimeNG dynamic dialog
+counterpart to `ConfirmationService`. It opens a dynamic dialog
 (`PromptDialogBody`) with a single text input and resolves with the trimmed
 string, or `undefined` if cancelled. Use it whenever a single line of text is
 needed from the user (e.g. renaming).

@@ -9,7 +9,7 @@ import { SbbDialogConfig, SbbDialogInternalData } from './dialog.models';
  * `SbbDialogService` — opens modal dialogs programmatically, returning an
  * `SbbDialogRef` whose `closed` observable resolves with the dialog result.
  *
- * Opinionated-minimal replacement for PrimeNG's `DialogService` /
+ * Opinionated-minimal replacement for `DialogService` /
  * `DynamicDialog`, built on `@angular/cdk/dialog`. It renders the caller's
  * content component inside a themed `SbbDialogContainer` (header + close
  * button + backdrop) and provides the `SbbDialogRef` to that component via
@@ -24,7 +24,7 @@ import { SbbDialogConfig, SbbDialogInternalData } from './dialog.models';
  * const confirmed = await firstValueFrom(ref.closed);
  * ```
  *
- * brain/CDK types never appear in the public API — callers see only
+ * CDK types never appear in the public API — callers see only
  * `SbbDialogConfig` and `SbbDialogRef`.
  */
 @Injectable({ providedIn: 'root' })

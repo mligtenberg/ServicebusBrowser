@@ -22,8 +22,7 @@ export interface SbbDialogConfig {
 
   /**
    * Values applied to the content component's inputs after it is created
-   * (via `ComponentRef.setInput`), keyed by input name. Replaces PrimeNG's
-   * `inputValues`.
+   * (via `ComponentRef.setInput`), keyed by input name. Replaces * `inputValues`.
    */
   inputs?: Record<string, unknown>;
 

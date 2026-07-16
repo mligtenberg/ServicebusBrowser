@@ -56,7 +56,7 @@ export class AddActionBodyComponent {
   protected replaceOnDuplicate = model<boolean>(false);
   protected value = model<PropertyValue | undefined>();
   // Tracks the custom application-property value type. Previously read off a
-  // PrimeNG p-select's own `#ref.value` template variable; SbbSelect keeps no
+  // p-select's own `#ref.value` template variable; SbbSelect keeps no
   // such public value property, so this is now bound via [(ngModel)] instead.
   protected applicationPropertyType = signal<string>('string');
 

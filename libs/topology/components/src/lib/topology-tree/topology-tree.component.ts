@@ -330,7 +330,7 @@ export class TopologyTreeComponent {
   /**
    * Ids of expanded nodes fed to SbbTree. While a search filter is active every
    * non-leaf node in the (already-pruned) result is force-expanded — mirroring
-   * the old PrimeNG `expanded: true` on matches/ancestors; otherwise expansion
+   * the old `expanded: true` on matches/ancestors; otherwise expansion
    * follows the user's manual `opened` set.
    */
   expandedIds = computed<string[]>(() => {
@@ -395,7 +395,7 @@ export class TopologyTreeComponent {
   // ── Autosuggest ───────────────────────────────────────────────────────────
 
   /**
-   * PrimeNG emits (onClear) when the input is emptied (including via backspace),
+   * emits (onClear) when the input is emptied (including via backspace),
    * and in that case it does NOT call completeMethod — so we must reset the
    * free-text filter here, otherwise the last term keeps filtering/highlighting.
    */

@@ -204,7 +204,7 @@
 }
 
 // lib-messages-viewer is not part of this migration and still renders a
-// PrimeNG p-splitter internally; keep suppressing its default borders here.
+// p-splitter internally; keep suppressing its default borders here.
 ::ng-deep lib-messages-viewer .p-splitter {
   border-left: none;
   border-right: none;

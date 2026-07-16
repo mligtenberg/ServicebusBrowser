@@ -27,7 +27,7 @@ export const SBB_FLOAT_LABEL_CONTROL = new InjectionToken<SbbFloatLabelControl>(
 /**
  * Float-label wrapper for a single projected form control.
  *
- * Replaces PrimeNG's `<p-floatlabel variant="on">`. Every current call site
+ * Replaces `<p-floatlabel variant="on">`. Every current call site
  * uses the `"on"` variant only (label always floated, resting on the
  * control's top border) — so this wrapper hard-codes that behaviour instead
  * of exposing a `variant` input.

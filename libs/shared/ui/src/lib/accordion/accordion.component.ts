@@ -11,7 +11,7 @@ import { SBB_ACCORDION, SbbAccordionHost } from './accordion.token';
  *    signal input/output, not on a shared `value` array. This keeps parent
  *    templates declarative (`[open]`/`(openChange)` per panel).
  *
- * Note on implementation: `@spartan-ng/brain`'s headless accordion
+ * Note on implementation: headless accordion
  * (`BrnAccordion`/`BrnAccordionItem`) resolves its shared state purely via
  * `inject()` through the *element* injector tree. That tree does not carry
  * across `<ng-content>` projection boundaries the way it would need to for a

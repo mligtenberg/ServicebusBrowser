@@ -5,9 +5,9 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  * scrollbars, projecting arbitrary content.
  *
  * Opinionated-minimal replacement for `p-scroll-panel`. There is no matching
- * `@spartan-ng/brain` primitive (brain@1.0.4 ships no scroll-area), so this
+ * primitive (ships no scroll-area), so this
  * wraps a plain native element with `overflow: auto` and CSS
- * `scrollbar-color`/`::-webkit-scrollbar` styling rather than any brain/CDK
+ * `scrollbar-color`/`::-webkit-scrollbar` styling rather than any CDK
  * primitive.
  *
  * Public API derived from current `p-scroll-panel` call sites:

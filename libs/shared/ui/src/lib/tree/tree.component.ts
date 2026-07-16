@@ -46,7 +46,7 @@ export type SbbTreeSelectionMode = 'single' | 'multiple';
  * Non-selectable nodes (`selectable === false`) never enter the selection.
  *
  * CDK types never leak through the public surface. Indentation + toggle-button
- * sizing reproduce the current PrimeNG topology tree via `--sbb-*` tokens.
+ * sizing reproduce the current topology tree via `--sbb-*` tokens.
  */
 @Component({
   selector: 'sbb-tree',
@@ -104,7 +104,7 @@ export class SbbTree<T extends SbbTreeNode = SbbTreeNode> {
   // the whole `nodes` array on every filter change while keeping stable ids;
   // with `trackBy` by id, CdkTree reuses a same-id parent's view and keeps its
   // *stale* children. Omitting it makes CdkTree re-render on array replacement
-  // (PrimeNG's model), so changed child sets refresh. Expansion/selection are
+  // (model), so changed child sets refresh. Expansion/selection are
   // preserved because they live in the external `expandedIds`/`selectedIds`.
 
   /** Fast membership lookup for the template. */

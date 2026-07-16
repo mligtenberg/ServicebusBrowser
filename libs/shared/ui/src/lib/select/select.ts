@@ -52,7 +52,7 @@ interface SbbSelectFlatOption<T> {
  * select opened *inside* another popover forms a native popover ancestor
  * chain: clicking an option is a click "inside" the parent for light-dismiss
  * purposes, so the parent popover stays open. This is the whole reason the
- * dropdown is not a CDK/`@spartan-ng/brain` overlay — those portal to
+ * dropdown is not a CDK overlay — those portal to
  * `<body>`, land outside the parent's subtree, and light-dismiss it.
  *
  * The listbox semantics (keyboard navigation, `aria-activedescendant`,

@@ -16,7 +16,7 @@ const DEFAULT_LIFE_MS = 3000;
  * `SbbToastService` — shows transient, auto-dismissing notifications stacked
  * in a top-right overlay.
  *
- * Opinionated-minimal replacement for PrimeNG's `MessageService` +
+ * Opinionated-minimal replacement for `MessageService` +
  * `<p-toast>`, hand-built on `@angular/cdk/overlay` (no ngx-sonner, per the
  * migration's "no extra opinionated deps" rule). A single global overlay is
  * created lazily on the first toast and reused thereafter; the queue is a

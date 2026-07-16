@@ -9,7 +9,7 @@ import {
  * `SbbDivider` — a styled horizontal/vertical rule with optional projected
  * content (e.g. a label or icon breaking the line).
  *
- * Replaces PrimeNG's `p-divider` call sites. Opinionated-minimal: layout
+ * Replaces `p-divider` call sites. Opinionated-minimal: layout
  * (horizontal/vertical), stroke `type`, and `align` for projected content on
  * horizontal dividers.
  *

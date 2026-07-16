@@ -16,7 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  *
  * Implements `ControlValueAccessor` so it can be used with
  * `formControlName` / `[formControl]` / `[(ngModel)]` exactly like the
- * PrimeNG checkbox it replaces.
+ * checkbox it replaces.
  */
 @Component({
   selector: 'sbb-checkbox',

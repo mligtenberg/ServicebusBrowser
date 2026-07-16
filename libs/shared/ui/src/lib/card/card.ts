@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
  * Opinionated-minimal API distilled from the current `p-card` call sites
  * across the app: every call site sets only a plain string `header` and
  * projects arbitrary body content (forms, tables, text) via default content
- * projection. No call site uses PrimeNG's subtitle/footer/header-template
+ * projection. No call site uses subtitle/footer/header-template
  * regions, so this wrapper does not expose them.
  *
  * Pure display component — no behavior beyond rendering the header + body.

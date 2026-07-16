@@ -3,7 +3,7 @@
 // Consumes global `--sbb-*` tokens (libs/shared/ui/src/lib/styles/_tokens.scss).
 // Tree-specific sizing tokens are declared locally with fallbacks so the
 // component renders correctly even if the global sheet is not yet loaded.
-// Sizing mirrors the current PrimeNG topology tree for visual parity:
+// Sizing mirrors the current topology tree for visual parity:
 //   p-tree-padding            0.6rem   -> --sbb-tree-padding
 //   p-tree-node-toggle-size   1.2rem   -> --sbb-tree-toggle-size
 //   p-tree-indent             = toggle -> --sbb-tree-indent
