@@ -4,10 +4,12 @@
       [orientation]="containerWidth() < 600 ? 'vertical' : 'horizontal'"
     >
       <sbb-splitter-panel [size]="70">
-        <div class="header">
-          <h2>Message body</h2>
+        <div class="message-body-container">
+          <div class="header">
+            <h2>Message body</h2>
+          </div>
+          <ng-container *ngTemplateOutlet="bodyTemplate" />
         </div>
-        <ng-container *ngTemplateOutlet="bodyTemplate" />
       </sbb-splitter-panel>
       <sbb-splitter-panel [size]="30">
         <div class="all-properties-container">

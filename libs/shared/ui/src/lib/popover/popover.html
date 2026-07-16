@@ -1,7 +1,7 @@
 <div
   #panel
   class="sbb-popover-panel"
-  popover="auto"
+  [attr.popover]="mode()"
   [attr.data-align]="align()"
   (toggle)="onToggle($event)"
 >

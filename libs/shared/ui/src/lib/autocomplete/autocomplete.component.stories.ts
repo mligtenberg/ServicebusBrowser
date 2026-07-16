@@ -65,6 +65,40 @@ export const SelectSuggestion: Story = {
 };
 
 /**
+ * Regression: with `completeOnFocus` and suggestions already available, clicking
+ * the input must open the panel and keep it open. Opening the native popover
+ * synchronously inside the focusing click used to let the browser's
+ * light-dismiss treat that same click as an outside press and close it again
+ * immediately (it only reappeared once the user typed).
+ */
+export const OpensOnFocus: Story = {
+  args: { suggestions, completeOnFocus: true, minLength: 0 },
+  render: (args) => ({
+    props: args,
+    template: `<div style="width: 16rem">
+      <sbb-autocomplete
+        [suggestions]="suggestions"
+        [placeholder]="placeholder"
+        [completeOnFocus]="completeOnFocus"
+        [minLength]="minLength"
+      ></sbb-autocomplete>
+    </div>`,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('combobox');
+
+    await userEvent.click(input);
+
+    const option = await canvas.findByRole('option', { name: 'alpha' });
+    await waitFor(() => expect(option).toBeVisible());
+    // Still open after the click gesture settles (would have light-dismissed).
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(canvas.getByRole('option', { name: 'alpha' })).toBeVisible();
+  },
+};
+
+/**
  * Regression: an autocomplete rendered *inside* an `SbbPopover`. Its suggestion
  * panel is a nested native popover, so picking a suggestion must NOT
  * light-dismiss the surrounding popover. Open the popover, type, and click a

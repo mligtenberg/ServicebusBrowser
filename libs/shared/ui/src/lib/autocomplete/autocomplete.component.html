@@ -15,13 +15,14 @@
   (keydown)="onKeydown($event)"
 />
 
-<sbb-popover align="start" [sideOffset]="4" (closed)="onPopoverClosed()">
+<sbb-popover mode="manual" align="start" [sideOffset]="4" (closed)="onPopoverClosed()">
   @if (isOpen()) {
   <div
     class="sbb-autocomplete-panel"
     role="listbox"
     [id]="listboxId"
     [style.min-width.px]="panelMinWidth()"
+    (mousedown)="$event.preventDefault()"
   >
     @if (groups(); as gs) {
       @for (group of gs; track group.label) {
@@ -43,7 +44,6 @@
               class="sbb-autocomplete-panel__option"
               [class.sbb-autocomplete-panel__option--active]="isActive(item)"
               [attr.aria-selected]="isActive(item)"
-              (mousedown)="$event.preventDefault()"
               (click)="selectItem(item)"
               (mouseenter)="setActive(item)"
             >
@@ -67,7 +67,6 @@
           class="sbb-autocomplete-panel__option"
           [class.sbb-autocomplete-panel__option--active]="isActive(item)"
           [attr.aria-selected]="isActive(item)"
-          (mousedown)="$event.preventDefault()"
           (click)="selectItem(item)"
           (mouseenter)="setActive(item)"
         >

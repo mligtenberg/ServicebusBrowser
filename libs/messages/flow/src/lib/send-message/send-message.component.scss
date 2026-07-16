@@ -22,6 +22,24 @@
   flex: 1;
   overflow: hidden;
   border-bottom: 1px solid var(--sbb-border);
+  display: flex;
+  flex-direction: column;
+
+  sbb-splitter {
+    flex: 1;
+  }
+}
+
+.message-body-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  sbb-form-editor {
+    flex: 1;
+    overflow: hidden;
+  }
 }
 
 .all-properties-container {
@@ -79,12 +97,18 @@
   }
 }
 
+sbb-float-label {
+  width: 100%;
+  display: block;
+}
+
 lib-auto-complete-form-input,
 sbb-autocomplete {
   width: 100%;
   display: flex;
   justify-content: stretch;
   align-items: stretch;
+  flex: 1;
 }
 
 sbb-input-group {

@@ -13,6 +13,7 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
       [suggestions]="suggestions()"
       [groups]="groups()"
       [minLength]="minLength()"
+      [completeOnFocus]="completeOnFocus()"
       (completeChange)="lastQuery = $event"
       (selected)="lastSelected = $event"
       (cleared)="clears = clears + 1"
@@ -23,6 +24,7 @@ class HostComponent {
   readonly suggestions = signal<readonly string[]>([]);
   readonly groups = signal<readonly SbbAutocompleteGroup<string>[] | null>(null);
   readonly minLength = signal(1);
+  readonly completeOnFocus = signal(false);
   value: string | null = null;
   lastQuery: string | null = null;
   lastSelected: string | null = null;
@@ -131,6 +133,26 @@ describe('SbbAutocomplete', () => {
     ).map((el) => el.textContent?.trim());
     expect(labels).toEqual(['Queues', 'Topics']);
     expect(options().length).toBe(3);
+  });
+
+  it('opens on focus when suggestions are already populated (completeOnFocus)', async () => {
+    host.completeOnFocus.set(true);
+    host.minLength.set(0);
+    host.suggestions.set(['alpha', 'beta']);
+    await flush();
+
+    const el = input();
+    el.focus();
+    el.dispatchEvent(new Event('focus'));
+    // Focus-open is deferred to a macrotask to survive native light-dismiss.
+    await new Promise((resolve) => setTimeout(resolve));
+    await flush();
+
+    expect(host.lastQuery).toBe('');
+    expect(options().map((b) => b.textContent?.trim())).toEqual([
+      'alpha',
+      'beta',
+    ]);
   });
 
   it('does not open below minLength', async () => {

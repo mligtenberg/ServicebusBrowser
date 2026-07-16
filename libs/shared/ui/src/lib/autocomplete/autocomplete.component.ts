@@ -146,6 +146,7 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
       }
       const shouldOpen =
         this.wantOpen() && !this.isDisabled() && this.flatItems().length > 0;
+      console.log('[AC effect]', { wantOpen: this.wantOpen(), disabled: this.isDisabled(), items: this.flatItems().length, shouldOpen });
       if (shouldOpen) {
         const input = this.inputRef().nativeElement;
         this.panelMinWidth.set(input.offsetWidth);
@@ -199,12 +200,23 @@ export class SbbAutocomplete<T> implements ControlValueAccessor {
   protected onFocus(): void {
     if (this.completeOnFocus() && !this.isDisabled()) {
       this.completeChange.emit(this.query());
-      this.wantOpen.set(true);
+      // Defer opening past the click that moved focus here. Opening the native
+      // `popover="auto"` synchronously inside that click gesture makes the
+      // browser's light-dismiss treat the same press as an outside click and
+      // close the panel again immediately (only visible when suggestions are
+      // already populated on focus). A macrotask lands after the gesture
+      // completes; re-check focus so a quick blur doesn't reopen it.
+      setTimeout(() => {
+        if (document.activeElement === this.inputRef().nativeElement) {
+          this.wantOpen.set(true);
+        }
+      });
     }
   }
 
   protected onBlur(): void {
     this.onTouched();
+    this.wantOpen.set(false);
   }
 
   protected onKeydown(event: KeyboardEvent): void {

@@ -52,6 +52,9 @@ export class SbbPopover {
   /** Vertical gap, in pixels, between the trigger and the panel. */
   readonly sideOffset = input<number>(4);
 
+  /** The native popover mode to use. */
+  readonly mode = input<'auto' | 'manual'>('auto');
+
   /** Emits once the panel has opened. */
   readonly opened = output<void>();
 
@@ -80,6 +83,7 @@ export class SbbPopover {
 
   /** Anchors the panel to `origin` and opens it (no-op if already open). */
   open(origin: HTMLElement): void {
+    console.log('[POP open]', new Error().stack?.split('\n').slice(1,4).join(' | '));
     const panel = this.panelRef().nativeElement;
     if (this.supportsPopover(panel)) {
       if (panel.matches(':popover-open')) {
@@ -95,6 +99,7 @@ export class SbbPopover {
 
   /** Closes the panel (no-op if already closed). */
   close(): void {
+    console.log('[POP close]', new Error().stack?.split('\n').slice(1,4).join(' | '));
     const panel = this.panelRef().nativeElement;
     if (this.supportsPopover(panel) && panel.matches(':popover-open')) {
       panel.hidePopover();
