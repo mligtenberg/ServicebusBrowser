@@ -38,6 +38,10 @@ import {
   SbbLazyLoadEvent,
   SbbMenuItem,
   SbbPopover,
+  SbbReorderableList,
+  SbbReorderableListHandle,
+  SbbReorderableListItemDef,
+  SbbReorderableListReorderEvent,
   SbbScrollPanel,
   SbbSelect,
   SbbSelectOptionGroup,
@@ -52,13 +56,6 @@ import {
   faTableCells,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
 
 /** Lazy-load window requested by the viewer (absolute row indices). */
 export interface MessagesLazyLoad {
@@ -84,9 +81,9 @@ export interface MessagesLazyLoad {
     SbbButton,
     SbbTooltip,
     FaIconComponent,
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
+    SbbReorderableList,
+    SbbReorderableListItemDef,
+    SbbReorderableListHandle,
   ],
   templateUrl: './messages-viewer.html',
   styleUrl: './messages-viewer.scss',
@@ -397,13 +394,12 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     );
   }
 
-  protected dropColumn(event: CdkDragDrop<string[]>) {
-    if (event.previousIndex === event.currentIndex) {
-      return;
-    }
+  protected dropColumn(event: SbbReorderableListReorderEvent) {
+    const { previousIndex, currentIndex } = event;
     this.selectedColumnFields.update((f) => {
       const arr = [...f];
-      moveItemInArray(arr, event.previousIndex, event.currentIndex);
+      const [moved] = arr.splice(previousIndex, 1);
+      arr.splice(currentIndex, 0, moved);
       return arr;
     });
   }

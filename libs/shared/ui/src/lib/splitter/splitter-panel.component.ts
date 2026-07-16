@@ -38,6 +38,9 @@ import { SBB_SPLITTER_GROUP } from './splitter.token';
         [attr.aria-orientation]="
           orientation() === 'vertical' ? 'horizontal' : 'vertical'
         "
+        [attr.aria-valuenow]="currentSize()"
+        [attr.aria-valuemin]="minSize()"
+        [attr.aria-valuemax]="maxSize()"
         (mousedown)="onHandlePointerDown($event)"
         (touchstart)="onHandlePointerDown($event)"
         (keydown)="onHandleKeydown($event)"

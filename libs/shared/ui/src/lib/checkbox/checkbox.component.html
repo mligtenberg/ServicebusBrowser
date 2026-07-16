@@ -5,6 +5,8 @@
     role="checkbox"
     class="sbb-checkbox__control"
     [attr.aria-checked]="indeterminate() ? 'mixed' : checked()"
+    [attr.aria-label]="ariaLabelAttr()"
+    [attr.aria-labelledby]="labelledBy()"
     [disabled]="isDisabled()"
     (click)="onCheckedChange(!checked())"
     (blur)="onTouchedHandler()"
@@ -28,6 +30,6 @@
     </span>
   </button>
   @if (label()) {
-    <span class="sbb-checkbox__label">{{ label() }}</span>
+    <span [id]="labelId" class="sbb-checkbox__label">{{ label() }}</span>
   }
 </label>

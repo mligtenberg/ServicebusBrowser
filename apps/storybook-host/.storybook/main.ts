@@ -54,7 +54,7 @@ const config: StorybookConfig = {
     '../../../libs/shared/components/src/**/*.stories.@(ts|mdx)',
     '../../../libs/logs/components/src/**/*.stories.@(ts|mdx)',
   ],
-  addons: [],
+  addons: ['@storybook/addon-vitest', '@storybook/addon-a11y'],
   viteFinal: (viteConfig) => {
     viteConfig.resolve ??= {};
     viteConfig.resolve.alias = [

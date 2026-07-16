@@ -93,7 +93,10 @@
 
   // Muted/secondary text (labels, placeholders, hints).
   // Parity: Aura light `text.mutedColor` -> surface.500 / dark `text.mutedColor` -> surface.400.
-  --sbb-text-muted: light-dark(var(--sbb-gray-500), var(--sbb-gray-400));
+  // Light value darkened from surface.500 (#64748b, only 4.34:1 on the gray-100
+  // odd-row background) to a slightly deeper slate so muted text clears WCAG AA
+  // 4.5:1 on both the base and gray-100 surfaces. Same slate hue family.
+  --sbb-text-muted: light-dark(#5c6a7e, var(--sbb-gray-400));
 
   // Default border/divider color.
   // Parity: Aura light `content.borderColor` -> surface.200 / dark `content.borderColor` -> surface.700.
@@ -111,10 +114,11 @@
   --sbb-focus-ring: var(--sbb-primary);
 
   // Solid brand-colored bar/header fill (pairs with --sbb-on-primary text).
-  // Unchanged in light; deeper in dark so the fill doesn't glare like the
-  // bright primary.400 accent would.
-  --sbb-primary-surface: light-dark(var(--sbb-primary-500), var(--sbb-primary-700));
-  --sbb-primary-surface-hover: light-dark(var(--sbb-primary-600), var(--sbb-primary-800));
+  // Deeper in both schemes so white/--sbb-on-primary text meets WCAG AA 4.5:1:
+  // primary.500 (#0ea5e9) gave only 2.77:1 with white. Light now uses primary.700
+  // (#0369a1 -> 5.93:1); dark keeps primary.700 so the fill doesn't glare.
+  --sbb-primary-surface: light-dark(var(--sbb-primary-700), var(--sbb-primary-700));
+  --sbb-primary-surface-hover: light-dark(var(--sbb-primary-800), var(--sbb-primary-800));
 
   // Default corner radius for controls/surfaces.
   // Parity: PrimeUix `border.radius.md` (default, unmodified by the app).

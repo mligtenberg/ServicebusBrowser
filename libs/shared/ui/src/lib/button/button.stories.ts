@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
+import { expect, fireEvent, fn, userEvent, within } from 'storybook/test';
 import { SbbButton } from './button';
 
 /**
@@ -53,7 +54,19 @@ const meta: Meta<SbbButton> = {
 export default meta;
 type Story = StoryObj<SbbButton>;
 
-export const Primary: Story = { args: { severity: 'primary' } };
+export const Primary: Story = {
+  args: { severity: 'primary' },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Button' });
+    const onClick = fn();
+    button.addEventListener('click', onClick);
+
+    await fireEvent.click(button);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  },
+};
 
 export const Secondary: Story = {
   args: { severity: 'secondary', variant: 'outlined' },
@@ -61,6 +74,40 @@ export const Secondary: Story = {
 
 export const Danger: Story = { args: { severity: 'danger' } };
 
-export const Disabled: Story = { args: { disabled: true } };
+export const Disabled: Story = {
+  args: { disabled: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', {
+      name: 'Button',
+    }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
 
-export const Loading: Story = { args: { loading: true } };
+    const onClick = fn();
+    button.addEventListener('click', onClick);
+    // `userEvent.click` (unlike `fireEvent.click`) checks the disabled state
+    // before dispatching, matching how a real click behaves — a raw
+    // `dispatchEvent` bypasses that check and fires the listener regardless.
+    await userEvent.click(button);
+
+    expect(onClick).not.toHaveBeenCalled();
+  },
+};
+
+export const Loading: Story = {
+  args: { loading: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', {
+      name: 'Button',
+    }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    expect(button.getAttribute('aria-busy')).toBe('true');
+
+    const onClick = fn();
+    button.addEventListener('click', onClick);
+    await userEvent.click(button);
+
+    expect(onClick).not.toHaveBeenCalled();
+  },
+};

@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
-import { MainUiComponent } from '@service-bus-browser/main-ui';
+import { MainUiComponent, pagesActions } from '@service-bus-browser/main-ui';
 import { SbbMenu, SbbMenuItem, SbbButton } from '@service-bus-browser/shared-ui';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
@@ -131,6 +131,7 @@ export class MainApp implements OnInit {
     // renders, so the token is available for these HTTP calls.
     const workspaces = await this.workspacesClient.listWorkspaces();
     const workspace = this.workspaceService.initialize(workspaces);
+    this.store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
     await this.workspacesClient.setActiveWorkspaceId(workspace.id);
 
     try {

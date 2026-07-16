@@ -7,10 +7,12 @@
 .sbb-button {
   // Local danger-severity ramp. Not part of the shared `--sbb-*` token set
   // (no global danger token exists yet); scoped here so no hex appears in
-  // the rules below. Seeded from PrimeUix Aura's `red` palette for parity
-  // with the current `severity="danger"` p-button color.
-  --sbb-button-danger: #ef4444;
-  --sbb-button-danger-hover: #dc2626;
+  // the rules below. Seeded from PrimeUix Aura's `red` palette.
+  // Base/hover deepened one step (red.500 #ef4444 -> red.600 #dc2626, hover
+  // -> red.700 #b91c1c): filled #f8fafc label on #ef4444 was only 3.60:1;
+  // on #dc2626 it is 4.62:1, meeting WCAG AA 4.5:1.
+  --sbb-button-danger: #dc2626;
+  --sbb-button-danger-hover: #b91c1c;
   --sbb-button-danger-subtle: #fef2f2;
 
   display: inline-flex;

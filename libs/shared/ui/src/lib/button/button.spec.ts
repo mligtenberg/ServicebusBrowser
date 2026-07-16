@@ -16,6 +16,7 @@ import { SbbButton } from './button';
       [rounded]="rounded()"
       [loading]="loading()"
       [disabled]="disabled()"
+      [aria-label]="ariaLabel()"
       (click)="onClick()"
     >
       {{ label() }}
@@ -31,12 +32,19 @@ class HostComponent {
   readonly rounded = signal(false);
   readonly loading = signal(false);
   readonly disabled = signal(false);
+  readonly ariaLabel = signal<string | undefined>(undefined);
   readonly label = signal('Save');
   clicked = 0;
   onClick(): void {
     this.clicked++;
   }
 }
+
+@Component({
+  imports: [SbbButton],
+  template: `<sbb-button [iconOnly]="true" aria-label="More actions"></sbb-button>`,
+})
+class StaticAriaLabelHostComponent {}
 
 describe('SbbButton', () => {
   let fixture: ComponentFixture<HostComponent>;
@@ -131,5 +139,26 @@ describe('SbbButton', () => {
     expect(el.classList).toContain('sbb-button--rounded');
     const labelSpan = fixture.debugElement.query(By.css('.sbb-button__label'));
     expect(labelSpan.nativeElement.classList).toContain('sbb-button__label--hidden');
+  });
+
+  it('forwards aria-label onto the native button, not the host element', () => {
+    host.ariaLabel.set('More actions');
+    fixture.detectChanges();
+
+    const el = buttonEl();
+    expect(el.getAttribute('aria-label')).toBe('More actions');
+    expect(fixture.debugElement.nativeElement.getAttribute('aria-label')).toBeNull();
+  });
+
+  it('accepts a static aria-label attribute, matching existing call-site syntax', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [StaticAriaLabelHostComponent],
+    }).compileComponents();
+    const staticFixture = TestBed.createComponent(StaticAriaLabelHostComponent);
+    staticFixture.detectChanges();
+
+    const el = staticFixture.debugElement.query(By.css('button')).nativeElement;
+    expect(el.getAttribute('aria-label')).toBe('More actions');
   });
 });

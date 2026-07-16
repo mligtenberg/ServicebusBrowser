@@ -356,18 +356,25 @@
     "homepage": "https://github.com/angular/angular-cli"
   },
   {
-    "name": "@spartan-ng/brain",
-    "version": "1.0.4",
-    "author": "",
-    "license": "MIT",
-    "homepage": "https://github.com/spartan-ng/spartan.git"
-  },
-  {
     "name": "@sqlite.org/sqlite-wasm",
     "version": "3.51.2-build6",
     "author": "Thomas Steiner (tomac@google.com)",
     "license": "Apache-2.0",
     "homepage": "https://github.com/sqlite/sqlite-wasm#readme"
+  },
+  {
+    "name": "@storybook/addon-a11y",
+    "version": "10.5.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/storybookjs/storybook/tree/next/code/addons/a11y"
+  },
+  {
+    "name": "@storybook/addon-vitest",
+    "version": "10.5.0",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://github.com/storybookjs/storybook/tree/next/code/addons/vitest"
   },
   {
     "name": "@storybook/angular",
@@ -444,6 +451,20 @@
     "author": "",
     "license": "MIT",
     "homepage": "https://typescript-eslint.io/packages/utils"
+  },
+  {
+    "name": "@vitest/browser-playwright",
+    "version": "4.1.10",
+    "author": "",
+    "license": "MIT",
+    "homepage": "https://vitest.dev/config/browser/playwright"
+  },
+  {
+    "name": "@vitest/coverage-v8",
+    "version": "4.1.10",
+    "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+    "license": "MIT",
+    "homepage": "https://vitest.dev/guide/coverage"
   },
   {
     "name": "@zip.js/zip.js",
@@ -604,6 +625,13 @@
     "homepage": "git+https://github.com/bennymeg/nx-electron.git"
   },
   {
+    "name": "playwright",
+    "version": "1.61.1",
+    "author": "Microsoft Corporation",
+    "license": "Apache-2.0",
+    "homepage": "https://playwright.dev"
+  },
+  {
     "name": "prettier",
     "version": "3.6.2",
     "author": "James Long",
@@ -679,6 +707,13 @@
     "author": "Evan You",
     "license": "MIT",
     "homepage": "https://vite.dev"
+  },
+  {
+    "name": "vitest",
+    "version": "4.1.10",
+    "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+    "license": "MIT",
+    "homepage": "https://vitest.dev"
   },
   {
     "name": "webpack-cli",

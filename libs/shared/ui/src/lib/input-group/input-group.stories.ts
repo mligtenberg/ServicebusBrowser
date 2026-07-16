@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { faTrash, faXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { SbbInputGroup } from './input-group';
 import { SbbInputGroupAddon } from './input-group-addon';
@@ -56,7 +57,7 @@ const wrap = (inner: string) => `
   <div style="padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
     <sbb-input-group>
       <sbb-input-group-addon>
-        <sbb-checkbox />
+        <sbb-checkbox ariaLabel="Select filter" />
       </sbb-input-group-addon>
       <sbb-select [options]="fieldOptions" placeholder="Select Property" />
       <sbb-select [options]="filterOptions" placeholder="Filter Type" />
@@ -71,13 +72,25 @@ export const StringFilter: Story = {
     props: { ...args, fieldOptions, filterOptions, removeIcon: faTrash },
     template: wrap(`<sbb-input placeholder="Value" />`),
   }),
+  play: async ({ canvasElement }) => {
+    // `getByPlaceholderText`/`getByRole` both match ambiguously here: the
+    // `<sbb-input placeholder="Value">` host attribute reflects onto the
+    // custom element too (matching `getByPlaceholderText`), and the native
+    // `<input>` has no computed accessible name from `placeholder` alone (no
+    // `textbox` role match). Only one real `<input>` exists, so query it directly.
+    const valueInput = canvasElement.querySelector('input') as HTMLInputElement;
+
+    await userEvent.type(valueInput, 'delivery-count');
+
+    await expect(valueInput).toHaveValue('delivery-count');
+  },
 };
 
 /** Number filter: numeric value input. */
 export const NumberFilter: Story = {
   render: (args) => ({
     props: { ...args, fieldOptions, filterOptions, removeIcon: faTrash },
-    template: wrap(`<sbb-input-number />`),
+    template: wrap(`<sbb-input-number ariaLabel="Filter value" />`),
   }),
 };
 
@@ -85,8 +98,18 @@ export const NumberFilter: Story = {
 export const BooleanFilter: Story = {
   render: (args) => ({
     props: { ...args, fieldOptions, filterOptions, removeIcon: faTrash },
-    template: wrap(`<sbb-checkbox />`),
+    template: wrap(`<sbb-checkbox ariaLabel="Filter value" />`),
   }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Two checkboxes render: the row's leading select-all addon, then the
+    // value-slot checkbox this story is about — pick the latter.
+    const [, valueCheckbox] = canvas.getAllByRole('checkbox');
+
+    await userEvent.click(valueCheckbox);
+
+    await waitFor(() => expect(valueCheckbox).toHaveAttribute('aria-checked', 'true'));
+  },
 };
 
 /**
@@ -140,7 +163,7 @@ export const WithoutRemove: Story = {
       <div style="padding: 1rem;">
         <sbb-input-group>
           <sbb-input-group-addon>
-            <sbb-checkbox />
+            <sbb-checkbox ariaLabel="Select filter" />
           </sbb-input-group-addon>
           <sbb-select [options]="fieldOptions" placeholder="Select Property" />
           <sbb-select [options]="filterOptions" placeholder="Filter Type" />

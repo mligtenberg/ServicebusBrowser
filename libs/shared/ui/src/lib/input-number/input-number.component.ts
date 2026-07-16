@@ -6,6 +6,12 @@ import {
   signal,
 } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import {
+  SBB_FLOAT_LABEL_CONTROL,
+  type SbbFloatLabelControl,
+} from '../float-label/float-label';
+
+let nextInputNumberId = 0;
 
 /**
  * `SbbInputNumber` — a styled numeric input implementing `ControlValueAccessor`.
@@ -27,14 +33,30 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
       useExisting: forwardRef(() => SbbInputNumber),
       multi: true,
     },
+    {
+      provide: SBB_FLOAT_LABEL_CONTROL,
+      useExisting: forwardRef(() => SbbInputNumber),
+    },
   ],
   host: {
     class: 'sbb-input-number',
   },
 })
-export class SbbInputNumber implements ControlValueAccessor {
-  /** `id` applied to the native `<input>`, e.g. for `<label for>`. */
-  inputId = input<string>();
+export class SbbInputNumber implements ControlValueAccessor, SbbFloatLabelControl {
+  /**
+   * `id` applied to the native `<input>`, e.g. for `<label for>`. Defaults to
+   * a stable, unique id so the input always has a valid `id` (and can be
+   * associated with an `<sbb-float-label>`) even when no id is passed.
+   */
+  inputId = input<string>(`sbb-input-number-${nextInputNumberId++}`);
+
+  /**
+   * Accessible name for the native `<input>`, applied as `aria-label`. Use for
+   * standalone inputs that have no associated `<label>` (e.g. not wrapped in an
+   * `<sbb-float-label>`). When the input is wrapped in a float-label, that
+   * label provides the accessible name and this can be omitted.
+   */
+  ariaLabel = input<string>();
 
   /** Minimum allowed value. */
   min = input<number>();

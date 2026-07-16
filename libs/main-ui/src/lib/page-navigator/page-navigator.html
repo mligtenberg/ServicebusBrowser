@@ -1,73 +1,85 @@
 <div class="navigator"
-     cdkDropList
-     cdkDropListOrientation="horizontal"
-     (cdkDropListDropped)="drop($event)"
      (scroll)="onElementChange()"
      #pageNavigator
 >
-  @for (page of pages(); track page.id; let i = $index) {
-    <div
-      class="page"
-      cdkDrag
-      [cdkDragDisabled]="page.blocked || editingPageId() === page.id"
-      [cdkDragData]="page.id"
-      [ngClass]="{'active': page === currentPage(), disabled: page.blocked }"
-      (dblclick)="!page.blocked && startRename(page.id, page.name)"
-    >
-      @if (page.blocked) {
-        <span
-          [attr.aria-label]="page.name">{{ page.name }}</span>
-        <button tabindex="1" disabled class="close-button">
-          <span class="fa-solid fa-xmark"></span>
-        </button>
-      }
-      @else {
-        <sbb-context-menu [model]="pageMenu(page.id, page.name, i)" [data]="page.id">
-        @if (editingPageId() === page.id) {
-          <input
-            class="page-name-input"
-            [attr.data-page-rename-input]="page.id"
-            [ngModel]="editingPageName()"
-            (ngModelChange)="updateEditingPageName($event)"
-            (click)="$event.stopPropagation()"
-            (dblclick)="$event.stopPropagation()"
-            (blur)="cancelRename()"
-            (keydown.enter)="commitRename(page.id)"
-            (keydown.escape)="cancelRename()"
-            tabindex="1"
-          />
-          <button
-            tabindex="1"
-            class="rename-action-button accept-button"
-            (mousedown)="$event.preventDefault()"
-            (click)="commitRename(page.id); $event.stopPropagation()"
-            aria-label="Confirm rename"
+  <sbb-tabs
+    [value]="currentPage()?.id"
+    [reorderable]="true"
+    (reordered)="onReordered($event)"
+  >
+    @for (page of pages(); track page.id; let i = $index) {
+      <sbb-tab-panel
+        [value]="page.id"
+        [label]="page.name"
+        [disabled]="!!page.blocked"
+        [dragDisabled]="editingPageId() === page.id"
+      >
+        <ng-template sbbTabHeader>
+          <div
+            class="page"
+            [ngClass]="{
+              active: page === currentPage(),
+              disabled: page.blocked
+            }"
+            (dblclick)="!page.blocked && startRename(page.id, page.name)"
           >
-            <span class="fa-solid fa-check"></span>
-          </button>
-          <button
-            tabindex="1"
-            class="rename-action-button cancel-button"
-            (mousedown)="$event.preventDefault()"
-            (click)="cancelRename(); $event.stopPropagation()"
-            aria-label="Cancel rename"
-          >
-            <span class="fa-solid fa-xmark"></span>
-          </button>
-        }
-        @else {
-          <span
-            [routerLink]="page.route"
-            tabindex="1"
-            [attr.aria-label]="page.name">{{ page.name }}</span>
-          <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
-            <span class="fa-solid fa-xmark"></span>
-          </button>
-        }
-        </sbb-context-menu>
-      }
-    </div>
-  }
+            @if (page.blocked) {
+              <span
+                [attr.aria-label]="page.name">{{ page.name }}</span>
+              <button tabindex="1" disabled class="close-button">
+                <span class="fa-solid fa-xmark"></span>
+              </button>
+            }
+            @else {
+              <sbb-context-menu [model]="pageMenu(page.id, page.name, i)" [data]="page.id">
+              @if (editingPageId() === page.id) {
+                <input
+                  class="page-name-input"
+                  [attr.data-page-rename-input]="page.id"
+                  [ngModel]="editingPageName()"
+                  (ngModelChange)="updateEditingPageName($event)"
+                  (click)="$event.stopPropagation()"
+                  (dblclick)="$event.stopPropagation()"
+                  (blur)="cancelRename()"
+                  (keydown.enter)="commitRename(page.id)"
+                  (keydown.escape)="cancelRename()"
+                  tabindex="1"
+                />
+                <button
+                  tabindex="1"
+                  class="rename-action-button accept-button"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="commitRename(page.id); $event.stopPropagation()"
+                  aria-label="Confirm rename"
+                >
+                  <span class="fa-solid fa-check"></span>
+                </button>
+                <button
+                  tabindex="1"
+                  class="rename-action-button cancel-button"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="cancelRename(); $event.stopPropagation()"
+                  aria-label="Cancel rename"
+                >
+                  <span class="fa-solid fa-xmark"></span>
+                </button>
+              }
+              @else {
+                <span
+                  [routerLink]="page.route"
+                  tabindex="1"
+                  [attr.aria-label]="page.name">{{ page.name }}</span>
+                <button tabindex="1" (click)="closePage(page.id, $event, i)" class="close-button">
+                  <span class="fa-solid fa-xmark"></span>
+                </button>
+              }
+              </sbb-context-menu>
+            }
+          </div>
+        </ng-template>
+      </sbb-tab-panel>
+    }
+  </sbb-tabs>
 </div>
 
 <div class="navigator-border"></div>

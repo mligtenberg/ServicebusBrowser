@@ -18,6 +18,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Messages Reader Continuation Token Behavior](./messages-reader-continuation-token-behavior.md): Cross-broker continuation-token rules to stop message loading exactly at requested limits.
 - [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 - [Storybook Component Workbench](./storybook.md): Single Storybook host (`storybook-host`, Vite builder) for the presentational UI layer — addressable story URLs, theming, and the `build-storybook` type/AOT gate.
+- [Workspace Lifecycle and NgRx Effects Timing](./workspace-lifecycle-and-ngrx-effects.md): Why effects register before app initializers finish, the `workspaceActivated` action pattern for workspace-dependent startup work, and how tab (page) order persistence works.
 
 ## Architecture Decision Records
 

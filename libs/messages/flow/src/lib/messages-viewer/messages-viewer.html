@@ -72,17 +72,17 @@
     </div>
     <sbb-popover #columnPickerPopover>
       <div class="column-picker">
-        <div
+        <sbb-reorderable-list
           class="column-rows"
-          cdkDropList
-          (cdkDropListDropped)="dropColumn($event)"
+          [items]="selectedColumnFields()"
+          (reordered)="dropColumn($event)"
         >
-          @for (field of selectedColumnFields(); track $index; let i = $index) {
-            <div class="column-row" cdkDrag cdkDragLockAxis="y">
+          <ng-template sbbReorderableListItem let-field let-i="index">
+            <div class="column-row">
               <fa-icon
                 class="drag-handle"
                 [icon]="faBars"
-                cdkDragHandle
+                sbbReorderableListHandle
                 aria-label="Drag to reorder"
               ></fa-icon>
               <sbb-select
@@ -102,8 +102,8 @@
                 (click)="removeColumn(i)"
               />
             </div>
-          }
-        </div>
+          </ng-template>
+        </sbb-reorderable-list>
         <div class="column-picker-footer">
           <sbb-button
             [icon]="faPlus"

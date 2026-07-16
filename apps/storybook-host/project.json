@@ -19,6 +19,13 @@
         "command": "storybook build -o ../../dist/storybook/storybook-host",
         "cwd": "apps/storybook-host"
       }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run",
+        "cwd": "apps/storybook-host"
+      }
     }
   }
 }

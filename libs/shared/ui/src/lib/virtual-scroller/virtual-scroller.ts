@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [ScrollingModule, CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <cdk-virtual-scroll-viewport [itemSize]="itemSize()" [appendOnly]="appendOnly()" class="sbb-virtual-scroll-viewport">
+    <cdk-virtual-scroll-viewport tabindex="0" [itemSize]="itemSize()" [appendOnly]="appendOnly()" class="sbb-virtual-scroll-viewport">
       <ng-container *cdkVirtualFor="let item of items(); let i = index">
         <ng-container *ngTemplateOutlet="itemTemplate() || defaultTemplate; context: { $implicit: item, index: i }"></ng-container>
       </ng-container>

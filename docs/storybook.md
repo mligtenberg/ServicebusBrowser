@@ -86,3 +86,78 @@ A signal `input()` falls back to its default only when it is **not bound at
 all**; binding an unset arg passes an explicit `undefined` and clobbers the
 default (e.g. a missing `variant` drops the `sbb-button--filled` class and the
 button renders with fallback colors).
+
+## Automated tests (`@storybook/addon-vitest`)
+
+Every story doubles as a Vitest test — a real Chromium instance (via
+Playwright's browser mode) renders the story and, if the story has a `play`
+function, runs it. This replaces manual browser-driven checks (navigating to
+a story, clicking around, reading the DOM) for anything that's checked more
+than once: the automation cost is paid once, instead of every time on every
+future check.
+
+```bash
+pnpm exec nx run storybook-host:test        # runs every story as a test
+```
+
+Add a `play` function to a story to assert interaction behavior, using
+`storybook/test` (a re-export of Testing Library + Vitest's `expect`):
+
+```ts
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
+
+export const InsidePopover: Story = {
+  // ...
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await fireEvent.click(canvas.getByRole('button', { name: 'Open popover' }));
+    await waitFor(() => expect(canvas.getByText('...')).toBeVisible());
+  },
+};
+```
+
+See [context-menu.component.stories.ts](../libs/shared/ui/src/lib/context-menu/context-menu.component.stories.ts)'s
+`InsidePopover` story for a full example (asserts that choosing a context-menu
+item doesn't light-dismiss the surrounding popover).
+
+### Gotchas
+
+- **`waitFor` around `toBeVisible()` on anything with a CSS animation.**
+  `toBeVisible()` reads computed `opacity` synchronously. `SbbPopover`'s panel
+  runs a `sbb-fade-in` opacity animation on open, so a bare
+  `expect(el).toBeVisible()` right after triggering an open can catch the very
+  first animation frame (`opacity: 0`) and fail — not a real bug, just an
+  assertion racing the animation. Wrap it in `waitFor(() => expect(...))`.
+- **Never invoke `vitest` via `pnpm exec` from inside `apps/storybook-host`.**
+  That directory has no local `package.json`, so `pnpm exec` silently resets
+  the working directory to the workspace root before running the binary —
+  `vitest.config.ts` then fails to load (or loads the wrong one), execution
+  falls back to Vitest's default test discovery, and it silently runs every
+  Jest `*.spec.ts` in the whole monorepo instead of the story files (they
+  all fail with `ReferenceError: describe is not defined`, since Jest globals
+  aren't injected). Always go through the Nx target
+  (`nx run storybook-host:test`, backed by `nx:run-commands` with an explicit
+  `cwd`) — Nx spawns the binary directly without pnpm's cwd remap.
+- All 9 story files have `play`-function interaction coverage as of writing;
+  expanding coverage further is just adding more stories/assertions as new
+  components arrive.
+- **`fireEvent.click` on a disabled native `<button>` still invokes
+  listeners.** A raw `dispatchEvent` bypasses the browser's disabled-element
+  suppression, which only applies to trusted/real clicks. Use
+  `userEvent.click` instead when asserting a disabled control does *not*
+  respond, or you'll get a false failure — see the `Disabled`/`Loading`
+  stories in [button.stories.ts](../libs/shared/ui/src/lib/button/button.stories.ts).
+
+## Accessibility checks (`@storybook/addon-a11y`)
+
+Every story is also linted for accessibility violations (axe-core) as part of
+the same Vitest run, via `parameters.a11y` in `preview.ts`. Currently set to
+`test: 'todo'` — violations are recorded but don't fail the test, since the
+app has known, pre-existing gaps (see below). Flip it to `test: 'error'` once
+those are cleared, to make new a11y regressions actually fail CI.
+
+Known gap (found via the interaction tests above, not yet fixed): `SbbButton`
+doesn't forward a host-level `aria-label` to its inner native `<button>`, so
+icon-only buttons using `<sbb-button aria-label="...">` (split-button's
+toggle, input-group's remove/clear/search buttons) have no accessible name on
+the real interactive element. Tracked as a follow-up, not fixed here.

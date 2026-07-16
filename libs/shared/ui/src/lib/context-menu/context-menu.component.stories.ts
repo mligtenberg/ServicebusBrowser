@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular-vite';
 import type { Meta, StoryObj } from '@storybook/angular-vite';
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
 import { SbbPopover } from '../popover';
 import type { SbbMenuItem } from '../menu';
 import { SbbContextMenu } from './context-menu.component';
@@ -57,4 +58,21 @@ export const InsidePopover: Story = {
         </div>
       </sbb-popover>`,
   }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await fireEvent.click(canvas.getByRole('button', { name: 'Open popover' }));
+    const trigger = await canvas.findByText('Right-click me');
+    // The popover panel runs a `sbb-fade-in` opacity animation on open;
+    // `toBeVisible` reads opacity synchronously, so wait for it to settle.
+    await waitFor(() => expect(trigger).toBeVisible());
+
+    await fireEvent.contextMenu(trigger);
+    const refreshItem = await canvas.findByRole('menuitem', { name: 'Refresh' });
+    await fireEvent.click(refreshItem);
+
+    // Regression: choosing a context-menu item must not light-dismiss the
+    // surrounding popover (see the class doc on SbbContextMenu).
+    await waitFor(() => expect(canvas.getByText('Right-click me')).toBeVisible());
+  },
 };

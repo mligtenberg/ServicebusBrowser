@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular-vite';
 import type { Meta, StoryObj } from '@storybook/angular-vite';
+import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 import { SbbPopover } from '../popover';
 import { SbbAutocomplete } from './autocomplete.component';
 
@@ -36,6 +37,32 @@ export default meta;
 type Story = StoryObj<SbbAutocomplete<string>>;
 
 export const Default: Story = {};
+
+/**
+ * Type into the input to open the suggestion panel, select an option, and
+ * confirm the input reflects the selection and the panel closes.
+ */
+export const SelectSuggestion: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('combobox');
+
+    await userEvent.type(input, 'be');
+
+    const option = await canvas.findByRole('option', { name: 'beta' });
+    // The panel is a native popover with a `sbb-fade-in` opacity animation on
+    // open; `toBeVisible` reads opacity synchronously, so wait for it to settle.
+    await waitFor(() => expect(option).toBeVisible());
+    expect(canvas.getByRole('option', { name: 'alpha' })).toBeVisible();
+
+    await fireEvent.click(option);
+
+    await waitFor(() => expect(input).toHaveValue('beta'));
+    await waitFor(() =>
+      expect(canvas.queryByRole('listbox')).not.toBeInTheDocument(),
+    );
+  },
+};
 
 /**
  * Regression: an autocomplete rendered *inside* an `SbbPopover`. Its suggestion

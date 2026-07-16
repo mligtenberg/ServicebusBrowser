@@ -24,6 +24,8 @@ export * from './lib/progress';
 export * from './lib/scroll-panel';
 export * from './lib/splitter';
 export * from './lib/message';
+export * from './lib/tabs';
+export * from './lib/reorderable-list';
 
 // Batch 3 — overlay-driven services + shared menu model
 export * from './lib/menu';

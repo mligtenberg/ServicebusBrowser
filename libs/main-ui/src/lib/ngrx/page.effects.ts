@@ -1,58 +1,88 @@
 import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { pagesActions } from './route.actions';
-import { Action, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { featureSelector, selectPages } from './route.selectors';
-import { mergeMap, tap } from 'rxjs';
+import { map, mergeMap, tap } from 'rxjs';
 import {
   messagePagesActions,
 } from '@service-bus-browser/messages-store';
 import { WorkspaceService } from '@service-bus-browser/services';
+import { UUID } from '@service-bus-browser/shared-contracts';
 
 const PAGES_ORDER_KEY = 'pagesOrder';
+
+/**
+ * Drops entries that don't map a numeric tab position to a page id, so
+ * previously corrupted storage (e.g. workspace-keyed wrapper objects that
+ * leaked in as positions) can't poison the route state.
+ */
+function sanitizeOrder(order: unknown): Record<number, UUID> {
+  if (order === null || typeof order !== 'object') {
+    return {};
+  }
+
+  return Object.entries(order)
+    .filter(
+      ([position, pageId]) =>
+        /^\d+$/.test(position) && typeof pageId === 'string',
+    )
+    .reduce<Record<number, UUID>>(
+      (acc, [position, pageId]) => ({
+        ...acc,
+        [parseInt(position)]: pageId as UUID,
+      }),
+      {},
+    );
+}
+
+function readStoredOrders(): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PAGES_ORDER_KEY) ?? '{}');
+    return parsed !== null && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
 
 @Injectable({
   providedIn: 'root',
 })
-export class PageEffects implements OnInitEffects {
+export class PageEffects {
   workspaceService = inject(WorkspaceService);
-
-  ngrxOnInitEffects(): Action {
-    const workspaceId = this.workspaceService.activeWorkspace()?.id;
-    const pagesOrderJson = localStorage.getItem(PAGES_ORDER_KEY);
-
-    if (pagesOrderJson) {
-      const parsed = JSON.parse(pagesOrderJson);
-
-      if (workspaceId) {
-        // Detect old format: keys are numeric tab positions, not workspace UUIDs.
-        // A UUID always contains hyphens; numeric keys never do.
-        const firstKey = Object.keys(parsed)[0];
-        const isOldFormat = firstKey !== undefined && !firstKey.includes('-');
-
-        if (isOldFormat) {
-          // Migrate: wrap existing mapping under the current workspace id
-          const migrated = { [workspaceId]: parsed };
-          localStorage.setItem(PAGES_ORDER_KEY, JSON.stringify(migrated));
-          return pagesActions.loadPageOrderFromStorage({ orderOverrides: parsed });
-        }
-
-        const workspaceOrdering = parsed[workspaceId] ?? {};
-        return pagesActions.loadPageOrderFromStorage({ orderOverrides: workspaceOrdering });
-      }
-
-      // No workspace yet — fall back to whatever is stored (old or new format)
-      return pagesActions.loadPageOrderFromStorage({ orderOverrides: parsed });
-    }
-
-    return pagesActions.loadPageOrderFromStorage({
-      orderOverrides: {},
-    });
-  }
 
   actions = inject(Actions);
   store = inject(Store);
   pages = this.store.selectSignal(selectPages);
+
+  loadPageOrder$ = createEffect(() =>
+    this.actions.pipe(
+      ofType(pagesActions.workspaceActivated),
+      map(({ workspaceId }) => {
+        const stored = readStoredOrders();
+
+        // Detect old format: keys are numeric tab positions, not workspace
+        // UUIDs. A UUID always contains hyphens; numeric keys never do.
+        const firstKey = Object.keys(stored)[0];
+        const isOldFormat = firstKey !== undefined && !firstKey.includes('-');
+
+        if (isOldFormat) {
+          // Migrate: wrap existing mapping under the current workspace id
+          localStorage.setItem(
+            PAGES_ORDER_KEY,
+            JSON.stringify({ [workspaceId]: stored }),
+          );
+          return pagesActions.loadPageOrderFromStorage({
+            orderOverrides: sanitizeOrder(stored),
+          });
+        }
+
+        return pagesActions.loadPageOrderFromStorage({
+          orderOverrides: sanitizeOrder(stored[workspaceId]),
+        });
+      }),
+    ),
+  );
 
   closeMessagePage$ = createEffect(() =>
     this.actions.pipe(
@@ -72,25 +102,21 @@ export class PageEffects implements OnInitEffects {
   storePageOrder$ = createEffect(
     () =>
       this.actions.pipe(
-        ofType(pagesActions.movePage),
+        ofType(pagesActions.movePage, pagesActions.closePage),
         tap(() => {
           const workspaceId = this.workspaceService.activeWorkspace()?.id;
-          const currentState = this.store.selectSignal(featureSelector)();
-          const existing = JSON.parse(
-            localStorage.getItem(PAGES_ORDER_KEY) ?? '{}',
-          );
-
-          if (workspaceId) {
-            localStorage.setItem(
-              PAGES_ORDER_KEY,
-              JSON.stringify({ ...existing, [workspaceId]: currentState.pages }),
-            );
-          } else {
-            localStorage.setItem(
-              PAGES_ORDER_KEY,
-              JSON.stringify(currentState.pages),
-            );
+          if (!workspaceId) {
+            return;
           }
+
+          const currentState = this.store.selectSignal(featureSelector)();
+          localStorage.setItem(
+            PAGES_ORDER_KEY,
+            JSON.stringify({
+              ...readStoredOrders(),
+              [workspaceId]: currentState.pages,
+            }),
+          );
         }),
       ),
     { dispatch: false },

@@ -3,6 +3,7 @@
   [class]="buttonClasses()"
   [disabled]="isDisabled()"
   [attr.aria-busy]="loading() ? 'true' : null"
+  [attr.aria-label]="ariaLabel()"
 >
   @if (loading()) {
     <fa-icon

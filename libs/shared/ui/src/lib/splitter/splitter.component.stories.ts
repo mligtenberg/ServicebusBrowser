@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular-vite';
 import { moduleMetadata } from '@storybook/angular-vite';
+import { expect, fireEvent, waitFor, within } from 'storybook/test';
 import { SbbSplitter } from './splitter.component';
 import { SbbSplitterPanel } from './splitter-panel.component';
 
@@ -33,6 +34,19 @@ export const Horizontal: Story = {
         </sbb-splitter>
       </div>`,
   }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const panels = canvasElement.querySelectorAll('sbb-splitter-panel');
+    const handle = canvas.getByRole('separator');
+
+    await waitFor(() => expect(panels[0]).toHaveAttribute('data-panel-size', '60'));
+
+    handle.focus();
+    await fireEvent.keyDown(handle, { key: 'ArrowRight' });
+
+    await waitFor(() => expect(panels[0]).toHaveAttribute('data-panel-size', '61'));
+    expect(panels[1]).toHaveAttribute('data-panel-size', '39');
+  },
 };
 
 export const Vertical: Story = {
@@ -49,6 +63,19 @@ export const Vertical: Story = {
         </sbb-splitter>
       </div>`,
   }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const panels = canvasElement.querySelectorAll('sbb-splitter-panel');
+    const handle = canvas.getByRole('separator');
+
+    await waitFor(() => expect(panels[0]).toHaveAttribute('data-panel-size', '30'));
+
+    handle.focus();
+    await fireEvent.keyDown(handle, { key: 'ArrowDown', shiftKey: true });
+
+    await waitFor(() => expect(panels[0]).toHaveAttribute('data-panel-size', '40'));
+    expect(panels[1]).toHaveAttribute('data-panel-size', '60');
+  },
 };
 
 export const ThreePanels: Story = {

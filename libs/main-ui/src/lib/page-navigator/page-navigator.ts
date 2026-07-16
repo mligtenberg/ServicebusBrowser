@@ -14,20 +14,26 @@ import { pagesActions } from '../ngrx/route.actions';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Actions, ofType } from '@ngrx/effects';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { delay } from 'rxjs';
 import { contentResize } from '@service-bus-browser/actions';
 import { messagePagesActions } from '@service-bus-browser/messages-store';
 import { FormsModule } from '@angular/forms';
-import { SbbContextMenu, SbbMenuItem } from '@service-bus-browser/shared-ui';
+import {
+  SbbContextMenu,
+  SbbMenuItem,
+  SbbTabHeaderDef,
+  SbbTabPanel,
+  SbbTabs,
+  SbbTabsReorderEvent,
+} from '@service-bus-browser/shared-ui';
 
 @Component({
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
-  imports: [NgClass, RouterLink, CdkDropList, CdkDrag, FormsModule, SbbContextMenu],
+  imports: [NgClass, RouterLink, FormsModule, SbbContextMenu, SbbTabs, SbbTabPanel, SbbTabHeaderDef],
 })
 export class PageNavigator {
   store = inject(Store);
@@ -120,13 +126,14 @@ export class PageNavigator {
     this.onElementChange();
   }
 
-  protected drop($event: CdkDragDrop<any, any>) {
+  protected onReordered({ previousIndex, currentIndex }: SbbTabsReorderEvent) {
+    const page = this.pages()[previousIndex];
+    if (!page) {
+      return;
+    }
+
     this.store.dispatch(
-      pagesActions.movePage({
-        id: $event.item.data,
-        fromPosition: $event.previousIndex,
-        newPosition: $event.currentIndex,
-      }),
+      pagesActions.movePage({ id: page.id, fromPosition: previousIndex, newPosition: currentIndex }),
     );
   }
 

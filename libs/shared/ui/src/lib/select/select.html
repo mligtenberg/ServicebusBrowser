@@ -10,12 +10,14 @@
     [attr.aria-expanded]="isOpen()"
     [attr.aria-activedescendant]="isOpen() ? activeId() : null"
     [attr.data-placeholder]="selectedLabel() === null ? '' : null"
+    [attr.aria-label]="ariaLabel() || null"
+    [attr.aria-labelledby]="ariaLabel() ? null : valueLabelId"
     [disabled]="disabled()"
     (click)="toggle()"
     (keydown)="onTriggerKeydown($event)"
     (blur)="handleTouched()"
   >
-    <span class="sbb-select-value">{{ selectedLabel() ?? placeholder() }}</span>
+    <span class="sbb-select-value" [id]="valueLabelId">{{ selectedLabel() ?? placeholder() }}</span>
     <fa-icon class="sbb-select-caret" [icon]="caretIcon" aria-hidden="true"></fa-icon>
   </button>
 

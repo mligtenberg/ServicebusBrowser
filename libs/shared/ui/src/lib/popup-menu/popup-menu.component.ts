@@ -1,9 +1,11 @@
 import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
+  Injector,
   input,
   viewChild,
 } from '@angular/core';
@@ -44,6 +46,7 @@ let nextMenuId = 0;
 })
 export class SbbMenu<T = void> {
   private readonly document = inject(DOCUMENT);
+  private readonly injector = inject(Injector);
 
   /** The menu structure to render. */
   readonly model = input.required<SbbMenuItem<T>[]>();
@@ -117,9 +120,16 @@ export class SbbMenu<T = void> {
     this.pointAnchor = undefined;
   }
 
-  /** Panel opened — move focus to the first enabled item. */
+  /**
+   * Panel opened — move focus to the first enabled item. The panel's content
+   * is behind `@if (isOpen())`, so a bare `queueMicrotask` can run before
+   * zoneless change detection has flushed that into the DOM (`firstItem()`
+   * then finds nothing, and focus is silently dropped for good — nothing
+   * retries). `afterNextRender` waits for the render that actually reflects
+   * the new state.
+   */
   protected onOpened(): void {
-    queueMicrotask(() => this.firstItem()?.focus());
+    afterNextRender(() => this.firstItem()?.focus(), { injector: this.injector });
   }
 
   /** Panel closed — drop any transient point anchor. */

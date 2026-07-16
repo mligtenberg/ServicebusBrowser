@@ -33,14 +33,35 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class SbbCheckbox implements ControlValueAccessor {
+  private static nextId = 0;
+
   /** Visible label text rendered next to the checkbox. */
   readonly label = input<string>('');
+
+  /**
+   * Accessible name for the control. Required when no visible `label` is set
+   * (e.g. a bare checkbox inside an input-group addon) so the button still has
+   * a discernible name; ignored when a visible `label` is present, which is
+   * wired up as the accessible name instead.
+   */
+  readonly ariaLabel = input<string>('', { alias: 'ariaLabel' });
 
   /** Whether the checkbox is disabled. Also settable via CVA (form control). */
   readonly disabled = input(false);
 
   /** Visual-only indeterminate ("mixed") state; does not affect the CVA value. */
   readonly indeterminate = input(false);
+
+  /** Stable id for the visible label element, used for `aria-labelledby`. */
+  protected readonly labelId = `sbb-checkbox-label-${SbbCheckbox.nextId++}`;
+
+  /**
+   * Accessible name wiring: when a visible `label` is rendered, associate it
+   * via `aria-labelledby`; otherwise fall back to the explicit `ariaLabel`.
+   * Either way the `role="checkbox"` button gets a discernible name.
+   */
+  protected readonly labelledBy = computed(() => (this.label() ? this.labelId : null));
+  protected readonly ariaLabelAttr = computed(() => (this.label() ? null : this.ariaLabel() || null));
 
   private readonly disabledFromCva = signal(false);
 

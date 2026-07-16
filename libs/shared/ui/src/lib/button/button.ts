@@ -74,6 +74,16 @@ export class SbbButton {
   /** Disables the button. */
   readonly disabled = input(false);
 
+  /**
+   * Accessible name for the native `<button>`. Aliased to the plain
+   * `aria-label` attribute so existing `<sbb-button aria-label="...">` call
+   * sites keep working unchanged — Angular treats a static attribute as the
+   * input's initial value.
+   */
+  readonly ariaLabel = input<string | undefined>(undefined, {
+    alias: 'aria-label',
+  });
+
   /** Effective disabled state: `disabled` OR `loading`. */
   protected readonly isDisabled = computed(
     () => this.disabled() || this.loading(),

@@ -95,6 +95,14 @@ export class SbbSelect<T> implements ControlValueAccessor {
    */
   readonly inputId = input<string | undefined>(undefined);
 
+  /**
+   * Accessible name for the trigger, rendered as `aria-label`. When unset, the
+   * trigger is instead labelled by its visible value/placeholder text (see
+   * `valueLabelId`) — `role="combobox"` does not derive its name from content,
+   * so an explicit association is required for a discernible name.
+   */
+  readonly ariaLabel = input<string | undefined>(undefined);
+
   private readonly instanceId = nextSelectId++;
 
   /**
@@ -105,6 +113,9 @@ export class SbbSelect<T> implements ControlValueAccessor {
 
   /** `id` of the listbox panel, linked from the trigger via `aria-controls`. */
   protected readonly listboxId = `sbb-select-listbox-${this.instanceId}`;
+
+  /** `id` of the visible value/placeholder text, used as the trigger's `aria-labelledby`. */
+  protected readonly valueLabelId = `sbb-select-value-${this.instanceId}`;
 
   /** Caret icon shown on the right-hand side of the trigger. */
   protected readonly caretIcon: IconDefinition = faChevronDown;
