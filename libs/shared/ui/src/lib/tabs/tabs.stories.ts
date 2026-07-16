@@ -123,6 +123,30 @@ export const Reorderable: Story = {
  * the tab it's about to remove.
  */
 export const CustomHeader: Story = {
+  // A custom-header tab hosts genuinely interactive content (a close button
+  // here; a rename input, close/accept/cancel buttons, links and a context
+  // menu in the real `page-navigator` consumer). That collides irreconcilably
+  // with two axe rules under the WAI-ARIA tabs pattern:
+  //   - `nested-interactive`   — a `role="tab"` must not contain focusable
+  //                              controls (a <button> counts even at
+  //                              tabindex="-1"); and
+  //   - `aria-required-children` — a `role="tablist"` may only own `role="tab"`
+  //                              children, so those controls can't sit in the
+  //                              tablist either.
+  // There is no DOM structure that keeps strict tab/tablist roles AND allows
+  // interactive header content, so we knowingly suppress just these two rules
+  // for this variant (plain-text tabs keep full, unmodified a11y coverage). The
+  // projected content supplies its own semantics (labelled buttons, links).
+  parameters: {
+    a11y: {
+      config: {
+        rules: [
+          { id: 'nested-interactive', enabled: false },
+          { id: 'aria-required-children', enabled: false },
+        ],
+      },
+    },
+  },
   decorators: [moduleMetadata({ imports: [SbbTabPanel, SbbTabHeaderDef] })],
   render: () => ({
     template: `<sbb-tabs>
