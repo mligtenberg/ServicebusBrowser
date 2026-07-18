@@ -65,6 +65,13 @@
     align-items: center;
     border-bottom: 1px solid var(--sbb-border, #e2e8f0);
     cursor: default;
+    // Reserved on every row (transparent by default) via `outline` rather
+    // than `border` so the selected row's accent doesn't reserve extra
+    // layout width only selected rows have — that mismatch is what
+    // misaligned cell content between rows before. Negative offset draws it
+    // inside the row instead of overlapping neighboring rows.
+    outline: 3px solid transparent;
+    outline-offset: -3px;
 
     &:nth-child(odd) {
       background: var(--sbb-surface);
@@ -74,13 +81,10 @@
       background: rgb(from var(--sbb-primary) r g b / 14%);
     }
 
-    &--selected,
-    &--selected:hover,
-    &--selected:nth-child(odd) {
-      background: light-dark(
-          oklch(from var(--sbb-primary-100) l 0.01 h),
-          oklch(from var(--sbb-primary-900) l 0.02 h)
-      )
+    // No background override — the row's own odd/even background stays as
+    //-is; the primary-colored outline alone marks the selection.
+    &--selected {
+      outline-color: var(--sbb-primary);
     }
   }
 

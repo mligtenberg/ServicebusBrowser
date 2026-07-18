@@ -17,9 +17,10 @@
   white-space: nowrap;
 
   &.sbb-tag--primary {
-    background-color: var(--sbb-primary);
-    // --sbb-primary is already light-dark(); white text works on the sky-400/500
-    // fill in both schemes.
+    // --sbb-primary-surface (not --sbb-primary) — same fixed, deepened fill the
+    // filled/primary button uses, so --sbb-on-primary white text stays
+    // WCAG-AA-readable even when --sbb-primary is a light per-workspace hue.
+    background-color: var(--sbb-primary-surface);
     color: var(--sbb-on-primary, #ffffff);
   }
 

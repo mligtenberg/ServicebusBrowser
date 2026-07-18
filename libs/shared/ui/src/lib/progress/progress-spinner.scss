@@ -13,7 +13,7 @@
 }
 
 .sbb-progress-spinner__circle {
-  stroke: var(--sbb-primary);
+  stroke: var(--sbb-primary-text);
   stroke-linecap: round;
   animation: sbb-progress-spinner-dash 1.5s ease-in-out infinite;
 }
