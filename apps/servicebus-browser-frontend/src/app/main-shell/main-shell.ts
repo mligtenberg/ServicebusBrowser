@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
-import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
+import { ColorThemeService, MessagePreferencesService, openAddConnectionPopup } from '@service-bus-browser/services';
 import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
@@ -59,7 +59,7 @@ export class MainShell {
           {
             label: 'Add Connection',
             icon: 'fa-solid fa-plus',
-            onSelect: () => this.openAddConnectionPopup(),
+            onSelect: () => openAddConnectionPopup(this.router, this.location),
           },
         ],
       },
@@ -162,11 +162,4 @@ export class MainShell {
     this.store.dispatch(messagesActions.startImportMessages());
   }
 
-  private openAddConnectionPopup(): void {
-    const urlTree = this.router.createUrlTree(['/popups/connections/add']);
-    const serialized = this.router.serializeUrl(urlTree);
-    const external = this.location.prepareExternalUrl(serialized);
-    const url = new URL(external, window.location.href).toString();
-    window.open(url, '_blank', 'width=900,height=700');
-  }
 }

@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { AboutComponent } from '@service-bus-browser/main-ui';
+import { AboutComponent, HomeComponent } from '@service-bus-browser/main-ui';
 
 export const appRoutes: Route[] = [
   {
@@ -43,6 +43,12 @@ export const appRoutes: Route[] = [
       {
         path: 'about',
         component: AboutComponent,
+        data: { title: 'About' },
+      },
+      {
+        path: '',
+        component: HomeComponent,
+        pathMatch: 'full',
       },
     ],
   },

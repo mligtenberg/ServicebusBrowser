@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceService } from '@service-bus-browser/services';
@@ -17,6 +18,7 @@ import { TasksActions } from '@service-bus-browser/tasks-store';
 export class WorkspaceSwitchService {
   private readonly store = inject(Store);
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly router = inject(Router);
 
   async switchTo(workspace: Workspace): Promise<void> {
     this.store.dispatch(TasksActions.cancelAllTasks());
@@ -25,6 +27,9 @@ export class WorkspaceSwitchService {
     this.store.dispatch(messagePagesEffectActions.workspaceSwitched());
     this.store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
     this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+    // Any open queue/topic/message page belongs to the workspace we just
+    // left (different connection ids), so it can no longer resolve.
+    await this.router.navigateByUrl('/');
   }
 
   async createAndSwitch(name: string): Promise<Workspace> {

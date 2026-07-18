@@ -17,6 +17,7 @@
     "../../../libs/shared/ui/src/**/*.stories.ts",
     "../../../libs/shared/components/src/**/*.stories.ts",
     "../../../libs/logs/components/src/**/*.stories.ts",
+    "../../../libs/main-ui/src/lib/home/**/*.stories.ts",
     "./*.ts"
   ]
 }

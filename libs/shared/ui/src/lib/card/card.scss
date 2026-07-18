@@ -22,9 +22,9 @@
 
 .sbb-card__title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--sbb-card-title-size, 1.125rem);
   font-weight: 600;
-  color: var(--sbb-text);
+  color: var(--sbb-card-title-color, var(--sbb-text));
 }
 
 .sbb-card__content {
@@ -32,4 +32,10 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+
+  // Header-only cards (no projected content) would otherwise still pay for
+  // the parent's flex `gap` and this element's own box below the header.
+  &:empty {
+    display: none;
+  }
 }

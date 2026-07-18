@@ -10,6 +10,7 @@ export const routes: Routes = [
       ),
     data: {
       action: 'create',
+      title: 'Add Queue',
     },
   },
   {
@@ -20,6 +21,7 @@ export const routes: Routes = [
       ),
     data: {
       action: 'modify',
+      title: (params: Record<string, string>) => `Edit Queue: ${params['queueId']}`,
     },
   },
   {
@@ -30,6 +32,7 @@ export const routes: Routes = [
       ),
     data: {
       action: 'create',
+      title: 'Add Topic',
     },
   },
   {
@@ -40,6 +43,7 @@ export const routes: Routes = [
       ),
     data: {
       action: 'modify',
+      title: (params: Record<string, string>) => `Edit Topic: ${params['topicId']}`,
     },
   },
   {
@@ -50,6 +54,7 @@ export const routes: Routes = [
       ).then((m) => m.SubscriptionManagementComponent),
     data: {
       action: 'create',
+      title: 'Add Subscription',
     },
   },
   {
@@ -60,6 +65,7 @@ export const routes: Routes = [
       ).then((m) => m.SubscriptionManagementComponent),
     data: {
       action: 'modify',
+      title: (params: Record<string, string>) => `Edit Subscription: ${params['subscriptionId']}`,
     },
   },
   {
@@ -70,6 +76,7 @@ export const routes: Routes = [
       ).then((m) => m.SubscriptionRuleManagementComponent),
     data: {
       action: 'create',
+      title: 'Add Rule',
     },
   },
   {
@@ -80,6 +87,7 @@ export const routes: Routes = [
       ).then((m) => m.SubscriptionRuleManagementComponent),
     data: {
       action: 'modify',
+      title: (params: Record<string, string>) => `Edit Rule: ${params['ruleName']}`,
     },
   },
 ];
