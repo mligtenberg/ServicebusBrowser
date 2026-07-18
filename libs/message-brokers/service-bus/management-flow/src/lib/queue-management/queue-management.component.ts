@@ -20,7 +20,7 @@ import {
   EndpointStringSelectorInputComponent
 } from '@service-bus-browser/topology-components';
 import { Queue, QueueWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
@@ -66,13 +66,12 @@ export class QueueManagementComponent {
       value: value instanceof Date ? this.datePipe.transform(value, 'medium') : value,
     }));
   });
+  private routeConnectionId = toSignal(
+    this.activeRoute.params.pipe(map((params) => params['connectionId'] as UUID | undefined)),
+  );
   endpointFilter = computed(() => {
-    const currentQueue = this.currentQueue();
-    if (!currentQueue) {
-      return [];
-    }
-
-    return [currentQueue.connectionId];
+    const connectionId = this.currentQueue()?.connectionId ?? this.routeConnectionId();
+    return connectionId ? [connectionId] : [];
   });
 
   informationCols = [

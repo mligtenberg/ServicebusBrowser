@@ -48,6 +48,7 @@ import {
   SuggestionGroup,
   SuggestionItem,
 } from '../search/search-query.model';
+import { filterRootNodesByConnection } from './connection-filter';
 
 /**
  * View-model node handed to {@link SbbTree}. `id` is the topology `path`; the
@@ -83,6 +84,15 @@ export class TopologyTreeComponent {
   confirmationService = inject(ConfirmationService);
 
   selectionMode = input<'actions' | 'send'>('actions');
+
+  /**
+   * When set, restricts the tree to the connection(s) (root nodes) whose id is
+   * in this list. Unlike search chips, this filter is not user-removable — it
+   * is meant for callers (e.g. the "forward to" picker) that must constrain
+   * selection to a specific connection.
+   */
+  connectionsFilter = input<string[]>();
+
   sendEndpointSelected = output<SendEndpoint>();
 
   treeSelection = signal<TopologyTreeNode[]>([]);
@@ -100,6 +110,13 @@ export class TopologyTreeComponent {
 
   topologyRootNodes = this.store.selectSignal(
     TopologySelectors.selectRootNodes,
+  );
+
+  // ── Stage 0: forced connection filter (not user-removable) ──────────────
+
+  /** Root (connection) nodes narrowed to `connectionsFilter`, when set. */
+  private connectionFilteredRootNodes = computed<TopologyNode[]>(() =>
+    filterRootNodesByConnection(this.topologyRootNodes(), this.connectionsFilter()),
   );
 
   // ── Search query ──────────────────────────────────────────────────────────
@@ -199,7 +216,7 @@ export class TopologyTreeComponent {
       };
     };
 
-    return this.topologyRootNodes()
+    return this.connectionFilteredRootNodes()
       .map(filter)
       .filter((node) => node !== null);
   });

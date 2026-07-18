@@ -1,4 +1,5 @@
 <sbb-tpl-topology-tree
   selectionMode="send"
+  [connectionsFilter]="connectionsFilter()"
   (sendEndpointSelected)="onSendEndpointSelected($event)"
 ></sbb-tpl-topology-tree>

@@ -10,7 +10,7 @@ import { combineLatest, from, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { Subscription, SubscriptionWithMetaData } from '@service-bus-browser/service-bus-api-contracts';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { SaveFeedbackService } from '../save-feedback.service';
@@ -67,13 +67,12 @@ export class SubscriptionManagementComponent {
       value: value instanceof Date ? this.datePipe.transform(value, 'medium') : value,
     }));
   });
+  private routeConnectionId = toSignal(
+    this.activeRoute.params.pipe(map((params) => params['connectionId'] as UUID | undefined)),
+  );
   endpointFilter = computed(() => {
-    const currentSubscription = this.currentSubscription();
-    if (!currentSubscription) {
-      return [];
-    }
-
-    return [currentSubscription.connectionId];
+    const connectionId = this.currentSubscription()?.connectionId ?? this.routeConnectionId();
+    return connectionId ? [connectionId] : [];
   });
 
   informationCols = [
