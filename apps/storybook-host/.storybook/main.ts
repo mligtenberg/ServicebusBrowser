@@ -53,6 +53,9 @@ const config: StorybookConfig = {
     '../../../libs/shared/ui/src/**/*.stories.@(ts|mdx)',
     '../../../libs/shared/components/src/**/*.stories.@(ts|mdx)',
     '../../../libs/logs/components/src/**/*.stories.@(ts|mdx)',
+    // PROTOTYPE ONLY — Q5 connection-layout demo. Remove this line when
+    // `libs/connections/flow/src/lib/prototype-layout-demo` is deleted.
+    '../../../libs/connections/flow/src/lib/prototype-layout-demo/**/*.stories.@(ts|mdx)',
   ],
   addons: ['@storybook/addon-vitest', '@storybook/addon-a11y'],
   viteFinal: (viteConfig) => {

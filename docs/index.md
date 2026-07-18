@@ -29,6 +29,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [ADR-0005: RabbitMQ vhost gets a dedicated topology node type](./adr/0005-vhost-dedicated-node-type.md)
 - [ADR-0006: Replace PrimeNG with @spartan-ng/brain + Angular CDK behind a bespoke UI layer](./adr/0006-replace-primeng-with-spartan-brain-cdk.md)
 - [ADR-0007: Storybook as an AI-facing component workbench (Vite builder)](./adr/0007-storybook-ai-component-workbench.md)
+- [ADR-0008: Add-connection form runs in a separate popup window, not an in-app modal](./adr/0008-add-connection-popup-window.md)
 
 ## Project Structure
 

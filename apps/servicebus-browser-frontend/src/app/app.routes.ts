@@ -12,6 +12,11 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import('@service-bus-browser/messages-flow').then((m) => m.popups),
       },
+      {
+        path: 'connections',
+        loadChildren: () =>
+          import('@service-bus-browser/connections-flow').then((m) => m.popups),
+      },
     ],
   },
   {
@@ -19,11 +24,6 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./main-shell/main-shell').then((m) => m.MainShell),
     children: [
-      {
-        path: 'connections',
-        loadChildren: () =>
-          import('@service-bus-browser/connections-flow').then((m) => m.routes),
-      },
       {
         path: 'manage-service-bus',
         loadChildren: () =>
@@ -43,11 +43,6 @@ export const appRoutes: Route[] = [
       {
         path: 'about',
         component: AboutComponent,
-      },
-      {
-        path: '',
-        redirectTo: 'connections',
-        pathMatch: 'full',
       },
     ],
   },

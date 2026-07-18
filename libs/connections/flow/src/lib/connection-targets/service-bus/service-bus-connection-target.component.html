@@ -1,13 +1,6 @@
 <section class="connection-type">
   <span class="heading">Connection type</span>
-  <sbb-radio-group class="full-width" [(ngModel)]="connectionType">
-    <div class="connection-type-option full-width">
-      <sbb-radio [value]="'connectionString'">Connection String</sbb-radio>
-    </div>
-    <div class="connection-type-option full-width">
-      <sbb-radio [value]="'azureAD'">Azure AD</sbb-radio>
-    </div>
-  </sbb-radio-group>
+  <sbb-select-button [options]="connectionTypes" [(ngModel)]="connectionType" />
 </section>
 
 @if (connectionType() === 'connectionString') {
@@ -39,31 +32,15 @@
       </sbb-float-label>
     </div>
 
-    <div class="auth-method-section">
-      <span class="heading">Authentication Method</span>
-      <sbb-radio-group class="full-width" [(ngModel)]="authMethod">
-        <div class="auth-method-option full-width">
-          <sbb-radio [value]="'integratedAuth'">Integrated Authentication</sbb-radio>
-        </div>
-        <div class="auth-method-option full-width">
-          <sbb-radio [value]="'azureCli'">Azure CLI</sbb-radio>
-        </div>
-        <div class="auth-method-option full-width">
-          <sbb-radio [value]="'ServicePrincipalClientSecret'"
-            >Service Principal</sbb-radio
-          >
-        </div>
-        <div class="auth-method-option full-width">
-          <sbb-radio [value]="'systemAssignedManagedIdentity'"
-            >System Assigned Managed Identity</sbb-radio
-          >
-        </div>
-        <div class="auth-method-option full-width">
-          <sbb-radio [value]="'userAssignedManagedIdentity'"
-            >User Assigned Managed Identity</sbb-radio
-          >
-        </div>
-      </sbb-radio-group>
+    <div class="input-field">
+      <span class="heading">Authentication method</span>
+      <sbb-select
+        inputId="authMethod"
+        class="full-width"
+        [options]="authMethods"
+        placeholder="Select authentication method"
+        [(ngModel)]="authMethod"
+      />
     </div>
 
     @if (authMethod() === 'ServicePrincipalClientSecret') {

@@ -1,5 +1,6 @@
 <main class="page-container">
   <h2 class="page-title">Add connection</h2>
+
   <div role="form">
     <section class="connection-target">
       <label for="connectionTarget" class="heading">Connection target</label>
@@ -10,16 +11,6 @@
         placeholder="Select target"
         [(ngModel)]="connectionTarget"
       />
-    </section>
-
-    <section class="name">
-      <sbb-float-label label="Connection Name" for="connectionName">
-        <sbb-input
-          inputId="connectionName"
-          class="full-width"
-          [(ngModel)]="connectionName"
-        />
-      </sbb-float-label>
     </section>
 
     @if (connectionTarget() === 'serviceBus') {
@@ -43,6 +34,16 @@
       />
     }
 
+    <section class="name">
+      <sbb-float-label label="Connection Name" for="connectionName">
+        <sbb-input
+          inputId="connectionName"
+          class="full-width"
+          [(ngModel)]="connectionName"
+        />
+      </sbb-float-label>
+    </section>
+
     @if ((connectionTestStatus$ | async) !== 'none') {
       <section class="test-status">
         <div
@@ -53,10 +54,7 @@
           }"
         >
           @if ((connectionTestStatus$ | async) === 'success') {
-            <span
-              >Connection test successful! You can now save the
-              connection.</span
-            >
+            <span>Connection test successful.</span>
           }
           @if ((connectionTestStatus$ | async) === 'error') {
             @if (connectionTestError$ | async; as error) {
@@ -73,24 +71,34 @@
       </section>
     }
 
+    @if (saveError(); as error) {
+      <section class="test-status">
+        <div class="status-message error">
+          <span class="error-title">{{ error.title }}</span>
+          <span class="error-detail">{{ error.detail }}</span>
+        </div>
+      </section>
+    }
+
     <section class="actions">
-      <sbb-button severity="secondary" type="button">Cancel</sbb-button>
+      <sbb-button severity="secondary" type="button" (click)="cancel()"
+        >Cancel</sbb-button
+      >
       <sbb-button
-        severity="primary"
+        severity="secondary"
         type="button"
         [disabled]="!canTest()"
         (click)="testConnection()"
       >
         Test
       </sbb-button>
-      <sbb-button
+      <sbb-split-button
+        label="Test & Save"
         severity="primary"
-        type="button"
-        [disabled]="(connectionTestStatus$ | async) !== 'success'"
-        (click)="save()"
-      >
-        Save
-      </sbb-button>
+        [disabled]="!canTest()"
+        [model]="saveMenuItems"
+        (clicked)="testAndSave()"
+      />
     </section>
   </div>
 </main>

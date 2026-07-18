@@ -1,17 +1,8 @@
-.connection-type-option > *,
-.auth-method-option > * {
-  margin: 0 0 0 0.5em;
-}
-
-.connection-type-option,
-.auth-method-option {
-  margin-bottom: 0.5rem;
-}
-
 .heading {
+  display: block;
   font-size: 0.7rem;
   font-weight: normal;
-  margin: 0 0 2rem 0;
+  margin: 0 0 0.5rem 0;
   color: var(--sbb-primary);
 }
 
@@ -23,7 +14,6 @@ section {
   width: 100%;
 }
 
-.input-field,
-.auth-method-section {
+.input-field {
   margin-bottom: 1rem;
 }

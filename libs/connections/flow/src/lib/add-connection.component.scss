@@ -14,9 +14,10 @@
 }
 
 .heading {
+  display: block;
   font-size: 0.7rem;
   font-weight: normal;
-  margin: 0 0 2rem 0;
+  margin: 0 0 0.5rem 0;
   color: var(--sbb-primary);
 }
 
@@ -76,7 +77,7 @@ section {
   justify-content: flex-end;
   margin: 1rem 0 0 0;
 
-  button {
+  > * {
     margin: 0 0 0 0.5rem;
   }
 }

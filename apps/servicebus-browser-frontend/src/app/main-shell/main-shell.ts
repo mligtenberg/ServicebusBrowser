@@ -1,11 +1,15 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
-import { SbbMenuItem } from '@service-bus-browser/shared-ui';
+import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
+import { TopologyActions } from '@service-bus-browser/topology-store';
 import { Store } from '@ngrx/store';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
+
+type ConnectionsBroadcastMessage = { type: 'connection-added'; name: string };
 
 interface ElectronWindow {
   electron?: {
@@ -26,6 +30,9 @@ export class MainShell {
   isMac = this.electron?.platform === 'darwin';
 
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly toasts = inject(SbbToastService);
   store = inject(Store);
 
   fullscreen = signal<boolean>(false);
@@ -52,7 +59,7 @@ export class MainShell {
           {
             label: 'Add Connection',
             icon: 'fa-solid fa-plus',
-            onSelect: () => this.router.navigateByUrl('/connections/add'),
+            onSelect: () => this.openAddConnectionPopup(),
           },
         ],
       },
@@ -132,9 +139,34 @@ export class MainShell {
     this.electron?.onFullScreenChanged?.((full) => {
       this.fullscreen.set(full);
     });
+
+    const channel = new BroadcastChannel('connections');
+    channel.addEventListener('message', (event) => {
+      const message = event.data as ConnectionsBroadcastMessage;
+      if (message?.type !== 'connection-added') {
+        return;
+      }
+      // Dispatching through the store triggers change detection under
+      // zoneless CD; a plain field write from this callback would not.
+      this.store.dispatch(TopologyActions.loadTopologyRootNodes());
+      this.toasts.show({
+        severity: 'success',
+        summary: 'Connection added',
+        detail: message.name,
+      });
+    });
+    this.destroyRef.onDestroy(() => channel.close());
   }
 
   importMessages(): void {
     this.store.dispatch(messagesActions.startImportMessages());
+  }
+
+  private openAddConnectionPopup(): void {
+    const urlTree = this.router.createUrlTree(['/popups/connections/add']);
+    const serialized = this.router.serializeUrl(urlTree);
+    const external = this.location.prepareExternalUrl(serialized);
+    const url = new URL(external, window.location.href).toString();
+    window.open(url, '_blank', 'width=900,height=700');
   }
 }

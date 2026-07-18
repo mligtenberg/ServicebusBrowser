@@ -8,9 +8,16 @@ import {
 import {
   SbbFloatLabel,
   SbbInput,
-  SbbRadio,
-  SbbRadioGroup,
+  SbbSelect,
+  SbbSelectButton,
 } from '@service-bus-browser/shared-ui';
+
+type AuthMethod =
+  | 'azureCli'
+  | 'ServicePrincipalClientSecret'
+  | 'systemAssignedManagedIdentity'
+  | 'userAssignedManagedIdentity'
+  | 'integratedAuth';
 
 @Component({
   selector: 'lib-service-bus-connection-target',
@@ -19,26 +26,32 @@ import {
     FormsModule,
     SbbFloatLabel,
     SbbInput,
-    SbbRadio,
-    SbbRadioGroup,
+    SbbSelect,
+    SbbSelectButton,
   ],
   templateUrl: './service-bus-connection-target.component.html',
   styleUrl: './service-bus-connection-target.component.scss',
 })
 export class ServiceBusConnectionTargetComponent {
+  connectionTypes: Array<{ label: string; value: 'connectionString' | 'azureAD' }> = [
+    { label: 'Connection String', value: 'connectionString' },
+    { label: 'Azure AD', value: 'azureAD' },
+  ];
+  authMethods: Array<{ label: string; value: AuthMethod }> = [
+    { label: 'Integrated Authentication', value: 'integratedAuth' },
+    { label: 'Azure CLI', value: 'azureCli' },
+    { label: 'Service Principal', value: 'ServicePrincipalClientSecret' },
+    { label: 'System Assigned Managed Identity', value: 'systemAssignedManagedIdentity' },
+    { label: 'User Assigned Managed Identity', value: 'userAssignedManagedIdentity' },
+  ];
+
   connectionName = model<string>();
   connection = model<Connection | undefined>();
   connectionType = model<'connectionString' | 'azureAD'>('connectionString');
   connectionString = model<string>();
 
   fullyQualifiedNamespace = model<string>();
-  authMethod = model<
-    | 'azureCli'
-    | 'ServicePrincipalClientSecret'
-    | 'systemAssignedManagedIdentity'
-    | 'userAssignedManagedIdentity'
-    | 'integratedAuth'
-  >('integratedAuth');
+  authMethod = model<AuthMethod>('integratedAuth');
 
   clientId = model<string>();
   clientSecret = model<string>();

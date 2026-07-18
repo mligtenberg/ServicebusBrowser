@@ -36,8 +36,17 @@ tracking), and global UI preferences.
 
 ## Connection
 
-A configured Service Bus or Event Hub endpoint. Connections are owned by a
-single Workspace.
+A configured broker endpoint (Service Bus, Event Hub, or RabbitMQ) together with
+the authentication used to reach it. That **endpoint + authentication** pair is
+the Connection's identity; the **name** is a mutable label on top.
+
+Renaming is the only supported mutation. There is deliberately no "edit
+connection" flow: changing the endpoint or authentication does not edit an
+existing Connection — it produces a different Connection, so the user re-adds it.
+(A Connection still carries a stable UUID separate from its name, consistent with
+the Workspace identity model.)
+
+Connections are owned by a single Workspace.
 
 ## Message Page
 
