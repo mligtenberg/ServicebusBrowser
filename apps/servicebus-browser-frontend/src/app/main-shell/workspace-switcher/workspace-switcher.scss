@@ -68,7 +68,7 @@
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: var(--sbb-primary);
+  color: var(--sbb-primary-text);
   cursor: pointer;
   font-size: 0.875rem;
   text-align: left;
@@ -106,7 +106,7 @@
 
   &--active {
     background: var(--sbb-surface);
-    color: var(--sbb-primary);
+    color: var(--sbb-primary-text);
     font-weight: 600;
   }
 
@@ -180,6 +180,16 @@
 
 .create-input {
   width: 100%;
+}
+
+.create-color-input {
+  width: 48px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--sbb-border);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
 }
 
 .confirm-text {

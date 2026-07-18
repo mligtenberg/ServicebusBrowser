@@ -53,10 +53,21 @@ export class WorkspaceStorage {
     return this.read()?.activeWorkspaceId;
   }
 
-  renameWorkspace(id: UUID, name: string): void {
+  updateWorkspace(
+    id: UUID,
+    updates: { name?: string; primaryColor?: string },
+  ): void {
     const current = this.read() ?? { version: 1, workspaces: [] };
     const workspaces = current.workspaces.map((w) =>
-      w.id === id ? { ...w, name } : w,
+      w.id === id
+        ? {
+            ...w,
+            ...(updates.name !== undefined ? { name: updates.name } : {}),
+            ...(updates.primaryColor !== undefined
+              ? { primaryColor: updates.primaryColor }
+              : {}),
+          }
+        : w,
     );
     this.write({ ...current, workspaces });
   }

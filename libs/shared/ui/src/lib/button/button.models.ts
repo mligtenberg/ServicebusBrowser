@@ -2,7 +2,7 @@
  * Visual intent of the button. Derived from current `p-button` `severity`
  * call sites: primary (default), secondary, danger.
  */
-export type SbbButtonSeverity = 'primary' | 'secondary' | 'danger';
+export type SbbButtonSeverity = 'primary' | 'secondary' | 'danger' | 'info';
 
 /**
  * Visual weight/fill of the button. Derived from current `p-button`

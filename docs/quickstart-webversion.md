@@ -52,6 +52,7 @@ Defines the workspaces and connections shown in the UI. The operator owns this f
     {
       "id": "<GUID>",
       "name": "Production",
+      "primaryColor": "#e11d48",
       "connections": [
         {
           "id": "<GUID>",
@@ -68,6 +69,9 @@ Defines the workspaces and connections shown in the UI. The operator owns this f
 
 > [!NOTE]
 > All `id` fields must be valid UUIDs, unique across the entire file (workspace IDs must be unique among workspaces; connection IDs must be unique across **all** workspaces).
+
+> [!NOTE]
+> `primaryColor` (optional, hex color) sets the workspace's accent color and avatar badge color in the UI. If omitted, one is auto-generated from the workspace's `id`.
 
 > [!NOTE]
 > **Legacy format**: if your `sbb-connections.json` is still a flat array (the old format), the backend will automatically wrap it in a single "Default" workspace and log a deprecation warning. Migrate by wrapping your connections in the versioned format above.

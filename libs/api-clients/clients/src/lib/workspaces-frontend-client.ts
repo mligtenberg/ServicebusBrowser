@@ -11,10 +11,10 @@ export class WorkspacesFrontendClient {
     )) as Workspace[];
   }
 
-  async createWorkspace(name: string): Promise<Workspace> {
+  async createWorkspace(name: string, primaryColor?: string): Promise<Workspace> {
     return (await this.backendApi.workspacesDoRequest(
       'createWorkspace',
-      { name },
+      { name, primaryColor },
     )) as Workspace;
   }
 
@@ -22,8 +22,14 @@ export class WorkspacesFrontendClient {
     await this.backendApi.workspacesDoRequest('setActiveWorkspace', { id });
   }
 
-  async renameWorkspace(id: UUID, name: string): Promise<void> {
-    await this.backendApi.workspacesDoRequest('renameWorkspace', { id, name });
+  async updateWorkspace(
+    id: UUID,
+    updates: { name?: string; primaryColor?: string },
+  ): Promise<void> {
+    await this.backendApi.workspacesDoRequest('updateWorkspace', {
+      id,
+      ...updates,
+    });
   }
 
   async deleteWorkspace(id: UUID): Promise<void> {

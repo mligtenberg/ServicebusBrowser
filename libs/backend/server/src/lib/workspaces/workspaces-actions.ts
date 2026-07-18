@@ -6,11 +6,12 @@ const listWorkspaces: WorkspacesServerFunc = async (_body, store) => {
 };
 
 const createWorkspace: WorkspacesServerFunc = async (body, store) => {
-  const { name } = body as { name: string };
+  const { name, primaryColor } = body as { name: string; primaryColor?: string };
   const workspace: Workspace = {
     id: crypto.randomUUID() as UUID,
     name,
     createdAt: new Date().toISOString(),
+    ...(primaryColor ? { primaryColor } : {}),
   };
   store.createWorkspace(workspace);
   return workspace;
@@ -21,9 +22,13 @@ const setActiveWorkspace: WorkspacesServerFunc = async (body, store) => {
   store.setActiveWorkspaceId(id);
 };
 
-const renameWorkspace: WorkspacesServerFunc = async (body, store) => {
-  const { id, name } = body as { id: UUID; name: string };
-  store.renameWorkspace(id, name);
+const updateWorkspace: WorkspacesServerFunc = async (body, store) => {
+  const { id, name, primaryColor } = body as {
+    id: UUID;
+    name?: string;
+    primaryColor?: string;
+  };
+  store.updateWorkspace(id, { name, primaryColor });
 };
 
 const deleteWorkspace: WorkspacesServerFunc = async (body, store) => {
@@ -41,7 +46,7 @@ export default new Map<string, WorkspacesServerFunc>([
   ['listWorkspaces', listWorkspaces],
   ['createWorkspace', createWorkspace],
   ['setActiveWorkspace', setActiveWorkspace],
-  ['renameWorkspace', renameWorkspace],
+  ['updateWorkspace', updateWorkspace],
   ['deleteWorkspace', deleteWorkspace],
   ['countConnectionsByWorkspace', countConnectionsByWorkspace],
 ]);

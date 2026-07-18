@@ -56,7 +56,7 @@ export class WorkspaceSwitcherComponent {
 
   activeColor = computed(() => {
     const ws = this.activeWorkspace();
-    return ws ? workspaceAvatarColor(ws.id) : '#888';
+    return ws ? this.avatarColor(ws) : '#888';
   });
 
   activeInitials = computed(() => {
@@ -75,7 +75,7 @@ export class WorkspaceSwitcherComponent {
   pendingWorkspace = signal<Workspace | null>(null);
 
   avatarColor(ws: Workspace): string {
-    return workspaceAvatarColor(ws.id);
+    return ws.primaryColor ?? workspaceAvatarColor(ws.id);
   }
 
   initials(ws: Workspace): string {

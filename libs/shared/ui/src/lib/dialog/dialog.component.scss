@@ -4,7 +4,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--sbb-border);
 
@@ -13,5 +12,16 @@
   // anchors) don't count against `:empty`.
   &:empty {
     display: none;
+  }
+
+  // The projected `[sbbDialogFooter]` element (usually a plain <div> wrapping
+  // action buttons) is the actual flex parent of the buttons — `gap` on this
+  // host has no effect since that div is itself the single projected child.
+  // `::ng-deep` is required because the div belongs to the consuming
+  // component's view, not this one.
+  ::ng-deep [sbbDialogFooter] {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 }

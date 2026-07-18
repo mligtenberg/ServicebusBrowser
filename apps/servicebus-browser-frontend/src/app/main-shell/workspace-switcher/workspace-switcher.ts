@@ -28,13 +28,75 @@ import { Store } from '@ngrx/store';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
 import { countPagesByWorkspace, deleteWorkspaceData } from '@service-bus-browser/messages-db';
 
-function workspaceAvatarColor(id: string): string {
+function workspaceHue(id: string): number {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   }
-  const hue = hash % 360;
-  return `hsl(${hue}, 55%, 45%)`;
+  return hash % 360;
+}
+
+function workspaceAvatarColorHex(id: string): string {
+  return hslToHex(workspaceHue(id), 55, 45);
+}
+
+/** hsl(h, s%, l%) -> #rrggbb, so it can seed a native <input type="color"> value. */
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const toHex = (n: number) =>
+    Math.round(f(n) * 255)
+      .toString(16)
+      .padStart(2, '0');
+  return `#${toHex(0)}${toHex(8)}${toHex(4)}`;
+}
+
+function randomWorkspaceColor(): string {
+  return hslToHex(Math.floor(Math.random() * 360), 55, 45);
+}
+
+function hexToHue(hex: string): number | null {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return null;
+  const r = parseInt(match[1].slice(0, 2), 16) / 255;
+  const g = parseInt(match[1].slice(2, 4), 16) / 255;
+  const b = parseInt(match[1].slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  if (max === min) return 0;
+  const d = max - min;
+  let h: number;
+  switch (max) {
+    case r:
+      h = (g - b) / d + (g < b ? 6 : 0);
+      break;
+    case g:
+      h = (b - r) / d + 2;
+      break;
+    default:
+      h = (r - g) / d + 4;
+  }
+  return Math.round(h * 60);
+}
+
+/**
+ * A workspace's own accent hue, rendered as a dark shade in light mode and a
+ * light shade in dark mode — same lightness/saturation stops as the
+ * `--sbb-primary-700` / `--sbb-primary-400` ramp entries, so the avatar stays
+ * readable against its white initials in both themes instead of showing the
+ * raw (possibly too-light-on-light-theme or too-dark-on-dark-theme) color.
+ */
+function readableAvatarColor(hue: number): string {
+  return `light-dark(hsl(${hue}, 96%, 32%), hsl(${hue}, 93%, 60%))`;
+}
+
+function workspaceAccentHue(ws: Workspace): number {
+  const fromPrimary = ws.primaryColor ? hexToHue(ws.primaryColor) : null;
+  return fromPrimary ?? workspaceHue(ws.id);
 }
 
 function workspaceInitials(name: string): string {
@@ -81,7 +143,7 @@ export class WorkspaceSwitcherComponent {
 
   activeColor = computed(() => {
     const ws = this.activeWorkspace();
-    return ws ? workspaceAvatarColor(ws.id) : '#888';
+    return ws ? this.avatarColor(ws) : '#888';
   });
 
   activeInitials = computed(() => {
@@ -98,6 +160,7 @@ export class WorkspaceSwitcherComponent {
 
   showCreateDialog = signal(false);
   newWorkspaceName = signal('');
+  newWorkspaceColor = signal('#3b82f6');
   creating = signal(false);
 
   showConfirmDialog = signal(false);
@@ -106,6 +169,7 @@ export class WorkspaceSwitcherComponent {
   showRenameDialog = signal(false);
   renameTarget = signal<Workspace | null>(null);
   renameWorkspaceName = signal('');
+  renameWorkspaceColor = signal('#3b82f6');
   renaming = signal(false);
 
   showDeleteDialog = signal(false);
@@ -114,7 +178,7 @@ export class WorkspaceSwitcherComponent {
   deleting = signal(false);
 
   avatarColor(ws: Workspace): string {
-    return workspaceAvatarColor(ws.id);
+    return readableAvatarColor(workspaceAccentHue(ws));
   }
 
   initials(ws: Workspace): string {
@@ -128,6 +192,7 @@ export class WorkspaceSwitcherComponent {
   openCreateDialog(): void {
     this.popover().close();
     this.newWorkspaceName.set('');
+    this.newWorkspaceColor.set(randomWorkspaceColor());
     this.showCreateDialog.set(true);
   }
 
@@ -136,7 +201,7 @@ export class WorkspaceSwitcherComponent {
     if (!name || this.creating()) return;
     this.creating.set(true);
     try {
-      await this.switchService.createAndSwitch(name);
+      await this.switchService.createAndSwitch(name, this.newWorkspaceColor());
       this.showCreateDialog.set(false);
     } finally {
       this.creating.set(false);
@@ -176,12 +241,11 @@ export class WorkspaceSwitcherComponent {
     this.pendingWorkspace.set(null);
   }
 
-  openRenameDialog(): void {
-    const ws = this.activeWorkspace();
-    if (!ws) return;
+  openRenameDialog(ws: Workspace): void {
     this.popover().close();
     this.renameTarget.set(ws);
     this.renameWorkspaceName.set(ws.name);
+    this.renameWorkspaceColor.set(ws.primaryColor ?? workspaceAvatarColorHex(ws.id));
     this.showRenameDialog.set(true);
   }
 
@@ -197,7 +261,10 @@ export class WorkspaceSwitcherComponent {
     if (!ws || !name || this.renaming()) return;
     this.renaming.set(true);
     try {
-      await this.workspaceService.renameWorkspace(ws.id, name);
+      await this.workspaceService.updateWorkspace(ws.id, {
+        name,
+        primaryColor: this.renameWorkspaceColor(),
+      });
       this.showRenameDialog.set(false);
     } finally {
       this.renaming.set(false);

@@ -32,9 +32,9 @@
         <button
           class="ws-action-btn"
           type="button"
-          [sbbTooltip]="'Rename workspace'"
+          [sbbTooltip]="'Edit workspace'"
           sbbTooltipPlacement="top"
-          (click)="openRenameDialog()"
+          (click)="openRenameDialog(ws)"
         >
           <fa-icon [icon]="pencilIcon" aria-hidden="true"></fa-icon>
         </button>
@@ -50,6 +50,15 @@
             {{ initials(ws) }}
           </span>
           <span class="ws-row-name">{{ ws.name }}</span>
+          <button
+            class="ws-action-btn"
+            type="button"
+            [sbbTooltip]="'Edit workspace'"
+            sbbTooltipPlacement="top"
+            (click)="$event.stopPropagation(); openRenameDialog(ws)"
+          >
+            <fa-icon [icon]="pencilIcon" aria-hidden="true"></fa-icon>
+          </button>
           <button
             class="ws-action-btn ws-action-btn--danger"
             type="button"
@@ -77,6 +86,14 @@
       (keyup.enter)="submitCreate()"
       class="create-input"
     />
+    <label for="wsColor" class="create-label">Primary color</label>
+    <input
+      id="wsColor"
+      type="color"
+      class="create-color-input"
+      [ngModel]="newWorkspaceColor()"
+      (ngModelChange)="newWorkspaceColor.set($event)"
+    />
   </div>
   <div sbbDialogFooter>
     <sbb-button severity="secondary" (click)="cancelCreate()">Cancel</sbb-button>
@@ -89,7 +106,7 @@
 </sbb-dialog>
 
 <sbb-dialog
-  header="Rename Workspace"
+  header="Edit Workspace"
   [open]="showRenameDialog()"
   (openChange)="onRenameDialogOpenChange($event)"
   [width]="'360px'"
@@ -104,6 +121,14 @@
       (keyup.enter)="submitRename()"
       class="create-input"
     />
+    <label for="wsRenameColor" class="create-label">Primary color</label>
+    <input
+      id="wsRenameColor"
+      type="color"
+      class="create-color-input"
+      [ngModel]="renameWorkspaceColor()"
+      (ngModelChange)="renameWorkspaceColor.set($event)"
+    />
   </div>
   <div sbbDialogFooter>
     <sbb-button severity="secondary" (click)="cancelRename()">Cancel</sbb-button>
@@ -111,7 +136,7 @@
       [disabled]="!renameWorkspaceName().trim() || renaming()"
       [loading]="renaming()"
       (click)="submitRename()"
-    >Rename</sbb-button>
+    >Save</sbb-button>
   </div>
 </sbb-dialog>
 

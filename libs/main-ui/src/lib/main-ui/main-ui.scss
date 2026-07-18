@@ -95,7 +95,7 @@
 
 ::ng-deep .sbb-menu-panel__item.menu-item-selected {
   font-weight: 600;
-  color: var(--sbb-primary) !important;
+  color: var(--sbb-primary-text) !important;
   background-color: var(--sbb-surface) !important;
 
   &::after {

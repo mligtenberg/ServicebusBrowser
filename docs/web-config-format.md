@@ -11,6 +11,7 @@ The web backend reads a single `sbb-connections.json` file from its working dire
     {
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "name": "Production",
+      "primaryColor": "#e11d48",
       "connections": [
         {
           "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
@@ -38,8 +39,15 @@ The backend validates the config on startup and refuses to serve if any rule is 
 - Workspace `id` values must be unique within the file.
 - Connection `id` values must be unique **across all workspaces** in the file (not just within one workspace).
 - `version` must be `1`.
+- `primaryColor`, if present, must be a string.
 
 Unknown extra fields on workspace objects are warned about and ignored (forward-compatible).
+
+## Primary color
+
+Each workspace can set an optional `primaryColor` — a hex color (e.g. `"#e11d48"`) that drives the app's accent color (`--sbb-primary` and its derived tokens) whenever that workspace is active, and colors its avatar badge in the workspace switcher.
+
+If `primaryColor` is omitted, the backend fills in a default color derived deterministically from the workspace's `id`, so every workspace always has a color — you only need to set `primaryColor` explicitly if you want to override that default.
 
 ## Legacy format (auto-migration)
 

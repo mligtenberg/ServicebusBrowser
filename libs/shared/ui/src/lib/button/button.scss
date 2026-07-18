@@ -113,7 +113,7 @@
 
     &.sbb-button--primary {
       border-color: var(--sbb-primary);
-      color: var(--sbb-primary);
+      color: var(--sbb-primary-text);
 
       &:hover:not(:disabled) {
         // light: pale sky tint; dark: low-opacity primary glow
@@ -147,7 +147,7 @@
     border-color: transparent;
 
     &.sbb-button--primary {
-      color: var(--sbb-primary);
+      color: var(--sbb-primary-text);
 
       &:hover:not(:disabled) {
         background-color: light-dark(var(--sbb-primary-50), rgba(14, 165, 233, 0.12));
@@ -167,6 +167,17 @@
 
       &:hover:not(:disabled) {
         background-color: light-dark(var(--sbb-button-danger-subtle), rgba(239, 68, 68, 0.12));
+      }
+    }
+
+    // Fixed brand-blue severity, independent of the (per-workspace) --sbb-primary
+    // token — for controls whose color is a semantic status (e.g. "idle/ok"
+    // vs. "error"), not the workspace's accent color.
+    &.sbb-button--info {
+      color: var(--sbb-info);
+
+      &:hover:not(:disabled) {
+        background-color: var(--sbb-info-bg);
       }
     }
   }

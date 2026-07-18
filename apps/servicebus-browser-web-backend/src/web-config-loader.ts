@@ -12,6 +12,7 @@ export interface WorkspaceConfig {
   id: UUID;
   name: string;
   connections: Connection[];
+  primaryColor?: string;
 }
 
 export interface ParsedConfig {
@@ -135,7 +136,18 @@ export function loadConfig(configPath: string): ParsedConfig {
       connections.push(conn as unknown as Connection);
     }
 
-    const extraKeys = Object.keys(ws).filter((k) => !['id', 'name', 'connections'].includes(k));
+    if (
+      ws['primaryColor'] !== undefined &&
+      typeof ws['primaryColor'] !== 'string'
+    ) {
+      throw new Error(
+        `Config file at ${configPath}: workspace[${i}] "primaryColor" must be a string.`,
+      );
+    }
+
+    const extraKeys = Object.keys(ws).filter(
+      (k) => !['id', 'name', 'connections', 'primaryColor'].includes(k),
+    );
     if (extraKeys.length > 0) {
       console.warn(
         `Config file at ${configPath}: workspace[${i}] has unknown fields [${extraKeys.join(', ')}] — ignoring.`,
@@ -146,6 +158,7 @@ export function loadConfig(configPath: string): ParsedConfig {
       id: ws['id'] as UUID,
       name: (ws['name'] as string).trim(),
       connections,
+      ...(ws['primaryColor'] ? { primaryColor: ws['primaryColor'] as string } : {}),
     });
   }
 

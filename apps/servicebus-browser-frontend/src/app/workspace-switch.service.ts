@@ -32,8 +32,8 @@ export class WorkspaceSwitchService {
     await this.router.navigateByUrl('/');
   }
 
-  async createAndSwitch(name: string): Promise<Workspace> {
-    const workspace = await this.workspaceService.createWorkspace(name);
+  async createAndSwitch(name: string, primaryColor?: string): Promise<Workspace> {
+    const workspace = await this.workspaceService.createWorkspace(name, primaryColor);
     await this.switchTo(workspace);
     return workspace;
   }

@@ -15,10 +15,11 @@
     <div class="recent-pages__inner">
       <h2 class="recent-pages__title">Pick up where you left off...</h2>
       @if (recentPages().length > 0) {
-        <div class="recent-pages__grid">
+        <div class="recent-pages__list">
           @for (page of recentPages(); track page.url) {
-            <a class="recent-pages__card-link" [routerLink]="page.url">
-              <sbb-card [header]="page.title" />
+            <a class="recent-pages__row" [routerLink]="page.url">
+              <span class="recent-pages__row-title">{{ page.title }}</span>
+              <span class="recent-pages__row-meta">Last viewed {{ formatVisitedAt(page.visitedAt) }}</span>
             </a>
           }
         </div>
