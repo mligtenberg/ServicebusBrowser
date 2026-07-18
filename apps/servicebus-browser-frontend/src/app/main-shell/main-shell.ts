@@ -2,14 +2,22 @@ import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
-import { ColorThemeService, MessagePreferencesService, openAddConnectionPopup } from '@service-bus-browser/services';
+import {
+  ColorThemeService,
+  MessagePreferencesService,
+  openAddConnectionPopup,
+  WorkspaceService,
+} from '@service-bus-browser/services';
 import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { Store } from '@ngrx/store';
+import { Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
+import { WorkspaceSwitchService } from '../workspace-switch.service';
 
 type ConnectionsBroadcastMessage = { type: 'connection-added'; name: string };
+type WorkspaceBroadcastMessage = { type: 'workspace-added'; workspace: Workspace };
 
 interface ElectronWindow {
   electron?: {
@@ -33,6 +41,8 @@ export class MainShell {
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
   private readonly toasts = inject(SbbToastService);
+  private readonly workspaceService = inject(WorkspaceService);
+  private readonly workspaceSwitchService = inject(WorkspaceSwitchService);
   store = inject(Store);
 
   fullscreen = signal<boolean>(false);
@@ -156,6 +166,22 @@ export class MainShell {
       });
     });
     this.destroyRef.onDestroy(() => channel.close());
+
+    const workspacesChannel = new BroadcastChannel('workspaces');
+    workspacesChannel.addEventListener('message', (event) => {
+      const message = event.data as WorkspaceBroadcastMessage;
+      if (message?.type !== 'workspace-added') {
+        return;
+      }
+      this.workspaceService.addWorkspace(message.workspace);
+      this.workspaceSwitchService.switchTo(message.workspace);
+      this.toasts.show({
+        severity: 'success',
+        summary: 'Workspace created',
+        detail: message.workspace.name,
+      });
+    });
+    this.destroyRef.onDestroy(() => workspacesChannel.close());
   }
 
   importMessages(): void {

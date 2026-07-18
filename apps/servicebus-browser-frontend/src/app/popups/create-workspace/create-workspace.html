@@ -1,0 +1,39 @@
+<main class="page-container">
+  <h2 class="page-title">New workspace</h2>
+
+  <div role="form">
+    <section class="name">
+      <label for="wsName" class="heading">Workspace name</label>
+      <sbb-input
+        inputId="wsName"
+        class="full-width"
+        placeholder="e.g. Production"
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        (keyup.enter)="submit()"
+      />
+    </section>
+
+    <section class="color">
+      <label for="wsColor" class="heading">Primary color</label>
+      <input
+        id="wsColor"
+        type="color"
+        class="color-input"
+        [ngModel]="color()"
+        (ngModelChange)="color.set($event)"
+      />
+    </section>
+
+    <section class="actions">
+      <sbb-button severity="secondary" type="button" (click)="cancel()">Cancel</sbb-button>
+      <sbb-button
+        severity="primary"
+        type="button"
+        [disabled]="!name().trim() || creating()"
+        [loading]="creating()"
+        (click)="submit()"
+      >Create</sbb-button>
+    </section>
+  </div>
+</main>

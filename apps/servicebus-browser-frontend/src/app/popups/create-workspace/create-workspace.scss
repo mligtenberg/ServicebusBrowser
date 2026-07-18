@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.heading {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: normal;
+  margin: 0 0 0.5rem 0;
+  color: var(--sbb-primary-text);
+}
+
+section {
+  margin: 0 0 1rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.color-input {
+  width: 48px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--sbb-border);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin: 1rem 0 0 0;
+}

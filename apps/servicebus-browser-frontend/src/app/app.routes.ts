@@ -17,6 +17,19 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import('@service-bus-browser/connections-flow').then((m) => m.popups),
       },
+      {
+        path: 'workspaces',
+        children: [
+          {
+            path: 'add',
+            loadComponent: () =>
+              import('./popups/create-workspace/create-workspace').then(
+                (m) => m.CreateWorkspaceComponent,
+              ),
+            data: { popup: true },
+          },
+        ],
+      },
     ],
   },
   {

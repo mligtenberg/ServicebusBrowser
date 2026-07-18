@@ -5,8 +5,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { NgStyle } from '@angular/common';
+import { Location, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
   faChevronDown,
@@ -21,7 +22,7 @@ import {
   SbbPopover,
   SbbTooltip,
 } from '@service-bus-browser/shared-ui';
-import { WorkspaceService } from '@service-bus-browser/services';
+import { WorkspaceService, openCreateWorkspacePopup } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
 import { Store } from '@ngrx/store';
@@ -53,10 +54,6 @@ function hslToHex(h: number, s: number, l: number): string {
       .toString(16)
       .padStart(2, '0');
   return `#${toHex(0)}${toHex(8)}${toHex(4)}`;
-}
-
-function randomWorkspaceColor(): string {
-  return hslToHex(Math.floor(Math.random() * 360), 55, 45);
 }
 
 function hexToHue(hex: string): number | null {
@@ -127,6 +124,8 @@ export class WorkspaceSwitcherComponent {
   private readonly popover = viewChild.required<SbbPopover>('op');
 
   private readonly store = inject(Store);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
   workspaceService = inject(WorkspaceService);
   switchService = inject(WorkspaceSwitchService);
 
@@ -158,11 +157,6 @@ export class WorkspaceSwitcherComponent {
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  showCreateDialog = signal(false);
-  newWorkspaceName = signal('');
-  newWorkspaceColor = signal('#3b82f6');
-  creating = signal(false);
-
   showConfirmDialog = signal(false);
   pendingWorkspace = signal<Workspace | null>(null);
 
@@ -189,27 +183,9 @@ export class WorkspaceSwitcherComponent {
     this.popover().toggle(event.currentTarget as HTMLElement);
   }
 
-  openCreateDialog(): void {
+  openCreatePopup(): void {
     this.popover().close();
-    this.newWorkspaceName.set('');
-    this.newWorkspaceColor.set(randomWorkspaceColor());
-    this.showCreateDialog.set(true);
-  }
-
-  async submitCreate(): Promise<void> {
-    const name = this.newWorkspaceName().trim();
-    if (!name || this.creating()) return;
-    this.creating.set(true);
-    try {
-      await this.switchService.createAndSwitch(name, this.newWorkspaceColor());
-      this.showCreateDialog.set(false);
-    } finally {
-      this.creating.set(false);
-    }
-  }
-
-  cancelCreate(): void {
-    this.showCreateDialog.set(false);
+    openCreateWorkspacePopup(this.router, this.location);
   }
 
   selectWorkspace(ws: Workspace): void {

@@ -15,7 +15,7 @@
 
 <sbb-popover #op>
   <div class="ws-dropdown">
-    <button class="ws-new-action" (click)="openCreateDialog()" type="button">
+    <button class="ws-new-action" (click)="openCreatePopup()" type="button">
       <fa-icon [icon]="plusIcon" aria-hidden="true"></fa-icon>
       New Workspace…
     </button>
@@ -73,37 +73,6 @@
     }
   </div>
 </sbb-popover>
-
-<sbb-dialog header="New Workspace" [(open)]="showCreateDialog" [width]="'360px'">
-  <div class="create-form">
-    <label for="wsName" class="create-label">Workspace name</label>
-    <sbb-input
-      inputId="wsName"
-      type="text"
-      placeholder="e.g. Production"
-      [ngModel]="newWorkspaceName()"
-      (ngModelChange)="newWorkspaceName.set($event)"
-      (keyup.enter)="submitCreate()"
-      class="create-input"
-    />
-    <label for="wsColor" class="create-label">Primary color</label>
-    <input
-      id="wsColor"
-      type="color"
-      class="create-color-input"
-      [ngModel]="newWorkspaceColor()"
-      (ngModelChange)="newWorkspaceColor.set($event)"
-    />
-  </div>
-  <div sbbDialogFooter>
-    <sbb-button severity="secondary" (click)="cancelCreate()">Cancel</sbb-button>
-    <sbb-button
-      [disabled]="!newWorkspaceName().trim() || creating()"
-      [loading]="creating()"
-      (click)="submitCreate()"
-    >Create</sbb-button>
-  </div>
-</sbb-dialog>
 
 <sbb-dialog
   header="Edit Workspace"
