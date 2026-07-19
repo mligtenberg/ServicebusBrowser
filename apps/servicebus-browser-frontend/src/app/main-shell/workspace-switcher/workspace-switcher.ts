@@ -19,6 +19,7 @@ import {
   SbbButton,
   SbbDialog,
   SbbMenuPanelContext,
+  SbbToastService,
   SbbTooltip,
 } from '@service-bus-browser/shared-ui';
 import {
@@ -27,6 +28,7 @@ import {
   openEditWorkspacePopup,
 } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
+import { WorkspaceWindowService } from '../../workspace-window.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
 import { Store } from '@ngrx/store';
 import { TasksSelectors } from '@service-bus-browser/tasks-store';
@@ -106,6 +108,8 @@ export class WorkspaceSwitcherComponent {
   private readonly location = inject(Location);
   workspaceService = inject(WorkspaceService);
   switchService = inject(WorkspaceSwitchService);
+  private readonly windowService = inject(WorkspaceWindowService);
+  private readonly toasts = inject(SbbToastService);
 
   protected readonly chevronIcon = faChevronDown;
   protected readonly plusIcon = faPlus;
@@ -136,6 +140,7 @@ export class WorkspaceSwitcherComponent {
   });
 
   showConfirmDialog = signal(false);
+  showOpenLocationDialog = signal(false);
   pendingWorkspace = signal<Workspace | null>(null);
 
   showDeleteDialog = signal(false);
@@ -156,11 +161,76 @@ export class WorkspaceSwitcherComponent {
   }
 
   selectWorkspace(ws: Workspace): void {
+    void this.beginOpenWorkspace(ws);
+  }
+
+  /**
+   * Desktop-only: if `ws` is already open in some window, focus it instead
+   * of opening it again; otherwise ask the user whether to open it here or
+   * in a new window. The web frontend has no multi-window bridge, so it
+   * always falls straight through to `proceedOpenHere` — same behavior as
+   * before this feature existed.
+   */
+  private async beginOpenWorkspace(ws: Workspace): Promise<void> {
+    if (!this.windowService.isAvailable) {
+      this.proceedOpenHere(ws);
+      return;
+    }
+
+    const { found, sameWindow } =
+      await this.windowService.focusIfOpenElsewhere(ws.id);
+    if (found) {
+      if (!sameWindow) {
+        this.toasts.info(
+          'Workspace already open',
+          `Switched to the window showing "${ws.name}".`,
+        );
+      }
+      return;
+    }
+
+    this.pendingWorkspace.set(ws);
+    this.showOpenLocationDialog.set(true);
+  }
+
+  onOpenLocationDialogOpenChange(open: boolean): void {
+    if (!open) {
+      this.cancelOpenLocation();
+    }
+  }
+
+  cancelOpenLocation(): void {
+    this.showOpenLocationDialog.set(false);
+    this.pendingWorkspace.set(null);
+  }
+
+  openHere(): void {
+    const ws = this.pendingWorkspace();
+    this.showOpenLocationDialog.set(false);
+    if (ws) {
+      this.proceedOpenHere(ws);
+    }
+  }
+
+  /** Switches in the current window, confirming first if loads are active. */
+  private proceedOpenHere(ws: Workspace): void {
     if (this.hasActiveTasks()) {
+      // pendingWorkspace stays set — confirmSwitch()/cancelSwitch() below
+      // pick it back up.
       this.pendingWorkspace.set(ws);
       this.showConfirmDialog.set(true);
     } else {
-      this.switchService.switchTo(ws);
+      this.pendingWorkspace.set(null);
+      void this.switchService.switchTo(ws);
+    }
+  }
+
+  openInNewWindow(): void {
+    const ws = this.pendingWorkspace();
+    this.showOpenLocationDialog.set(false);
+    this.pendingWorkspace.set(null);
+    if (ws) {
+      void this.windowService.openInNewWindow(ws.id);
     }
   }
 

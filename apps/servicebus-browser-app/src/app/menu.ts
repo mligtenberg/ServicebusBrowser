@@ -25,6 +25,11 @@ export function getMenu(isDev: boolean) {
     {
       label: 'File',
       submenu: [
+        {
+          label: 'New Window',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => App.openNewWindow()
+        },
         { role: 'close' }
       ]
     },
@@ -38,6 +43,11 @@ export function getMenu(isDev: boolean) {
     {
       label: 'File',
       submenu: [
+        {
+          label: 'New Window',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => App.openNewWindow()
+        },
         {
           label: 'About ' + app.name,
           role: 'about'

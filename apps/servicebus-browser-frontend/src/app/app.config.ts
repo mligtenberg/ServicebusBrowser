@@ -29,6 +29,8 @@ import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { UUID } from '@service-bus-browser/shared-contracts';
+import { WorkspaceWindowService } from './workspace-window.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -72,10 +74,21 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(async () => {
       const workspaceService = inject(WorkspaceService);
       const workspacesClient = inject(WorkspacesFrontendClient);
+      const workspaceWindowService = inject(WorkspaceWindowService);
       const store = inject(Store);
 
+      // A window opened via "open this workspace in a new window" boots
+      // straight into that workspace instead of the last-active one.
+      const requestedWorkspaceId = new URLSearchParams(
+        window.location.search,
+      ).get('openWorkspaceId') as UUID | null;
+
       const workspaces = await workspacesClient.listWorkspaces();
-      const workspace = workspaceService.initialize(workspaces);
+      const workspace = workspaceService.initialize(
+        workspaces,
+        requestedWorkspaceId ?? undefined,
+      );
+      workspaceWindowService.reportActive(workspace.id);
       store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
 
       // Run OPFS migration BEFORE initializeWorkspace so no DB is open yet

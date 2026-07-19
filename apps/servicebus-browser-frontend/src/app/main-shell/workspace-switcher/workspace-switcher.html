@@ -80,6 +80,22 @@
 </ng-template>
 
 <sbb-dialog
+  header="Open Workspace"
+  [open]="showOpenLocationDialog()"
+  (openChange)="onOpenLocationDialogOpenChange($event)"
+  [width]="'420px'"
+>
+  <p class="confirm-text">
+    Open "{{ pendingWorkspace()?.name }}" in this window, or in a new window?
+  </p>
+  <div sbbDialogFooter>
+    <sbb-button severity="secondary" (click)="cancelOpenLocation()">Cancel</sbb-button>
+    <sbb-button severity="secondary" (click)="openInNewWindow()">New Window</sbb-button>
+    <sbb-button severity="primary" (click)="openHere()">This Window</sbb-button>
+  </div>
+</sbb-dialog>
+
+<sbb-dialog
   header="Switch Workspace"
   [open]="showConfirmDialog()"
   (openChange)="onConfirmDialogOpenChange($event)"
