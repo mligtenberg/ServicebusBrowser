@@ -4,9 +4,13 @@
   "artifactName": "Servicebus browser.${ext}",
   "copyright": "Copyright © 2024 Martin Ligtenberg",
   "productName": "Servicebus Browser",
+  "executableName": "servicebus-browser",
   "icon": "assets/icon.png",
   "linux": {
-    "target": ["AppImage"]
+    "target": ["AppImage"],
+    "category": "Utility",
+    "synopsis": "A cross platform tool to view and manage your Azure Service Bus instances",
+    "syncDesktopName": true
   },
   "win": {
     "target": ["nsis"]
