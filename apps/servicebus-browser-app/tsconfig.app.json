@@ -13,5 +13,10 @@
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
   ],
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts"
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": false
+  }
 }
