@@ -111,7 +111,11 @@
         "libs/backend/messaging-brokers/event-hub/src/index.ts"
       ],
       "@service-bus-browser/shared-ui": ["./libs/shared/ui/src/index.ts"]
-    }
+    },
+    "strict": false,
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "tmp"],
   "include": ["types/**/*.d.ts"]

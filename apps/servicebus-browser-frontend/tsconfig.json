@@ -10,7 +10,8 @@
     "noFallthroughCasesInSwitch": true,
     "module": "preserve",
     "moduleResolution": "bundler",
-    "lib": ["dom", "es2024"]
+    "lib": ["dom", "es2024"],
+    "ignoreDeprecations": "6.0"
   },
   "files": [],
   "include": [],
