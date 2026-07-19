@@ -3,7 +3,7 @@
      #pageNavigator
 >
   <sbb-tabs
-    [value]="currentPage()?.id"
+    [value]="$safeNavigationMigration(currentPage()?.id)"
     [reorderable]="true"
     (reordered)="onReordered($event)"
   >

@@ -1,7 +1,7 @@
 <sbb-input-group>
   <sbb-input
     [readonly]="true"
-    [ngModel]="value()?.endpointDisplay"
+    [ngModel]="$safeNavigationMigration(value()?.endpointDisplay)"
     (click)="dialogVisible.set(true)"
   />
   <sbb-input-group-addon>

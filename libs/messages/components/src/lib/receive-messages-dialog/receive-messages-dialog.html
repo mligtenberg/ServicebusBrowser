@@ -2,7 +2,7 @@
   [modal]="true"
   [open]="loadMessagesDialogVisible()"
   [closable]="false"
-  [header]="'Load ' + receiveEndpoint()?.displayName + ' messages'"
+  [header]="'Load ' + $safeNavigationMigration(receiveEndpoint()?.displayName) + ' messages'"
 >
   <div class="load-form">
     <ng-template [ngTemplateOutlet]="optionsTemplate" [ngTemplateOutletContext]="{ $implicit: defaultOptionModel() }"></ng-template>

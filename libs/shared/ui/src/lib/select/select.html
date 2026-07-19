@@ -53,7 +53,7 @@
                 type="button"
                 class="sbb-select-item"
                 role="option"
-                [id]="entry?.id"
+                [id]="$safeNavigationMigration(entry?.id)"
                 [disabled]="option.disabled"
                 [attr.aria-selected]="isSelected(option)"
                 [attr.data-highlighted]="entry && entry.id === activeId() ? '' : null"
