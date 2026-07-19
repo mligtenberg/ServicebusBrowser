@@ -22,7 +22,7 @@ import { provideServiceBusElectronClient } from '@service-bus-browser/service-bu
 import { provideTasksState } from '@service-bus-browser/tasks-store';
 import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideMainUi, pagesActions } from '@service-bus-browser/main-ui';
 import { provideMonacoConfig } from '@service-bus-browser/shared-components';
 
@@ -38,7 +38,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideZonelessChangeDetection(),
-    provideHttpClient(),
+    provideHttpClient(withXhr()),
     provideRouter(
       appRoutes,
       withHashLocation(),

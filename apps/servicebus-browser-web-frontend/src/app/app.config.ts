@@ -21,6 +21,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import {
   provideHttpClient,
   withInterceptors,
+  withXhr
 } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import {
@@ -46,7 +47,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideZonelessChangeDetection(),
-    provideHttpClient(withInterceptors([authInterceptor()])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor()])),
     provideRouter(
       appRoutes,
       withComponentInputBinding(),
