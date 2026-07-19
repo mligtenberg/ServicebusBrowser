@@ -94,7 +94,9 @@ export class WebBackendApi implements BackendApi {
 
     // binary data is returned as a buffer, but we use uInt8Arrays
     const convertBuffers = (obj: any): any => {
-      if (typeof obj === 'object' && obj !== null && 'buffer' in obj) {
+      if (obj instanceof Date) {
+        return obj;
+      } else if (typeof obj === 'object' && obj !== null && 'buffer' in obj) {
         return obj.buffer;
       } else if (Array.isArray(obj)) {
         return obj.map(convertBuffers);
