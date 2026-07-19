@@ -53,6 +53,39 @@ describe('recentPagesReducer', () => {
     ]);
   });
 
+  it('removes the entry matching the removed url, leaving others untouched', () => {
+    const afterFirst = recentPagesReducer(
+      baseState,
+      recentPagesActions.pageVisited({ title: 'View Messages: orders', url: '/messages/page/1' }),
+    );
+    const afterSecond = recentPagesReducer(
+      afterFirst,
+      recentPagesActions.pageVisited({ title: 'Send Message', url: '/messages/send' }),
+    );
+
+    const state = recentPagesReducer(
+      afterSecond,
+      recentPagesActions.pageRemoved({ url: '/messages/page/1' }),
+    );
+
+    expect(state.items).toHaveLength(1);
+    expect(state.items[0].url).toBe('/messages/send');
+  });
+
+  it('is a no-op when the removed url is not in the list', () => {
+    const afterVisit = recentPagesReducer(
+      baseState,
+      recentPagesActions.pageVisited({ title: 'Send Message', url: '/messages/send' }),
+    );
+
+    const state = recentPagesReducer(
+      afterVisit,
+      recentPagesActions.pageRemoved({ url: '/messages/page/unknown' }),
+    );
+
+    expect(state.items).toEqual(afterVisit.items);
+  });
+
   it('replaces items wholesale on loadFromStorage (workspace switch hydration)', () => {
     const withOneVisit = recentPagesReducer(
       baseState,

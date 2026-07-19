@@ -59,3 +59,7 @@ export const Empty: Story = {
     }),
   ],
 };
+
+export const WithoutQuickActions: Story = {
+  args: { showQuickActions: false },
+};

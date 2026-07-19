@@ -5,6 +5,7 @@ export const recentPagesActions = createActionGroup({
   source: 'recent-pages',
   events: {
     'page visited': props<{ title: string; url: string }>(),
+    'page removed': props<{ url: string }>(),
     'load from storage': props<{ items: RecentPageItem[] }>(),
   },
 });

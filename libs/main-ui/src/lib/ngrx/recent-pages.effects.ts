@@ -114,10 +114,17 @@ export class RecentPagesEffects {
     ),
   );
 
+  removeClosedPage$ = createEffect(() =>
+    this.actions.pipe(
+      ofType(pagesActions.closePage),
+      map(({ id }) => recentPagesActions.pageRemoved({ url: `/messages/page/${id}` })),
+    ),
+  );
+
   persistRecentPages$ = createEffect(
     () =>
       this.actions.pipe(
-        ofType(recentPagesActions.pageVisited),
+        ofType(recentPagesActions.pageVisited, recentPagesActions.pageRemoved),
         tap(() => {
           const workspaceId = this.workspaceService.activeWorkspace()?.id;
           if (!workspaceId) {

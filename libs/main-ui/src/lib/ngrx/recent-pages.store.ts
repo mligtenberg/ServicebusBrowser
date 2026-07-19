@@ -26,6 +26,10 @@ export const recentPagesReducer = createReducer(
       ...state.items.filter((item) => item.url !== url),
     ].slice(0, MAX_RECENT_PAGES),
   })),
+  on(recentPagesActions.pageRemoved, (state, { url }): RecentPagesState => ({
+    ...state,
+    items: state.items.filter((item) => item.url !== url),
+  })),
   on(recentPagesActions.loadFromStorage, (state, { items }): RecentPagesState => ({
     ...state,
     items,

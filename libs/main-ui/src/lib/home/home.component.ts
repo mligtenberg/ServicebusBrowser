@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -22,6 +22,8 @@ export class HomeComponent {
 
   readonly faPlus = faPlus;
   readonly faPaperPlane = faPaperPlane;
+
+  readonly showQuickActions = input(true);
 
   recentPages = this.store.selectSignal(selectRecentPages);
 

@@ -1,15 +1,17 @@
 <div class="home-container">
-  <div class="quick-actions">
-    <sbb-card header="Add Connection">
-      <p>Connect to a message broker.</p>
-      <sbb-button [icon]="faPlus" (click)="openAddConnection()">Add Connection</sbb-button>
-    </sbb-card>
+  @if (showQuickActions()) {
+    <div class="quick-actions">
+      <sbb-card header="Add Connection">
+        <p>Connect to a message broker.</p>
+        <sbb-button [icon]="faPlus" (click)="openAddConnection()">Add Connection</sbb-button>
+      </sbb-card>
 
-    <sbb-card header="Send Message">
-      <p>Compose and send a message to any connected broker.</p>
-      <sbb-button [icon]="faPaperPlane" (click)="sendMessage()">Send Message</sbb-button>
-    </sbb-card>
-  </div>
+      <sbb-card header="Send Message">
+        <p>Compose and send a message to any connected broker.</p>
+        <sbb-button [icon]="faPaperPlane" (click)="sendMessage()">Send Message</sbb-button>
+      </sbb-card>
+    </div>
+  }
 
   <section class="recent-pages">
     <div class="recent-pages__inner">

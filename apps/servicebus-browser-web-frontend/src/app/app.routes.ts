@@ -42,6 +42,12 @@ export const appRoutes: Route[] = [
         path: 'about',
         component: AboutComponent,
       },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./home-page/home-page').then((m) => m.HomePage),
+        pathMatch: 'full',
+      },
     ],
   },
   {
