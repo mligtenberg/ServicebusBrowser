@@ -1,14 +1,16 @@
 import { provideActionHandler } from '@service-bus-browser/actions-framework';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { WorkspaceService } from '@service-bus-browser/services';
 import { ServiceBusManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { RefreshUtil } from '../refresh-util';
 import { ConfirmationService } from '@service-bus-browser/shared-components';
 
 provideActionHandler('service-bus:topic:add', async (action) => {
   const router = inject(Router);
+  const workspaceService = inject(WorkspaceService);
   await router.navigate([
-    'manage-service-bus',
+    workspaceService.workspaceUrl('manage-service-bus'),
     'connections',
     action.parameters['connectionId'],
     'topics',
@@ -17,8 +19,9 @@ provideActionHandler('service-bus:topic:add', async (action) => {
 });
 provideActionHandler('service-bus:topic:edit', async (action) => {
   const router = inject(Router);
+  const workspaceService = inject(WorkspaceService);
   await router.navigate([
-    'manage-service-bus',
+    workspaceService.workspaceUrl('manage-service-bus'),
     'connections',
     action.parameters['connectionId'],
     'topics',

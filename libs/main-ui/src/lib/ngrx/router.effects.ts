@@ -5,6 +5,7 @@ import {
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { from, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
+import { WorkspaceService } from '@service-bus-browser/services';
 
 @Injectable({
   providedIn: 'root',
@@ -12,13 +13,14 @@ import { Router } from '@angular/router';
 export class RouterEffects {
   actions = inject(Actions);
   router = inject(Router);
+  workspaceService = inject(WorkspaceService);
 
   navigateTo$ = createEffect(
     () =>
       this.actions.pipe(
         ofType(messagePagesEffectActions.pageLoaded, messagePagesEffectActions.pageLoadCancelled),
         switchMap(({ pageId }) =>
-          from(this.router.navigate(['messages', 'page', pageId])),
+          from(this.router.navigate([this.workspaceService.workspaceUrl('messages'), 'page', pageId])),
         ),
       ),
     { dispatch: false },
