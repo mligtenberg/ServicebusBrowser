@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { MainUiComponent, pagesActions } from '@service-bus-browser/main-ui';
 import { SbbMenu, SbbMenuItem, SbbButton } from '@service-bus-browser/shared-ui';
@@ -25,6 +26,7 @@ export class MainApp implements OnInit {
   private messagePreferences = inject(MessagePreferencesService);
   private workspaceService = inject(WorkspaceService);
   private workspacesClient = inject(WorkspacesFrontendClient);
+  private router = inject(Router);
 
   protected title = 'Service Bus Browser';
   private readonly store = inject(Store);
@@ -43,15 +45,14 @@ export class MainApp implements OnInit {
   faUser = faUser;
 
   menuItems = computed<SbbMenuItem[]>(() => {
-    const themePref = this.themeService.preference();
-    const bodyView = this.messagePreferences.defaultBodyView();
-    const selectionMarks = (selected: boolean, label: string) =>
-      selected
-        ? {
-            label,
-            styleClass: 'menu-item-selected',
-          }
-        : { label };
+    // styleClass must be a live function, not a frozen string: the menu panel
+    // renders in a CDK overlay that captures the item objects when it opens, so
+    // a baked-in string can't update the checkmark while the panel is open.
+    // resolve() re-invokes these on every signal-driven refresh.
+    const selectionMarks = (selected: () => boolean, label: string) => ({
+      label,
+      styleClass: () => (selected() ? 'menu-item-selected' : ''),
+    });
 
     const switcher = this.workspaceSwitcher();
 
@@ -69,12 +70,12 @@ export class MainApp implements OnInit {
         items: [
           {
             label: 'Send',
-            icon: 'pi pi-send',
-            routerLink: '/messages/send',
+            icon: 'fa-solid fa-paper-plane',
+            command: () => this.router.navigateByUrl('/messages/send'),
           },
           {
             label: 'Import',
-            icon: 'pi pi-upload',
+            icon: 'fa-solid fa-upload',
             command: () => {
               this.importMessages();
             },
@@ -86,45 +87,45 @@ export class MainApp implements OnInit {
         items: [
           {
             label: 'Application Theme',
-            icon: 'pi pi-desktop',
+            icon: 'fa-solid fa-desktop',
             items: [
               {
-                ...selectionMarks(themePref === 'sync', 'Sync with OS'),
-                icon: 'pi pi-desktop',
+                ...selectionMarks(() => this.themeService.preference() === 'sync', 'Sync with OS'),
+                icon: 'fa-solid fa-desktop',
                 command: () => this.themeService.setPreference('sync'),
               },
               {
-                ...selectionMarks(themePref === 'light', 'Light theme'),
-                icon: 'pi pi-sun',
+                ...selectionMarks(() => this.themeService.preference() === 'light', 'Light theme'),
+                icon: 'fa-solid fa-sun',
                 command: () => this.themeService.setPreference('light'),
               },
               {
-                ...selectionMarks(themePref === 'dark', 'Dark theme'),
-                icon: 'pi pi-moon',
+                ...selectionMarks(() => this.themeService.preference() === 'dark', 'Dark theme'),
+                icon: 'fa-solid fa-moon',
                 command: () => this.themeService.setPreference('dark'),
               },
             ],
           },
           {
             label: 'Default Body View',
-            icon: 'pi pi-eye',
+            icon: 'fa-solid fa-eye',
             items: [
               {
-                ...selectionMarks(bodyView === 'raw', 'Raw'),
-                icon: 'pi pi-file',
+                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'raw', 'Raw'),
+                icon: 'fa-solid fa-file',
                 command: () => this.messagePreferences.setDefaultBodyView('raw'),
               },
               {
-                ...selectionMarks(bodyView === 'pretty', 'Pretty'),
-                icon: 'pi pi-sparkles',
+                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'pretty', 'Pretty'),
+                icon: 'fa-solid fa-wand-magic-sparkles',
                 command: () => this.messagePreferences.setDefaultBodyView('pretty'),
               },
             ],
           },
           {
             label: 'About',
-            icon: 'pi pi-info-circle',
-            routerLink: '/about',
+            icon: 'fa-solid fa-circle-info',
+            command: () => this.router.navigateByUrl('/about'),
           },
         ],
       },
@@ -134,7 +135,7 @@ export class MainApp implements OnInit {
   accountMenuItems: SbbMenuItem[] = [
     {
       label: 'Sign-out',
-      icon: 'pi pi-sign-out',
+      icon: 'fa-solid fa-sign-out',
       command: () => {
         this.signOut();
       },
