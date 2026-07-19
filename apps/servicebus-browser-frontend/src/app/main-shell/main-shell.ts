@@ -93,7 +93,7 @@ export class MainShell {
           {
             label: 'Send',
             icon: 'fa-solid fa-paper-plane',
-            onSelect: () => this.router.navigateByUrl('/messages/send'),
+            onSelect: () => this.router.navigateByUrl(this.workspaceService.workspaceUrl('/messages/send')),
           },
           {
             label: 'Import',

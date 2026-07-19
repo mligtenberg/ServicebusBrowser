@@ -13,13 +13,19 @@ export const selectPages = createSelector(
   featureSelector,
   MessagesSelectors.selectPages,
   (state, messagePages) => {
+    // `state.route` is the raw router URL, `/<workspaceId>/messages/...` —
+    // reusing its own workspace segment keeps this comparable to
+    // `state.route` in selectActivePage without a separate workspace lookup.
+    const workspaceSegment = state.route.split('/')[1];
+    const workspacePrefix = workspaceSegment ? `/${workspaceSegment}` : '';
+
     const positions = Object.entries(state.pages)
       .map(([position, pageId]) => ({pageId, position: parseInt(position)}))
       .sort(p => p.position);
     const pagesBase = [...messagePages].map((page) => ({
       ...page,
       position: positions.find((p) => p.pageId === page.id)?.position,
-      route: '/messages/page/' + page.id
+      route: `${workspacePrefix}/messages/page/${page.id}`
     }));
 
     let pages = pagesBase.filter(p => p.position === undefined);

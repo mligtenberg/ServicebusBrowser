@@ -19,7 +19,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 - [Storybook Component Workbench](./storybook.md): Single Storybook host (`storybook-host`, Vite builder) for the presentational UI layer — addressable story URLs, theming, and the `build-storybook` type/AOT gate.
 - [Workspace Lifecycle and NgRx Effects Timing](./workspace-lifecycle-and-ngrx-effects.md): Why effects register before app initializers finish, the `workspaceActivated` action pattern for workspace-dependent startup work, and how tab (page) order persistence works.
-- [Multi-Window Workspace Routing](./multi-window-workspace-routing.md): How opening a Workspace checks the main-process window↔workspace registry, focuses an existing window instead of duplicating it, and boots a new window straight into a Workspace via `?openWorkspaceId=`.
+- [Multi-Window Workspace Routing](./multi-window-workspace-routing.md): The `:workspaceId` route segment, its activation guards and fallback chain, and (desktop) the main-process window↔workspace registry that focuses an existing window instead of duplicating it.
 
 ## Architecture Decision Records
 
@@ -31,6 +31,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [ADR-0006: Replace PrimeNG with @spartan-ng/brain + Angular CDK behind a bespoke UI layer](./adr/0006-replace-primeng-with-spartan-brain-cdk.md)
 - [ADR-0007: Storybook as an AI-facing component workbench (Vite builder)](./adr/0007-storybook-ai-component-workbench.md)
 - [ADR-0008: Add-connection form runs in a separate popup window, not an in-app modal](./adr/0008-add-connection-popup-window.md)
+- [ADR-0009: Workspace id becomes a URL route segment](./adr/0009-workspace-id-in-url.md)
 
 ## Project Structure
 

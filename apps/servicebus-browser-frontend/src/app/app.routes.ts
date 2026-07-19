@@ -1,5 +1,9 @@
 import { Route } from '@angular/router';
 import { AboutComponent, HomeComponent } from '@service-bus-browser/main-ui';
+import {
+  rootWorkspaceRedirectGuard,
+  workspaceActivationGuard,
+} from './workspace-route.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -46,30 +50,43 @@ export const appRoutes: Route[] = [
       import('./main-shell/main-shell').then((m) => m.MainShell),
     children: [
       {
-        path: 'manage-service-bus',
-        loadChildren: () =>
-          import('@service-bus-browser/service-bus-management-flow').then(
-            (m) => m.routes,
-          ),
-      },
-      {
-        path: 'messages',
-        loadChildren: () =>
-          import('@service-bus-browser/messages-flow').then((m) =>
-            m.routes({
-              baseRoute: 'messages',
-            }),
-          ),
-      },
-      {
         path: 'about',
         component: AboutComponent,
         data: { title: 'About' },
       },
       {
+        path: ':workspaceId',
+        canActivate: [workspaceActivationGuard],
+        runGuardsAndResolvers: 'paramsChange',
+        children: [
+          {
+            path: 'manage-service-bus',
+            loadChildren: () =>
+              import('@service-bus-browser/service-bus-management-flow').then(
+                (m) => m.routes,
+              ),
+          },
+          {
+            path: 'messages',
+            loadChildren: () =>
+              import('@service-bus-browser/messages-flow').then((m) =>
+                m.routes({
+                  baseRoute: 'messages',
+                }),
+              ),
+          },
+          {
+            path: '',
+            component: HomeComponent,
+            pathMatch: 'full',
+          },
+        ],
+      },
+      {
         path: '',
-        component: HomeComponent,
         pathMatch: 'full',
+        canActivate: [rootWorkspaceRedirectGuard],
+        children: [],
       },
     ],
   },

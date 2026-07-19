@@ -77,46 +77,90 @@ export class WorkspaceService {
     });
   }
 
-  /**
-   * Picks the active workspace from the available list. `preferredId` (e.g.
-   * from this window's `?openWorkspaceId=` boot param) wins over the
-   * last-active id in localStorage, which is otherwise used; if neither is
-   * present in the list (e.g. that workspace was deleted on another machine,
-   * or this is first boot), falls back to the first workspace and writes it
-   * back.
-   */
-  initialize(workspaces: Workspace[], preferredId?: UUID): Workspace {
-    if (workspaces.length === 0) {
-      throw new Error('Cannot initialize WorkspaceService with empty workspace list');
-    }
-
+  /** Fetches the workspace list. */
+  async loadWorkspaces(): Promise<Workspace[]> {
+    const workspaces = await this.workspacesClient.listWorkspaces();
     this._availableWorkspaces.set(workspaces);
-
-    const storedId =
-      preferredId ??
-      (localStorage.getItem(
-        WorkspaceService.ACTIVE_WORKSPACE_ID_KEY,
-      ) as UUID | null);
-
-    const active =
-      (storedId && workspaces.find((w) => w.id === storedId)) ?? workspaces[0];
-
-    if (storedId !== active.id) {
-      localStorage.setItem(
-        WorkspaceService.ACTIVE_WORKSPACE_ID_KEY,
-        active.id,
-      );
-    }
-
-    this._activeWorkspace.set(active);
-    return active;
+    return workspaces;
   }
 
-  /** Update active workspace signals + persist. Called by the coordinator. */
+  private loadPromise: Promise<Workspace[]> | undefined;
+
+  /**
+   * Loads the workspace list on first call and caches the in-flight promise,
+   * so every route guard invocation (root redirect, `:workspaceId`
+   * activation) can await it without triggering duplicate fetches or racing
+   * each other. Called from the guards rather than an app initializer so it
+   * runs after any route-level auth guard (e.g. the web app's
+   * `AutoLoginPartialRoutesGuard`) has already resolved — app initializers
+   * run concurrently with each other and can't offer that ordering.
+   */
+  ensureWorkspacesLoaded(): Promise<Workspace[]> {
+    if (this._availableWorkspaces().length > 0) {
+      return Promise.resolve(this._availableWorkspaces());
+    }
+    this.loadPromise ??= this.loadWorkspaces();
+    return this.loadPromise;
+  }
+
+  /**
+   * Resolves which workspace a window should land on when its URL doesn't
+   * name one (or names one that no longer exists): the last-active id from
+   * localStorage if it still resolves, else the first available workspace.
+   * Normalizes localStorage back to that result so the next such fallback
+   * doesn't repeat the same resolution.
+   */
+  resolveFallback(): Workspace {
+    const workspaces = this._availableWorkspaces();
+    if (workspaces.length === 0) {
+      throw new Error('Cannot resolve a fallback workspace with an empty workspace list');
+    }
+
+    const storedId = localStorage.getItem(
+      WorkspaceService.ACTIVE_WORKSPACE_ID_KEY,
+    ) as UUID | null;
+
+    const fallback =
+      (storedId && workspaces.find((w) => w.id === storedId)) ?? workspaces[0];
+
+    if (storedId !== fallback.id) {
+      localStorage.setItem(WorkspaceService.ACTIVE_WORKSPACE_ID_KEY, fallback.id);
+    }
+
+    return fallback;
+  }
+
+  /**
+   * Marks `workspace` active in memory only — no localStorage write. Used by
+   * the route guard for every URL-driven activation (boot included), since
+   * that pointer is only meant to move on an explicit switch/open action.
+   */
+  activateInMemory(workspace: Workspace): void {
+    this._activeWorkspace.set(workspace);
+  }
+
+  /** Records `id` as the last-active workspace without changing this window's own active signal — used when explicitly opening a workspace in a *different* window. */
+  rememberLastActiveId(id: UUID): void {
+    localStorage.setItem(WorkspaceService.ACTIVE_WORKSPACE_ID_KEY, id);
+  }
+
+  /** Update active workspace signals + persist. Called by the coordinator on an explicit switch. */
   async setActive(workspace: Workspace): Promise<void> {
     this._activeWorkspace.set(workspace);
     localStorage.setItem(WorkspaceService.ACTIVE_WORKSPACE_ID_KEY, workspace.id);
     await this.workspacesClient.setActiveWorkspaceId(workspace.id);
+  }
+
+  /** Builds an absolute, workspace-prefixed URL, e.g. `workspaceUrl('/messages/send')` → `/<id>/messages/send`, `workspaceUrl('/')` → `/<id>`. Defaults to the active workspace. */
+  workspaceUrl(path: string, workspaceId?: UUID): string {
+    const id = workspaceId ?? this._activeWorkspace()?.id;
+    if (!id) {
+      throw new Error('Cannot build a workspace URL with no active or given workspace id');
+    }
+    if (path === '/' || path === '') {
+      return `/${id}`;
+    }
+    return `/${id}${path.startsWith('/') ? path : `/${path}`}`;
   }
 
   /** Add a newly created workspace to the available list. */

@@ -232,6 +232,10 @@ export class WorkspaceSwitcherComponent {
     this.showOpenLocationDialog.set(false);
     this.pendingWorkspace.set(null);
     if (ws) {
+      // This window isn't switching, but the user did explicitly choose to
+      // open `ws` — record it as last-active so a future bare boot/new
+      // window with no workspace of its own falls back to it (ADR-0009).
+      this.workspaceService.rememberLastActiveId(ws.id);
       void this.windowService.openInNewWindow(ws.id);
     }
   }

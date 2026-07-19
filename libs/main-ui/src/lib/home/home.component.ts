@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { faPlus, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { SbbCard, SbbButton } from '@service-bus-browser/shared-ui';
-import { openAddConnectionPopup } from '@service-bus-browser/services';
+import { openAddConnectionPopup, WorkspaceService } from '@service-bus-browser/services';
 import { selectRecentPages } from '../ngrx/recent-pages.selectors';
 import { formatRelativeTime } from './format-relative-time';
 
@@ -19,6 +19,7 @@ export class HomeComponent {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly store = inject(Store);
+  private readonly workspaceService = inject(WorkspaceService);
 
   readonly faPlus = faPlus;
   readonly faPaperPlane = faPaperPlane;
@@ -32,7 +33,7 @@ export class HomeComponent {
   }
 
   sendMessage(): void {
-    this.router.navigateByUrl('/messages/send');
+    this.router.navigateByUrl(this.workspaceService.workspaceUrl('/messages/send'));
   }
 
   formatVisitedAt(visitedAt: number): string {

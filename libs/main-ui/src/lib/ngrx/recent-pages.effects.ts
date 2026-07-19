@@ -117,7 +117,11 @@ export class RecentPagesEffects {
   removeClosedPage$ = createEffect(() =>
     this.actions.pipe(
       ofType(pagesActions.closePage),
-      map(({ id }) => recentPagesActions.pageRemoved({ url: `/messages/page/${id}` })),
+      map(({ id }) =>
+        recentPagesActions.pageRemoved({
+          url: this.workspaceService.workspaceUrl(`/messages/page/${id}`),
+        }),
+      ),
     ),
   );
 

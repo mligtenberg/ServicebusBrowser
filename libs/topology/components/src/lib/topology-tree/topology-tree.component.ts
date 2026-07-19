@@ -35,6 +35,7 @@ import { ReceiveMessagesDialog } from '@servicebus-browser/messages-components';
 import { ActionManager } from '@service-bus-browser/actions-framework';
 import { ConfirmationService } from '@service-bus-browser/shared-components';
 import { TopologyActions } from '@service-bus-browser/topology-store';
+import { WorkspaceService } from '@service-bus-browser/services';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, Subject } from 'rxjs';
 import {
@@ -82,6 +83,7 @@ interface TopologyTreeNode extends SbbTreeNode {
 export class TopologyTreeComponent {
   store = inject(Store);
   router = inject(Router);
+  workspaceService = inject(WorkspaceService);
   actionManager = inject(ActionManager);
   confirmationService = inject(ConfirmationService);
 
@@ -664,7 +666,7 @@ export class TopologyTreeComponent {
   }
 
   protected async onSendEndpointSelected(event: SendEndpoint) {
-    await this.router.navigate(['/messages/send'], {
+    await this.router.navigate([this.workspaceService.workspaceUrl('/messages/send')], {
       state: {
         sendEndpoint: event,
       },

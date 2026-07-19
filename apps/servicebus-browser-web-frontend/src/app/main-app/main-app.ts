@@ -1,7 +1,7 @@
-import { Component, computed, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { MainUiComponent, pagesActions } from '@service-bus-browser/main-ui';
+import { MainUiComponent } from '@service-bus-browser/main-ui';
 import { SbbMenu, SbbMenuItem, SbbButton } from '@service-bus-browser/shared-ui';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
@@ -12,7 +12,6 @@ import { ColorThemeService, MessagePreferencesService, WorkspaceService } from '
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
 import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
-import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@service-bus-browser/messages-db';
 
 @Component({
   selector: 'app-main-app',
@@ -32,9 +31,6 @@ export class MainApp implements OnInit {
   protected title = 'Service Bus Browser';
   private readonly store = inject(Store);
 
-  workspacesInitialized = signal(false);
-
-  // Optional: only rendered once `workspacesInitialized()` flips the `@defer` block on.
   private readonly workspaceSwitcher = viewChild('workspaceSwitcher', {
     read: WorkspaceSwitcherComponent,
   });
@@ -72,7 +68,7 @@ export class MainApp implements OnInit {
           {
             label: 'Send',
             icon: 'fa-solid fa-paper-plane',
-            command: () => this.router.navigateByUrl('/messages/send'),
+            command: () => this.router.navigateByUrl(this.workspaceService.workspaceUrl('/messages/send')),
           },
           {
             label: 'Import',
@@ -144,22 +140,14 @@ export class MainApp implements OnInit {
   ];
 
   async ngOnInit(): Promise<void> {
-    // Auth is confirmed by AutoLoginPartialRoutesGuard before this component
-    // renders, so the token is available for these HTTP calls.
-    const workspaces = await this.workspacesClient.listWorkspaces();
-    const workspace = this.workspaceService.initialize(workspaces);
-    this.store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
-    await this.workspacesClient.setActiveWorkspaceId(workspace.id);
-
-    try {
-      await migrateOpfsFiles(workspace.id);
-    } catch (err) {
-      console.warn('OPFS migration failed; will retry on next boot:', err);
+    // By the time this component is constructed, the `:workspaceId` route
+    // guard (a child of this component's own route) has already resolved and
+    // activated a workspace — Angular resolves guards for the whole matched
+    // route tree before instantiating any component for the new state.
+    const workspaceId = this.workspaceService.activeWorkspace()?.id;
+    if (workspaceId) {
+      await this.workspacesClient.setActiveWorkspaceId(workspaceId);
     }
-    initializeWorkspace(workspace.id);
-    await getMessagesRepository();
-
-    this.workspacesInitialized.set(true);
   }
 
   importMessages(): void {

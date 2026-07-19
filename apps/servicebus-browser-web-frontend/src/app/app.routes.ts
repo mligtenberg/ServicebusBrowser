@@ -2,6 +2,10 @@ import { Route } from '@angular/router';
 import { AboutComponent } from '@service-bus-browser/main-ui';
 import { AutoLoginPartialRoutesGuard } from 'angular-auth-oidc-client';
 import { OidcCallback } from './oidc-callback/oidc-callback';
+import {
+  rootWorkspaceRedirectGuard,
+  workspaceActivationGuard,
+} from './workspace-route.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -23,30 +27,43 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./main-app/main-app').then((m) => m.MainApp),
     children: [
       {
-        path: 'manage-service-bus',
-        loadChildren: () =>
-          import('@service-bus-browser/service-bus-management-flow').then(
-            (m) => m.routes,
-          ),
-      },
-      {
-        path: 'messages',
-        loadChildren: () =>
-          import('@service-bus-browser/messages-flow').then((m) =>
-            m.routes({
-              baseRoute: 'messages',
-            }),
-          ),
-      },
-      {
         path: 'about',
         component: AboutComponent,
       },
       {
+        path: ':workspaceId',
+        canActivate: [workspaceActivationGuard],
+        runGuardsAndResolvers: 'paramsChange',
+        children: [
+          {
+            path: 'manage-service-bus',
+            loadChildren: () =>
+              import('@service-bus-browser/service-bus-management-flow').then(
+                (m) => m.routes,
+              ),
+          },
+          {
+            path: 'messages',
+            loadChildren: () =>
+              import('@service-bus-browser/messages-flow').then((m) =>
+                m.routes({
+                  baseRoute: 'messages',
+                }),
+              ),
+          },
+          {
+            path: '',
+            loadComponent: () =>
+              import('./home-page/home-page').then((m) => m.HomePage),
+            pathMatch: 'full',
+          },
+        ],
+      },
+      {
         path: '',
-        loadComponent: () =>
-          import('./home-page/home-page').then((m) => m.HomePage),
         pathMatch: 'full',
+        canActivate: [rootWorkspaceRedirectGuard],
+        children: [],
       },
     ],
   },

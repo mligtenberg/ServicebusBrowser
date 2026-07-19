@@ -50,7 +50,7 @@ import {
   faEllipsisVertical,
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
-import { ColorThemeService } from '@service-bus-browser/services';
+import { ColorThemeService, WorkspaceService } from '@service-bus-browser/services';
 import { BASE_ROUTE } from '../const';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import {
@@ -101,6 +101,7 @@ export class MessagesPageComponent {
   store = inject(Store);
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
+  workspaceService = inject(WorkspaceService);
   actions = inject(Actions);
   appRef = inject(ApplicationRef);
 
@@ -566,7 +567,7 @@ export class MessagesPageComponent {
       )
       .subscribe((page) => {
         if (!page) {
-          this.router.navigateByUrl('/');
+          this.router.navigateByUrl(this.workspaceService.workspaceUrl('/'));
           return;
         }
 
@@ -629,7 +630,7 @@ export class MessagesPageComponent {
           icon: 'fa-solid fa-envelope',
           onSelect: () => {
             this.router.navigate(
-              [this.baseRoute, 'batch-resend', this.currentPage()!.id],
+              [this.workspaceService.workspaceUrl(this.baseRoute), 'batch-resend', this.currentPage()!.id],
               {
                 state: {
                   selection: allMessages ? undefined : menuSelection,
@@ -667,7 +668,7 @@ export class MessagesPageComponent {
         icon: 'fa-solid fa-envelope',
         onSelect: () => {
           this.router.navigate([
-            this.baseRoute,
+            this.workspaceService.workspaceUrl(this.baseRoute),
             'resend',
             this.currentPage()!.id,
             selectedMessage!,

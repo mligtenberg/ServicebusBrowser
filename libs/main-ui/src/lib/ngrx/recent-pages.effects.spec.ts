@@ -20,7 +20,13 @@ describe('RecentPagesEffects', () => {
         RecentPagesEffects,
         provideMockActions(() => actions$),
         provideMockStore(),
-        { provide: WorkspaceService, useValue: { activeWorkspace: () => undefined } },
+        {
+          provide: WorkspaceService,
+          useValue: {
+            activeWorkspace: () => ({ id: 'ws-1' }),
+            workspaceUrl: (path: string) => `/ws-1${path.startsWith('/') ? path : `/${path}`}`,
+          },
+        },
       ],
     });
 
@@ -32,7 +38,7 @@ describe('RecentPagesEffects', () => {
       actions$.next(pagesActions.closePage({ id: 'page-1', position: 0 }));
 
       await expect(firstValueFrom(effects.removeClosedPage$)).resolves.toEqual(
-        recentPagesActions.pageRemoved({ url: '/messages/page/page-1' }),
+        recentPagesActions.pageRemoved({ url: '/ws-1/messages/page/page-1' }),
       );
     });
   });

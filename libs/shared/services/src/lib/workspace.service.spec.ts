@@ -23,7 +23,9 @@ describe('WorkspaceService', () => {
       providers: [{ provide: WorkspacesFrontendClient, useValue: client }],
     });
     service = TestBed.inject(WorkspaceService);
-    service.initialize([workspace()]);
+    const initial = workspace();
+    service.addWorkspace(initial);
+    service.activateInMemory(initial);
   });
 
   it('updateWorkspace persists via the API and updates the signals', async () => {
@@ -61,5 +63,21 @@ describe('WorkspaceService', () => {
     // ws-1 is still active; updating ws-2 must not touch it.
     expect(service.activeWorkspace()?.id).toBe('ws-1');
     expect(service.activeWorkspace()?.name).toBe('Original');
+  });
+
+  describe('workspaceUrl', () => {
+    it('builds a clean workspace-root URL with no trailing slash', () => {
+      expect(service.workspaceUrl('/')).toBe('/ws-1');
+      expect(service.workspaceUrl('')).toBe('/ws-1');
+    });
+
+    it('builds a sub-path URL, defaulting to the active workspace', () => {
+      expect(service.workspaceUrl('/messages/send')).toBe('/ws-1/messages/send');
+      expect(service.workspaceUrl('messages')).toBe('/ws-1/messages');
+    });
+
+    it('uses an explicit workspace id over the active one', () => {
+      expect(service.workspaceUrl('/', 'ws-2')).toBe('/ws-2');
+    });
   });
 });

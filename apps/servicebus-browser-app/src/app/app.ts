@@ -404,18 +404,19 @@ export default class App {
     window: Electron.BrowserWindow,
     workspaceId?: string,
   ) {
-    const query = workspaceId
-      ? `?openWorkspaceId=${encodeURIComponent(workspaceId)}`
-      : '';
+    // The renderer uses hash-based routing, so the workspace id rides on the
+    // `:workspaceId` route segment (`#/<id>`) rather than a query param — see
+    // ADR-0009.
+    const hash = workspaceId ? `#/${encodeURIComponent(workspaceId)}` : '';
 
     // extensions do not work correctly with custom schemes
     // if we run locally, we need to use the http scheme
     if (!App.application.isPackaged) {
-      window.loadURL(`http://localhost:${rendererAppPort}${query}`);
+      window.loadURL(`http://localhost:${rendererAppPort}${hash}`);
       return;
     }
 
-    window.loadURL(`app://localhost${query}`);
+    window.loadURL(`app://localhost${hash}`);
   }
 
   private static saveSetting<T>(key: string, value: T) {

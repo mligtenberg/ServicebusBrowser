@@ -1,22 +1,20 @@
-@defer (when workspacesInitialized()) {
-  <app-workspace-switcher #workspaceSwitcher style="display: none" />
+<app-workspace-switcher #workspaceSwitcher style="display: none" />
 
-  <lib-main-ui
-    [menuItems]="menuItems()"
-  >
-    <ng-template #menuEnd>
-      <div class="account">
-        <sbb-button
-          variant="text"
-          class="name-button"
-          severity="secondary"
-          [icon]="faUser"
-          (click)="accountMenu.open($event)">
-          {{ userName() }}
-        </sbb-button>
+<lib-main-ui
+  [menuItems]="menuItems()"
+>
+  <ng-template #menuEnd>
+    <div class="account">
+      <sbb-button
+        variant="text"
+        class="name-button"
+        severity="secondary"
+        [icon]="faUser"
+        (click)="accountMenu.open($event)">
+        {{ userName() }}
+      </sbb-button>
 
-        <sbb-menu #accountMenu [model]="accountMenuItems" />
-      </div>
-    </ng-template>
-  </lib-main-ui>
-}
+      <sbb-menu #accountMenu [model]="accountMenuItems" />
+    </div>
+  </ng-template>
+</lib-main-ui>

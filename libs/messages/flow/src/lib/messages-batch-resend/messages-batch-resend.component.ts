@@ -29,7 +29,7 @@ import {
 } from '@service-bus-browser/api-contracts';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EndpointSelectorInputComponent } from '@service-bus-browser/topology-components';
-import { ColorThemeService, FilesService } from '@service-bus-browser/services';
+import { ColorThemeService, FilesService, WorkspaceService } from '@service-bus-browser/services';
 import { getMessagesRepository } from '@service-bus-browser/messages-db';
 import { EditorContextAction } from '@service-bus-browser/shared-components';
 import {
@@ -128,6 +128,7 @@ export class MessagesBatchResendComponent {
   private toastService = inject(SbbToastService);
   private router = inject(Router);
   private fileService = inject(FilesService);
+  private workspaceService = inject(WorkspaceService);
 
   protected readonly uploadIcon = faUpload;
   protected readonly downloadIcon = faDownload;
@@ -596,7 +597,7 @@ export class MessagesBatchResendComponent {
     );
 
     // Navigate back to messages page
-    this.router.navigate(['/']);
+    this.router.navigate([this.workspaceService.workspaceUrl('/')]);
   }
 
   getActionTypeLabel(type: string): string {
