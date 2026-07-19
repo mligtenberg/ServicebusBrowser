@@ -1,10 +1,12 @@
 allowBuilds:
-  '@parcel/watcher': set this to true or false
-  '@swc/core': set this to true or false
-  electron-winstaller: set this to true or false
-  esbuild: set this to true or false
-  less: set this to true or false
-  lmdb: set this to true or false
-  msgpackr-extract: set this to true or false
-  nx: set this to true or false
-  unrs-resolver: set this to true or false
+  '@parcel/watcher': false
+  '@swc/core': false
+  electron-winstaller: false
+  esbuild: false
+  less: false
+  lmdb: false
+  msgpackr-extract: false
+  nx: true
+  unrs-resolver: false
+patchedDependencies:
+  nx-electron@22.0.0: patches/nx-electron@22.0.0.patch

@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  nx-electron@22.0.0: 35c5da962fac8d48f40009706e329ebe9ac6940b0f815630f043e9dc6f9bc518
+
 importers:
 
   .:
@@ -290,7 +293,7 @@ importers:
         version: 23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))
       nx-electron:
         specifier: ^22.0.0
-        version: 22.0.0(@nx/devkit@22.7.7(nx@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))))(@nx/workspace@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18)))(@swc/core@1.15.8(@swc/helpers@0.5.18))(clean-css@5.3.3)(cssnano@7.1.9(postcss@8.5.19))(csso@5.0.5)(electron-builder-squirrel-windows@26.15.3)(electron@43.1.1(supports-color@7.2.0))(esbuild@0.28.1)(html-minifier-terser@6.1.0)(lightningcss@1.32.0)(loader-utils@2.0.4)(postcss@8.5.19)(rxjs@7.8.2)(supports-color@7.2.0)(typescript@6.0.3)(uglify-js@3.19.3)(webpack-cli@7.2.1)
+        version: 22.0.0(patch_hash=35c5da962fac8d48f40009706e329ebe9ac6940b0f815630f043e9dc6f9bc518)(@nx/devkit@22.7.7(nx@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))))(@nx/workspace@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18)))(@swc/core@1.15.8(@swc/helpers@0.5.18))(clean-css@5.3.3)(cssnano@7.1.9(postcss@8.5.19))(csso@5.0.5)(electron-builder-squirrel-windows@26.15.3)(electron@43.1.1(supports-color@7.2.0))(esbuild@0.28.1)(html-minifier-terser@6.1.0)(lightningcss@1.32.0)(loader-utils@2.0.4)(postcss@8.5.19)(rxjs@7.8.2)(supports-color@7.2.0)(typescript@6.0.3)(uglify-js@3.19.3)(webpack-cli@7.2.1)
       playwright:
         specifier: ^1.61.1
         version: 1.61.1
@@ -18367,7 +18370,7 @@ snapshots:
 
   nwsapi@2.2.24: {}
 
-  nx-electron@22.0.0(@nx/devkit@22.7.7(nx@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))))(@nx/workspace@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18)))(@swc/core@1.15.8(@swc/helpers@0.5.18))(clean-css@5.3.3)(cssnano@7.1.9(postcss@8.5.19))(csso@5.0.5)(electron-builder-squirrel-windows@26.15.3)(electron@43.1.1(supports-color@7.2.0))(esbuild@0.28.1)(html-minifier-terser@6.1.0)(lightningcss@1.32.0)(loader-utils@2.0.4)(postcss@8.5.19)(rxjs@7.8.2)(supports-color@7.2.0)(typescript@6.0.3)(uglify-js@3.19.3)(webpack-cli@7.2.1):
+  nx-electron@22.0.0(patch_hash=35c5da962fac8d48f40009706e329ebe9ac6940b0f815630f043e9dc6f9bc518)(@nx/devkit@22.7.7(nx@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))))(@nx/workspace@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18)))(@swc/core@1.15.8(@swc/helpers@0.5.18))(clean-css@5.3.3)(cssnano@7.1.9(postcss@8.5.19))(csso@5.0.5)(electron-builder-squirrel-windows@26.15.3)(electron@43.1.1(supports-color@7.2.0))(esbuild@0.28.1)(html-minifier-terser@6.1.0)(lightningcss@1.32.0)(loader-utils@2.0.4)(postcss@8.5.19)(rxjs@7.8.2)(supports-color@7.2.0)(typescript@6.0.3)(uglify-js@3.19.3)(webpack-cli@7.2.1):
     dependencies:
       '@nx/devkit': 22.7.7(nx@23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18)))
       '@nx/workspace': 23.1.0(@swc-node/register@1.11.1(@swc/core@1.15.8(@swc/helpers@0.5.18))(@swc/types@0.1.27)(supports-color@7.2.0)(typescript@6.0.3))(@swc/core@1.15.8(@swc/helpers@0.5.18))
