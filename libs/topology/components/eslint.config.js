@@ -24,6 +24,8 @@ module.exports = [
           style: 'kebab-case',
         },
       ],
+      // Newly enabled by the @angular-eslint flat/angular recommended set in the ESLint v9 migration; was not enforced before the upgrade.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {
