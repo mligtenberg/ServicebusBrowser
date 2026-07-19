@@ -8,6 +8,7 @@ import { switchMessagesDbWorkspace } from '@service-bus-browser/messages-db';
 import { pagesActions } from '@service-bus-browser/main-ui';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { TasksActions } from '@service-bus-browser/tasks-store';
+import { WorkspaceWindowService } from './workspace-window.service';
 
 /**
  * Coordinates a full workspace switch: persists the active workspace,
@@ -18,11 +19,13 @@ import { TasksActions } from '@service-bus-browser/tasks-store';
 export class WorkspaceSwitchService {
   private readonly store = inject(Store);
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly workspaceWindowService = inject(WorkspaceWindowService);
   private readonly router = inject(Router);
 
   async switchTo(workspace: Workspace): Promise<void> {
     this.store.dispatch(TasksActions.cancelAllTasks());
     await this.workspaceService.setActive(workspace);
+    this.workspaceWindowService.reportActive(workspace.id);
     switchMessagesDbWorkspace(workspace.id);
     this.store.dispatch(messagePagesEffectActions.workspaceSwitched());
     this.store.dispatch(pagesActions.workspaceActivated({ workspaceId: workspace.id }));
