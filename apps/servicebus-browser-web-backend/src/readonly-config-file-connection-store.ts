@@ -31,7 +31,20 @@ export class ReadonlyConfigFileConnectionStorage implements ConnectionStore {
   }
 
   getConnection(connectionId: UUID): Connection | undefined {
-    return this.activeWorkspaceConnections().find((c) => c.id === connectionId);
+    // Connection ids are unique across all workspaces (enforced at config load
+    // time), so a lookup by id never needs to be scoped to the "active"
+    // workspace — doing so made this resolve to `undefined` whenever the
+    // caller's connection belonged to a workspace other than whatever the
+    // shared `activeWorkspaceHolder` last pointed to (e.g. a different
+    // browser tab/window switched workspace, or this tab's own switch never
+    // reached the backend), throwing a spurious "Connection not found".
+    for (const ws of this.config.workspaces) {
+      const connection = ws.connections.find((c) => c.id === connectionId);
+      if (connection) {
+        return connection;
+      }
+    }
+    return undefined;
   }
 
   private activeWorkspaceConnections(): Connection[] {

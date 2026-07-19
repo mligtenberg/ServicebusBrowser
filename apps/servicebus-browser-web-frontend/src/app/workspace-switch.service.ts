@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceService } from '@service-bus-browser/services';
+import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { messagePagesEffectActions } from '@service-bus-browser/messages-store';
 import {
   switchMessagesDbWorkspace,
@@ -25,13 +26,20 @@ import { TasksActions } from '@service-bus-browser/tasks-store';
 export class WorkspaceSwitchService {
   private readonly store = inject(Store);
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly workspacesClient = inject(WorkspacesFrontendClient);
   private readonly router = inject(Router);
 
   /**
    * `persist: true` is an explicit switch action — it writes the
    * localStorage last-active pointer. `persist: false` is a route-guard
    * activation (boot, or a live address-bar/back-forward change) — it only
-   * updates the in-memory signal, per ADR-0009.
+   * updates the in-memory signal, per ADR-0009. Either way the backend is
+   * told which workspace this window is on: the web backend filters
+   * `listConnections`/`listTopologies` by a single shared "active workspace"
+   * value, and skipping the notification on `persist: false` left it stale
+   * after a reload, address-bar edit, or back/forward — showing the wrong
+   * (or no longer existing) workspace's connections until the next explicit
+   * switch.
    */
   async activate(workspace: Workspace, options: { persist: boolean }): Promise<void> {
     const isFirstActivationInThisWindow = !this.workspaceService.activeWorkspace();
@@ -42,6 +50,7 @@ export class WorkspaceSwitchService {
       await this.workspaceService.setActive(workspace);
     } else {
       this.workspaceService.activateInMemory(workspace);
+      await this.workspacesClient.setActiveWorkspaceId(workspace.id);
     }
 
     if (isFirstActivationInThisWindow) {

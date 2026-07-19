@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MainUiComponent } from '@service-bus-browser/main-ui';
@@ -11,7 +11,6 @@ import { map } from 'rxjs';
 import { ColorThemeService, MessagePreferencesService, WorkspaceService } from '@service-bus-browser/services';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
-import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 
 @Component({
   selector: 'app-main-app',
@@ -20,12 +19,11 @@ import { WorkspacesFrontendClient } from '@service-bus-browser/service-bus-front
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-app.scss',
 })
-export class MainApp implements OnInit {
+export class MainApp {
   private oidcSecurityService = inject(OidcSecurityService);
   private themeService = inject(ColorThemeService);
   private messagePreferences = inject(MessagePreferencesService);
   private workspaceService = inject(WorkspaceService);
-  private workspacesClient = inject(WorkspacesFrontendClient);
   private router = inject(Router);
 
   protected title = 'Service Bus Browser';
@@ -138,17 +136,6 @@ export class MainApp implements OnInit {
       },
     },
   ];
-
-  async ngOnInit(): Promise<void> {
-    // By the time this component is constructed, the `:workspaceId` route
-    // guard (a child of this component's own route) has already resolved and
-    // activated a workspace — Angular resolves guards for the whole matched
-    // route tree before instantiating any component for the new state.
-    const workspaceId = this.workspaceService.activeWorkspace()?.id;
-    if (workspaceId) {
-      await this.workspacesClient.setActiveWorkspaceId(workspaceId);
-    }
-  }
 
   importMessages(): void {
     this.store.dispatch(messagesActions.startImportMessages());

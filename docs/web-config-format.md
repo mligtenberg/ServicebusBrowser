@@ -81,7 +81,9 @@ The web frontend persists the last-selected workspace id in browser `localStorag
 - If it matches a workspace, that workspace becomes active.
 - If it is absent or no longer present in the config (e.g. it was removed by the operator), the **first** workspace in the array becomes active.
 
-The active workspace is synced to the backend on boot and on every switch so the backend can filter connections accordingly.
+The active workspace is synced to the backend on boot and on every switch (including URL-driven ones — address bar edit, back/forward — which update the backend's copy without writing `localStorage`) so the backend's topology/connection listing (`listConnections`/`listTopologies`) reflects the right workspace. Looking up a *specific* connection by id (e.g. to retrieve/send messages) is **not** scoped to the active workspace: connection ids are unique across the whole config file, so a request naming a connection id resolves regardless of which workspace is currently marked active on the backend — this keeps message operations on an already-open queue/topic page working even if another browser tab/window switches the shared backend's active workspace in the meantime.
+
+Because "active workspace" is still a single value shared by the whole backend process (there is no per-tab/per-session state), two browser windows on different workspaces at the same time can still briefly show each other's topology listing after either one switches — the fix above only closes the reload/back-forward gap within one window, it doesn't give the backend true per-window scoping.
 
 ## Workspace management
 
