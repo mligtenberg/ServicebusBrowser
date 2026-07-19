@@ -1,4 +1,4 @@
-import { Component, EventEmitter, signal } from '@angular/core';
+import { Component, EventEmitter, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbTabs } from './tabs.component';
@@ -8,6 +8,7 @@ import { SbbTabHeaderDef } from './tab-header.directive';
 /** Host exercises the PUBLIC API only: [orientation]/[(value)] on the group, value/label/disabled per panel. */
 @Component({
   imports: [SbbTabs, SbbTabPanel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-tabs [orientation]="orientation()" [(value)]="value">
       <sbb-tab-panel value="one" label="One">
@@ -127,6 +128,7 @@ describe('SbbTabs + SbbTabPanel', () => {
 
 @Component({
   imports: [SbbTabs, SbbTabPanel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-tabs [(value)]="value" [reorderable]="true" (reordered)="reordered.emit($event)">
       <sbb-tab-panel value="one" label="One">
@@ -191,6 +193,7 @@ describe('SbbTabs reordering', () => {
 
 @Component({
   imports: [SbbTabs, SbbTabPanel, SbbTabHeaderDef],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-tabs [(value)]="value">
       <sbb-tab-panel value="one" label="One">

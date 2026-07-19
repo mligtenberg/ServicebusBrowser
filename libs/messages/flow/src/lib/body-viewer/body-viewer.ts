@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, model, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Editor, EditorContextAction } from '@service-bus-browser/shared-components';
 import {
   MessageModificationAction,
@@ -42,6 +42,7 @@ import { Location } from '@angular/common';
   ],
   templateUrl: './body-viewer.html',
   styleUrl: './body-viewer.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     '[class.popup]': 'isPopup()',
   },

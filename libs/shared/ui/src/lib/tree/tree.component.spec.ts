@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbTree, SbbTreeSelectionMode } from './tree.component';
@@ -38,6 +38,7 @@ const DATA: TestNode[] = [
  */
 @Component({
   imports: [SbbTree, SbbTreeNodeDef],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-tree
       [nodes]="nodes()"

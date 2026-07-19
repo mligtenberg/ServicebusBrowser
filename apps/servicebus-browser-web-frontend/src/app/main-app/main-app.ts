@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MainUiComponent, pagesActions } from '@service-bus-browser/main-ui';
@@ -18,6 +18,7 @@ import { initializeWorkspace, migrateOpfsFiles, getMessagesRepository } from '@s
   selector: 'app-main-app',
   imports: [SbbButton, MainUiComponent, SbbMenu, WorkspaceSwitcherComponent],
   templateUrl: './main-app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-app.scss',
 })
 export class MainApp implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, forwardRef, input, model } from '@angular/core';
+import { Component, forwardRef, input, model, ChangeDetectionStrategy } from '@angular/core';
 
 import { EndpointSelectorInputComponent } from '../endpoint-selector-input/endpoint-selector-input.component';
 import {
@@ -13,6 +13,7 @@ import { SendEndpoint } from '@service-bus-browser/api-contracts';
   imports: [EndpointSelectorInputComponent, FormsModule],
   templateUrl: './endpoint-string-selector-input.component.html',
   styleUrl: './endpoint-string-selector-input.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DurationInputComponent } from '@service-bus-browser/shared-components';
 import {
@@ -44,6 +44,7 @@ import {
   ],
   providers: [DatePipe],
   templateUrl: './subscription-management.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './subscription-management.component.scss',
 })
 export class SubscriptionManagementComponent {

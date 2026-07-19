@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbDataGrid } from './data-grid';
 import { SbbColumn, SbbLazyLoadEvent, SbbSortState } from './data-grid.models';
@@ -26,6 +26,7 @@ const COLUMNS: SbbColumn<Row>[] = [
 
 @Component({
   imports: [SbbDataGrid],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div style="height: 300px">
       <sbb-data-grid

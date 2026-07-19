@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, model, signal } from '@angular/core';
+import { Component, computed, effect, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -43,6 +43,7 @@ type ConnectionsBroadcastMessage = { type: 'connection-added'; name: string };
     EventHubConnectionTargetComponent,
   ],
   templateUrl: './add-connection.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-connection.component.scss',
 })
 export class AddConnectionComponent {

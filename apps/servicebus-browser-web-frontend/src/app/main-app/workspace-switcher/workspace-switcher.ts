@@ -5,6 +5,7 @@ import {
   signal,
   TemplateRef,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -42,6 +43,7 @@ function workspaceInitials(name: string): string {
   standalone: true,
   imports: [NgStyle, FaIconComponent, SbbDialog, SbbButton],
   templateUrl: './workspace-switcher.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './workspace-switcher.scss',
 })
 export class WorkspaceSwitcherComponent {

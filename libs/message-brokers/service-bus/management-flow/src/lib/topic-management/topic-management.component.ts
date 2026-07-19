@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TopicForm } from './form';
@@ -40,6 +40,7 @@ import {
   ],
   providers: [DatePipe],
   templateUrl: './topic-management.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './topic-management.component.scss',
 })
 export class TopicManagementComponent {

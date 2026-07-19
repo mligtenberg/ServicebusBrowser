@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbMenuItem } from '../menu';
 import { SbbContextMenu } from './context-menu.component';
@@ -6,6 +6,7 @@ import { SbbContextMenu } from './context-menu.component';
 @Component({
   standalone: true,
   imports: [SbbContextMenu],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-context-menu [model]="model()" [data]="data">
       <span class="trigger">right-click me</span>

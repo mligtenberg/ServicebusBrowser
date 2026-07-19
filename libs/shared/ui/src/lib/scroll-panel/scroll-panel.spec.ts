@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbScrollPanel } from './scroll-panel';
 
 @Component({
   imports: [SbbScrollPanel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-scroll-panel [hideScrollbar]="hideScrollbar()">
       <p class="projected-content">Hello content</p>

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SbbButton, SbbInput } from '@service-bus-browser/shared-ui';
@@ -41,6 +41,7 @@ function randomWorkspaceColor(): string {
   selector: 'app-workspace-popup',
   imports: [FormsModule, SbbButton, SbbInput],
   templateUrl: './workspace-popup.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './workspace-popup.scss',
 })
 export class WorkspacePopupComponent {

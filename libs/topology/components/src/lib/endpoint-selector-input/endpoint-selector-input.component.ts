@@ -6,6 +6,7 @@ import {
   input,
   model,
   signal,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { Store } from '@ngrx/store';
@@ -47,6 +48,7 @@ import { EndpointSelectorTreeInputComponent } from '../endpoint-selector-tree-in
     },
   ],
   templateUrl: './endpoint-selector-input.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './endpoint-selector-input.component.scss',
 })
 export class EndpointSelectorInputComponent implements ControlValueAccessor {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbAccordion } from './accordion.component';
@@ -7,6 +7,7 @@ import { SbbAccordionPanel } from './accordion-panel.component';
 /** Host exercises the PUBLIC API only: [multiple] on the container, [open]/(openChange) per panel. */
 @Component({
   imports: [SbbAccordion, SbbAccordionPanel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-accordion [multiple]="multiple()">
       <sbb-accordion-panel [(open)]="firstOpen">

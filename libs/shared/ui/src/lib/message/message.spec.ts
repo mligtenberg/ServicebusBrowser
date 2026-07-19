@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -7,6 +7,7 @@ import { SbbMessageSeverity } from './message.models';
 
 @Component({
   imports: [SbbMessage],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-message [severity]="severity()">{{ text() }}</sbb-message>
   `,

@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   SbbButton,
@@ -31,6 +31,7 @@ import { BodyFilter } from '@service-bus-browser/filtering';
     FormField,
   ],
   templateUrl: './body-property-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './body-property-form.scss',
 })
 export class BodyPropertyForm implements FormValueControl<BodyFilter> {

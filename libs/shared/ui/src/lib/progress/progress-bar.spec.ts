@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbProgressBar } from './progress-bar';
 
 @Component({
   imports: [SbbProgressBar],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<sbb-progress-bar [value]="value()" [indeterminate]="indeterminate()" />`,
 })
 class HostComponent {

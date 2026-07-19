@@ -15,6 +15,7 @@ import {
   TemplateRef,
   untracked,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -86,6 +87,7 @@ export interface MessagesLazyLoad {
     SbbReorderableListHandle,
   ],
   templateUrl: './messages-viewer.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './messages-viewer.scss',
 })
 class MessagesViewer implements AfterViewInit, OnDestroy {

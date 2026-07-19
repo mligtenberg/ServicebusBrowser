@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbFloatLabel } from './float-label';
@@ -42,6 +42,7 @@ describe('SbbFloatLabel', () => {
 
 @Component({
   imports: [SbbFloatLabel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-float-label label="Host" for="the-input">
       <input id="the-input" />

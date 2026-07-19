@@ -6,6 +6,7 @@ import {
   input,
   model,
   output,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -44,6 +45,7 @@ import { faCheck, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
     SbbTooltip,
   ],
   templateUrl: './alter-body.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./alter-body.component.scss'],
 })
 export class AlterBodyComponent {

@@ -8,6 +8,7 @@ import {
   OnDestroy,
   signal,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { ColorThemeService } from '@service-bus-browser/services';
@@ -91,6 +92,7 @@ import { routerNavigatedAction } from '@ngrx/router-store';
     AutoCompleteFormInput,
   ],
   templateUrl: './send-message.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './send-message.component.scss',
 })
 export class SendMessageComponent implements AfterViewInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 
 import { TasksSummaryComponent } from '../tasks-summary/tasks-summary.component';
 import { Task } from '@service-bus-browser/tasks-contracts';
@@ -12,6 +12,7 @@ import { ConfirmationService } from '@service-bus-browser/shared-components';
   selector: 'sbb-task-tasks',
   imports: [TasksSummaryComponent, SbbPopover, TaskCardComponent],
   templateUrl: './tasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './tasks.component.scss',
 })
 export class TasksComponent {

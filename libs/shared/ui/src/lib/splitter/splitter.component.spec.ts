@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbSplitter } from './splitter.component';
 import { SbbSplitterPanel } from './splitter-panel.component';
@@ -6,6 +6,7 @@ import { SbbSplitterLayout } from './splitter.models';
 
 @Component({
   imports: [SbbSplitter, SbbSplitterPanel],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-splitter [orientation]="orientation()">
       <sbb-splitter-panel [size]="60">A</sbb-splitter-panel>

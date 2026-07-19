@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LogLine } from '@service-bus-browser/logs-contracts';
 import { SbbVirtualScroller } from '@service-bus-browser/shared-ui';
@@ -9,6 +9,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
   selector: 'sbb-logs-list',
   imports: [CommonModule, SbbVirtualScroller, LogLineComponent],
   templateUrl: './logs-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './logs-list.component.scss',
 })
 export class LogsListComponent {

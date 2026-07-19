@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
@@ -33,6 +33,7 @@ interface ElectronWindow {
   imports: [MainUiComponent, WorkspaceSwitcherComponent],
   selector: 'app-main-shell',
   templateUrl: './main-shell.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-shell.scss',
 })
 export class MainShell {

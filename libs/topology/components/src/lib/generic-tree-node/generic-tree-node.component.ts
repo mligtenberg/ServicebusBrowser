@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
@@ -26,6 +26,7 @@ import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
   selector: 'sbb-tpl-generic-tree-node',
   imports: [CommonModule, FaIconComponent, SbbTooltip, SbbButton, SbbContextMenu],
   templateUrl: './generic-tree-node.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './generic-tree-node.component.scss',
 })
 export class GenericTreeNodeComponent {

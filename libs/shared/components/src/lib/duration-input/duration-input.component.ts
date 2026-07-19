@@ -1,4 +1,4 @@
-import { Component, forwardRef, input } from '@angular/core';
+import { Component, forwardRef, input, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   ControlValueAccessor,
@@ -22,6 +22,7 @@ import { SbbInputGroup, SbbInputNumber, SbbFloatLabel } from '@service-bus-brows
 ],
   templateUrl: './duration-input.component.html',
   styleUrl: './duration-input.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

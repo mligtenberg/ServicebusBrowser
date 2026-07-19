@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ColorThemeService } from '@service-bus-browser/services';
 
@@ -6,6 +6,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
   imports: [RouterOutlet],
   selector: 'app-dialog-shell',
   templateUrl: './dialog-shell.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dialog-shell.scss',
 })
 export class DialogShell {

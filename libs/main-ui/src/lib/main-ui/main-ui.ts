@@ -1,4 +1,4 @@
-import { Component, contentChild, inject, input, signal, TemplateRef } from '@angular/core';
+import { Component, contentChild, inject, input, signal, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { LogsListComponent } from '@service-bus-browser/logs-components';
 import { Store } from '@ngrx/store';
@@ -31,6 +31,7 @@ import {
   ],
   selector: 'lib-main-ui',
   templateUrl: './main-ui.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './main-ui.scss',
 })
 export class MainUiComponent {

@@ -8,6 +8,7 @@ import {
   output,
   signal,
   untracked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -75,6 +76,7 @@ interface TopologyTreeNode extends SbbTreeNode {
     ReceiveMessagesDialog,
   ],
   templateUrl: './topology-tree.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './topology-tree.component.scss',
 })
 export class TopologyTreeComponent {

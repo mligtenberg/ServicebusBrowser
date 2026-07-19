@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +6,7 @@ import { SbbButton } from './button';
 
 @Component({
   imports: [SbbButton],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-button
       [severity]="severity()"
@@ -42,6 +43,7 @@ class HostComponent {
 
 @Component({
   imports: [SbbButton],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<sbb-button [iconOnly]="true" aria-label="More actions"></sbb-button>`,
 })
 class StaticAriaLabelHostComponent {}

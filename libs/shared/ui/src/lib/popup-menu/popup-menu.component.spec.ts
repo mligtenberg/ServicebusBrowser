@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, signal, viewChild } from '@angular/core';
+import { ApplicationRef, Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbMenuItem } from '../menu';
 import { SbbMenu } from './popup-menu.component';
@@ -6,6 +6,7 @@ import { SbbMenu } from './popup-menu.component';
 @Component({
   standalone: true,
   imports: [SbbMenu],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <button #trigger type="button" (click)="menu().open($event)">open</button>
     <sbb-menu [model]="model()" [data]="data" />

@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, effect, ElementRef, inject, signal, viewChild, model, computed } from '@angular/core';
+import { Component, DestroyRef, effect, ElementRef, inject, signal, viewChild, model, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActionComponent } from './components/action/action.component';
 
@@ -78,6 +78,7 @@ import {
     SbbTooltip,
   ],
   templateUrl: './messages-batch-resend.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './messages-batch-resend.component.scss',
 })
 export class MessagesBatchResendComponent {

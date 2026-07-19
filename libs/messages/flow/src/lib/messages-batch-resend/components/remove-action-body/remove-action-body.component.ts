@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, input, model, output, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   AmqpPropertyKeys,
@@ -20,6 +20,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
   selector: 'lib-remove-action-body',
   imports: [SbbAutocomplete, FormsModule, SbbSelect],
   templateUrl: './remove-action-body.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './remove-action-body.component.scss',
 })
 export class RemoveActionBodyComponent {

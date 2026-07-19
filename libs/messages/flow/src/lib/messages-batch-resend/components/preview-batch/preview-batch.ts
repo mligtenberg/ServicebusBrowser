@@ -5,6 +5,7 @@ import {
   input,
   linkedSignal,
   model,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import MessagesViewer, {
   MessagesLazyLoad,
@@ -34,6 +35,7 @@ import { EditorContextAction } from '@service-bus-browser/shared-components';
   selector: 'lib-preview-batch',
   imports: [MessagesViewer],
   templateUrl: './preview-batch.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './preview-batch.scss',
 })
 export class PreviewBatch {

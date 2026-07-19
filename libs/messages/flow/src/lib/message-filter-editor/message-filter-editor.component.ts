@@ -5,6 +5,7 @@ import {
   input,
   model,
   signal,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -65,6 +66,7 @@ const DEFAULT_MESSAGE_PROPERTIES: { label: string; type: string }[] = [
     BodyPropertyForm,
   ],
   templateUrl: './message-filter-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./message-filter-editor.component.scss'],
 })
 export class MessageFilterEditorComponent {

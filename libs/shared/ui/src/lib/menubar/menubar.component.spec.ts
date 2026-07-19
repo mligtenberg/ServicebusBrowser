@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, signal, TemplateRef, viewChild } from '@angular/core';
+import { ApplicationRef, Component, signal, TemplateRef, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbMenuItem, SbbMenuPanelContext } from '../menu';
 import { SbbMenubar } from './menubar.component';
@@ -6,6 +6,7 @@ import { SbbMenubar } from './menubar.component';
 @Component({
   standalone: true,
   imports: [SbbMenubar],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-menubar [model]="model()">
       <span sbbMenubarStart class="start-slot">start</span>

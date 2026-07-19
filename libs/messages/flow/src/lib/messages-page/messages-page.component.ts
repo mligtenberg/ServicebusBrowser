@@ -9,6 +9,7 @@ import {
   model,
   signal,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -92,6 +93,7 @@ import MessagesViewer, { MessagesLazyLoad } from '../messages-viewer/messages-vi
     BodyPropertyForm,
   ],
   templateUrl: './messages-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './messages-page.component.scss',
 })
 export class MessagesPageComponent {

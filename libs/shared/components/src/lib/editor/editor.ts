@@ -7,6 +7,7 @@ import {
   OnDestroy,
   untracked,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 
@@ -39,6 +40,7 @@ export interface EditorContextAction {
   selector: 'sbb-editor',
   imports: [],
   templateUrl: './editor.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './editor.scss',
 })
 export class Editor implements OnDestroy, FormValueControl<string> {

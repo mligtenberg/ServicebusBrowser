@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbDialog } from './dialog.component';
 
 @Component({
   standalone: true,
   imports: [SbbDialog],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-dialog [(open)]="open" [header]="header()" [closable]="closable()">
       <p class="body-content">Hello</p>

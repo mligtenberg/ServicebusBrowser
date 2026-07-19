@@ -5,6 +5,7 @@ import {
   inject,
   model,
   signal,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -38,6 +39,7 @@ import {
     SbbMessage,
   ],
   templateUrl: './receive-messages-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './receive-messages-dialog.scss',
 })
 export class ReceiveMessagesDialog {

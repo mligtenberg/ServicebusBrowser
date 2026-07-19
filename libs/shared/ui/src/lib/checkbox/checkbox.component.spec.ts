@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -7,6 +7,7 @@ import { SbbCheckbox } from './checkbox.component';
 /** Host exercises the PUBLIC API only: [label]/[disabled]/[indeterminate] + CVA via formControl. */
 @Component({
   imports: [SbbCheckbox, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<sbb-checkbox [formControl]="control" [label]="label" [indeterminate]="indeterminate" />`,
 })
 class HostComponent {
@@ -18,6 +19,7 @@ class HostComponent {
 /** Host for exercising the standalone `[disabled]` input without Reactive Forms involved. */
 @Component({
   imports: [SbbCheckbox],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<sbb-checkbox [label]="'Express'" [disabled]="disabled" />`,
 })
 class StandaloneHostComponent {

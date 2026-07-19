@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { SbbDataGrid, SbbColumn } from '@service-bus-browser/shared-ui';
@@ -16,6 +16,7 @@ interface PackageInfo {
   standalone: true,
   imports: [SbbDataGrid],
   templateUrl: './about.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './about.component.scss'
 })
 export class AboutComponent implements OnInit {

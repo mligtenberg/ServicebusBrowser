@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LogLine } from '@service-bus-browser/logs-contracts';
 
@@ -6,6 +6,7 @@ import { LogLine } from '@service-bus-browser/logs-contracts';
   selector: 'sbb-logs-log-line',
   imports: [CommonModule],
   templateUrl: './log-line.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './log-line.component.scss',
 })
 export class LogLineComponent {

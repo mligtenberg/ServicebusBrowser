@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LogLineComponent } from './log-line.component';
 import { LogLine } from '@service-bus-browser/logs-contracts';
 @Component({
   template: `<sbb-logs-log-line [logLine]="log"></sbb-logs-log-line>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LogLineComponent],
 })
 class HostComponent {

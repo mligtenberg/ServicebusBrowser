@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbPopover } from './popover';
@@ -6,6 +6,7 @@ import { SbbPopover } from './popover';
 @Component({
   standalone: true,
   imports: [SbbPopover],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <button #trigger type="button" (click)="pop.toggle(trigger)">
       Open

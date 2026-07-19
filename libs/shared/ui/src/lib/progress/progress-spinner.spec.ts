@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbProgressSpinner } from './progress-spinner';
 
 @Component({
   imports: [SbbProgressSpinner],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<sbb-progress-spinner [size]="size()" />`,
 })
 class HostComponent {

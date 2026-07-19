@@ -1,4 +1,4 @@
-import { Component, computed, input, model, output } from '@angular/core';
+import { Component, computed, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -39,6 +39,7 @@ import { PropertyFilter } from '@service-bus-browser/filtering';
     FormsModule,
   ],
   templateUrl: './system-property-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './system-property-form.scss',
 })
 export class SystemPropertyForm implements FormValueControl<PropertyFilter> {

@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model } from '@angular/core';
+import { Component, computed, effect, input, model, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -34,6 +34,7 @@ import { MessageFilterEditorComponent } from '../../../message-filter-editor/mes
     MessageFilterEditorComponent,
   ],
   templateUrl: './action.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './action.component.scss',
 })
 export class ActionComponent {

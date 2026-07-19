@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, signal } from '@angular/core';
+import { ApplicationRef, Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbMenuItem } from '../menu';
 import { SbbSplitButton } from './split-button';
@@ -6,6 +6,7 @@ import { SbbSplitButton } from './split-button';
 @Component({
   standalone: true,
   imports: [SbbSplitButton],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-split-button
       [label]="label()"

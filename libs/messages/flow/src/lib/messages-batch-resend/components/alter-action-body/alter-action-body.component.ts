@@ -1,4 +1,4 @@
-import { Component, effect, input, model, output } from '@angular/core';
+import { Component, effect, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -20,6 +20,7 @@ import { MessageFilter } from '@service-bus-browser/filtering';
     AlterApplicationPropertiesComponent
 ],
   templateUrl: './alter-action-body.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './alter-action-body.component.scss',
 })
 export class AlterActionBodyComponent {

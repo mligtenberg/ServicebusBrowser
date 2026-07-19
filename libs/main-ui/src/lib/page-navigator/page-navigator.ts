@@ -7,6 +7,7 @@ import {
   Injector,
   signal,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectActivePage, selectPages } from '../ngrx/route.selectors';
@@ -33,6 +34,7 @@ import {
   selector: 'lib-page-navigator',
   templateUrl: './page-navigator.html',
   styleUrl: './page-navigator.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, RouterLink, FormsModule, SbbContextMenu, SbbTabs, SbbTabPanel, SbbTabHeaderDef],
 })
 export class PageNavigator {

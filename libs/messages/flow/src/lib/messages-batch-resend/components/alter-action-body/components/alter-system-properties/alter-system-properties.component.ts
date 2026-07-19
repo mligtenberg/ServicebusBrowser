@@ -5,6 +5,7 @@ import {
   input,
   model,
   output,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { PropertyValue } from '@service-bus-browser/messages-contracts';
@@ -46,6 +47,7 @@ import {
     SbbTooltip,
   ],
   templateUrl: './alter-system-properties.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./alter-system-properties.component.scss'],
 })
 export class AlterSystemPropertiesComponent {

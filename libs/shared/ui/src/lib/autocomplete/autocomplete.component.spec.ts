@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, signal } from '@angular/core';
+import { ApplicationRef, Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { SbbAutocomplete } from './autocomplete.component';
@@ -7,6 +7,7 @@ import { SbbAutocompleteGroup } from './autocomplete.models';
 @Component({
   standalone: true,
   imports: [SbbAutocomplete, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-autocomplete
       [(ngModel)]="value"

@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, inject, input } from '@angular/core';
+import { ApplicationRef, Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SbbDialogRef } from './dialog-ref';
 import { SbbDialogService } from './dialog.service';
@@ -7,6 +7,7 @@ import { SbbDialogService } from './dialog.service';
 @Component({
   selector: 'sbb-test-dialog-body',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<p class="body-message">{{ message() }}</p>`,
 })
 class TestDialogBody {

@@ -6,6 +6,7 @@ import {
   input,
   model,
   viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SbbButton, SbbDialogRef, SbbInput } from '@service-bus-browser/shared-ui';
@@ -14,6 +15,7 @@ import { SbbButton, SbbDialogRef, SbbInput } from '@service-bus-browser/shared-u
   selector: 'sbb-prompt-dialog-body',
   imports: [SbbButton, SbbInput, FormsModule],
   templateUrl: './prompt-dialog-body.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './prompt-dialog-body.scss',
 })
 export class PromptDialogBody {

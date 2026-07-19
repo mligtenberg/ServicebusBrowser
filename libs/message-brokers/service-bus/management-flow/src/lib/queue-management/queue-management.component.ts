@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -43,6 +43,7 @@ import { SaveFeedbackService } from '../save-feedback.service';
   ],
   providers: [DatePipe],
   templateUrl: './queue-management.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './queue-management.component.scss',
 })
 export class QueueManagementComponent {

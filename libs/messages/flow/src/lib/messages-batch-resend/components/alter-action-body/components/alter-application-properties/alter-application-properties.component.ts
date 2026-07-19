@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, input, model, output, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -33,6 +33,7 @@ import { PropertyValue } from '@service-bus-browser/api-contracts';
     SbbTooltip,
   ],
   templateUrl: './alter-application-properties.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./alter-application-properties.component.scss'],
 })
 export class AlterApplicationPropertiesComponent {

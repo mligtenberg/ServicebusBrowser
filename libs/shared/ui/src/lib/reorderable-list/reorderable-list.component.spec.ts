@@ -1,4 +1,4 @@
-import { Component, EventEmitter, signal } from '@angular/core';
+import { Component, EventEmitter, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbReorderableList } from './reorderable-list.component';
@@ -8,6 +8,7 @@ import { SbbReorderableListHandle } from './reorderable-list-handle.directive';
 /** Host exercises the PUBLIC API only: [items]/[orientation]/[disabled] + (reordered), row content via the projected template. */
 @Component({
   imports: [SbbReorderableList, SbbReorderableListItemDef, SbbReorderableListHandle],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-reorderable-list
       [items]="items()"

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbDivider } from './divider';
@@ -10,6 +10,7 @@ import {
 
 @Component({
   imports: [SbbDivider],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-divider [layout]="layout()" [type]="type()" [align]="align()">
       {{ label() }}

@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, input, signal } from '@angular/core';
+import { Component, computed, forwardRef, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Editor } from '../editor/editor';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as monaco from 'monaco-editor';
@@ -8,6 +8,7 @@ import * as monaco from 'monaco-editor';
   imports: [Editor],
   templateUrl: './form-editor.html',
   styleUrl: './form-editor.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

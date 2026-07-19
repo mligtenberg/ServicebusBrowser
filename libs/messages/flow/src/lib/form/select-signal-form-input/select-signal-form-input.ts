@@ -1,4 +1,4 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { SbbSelect, SbbSelectOption } from '@service-bus-browser/shared-ui';
@@ -7,6 +7,7 @@ import { SbbSelect, SbbSelectOption } from '@service-bus-browser/shared-ui';
   selector: 'lib-select-signal-form-input',
   imports: [SbbSelect, FormsModule],
   templateUrl: './select-signal-form-input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './select-signal-form-input.scss',
 })
 export class SelectSignalFormInput<T>

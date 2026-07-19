@@ -1,4 +1,4 @@
-import { Component, computed, effect, model } from '@angular/core';
+import { Component, computed, effect, model, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Connection } from '@service-bus-browser/api-contracts';
 import {
@@ -13,6 +13,7 @@ type RabbitMqConnection = Extract<Connection, { target: 'rabbitmq' }>;
   selector: 'lib-rabbitmq-connection-target',
   imports: [FormsModule, SbbFloatLabel, SbbInput, SbbInputNumber],
   templateUrl: './rabbitmq-connection-target.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rabbitmq-connection-target.component.scss',
 })
 export class RabbitmqConnectionTargetComponent {

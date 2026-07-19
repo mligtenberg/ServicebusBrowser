@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { SbbAutocomplete } from '@service-bus-browser/shared-ui';
@@ -19,6 +19,7 @@ export interface AutoCompleteCompleteEvent {
   selector: 'lib-auto-complete-form-input',
   imports: [FormsModule, SbbAutocomplete],
   templateUrl: './auto-complete-form-input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './auto-complete-form-input.scss',
 })
 export class AutoCompleteFormInput<T>

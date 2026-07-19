@@ -1,4 +1,4 @@
-import { Component, computed, effect, model } from '@angular/core';
+import { Component, computed, effect, model, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -30,6 +30,7 @@ type AuthMethod =
     SbbSelectButton,
   ],
   templateUrl: './service-bus-connection-target.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './service-bus-connection-target.component.scss',
 })
 export class ServiceBusConnectionTargetComponent {

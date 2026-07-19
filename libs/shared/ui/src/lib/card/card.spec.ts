@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SbbCard } from './card';
 
 @Component({
   imports: [SbbCard],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-card [header]="header()">
       <p class="projected">Body content</p>

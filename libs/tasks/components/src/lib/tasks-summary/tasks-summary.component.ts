@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, ChangeDetectionStrategy } from '@angular/core';
 
 import { Task } from '@service-bus-browser/tasks-contracts';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -9,6 +9,7 @@ import { SbbProgressSpinner } from '@service-bus-browser/shared-ui';
   selector: 'sbb-task-list-summary',
   imports: [SbbProgressSpinner, FaIconComponent],
   templateUrl: './tasks-summary.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './tasks-summary.component.scss',
 })
 export class TasksSummaryComponent {

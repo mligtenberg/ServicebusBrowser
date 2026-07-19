@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SubscriptionRuleForm } from './form';
@@ -40,6 +40,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
     SbbInputNumber,
   ],
   templateUrl: './subscription-rule-management.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './subscription-rule-management.component.scss',
 })
 export class SubscriptionRuleManagementComponent implements OnDestroy {

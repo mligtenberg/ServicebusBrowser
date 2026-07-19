@@ -1,4 +1,4 @@
-import { Component, computed, input, model, output, } from '@angular/core';
+import { Component, computed, input, model, output, ChangeDetectionStrategy } from '@angular/core';
 import {
   required,
   disabled as formDisabled,
@@ -40,6 +40,7 @@ import { PropertyFilter } from '@service-bus-browser/filtering';
     DatePickerSignalFormInput,
   ],
   templateUrl: './application-property-form.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './application-property-form.scss',
 })
 export class ApplicationPropertyForm

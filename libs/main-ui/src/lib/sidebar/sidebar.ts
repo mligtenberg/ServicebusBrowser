@@ -1,4 +1,4 @@
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SbbScrollPanel } from '@service-bus-browser/shared-ui';
 import { TopologyTreeComponent } from '@service-bus-browser/topology-components';
@@ -20,6 +20,7 @@ import { ColorThemeService } from '@service-bus-browser/services';
     FormsModule,
   ],
   templateUrl: './sidebar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar.scss',
 })
 export class SidebarComponent {

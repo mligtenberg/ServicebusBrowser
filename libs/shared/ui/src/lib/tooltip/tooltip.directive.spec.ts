@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SbbTooltip } from './tooltip.directive';
 
 /** Host exercises the PUBLIC API only: `[sbbTooltip]` text + `sbbTooltipPlacement`. */
 @Component({
   imports: [SbbTooltip],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<button
     type="button"
     [sbbTooltip]="text()"

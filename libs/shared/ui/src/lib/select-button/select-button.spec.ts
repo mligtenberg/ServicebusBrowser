@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, signal } from '@angular/core';
+import { ApplicationRef, Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { SbbSelectOption } from '../select';
@@ -7,6 +7,7 @@ import { SbbSelectButton } from './select-button';
 @Component({
   standalone: true,
   imports: [SbbSelectButton, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <sbb-select-button
       [options]="options()"

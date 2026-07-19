@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal, ChangeDetectionStrategy } from '@angular/core';
 
 import {
   MessageModificationAction,
@@ -41,6 +41,7 @@ import { PropertyValue } from '@service-bus-browser/api-contracts';
     SbbCheckbox,
   ],
   templateUrl: './add-action-body.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './add-action-body.component.scss',
 })
 export class AddActionBodyComponent {
