@@ -1,11 +1,9 @@
 @defer (when workspacesInitialized()) {
+  <app-workspace-switcher #workspaceSwitcher style="display: none" />
+
   <lib-main-ui
     [menuItems]="menuItems()"
   >
-    <ng-template #menuStart>
-      <app-workspace-switcher />
-    </ng-template>
-
     <ng-template #menuEnd>
       <div class="account">
         <sbb-button

@@ -4,6 +4,7 @@ import {
   CdkMenuItem,
   CdkMenuTrigger,
 } from '@angular/cdk/menu';
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { isSbbMenuSeparator, SbbMenuItem, SbbMenuSeparator } from '../menu';
 
@@ -30,7 +31,7 @@ import { isSbbMenuSeparator, SbbMenuItem, SbbMenuSeparator } from '../menu';
 @Component({
   selector: 'sbb-menubar',
   standalone: true,
-  imports: [CdkMenuBar, CdkMenu, CdkMenuItem, CdkMenuTrigger],
+  imports: [CdkMenuBar, CdkMenu, CdkMenuItem, CdkMenuTrigger, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.scss',
@@ -46,6 +47,14 @@ export class SbbMenubar<T = void> {
   /** Template type guard so the recursive template can branch on separators. */
   protected isSeparator(item: SbbMenuItem<T>): item is SbbMenuSeparator {
     return isSbbMenuSeparator(item);
+  }
+
+  /** Whether the entry opens a submenu — either a nested items list or custom panel content. */
+  protected hasPanel(item: SbbMenuItem<T>): boolean {
+    return (
+      !isSbbMenuSeparator(item) &&
+      ((item.items?.length ?? 0) > 0 || !!item.panelTemplate)
+    );
   }
 
   /** Invokes the chosen item's `onSelect` or `command` with the contextual data. */

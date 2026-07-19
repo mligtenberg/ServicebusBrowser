@@ -1,8 +1,4 @@
-<button
-  class="ws-trigger"
-  (click)="togglePopover($event)"
-  type="button"
->
+<ng-template #trigger>
   @if (activeWorkspace(); as ws) {
     <span class="ws-avatar" [ngStyle]="{ 'background-color': activeColor() }">
       {{ activeInitials() }}
@@ -10,9 +6,9 @@
     <span class="ws-name">{{ ws.name }}</span>
     <fa-icon class="ws-chevron" [icon]="chevronIcon" aria-hidden="true"></fa-icon>
   }
-</button>
+</ng-template>
 
-<sbb-popover #op>
+<ng-template #panel let-close>
   <div class="ws-dropdown">
     <div class="ws-section-label">Active</div>
     @if (activeWorkspace(); as ws) {
@@ -28,7 +24,11 @@
       <div class="ws-separator"></div>
       <div class="ws-section-label">Workspaces</div>
       @for (ws of otherWorkspaces(); track ws.id) {
-        <button class="ws-row ws-row--clickable" type="button" (click)="selectWorkspace(ws)">
+        <button
+          class="ws-row ws-row--clickable"
+          type="button"
+          (click)="close(); selectWorkspace(ws)"
+        >
           <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
             {{ initials(ws) }}
           </span>
@@ -37,7 +37,7 @@
       }
     }
   </div>
-</sbb-popover>
+</ng-template>
 
 <sbb-dialog
   header="Switch Workspace"

@@ -70,6 +70,30 @@ export default class App {
     }
   }
 
+  /**
+   * `setWindowOpenHandler`'s `features` is the raw third argument passed to
+   * the renderer's `window.open(url, '_blank', 'width=...,height=...')` —
+   * parse it instead of guessing the size back out of the route, so each
+   * `open*Popup` helper's own `window.open` call stays the single source of
+   * truth for its window's size.
+   */
+  private static popupSizeFromFeatures(
+    features: string,
+  ): { width: number; height: number } {
+    const parsed = new Map(
+      features.split(',').map((entry): [string, string] => {
+        const [key, value] = entry.split('=');
+        return [key?.trim() ?? '', value?.trim() ?? ''];
+      }),
+    );
+    const width = Number(parsed.get('width'));
+    const height = Number(parsed.get('height'));
+    return {
+      width: width > 0 ? width : 900,
+      height: height > 0 ? height : 700,
+    };
+  }
+
   private static onReady() {
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
@@ -277,13 +301,14 @@ export default class App {
       }
     });
 
-    App.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    App.mainWindow.webContents.setWindowOpenHandler(({ url, features }) => {
       if (App.isInternalUrl(url) && App.isPopupUrl(url)) {
+        const { width, height } = App.popupSizeFromFeatures(features);
         return {
           action: 'allow',
           overrideBrowserWindowOptions: {
-            width: 900,
-            height: 700,
+            width,
+            height,
             autoHideMenuBar: true,
             webPreferences: {
               contextIsolation: true,

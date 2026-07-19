@@ -3,12 +3,17 @@ import {
   computed,
   inject,
   signal,
+  TemplateRef,
   viewChild,
 } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { SbbButton, SbbDialog, SbbPopover } from '@service-bus-browser/shared-ui';
+import {
+  SbbButton,
+  SbbDialog,
+  SbbMenuPanelContext,
+} from '@service-bus-browser/shared-ui';
 import { WorkspaceService } from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
@@ -35,12 +40,15 @@ function workspaceInitials(name: string): string {
 @Component({
   selector: 'app-workspace-switcher',
   standalone: true,
-  imports: [NgStyle, FaIconComponent, SbbPopover, SbbDialog, SbbButton],
+  imports: [NgStyle, FaIconComponent, SbbDialog, SbbButton],
   templateUrl: './workspace-switcher.html',
   styleUrl: './workspace-switcher.scss',
 })
 export class WorkspaceSwitcherComponent {
-  private readonly popover = viewChild.required<SbbPopover>('op');
+  /** Projected into the menubar item as its trigger/panel content — see menu.models.ts. */
+  readonly triggerTemplate = viewChild.required<TemplateRef<void>>('trigger');
+  readonly panelTemplate =
+    viewChild.required<TemplateRef<SbbMenuPanelContext>>('panel');
 
   private readonly store = inject(Store);
   workspaceService = inject(WorkspaceService);
@@ -82,12 +90,7 @@ export class WorkspaceSwitcherComponent {
     return workspaceInitials(ws.name);
   }
 
-  togglePopover(event: Event): void {
-    this.popover().toggle(event.currentTarget as HTMLElement);
-  }
-
   selectWorkspace(ws: Workspace): void {
-    this.popover().close();
     if (this.hasActiveTasks()) {
       this.pendingWorkspace.set(ws);
       this.showConfirmDialog.set(true);

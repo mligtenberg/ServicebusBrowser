@@ -1,9 +1,4 @@
-<button
-  class="ws-trigger"
-  (click)="togglePopover($event)"
-  [class.with-window-controls]="false"
-  type="button"
->
+<ng-template #trigger>
   @if (activeWorkspace(); as ws) {
     <span class="ws-avatar" [ngStyle]="{ 'background-color': activeColor() }">
       {{ activeInitials() }}
@@ -11,11 +6,15 @@
     <span class="ws-name">{{ ws.name }}</span>
     <fa-icon class="ws-chevron" [icon]="chevronIcon" aria-hidden="true"></fa-icon>
   }
-</button>
+</ng-template>
 
-<sbb-popover #op>
+<ng-template #panel let-close>
   <div class="ws-dropdown">
-    <button class="ws-new-action" (click)="openCreatePopup()" type="button">
+    <button
+      class="ws-new-action"
+      type="button"
+      (click)="close(); openCreatePopup()"
+    >
       <fa-icon [icon]="plusIcon" aria-hidden="true"></fa-icon>
       New Workspace…
     </button>
@@ -32,9 +31,9 @@
         <button
           class="ws-action-btn"
           type="button"
+          (click)="close(); openEditPopup(ws)"
           [sbbTooltip]="'Edit workspace'"
           sbbTooltipPlacement="top"
-          (click)="openRenameDialog(ws)"
         >
           <fa-icon [icon]="pencilIcon" aria-hidden="true"></fa-icon>
         </button>
@@ -45,69 +44,40 @@
       <div class="ws-separator"></div>
       <div class="ws-section-label">Workspaces</div>
       @for (ws of otherWorkspaces(); track ws.id) {
-        <button class="ws-row ws-row--clickable" type="button" (click)="selectWorkspace(ws)">
-          <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
-            {{ initials(ws) }}
-          </span>
-          <span class="ws-row-name">{{ ws.name }}</span>
+        <div class="ws-row ws-row--clickable">
+          <button
+            class="ws-row-select"
+            type="button"
+            (click)="close(); selectWorkspace(ws)"
+          >
+            <span class="ws-avatar ws-avatar--sm" [ngStyle]="{ 'background-color': avatarColor(ws) }">
+              {{ initials(ws) }}
+            </span>
+            <span class="ws-row-name">{{ ws.name }}</span>
+          </button>
           <button
             class="ws-action-btn"
             type="button"
+            (click)="close(); openEditPopup(ws)"
             [sbbTooltip]="'Edit workspace'"
             sbbTooltipPlacement="top"
-            (click)="$event.stopPropagation(); openRenameDialog(ws)"
           >
             <fa-icon [icon]="pencilIcon" aria-hidden="true"></fa-icon>
           </button>
           <button
             class="ws-action-btn ws-action-btn--danger"
             type="button"
+            (click)="close(); openDeleteDialog(ws)"
             [sbbTooltip]="'Delete workspace'"
             sbbTooltipPlacement="top"
-            (click)="$event.stopPropagation(); openDeleteDialog(ws)"
           >
             <fa-icon [icon]="trashIcon" aria-hidden="true"></fa-icon>
           </button>
-        </button>
+        </div>
       }
     }
   </div>
-</sbb-popover>
-
-<sbb-dialog
-  header="Edit Workspace"
-  [open]="showRenameDialog()"
-  (openChange)="onRenameDialogOpenChange($event)"
-  [width]="'360px'"
->
-  <div class="create-form">
-    <label for="wsRenameName" class="create-label">Workspace name</label>
-    <sbb-input
-      inputId="wsRenameName"
-      type="text"
-      [ngModel]="renameWorkspaceName()"
-      (ngModelChange)="renameWorkspaceName.set($event)"
-      (keyup.enter)="submitRename()"
-      class="create-input"
-    />
-    <label for="wsRenameColor" class="create-label">Primary color</label>
-    <input
-      id="wsRenameColor"
-      type="color"
-      class="create-color-input"
-      [ngModel]="renameWorkspaceColor()"
-      (ngModelChange)="renameWorkspaceColor.set($event)"
-    />
-  </div>
-  <div sbbDialogFooter>
-    <sbb-button severity="secondary" (click)="cancelRename()">Cancel</sbb-button>
-    <sbb-button
-      [disabled]="!renameWorkspaceName().trim() || renaming()"
-      [loading]="renaming()"
-      (click)="submitRename()"
-    >Save</sbb-button>
-  </div>
-</sbb-dialog>
+</ng-template>
 
 <sbb-dialog
   header="Switch Workspace"

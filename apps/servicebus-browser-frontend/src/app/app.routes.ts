@@ -23,8 +23,16 @@ export const appRoutes: Route[] = [
           {
             path: 'add',
             loadComponent: () =>
-              import('./popups/create-workspace/create-workspace').then(
-                (m) => m.CreateWorkspaceComponent,
+              import('./popups/workspace-popup/workspace-popup').then(
+                (m) => m.WorkspacePopupComponent,
+              ),
+            data: { popup: true },
+          },
+          {
+            path: 'edit/:id',
+            loadComponent: () =>
+              import('./popups/workspace-popup/workspace-popup').then(
+                (m) => m.WorkspacePopupComponent,
               ),
             data: { popup: true },
           },

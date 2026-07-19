@@ -3,10 +3,10 @@ import {
   computed,
   inject,
   signal,
+  TemplateRef,
   viewChild,
 } from '@angular/core';
 import { Location, NgStyle } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import {
@@ -18,11 +18,14 @@ import {
 import {
   SbbButton,
   SbbDialog,
-  SbbInput,
-  SbbPopover,
+  SbbMenuPanelContext,
   SbbTooltip,
 } from '@service-bus-browser/shared-ui';
-import { WorkspaceService, openCreateWorkspacePopup } from '@service-bus-browser/services';
+import {
+  WorkspaceService,
+  openCreateWorkspacePopup,
+  openEditWorkspacePopup,
+} from '@service-bus-browser/services';
 import { WorkspaceSwitchService } from '../../workspace-switch.service';
 import { Workspace } from '@service-bus-browser/shared-contracts';
 import { Store } from '@ngrx/store';
@@ -35,25 +38,6 @@ function workspaceHue(id: string): number {
     hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
   }
   return hash % 360;
-}
-
-function workspaceAvatarColorHex(id: string): string {
-  return hslToHex(workspaceHue(id), 55, 45);
-}
-
-/** hsl(h, s%, l%) -> #rrggbb, so it can seed a native <input type="color"> value. */
-function hslToHex(h: number, s: number, l: number): string {
-  s /= 100;
-  l /= 100;
-  const k = (n: number) => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) =>
-    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-  const toHex = (n: number) =>
-    Math.round(f(n) * 255)
-      .toString(16)
-      .padStart(2, '0');
-  return `#${toHex(0)}${toHex(8)}${toHex(4)}`;
 }
 
 function hexToHue(hex: string): number | null {
@@ -107,21 +91,15 @@ function workspaceInitials(name: string): string {
 @Component({
   selector: 'app-workspace-switcher',
   standalone: true,
-  imports: [
-    NgStyle,
-    FormsModule,
-    FaIconComponent,
-    SbbPopover,
-    SbbDialog,
-    SbbButton,
-    SbbInput,
-    SbbTooltip,
-  ],
+  imports: [NgStyle, FaIconComponent, SbbDialog, SbbButton, SbbTooltip],
   templateUrl: './workspace-switcher.html',
   styleUrl: './workspace-switcher.scss',
 })
 export class WorkspaceSwitcherComponent {
-  private readonly popover = viewChild.required<SbbPopover>('op');
+  /** Projected into the menubar item as its trigger/panel content — see menu.models.ts. */
+  readonly triggerTemplate = viewChild.required<TemplateRef<void>>('trigger');
+  readonly panelTemplate =
+    viewChild.required<TemplateRef<SbbMenuPanelContext>>('panel');
 
   private readonly store = inject(Store);
   private readonly router = inject(Router);
@@ -160,12 +138,6 @@ export class WorkspaceSwitcherComponent {
   showConfirmDialog = signal(false);
   pendingWorkspace = signal<Workspace | null>(null);
 
-  showRenameDialog = signal(false);
-  renameTarget = signal<Workspace | null>(null);
-  renameWorkspaceName = signal('');
-  renameWorkspaceColor = signal('#3b82f6');
-  renaming = signal(false);
-
   showDeleteDialog = signal(false);
   deleteTarget = signal<Workspace | null>(null);
   deleteStats = signal<{ connectionCount: number; pageCount: number } | null>(null);
@@ -179,17 +151,11 @@ export class WorkspaceSwitcherComponent {
     return workspaceInitials(ws.name);
   }
 
-  togglePopover(event: Event): void {
-    this.popover().toggle(event.currentTarget as HTMLElement);
-  }
-
   openCreatePopup(): void {
-    this.popover().close();
     openCreateWorkspacePopup(this.router, this.location);
   }
 
   selectWorkspace(ws: Workspace): void {
-    this.popover().close();
     if (this.hasActiveTasks()) {
       this.pendingWorkspace.set(ws);
       this.showConfirmDialog.set(true);
@@ -217,43 +183,11 @@ export class WorkspaceSwitcherComponent {
     this.pendingWorkspace.set(null);
   }
 
-  openRenameDialog(ws: Workspace): void {
-    this.popover().close();
-    this.renameTarget.set(ws);
-    this.renameWorkspaceName.set(ws.name);
-    this.renameWorkspaceColor.set(ws.primaryColor ?? workspaceAvatarColorHex(ws.id));
-    this.showRenameDialog.set(true);
-  }
-
-  onRenameDialogOpenChange(open: boolean): void {
-    if (!open) {
-      this.cancelRename();
-    }
-  }
-
-  async submitRename(): Promise<void> {
-    const ws = this.renameTarget();
-    const name = this.renameWorkspaceName().trim();
-    if (!ws || !name || this.renaming()) return;
-    this.renaming.set(true);
-    try {
-      await this.workspaceService.updateWorkspace(ws.id, {
-        name,
-        primaryColor: this.renameWorkspaceColor(),
-      });
-      this.showRenameDialog.set(false);
-    } finally {
-      this.renaming.set(false);
-    }
-  }
-
-  cancelRename(): void {
-    this.showRenameDialog.set(false);
-    this.renameTarget.set(null);
+  openEditPopup(ws: Workspace): void {
+    openEditWorkspacePopup(this.router, this.location, ws);
   }
 
   async openDeleteDialog(ws: Workspace): Promise<void> {
-    this.popover().close();
     this.deleteTarget.set(ws);
     this.deleteStats.set(null);
     this.showDeleteDialog.set(true);

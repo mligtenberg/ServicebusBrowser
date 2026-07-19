@@ -60,6 +60,11 @@
   box-shadow: var(--sbb-shadow-overlay);
   list-style: none;
   animation: sbb-fade-in var(--sbb-transition-duration) var(--sbb-transition-ease);
+
+  &--custom {
+    padding: 0;
+    min-width: 0;
+  }
 }
 
 .sbb-menu-panel__separator {

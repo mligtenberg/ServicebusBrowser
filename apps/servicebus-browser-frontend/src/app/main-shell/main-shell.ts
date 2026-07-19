@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent } from '@service-bus-browser/main-ui';
@@ -12,12 +12,14 @@ import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { Store } from '@ngrx/store';
-import { Workspace } from '@service-bus-browser/shared-contracts';
+import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
 import { WorkspaceSwitchService } from '../workspace-switch.service';
 
 type ConnectionsBroadcastMessage = { type: 'connection-added'; name: string };
-type WorkspaceBroadcastMessage = { type: 'workspace-added'; workspace: Workspace };
+type WorkspaceBroadcastMessage =
+  | { type: 'workspace-added'; workspace: Workspace }
+  | { type: 'workspace-updated'; id: UUID; name: string; primaryColor: string };
 
 interface ElectronWindow {
   electron?: {
@@ -48,6 +50,11 @@ export class MainShell {
   fullscreen = signal<boolean>(false);
   windowControlSpacing = computed(() => this.isMac && !this.fullscreen());
 
+  private readonly workspaceSwitcher = viewChild.required(
+    'workspaceSwitcher',
+    { read: WorkspaceSwitcherComponent },
+  );
+
   themeService = inject(ColorThemeService);
   messagePreferences = inject(MessagePreferencesService);
   darkMode = this.themeService.darkMode;
@@ -63,6 +70,12 @@ export class MainShell {
     });
 
     return [
+      {
+        triggerTemplate: this.workspaceSwitcher().triggerTemplate(),
+        panelTemplate: this.workspaceSwitcher().panelTemplate(),
+        styleClass: () =>
+          this.windowControlSpacing() ? 'ws-menu-item with-window-controls' : 'ws-menu-item',
+      },
       {
         label: 'Connections',
         items: [
@@ -170,16 +183,25 @@ export class MainShell {
     const workspacesChannel = new BroadcastChannel('workspaces');
     workspacesChannel.addEventListener('message', (event) => {
       const message = event.data as WorkspaceBroadcastMessage;
-      if (message?.type !== 'workspace-added') {
-        return;
+      if (message?.type === 'workspace-added') {
+        this.workspaceService.addWorkspace(message.workspace);
+        this.workspaceSwitchService.switchTo(message.workspace);
+        this.toasts.show({
+          severity: 'success',
+          summary: 'Workspace created',
+          detail: message.workspace.name,
+        });
+      } else if (message?.type === 'workspace-updated') {
+        this.workspaceService.applyWorkspaceUpdate(message.id, {
+          name: message.name,
+          primaryColor: message.primaryColor,
+        });
+        this.toasts.show({
+          severity: 'success',
+          summary: 'Workspace updated',
+          detail: message.name,
+        });
       }
-      this.workspaceService.addWorkspace(message.workspace);
-      this.workspaceSwitchService.switchTo(message.workspace);
-      this.toasts.show({
-        severity: 'success',
-        summary: 'Workspace created',
-        detail: message.workspace.name,
-      });
     });
     this.destroyRef.onDestroy(() => workspacesChannel.close());
   }

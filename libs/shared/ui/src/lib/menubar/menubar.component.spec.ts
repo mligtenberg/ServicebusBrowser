@@ -1,6 +1,6 @@
-import { ApplicationRef, Component, signal } from '@angular/core';
+import { ApplicationRef, Component, signal, TemplateRef, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SbbMenuItem } from '../menu';
+import { SbbMenuItem, SbbMenuPanelContext } from '../menu';
 import { SbbMenubar } from './menubar.component';
 
 @Component({
@@ -11,9 +11,23 @@ import { SbbMenubar } from './menubar.component';
       <span sbbMenubarStart class="start-slot">start</span>
       <span sbbMenubarEnd class="end-slot">end</span>
     </sbb-menubar>
+
+    <ng-template #customTrigger>
+      <span class="custom-trigger">Custom</span>
+    </ng-template>
+    <ng-template #customPanel let-close>
+      <div class="custom-panel">Custom panel content</div>
+      <button type="button" class="custom-panel-close" (click)="close()">
+        Close
+      </button>
+    </ng-template>
   `,
 })
 class HostComponent {
+  readonly customTriggerTpl = viewChild.required<TemplateRef<void>>('customTrigger');
+  readonly customPanelTpl =
+    viewChild.required<TemplateRef<SbbMenuPanelContext>>('customPanel');
+
   readonly model = signal<SbbMenuItem<void>[]>([]);
 }
 
@@ -97,5 +111,94 @@ describe('SbbMenubar', () => {
       'New',
       'Open',
     ]);
+  });
+
+  it('renders a custom triggerTemplate instead of the default label', async () => {
+    host.model.set([
+      {
+        triggerTemplate: host.customTriggerTpl(),
+        panelTemplate: host.customPanelTpl(),
+      },
+      { label: 'Edit', items: [{ label: 'Undo' }] },
+    ]);
+    await flush();
+
+    const trigger = barItems()[0];
+    expect(trigger.querySelector('.custom-trigger')).not.toBeNull();
+    expect(trigger.textContent?.trim()).toBe('Custom');
+  });
+
+  it('renders custom panelTemplate content instead of the default items list', async () => {
+    host.model.set([
+      {
+        triggerTemplate: host.customTriggerTpl(),
+        panelTemplate: host.customPanelTpl(),
+      },
+    ]);
+    await flush();
+
+    barItems()[0].click();
+    await flush();
+
+    expect(
+      document.querySelector('.custom-panel')?.textContent?.trim(),
+    ).toBe('Custom panel content');
+  });
+
+  it('closes a custom panelTemplate via its close() context, without needing cdkMenuItem', async () => {
+    // Regression: a panelTemplate is declared outside SbbMenubar's own
+    // component tree, so a CdkMenuItem inside it can't find the ambient
+    // cdk-menu-stack token (NG0201) — closing must go through the `close`
+    // template-context callback instead. This exercises exactly that path.
+    host.model.set([
+      {
+        triggerTemplate: host.customTriggerTpl(),
+        panelTemplate: host.customPanelTpl(),
+      },
+    ]);
+    await flush();
+
+    barItems()[0].click();
+    await flush();
+    expect(document.querySelector('.custom-panel')).not.toBeNull();
+
+    const closeBtn = document.querySelector<HTMLButtonElement>(
+      '.custom-panel-close',
+    );
+    expect(closeBtn).not.toBeNull();
+    closeBtn?.click();
+    await flush();
+
+    expect(document.querySelector('.custom-panel')).toBeNull();
+  });
+
+  it('opens the next sibling on hover once a menu is already open (hover-to-switch)', async () => {
+    host.model.set([
+      { label: 'File', items: [{ label: 'New' }] },
+      {
+        triggerTemplate: host.customTriggerTpl(),
+        panelTemplate: host.customPanelTpl(),
+      },
+    ]);
+    await flush();
+
+    const [fileItem, customItem] = barItems();
+
+    fileItem.click();
+    await flush();
+    expect(document.querySelector('.sbb-menu-panel')).not.toBeNull();
+    expect(document.querySelector('.custom-panel')).toBeNull();
+
+    customItem.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    await flush();
+
+    expect(document.querySelector('.custom-panel')).not.toBeNull();
+    // The previous panel's content is gone — File's submenu closed when the
+    // custom item's panel opened, matching a native menubar's hover-switch.
+    expect(
+      Array.from(document.querySelectorAll('.sbb-menu-panel__item')).some(
+        (el) => el.textContent?.trim() === 'New',
+      ),
+    ).toBe(false);
   });
 });

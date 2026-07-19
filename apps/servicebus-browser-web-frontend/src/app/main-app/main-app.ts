@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
 
 import { MainUiComponent, pagesActions } from '@service-bus-browser/main-ui';
 import { SbbMenu, SbbMenuItem, SbbButton } from '@service-bus-browser/shared-ui';
@@ -31,6 +31,11 @@ export class MainApp implements OnInit {
 
   workspacesInitialized = signal(false);
 
+  // Optional: only rendered once `workspacesInitialized()` flips the `@defer` block on.
+  private readonly workspaceSwitcher = viewChild('workspaceSwitcher', {
+    read: WorkspaceSwitcherComponent,
+  });
+
   userData = toSignal(
     this.oidcSecurityService.userData$.pipe(map((r) => r.userData)),
   );
@@ -48,7 +53,17 @@ export class MainApp implements OnInit {
           }
         : { label };
 
+    const switcher = this.workspaceSwitcher();
+
     return [
+      ...(switcher
+        ? [
+            {
+              triggerTemplate: switcher.triggerTemplate(),
+              panelTemplate: switcher.panelTemplate(),
+            },
+          ]
+        : []),
       {
         label: 'Messages',
         items: [

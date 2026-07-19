@@ -1,5 +1,5 @@
 <main class="page-container">
-  <h2 class="page-title">New workspace</h2>
+  <h2 class="page-title">{{ isEditMode ? 'Edit workspace' : 'New workspace' }}</h2>
 
   <div role="form">
     <section class="name">
@@ -30,10 +30,10 @@
       <sbb-button
         severity="primary"
         type="button"
-        [disabled]="!name().trim() || creating()"
-        [loading]="creating()"
+        [disabled]="!name().trim() || saving()"
+        [loading]="saving()"
         (click)="submit()"
-      >Create</sbb-button>
+      >{{ isEditMode ? 'Save' : 'Create' }}</sbb-button>
     </section>
   </div>
 </main>

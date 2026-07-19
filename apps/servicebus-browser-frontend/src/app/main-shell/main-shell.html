@@ -1,11 +1,7 @@
+<app-workspace-switcher #workspaceSwitcher style="display: none" />
+
 <lib-main-ui
   [electronWindowControlSpacing]="windowControlSpacing()"
   [useLowProfileMenu]="isMac"
   [menuItems]="menuItems()"
->
-  <ng-template #menuStart>
-    <app-workspace-switcher
-      [class.with-window-controls]="windowControlSpacing()"
-    />
-  </ng-template>
-</lib-main-ui>
+/>

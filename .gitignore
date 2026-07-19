@@ -56,3 +56,4 @@ openid-config.json
 .nx/self-healing
 
 storybook-static
+graphify-out/

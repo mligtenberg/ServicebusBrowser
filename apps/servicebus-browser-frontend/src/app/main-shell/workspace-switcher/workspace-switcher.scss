@@ -1,26 +1,3 @@
-:host.with-window-controls .ws-trigger {
-  margin-left: 1em;
-}
-
-.ws-trigger {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 8px 0 6px;
-  margin-right: 4px;
-  border: none;
-  background: transparent;
-  color: var(--sbb-text-muted);
-  cursor: pointer;
-  height: 100%;
-  -webkit-app-region: none;
-
-  &:hover {
-    background: var(--sbb-surface-hover);
-    color: var(--sbb-text);
-  }
-}
-
 .ws-avatar {
   width: 22px;
   height: 22px;
@@ -111,17 +88,27 @@
   }
 
   &--clickable {
-    width: 100%;
-    border: none;
-    background: transparent;
-    color: inherit;
     cursor: pointer;
-    text-align: left;
 
     &:hover {
       background: var(--sbb-surface-hover);
     }
   }
+}
+
+.ws-row-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
 .ws-row-name {
@@ -165,31 +152,6 @@
 .ws-row:hover .ws-action-btn,
 .ws-row--active .ws-action-btn {
   opacity: 1;
-}
-
-.create-form {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.create-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.create-input {
-  width: 100%;
-}
-
-.create-color-input {
-  width: 48px;
-  height: 32px;
-  padding: 0;
-  border: 1px solid var(--sbb-border);
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
 }
 
 .confirm-text {

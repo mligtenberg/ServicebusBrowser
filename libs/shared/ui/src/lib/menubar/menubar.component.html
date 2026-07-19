@@ -4,19 +4,24 @@
   <div cdkMenuBar class="sbb-menubar">
     @for (item of model(); track $index) {
       @if (!isSeparator(item)) {
-        @if (item.items && item.items.length) {
+        @if (hasPanel(item)) {
           <button
             type="button"
             cdkMenuItem
+            #menuTrigger="cdkMenuTriggerFor"
             [cdkMenuTriggerFor]="submenu"
-            [cdkMenuTriggerData]="{ $implicit: item.items }"
+            [cdkMenuTriggerData]="{ $implicit: item.items, panelTemplate: item.panelTemplate, close: () => menuTrigger.close() }"
             [cdkMenuItemDisabled]="resolve(item.disabled) ?? false"
             [class]="'sbb-menubar__item ' + (resolve(item.styleClass) ?? '')"
           >
-            @if (resolve(item.icon); as iconClass) {
-              <i class="sbb-menubar__icon" [class]="iconClass"></i>
+            @if (item.triggerTemplate) {
+              <ng-container [ngTemplateOutlet]="item.triggerTemplate"></ng-container>
+            } @else {
+              @if (resolve(item.icon); as iconClass) {
+                <i class="sbb-menubar__icon" [class]="iconClass"></i>
+              }
+              <span class="sbb-menubar__label">{{ resolve(item.label) }}</span>
             }
-            <span class="sbb-menubar__label">{{ resolve(item.label) }}</span>
           </button>
         } @else {
           <button
@@ -39,8 +44,19 @@
   <ng-content select="[sbbMenubarEnd]"></ng-content>
 </div>
 
-<ng-template #submenu let-items>
-  <div cdkMenu class="sbb-menu-panel" [attr.data-model-len]="model().length">
+<ng-template #submenu let-items let-panelTemplate="panelTemplate" let-close="close">
+  <div
+    cdkMenu
+    class="sbb-menu-panel"
+    [class.sbb-menu-panel--custom]="!!panelTemplate"
+    [attr.data-model-len]="model().length"
+  >
+    @if (panelTemplate) {
+      <ng-container
+        [ngTemplateOutlet]="panelTemplate"
+        [ngTemplateOutletContext]="{ $implicit: close, close: close }"
+      ></ng-container>
+    } @else {
     @for (item of items; track $index) {
       @if (isSeparator(item)) {
         <hr class="sbb-menu-panel__separator" aria-hidden="true" />
@@ -73,6 +89,7 @@
           <span class="sbb-menu-panel__label">{{ resolve(item.label) }}</span>
         </button>
       }
+    }
     }
   </div>
 </ng-template>

@@ -131,6 +131,20 @@ export class WorkspaceService {
     updates: { name?: string; primaryColor?: string },
   ): Promise<void> {
     await this.workspacesClient.updateWorkspace(id, updates);
+    this.applyWorkspaceUpdate(id, updates);
+  }
+
+  /**
+   * Apply an already-persisted update to the signals only, without hitting
+   * the API again. Used by the main window when notified (via
+   * BroadcastChannel) that a *different* process — e.g. the edit-workspace
+   * popup, a separate Electron renderer with its own `WorkspaceService` —
+   * already persisted the change.
+   */
+  applyWorkspaceUpdate(
+    id: UUID,
+    updates: { name?: string; primaryColor?: string },
+  ): void {
     this._availableWorkspaces.update((ws) =>
       ws.map((w) => (w.id === id ? { ...w, ...updates } : w)),
     );

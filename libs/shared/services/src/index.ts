@@ -3,4 +3,4 @@ export * from './lib/message-preferences.service';
 export * from './lib/files.service';
 export * from './lib/workspace.service';
 export * from './lib/open-add-connection-popup';
-export * from './lib/open-create-workspace-popup';
+export * from './lib/open-workspace-popup';

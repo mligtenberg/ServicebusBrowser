@@ -18,6 +18,10 @@
       [sbbMenubarEnd] {
         -webkit-app-region: no-drag;
       }
+
+      .ws-menu-item.with-window-controls {
+        margin-left: 1em;
+      }
     }
 
     &.mac {

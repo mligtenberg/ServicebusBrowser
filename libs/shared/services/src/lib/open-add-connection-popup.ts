@@ -6,5 +6,5 @@ export function openAddConnectionPopup(router: Router, location: Location): void
   const serialized = router.serializeUrl(urlTree);
   const external = location.prepareExternalUrl(serialized);
   const url = new URL(external, window.location.href).toString();
-  window.open(url, '_blank', 'width=900,height=700');
+  window.open(url, '_blank', 'width=500,height=700');
 }
