@@ -20,8 +20,7 @@ import { provideMessagesState } from '@service-bus-browser/messages-store';
 import { provideRouterStore } from '@ngrx/router-store';
 import {
   provideHttpClient,
-  withInterceptors,
-  withXhr
+  withInterceptors
 } from '@angular/common/http';
 import { provideMainUi } from '@service-bus-browser/main-ui';
 import {
@@ -47,7 +46,7 @@ export const appConfig: ApplicationConfig = {
 
     // config
     provideZonelessChangeDetection(),
-    provideHttpClient(withXhr(), withInterceptors([authInterceptor()])),
+    provideHttpClient(withInterceptors([authInterceptor()])),
     provideRouter(
       appRoutes,
       withComponentInputBinding(),
