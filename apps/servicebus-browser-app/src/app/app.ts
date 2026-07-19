@@ -12,11 +12,15 @@ import path, { join } from 'path';
 import { getMenu } from './menu';
 import * as fs from 'fs';
 import { runMigration } from './events/migration';
+import { forgetWindow } from './events/workspace-window-registry';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
   // be closed automatically when the JavaScript object is garbage collected.
   static mainWindow: Electron.BrowserWindow | null = null;
+  // All open app windows (including mainWindow), so extra windows opened via
+  // "New Window" survive as long as they're referenced somewhere.
+  static windows: Electron.BrowserWindow[] = [];
   static application: Electron.App;
   static BrowserWindow: typeof BrowserWindow | null = null;
 
@@ -41,8 +45,12 @@ export default class App {
     App.mainWindow = null;
   }
 
-  private static onRedirect(event: any, url: string) {
-    if (url !== App.mainWindow?.webContents.getURL()) {
+  private static onRedirect(
+    event: any,
+    url: string,
+    window: Electron.BrowserWindow,
+  ) {
+    if (url !== window.webContents.getURL()) {
       // this is a normal external redirect, open it in a new browser window
       event.preventDefault();
       shell.openExternal(url);
@@ -246,7 +254,7 @@ export default class App {
     }
   }
 
-  private static initMainWindow() {
+  private static createWindow(): Electron.BrowserWindow {
     const workAreaSize = screen.getPrimaryDisplay().workAreaSize;
     const width = Math.min(1280, workAreaSize.width || 1280);
     const height = Math.min(720, workAreaSize.height || 720);
@@ -257,7 +265,7 @@ export default class App {
       : { contextIsolation: true };
 
     // Create the browser window.
-    App.mainWindow = new BrowserWindow({
+    const window = new BrowserWindow({
       width: width,
       height: height,
       show: false,
@@ -271,37 +279,35 @@ export default class App {
         preload: join(__dirname, 'main.preload.js'),
       },
     });
-    App.setTheme('system');
-    App.mainWindow.setMenu(null);
-    App.mainWindow.center();
+    window.setMenu(null);
+    window.center();
 
-    App.mainWindow.on('enter-full-screen', () => {
-      App.mainWindow?.webContents.send('fullscreen-changed', true);
+    App.windows.push(window);
+
+    window.on('enter-full-screen', () => {
+      window.webContents.send('fullscreen-changed', true);
     });
 
-    App.mainWindow.on('leave-full-screen', () => {
-      App.mainWindow?.webContents.send('fullscreen-changed', false);
+    window.on('leave-full-screen', () => {
+      window.webContents.send('fullscreen-changed', false);
     });
 
-    // if main window is ready to show, close the splash window and show the main window
-    App.mainWindow.once('ready-to-show', () => {
-      const isDevMode =
-        App.isDevelopmentMode() ||
-        this.application.getVersion().includes('beta');
-      Menu.setApplicationMenu(getMenu(isDevMode));
-      App.mainWindow?.show();
+    window.once('ready-to-show', () => {
+      window.show();
     });
 
     // handle all external redirects in a new browser window
-    App.mainWindow.webContents.on('will-navigate', App.onRedirect);
+    window.webContents.on('will-navigate', (event, url) =>
+      App.onRedirect(event, url, window),
+    );
 
-    App.mainWindow.webContents.on('did-create-window', (popupWindow) => {
+    window.webContents.on('did-create-window', (popupWindow) => {
       if (App.isDevelopmentMode()) {
         popupWindow.webContents.openDevTools();
       }
     });
 
-    App.mainWindow.webContents.setWindowOpenHandler(({ url, features }) => {
+    window.webContents.setWindowOpenHandler(({ url, features }) => {
       if (App.isInternalUrl(url) && App.isPopupUrl(url)) {
         const { width, height } = App.popupSizeFromFeatures(features);
         return {
@@ -327,21 +333,56 @@ export default class App {
     });
 
     // Emitted when the window is closed.
-    App.mainWindow.on('closed', () => {
-      // Dereference the window object, usually you would store windows
-      // in an array if your app supports multi windows, this is the time
-      // when you should delete the corresponding element.
-      App.mainWindow = null;
+    window.on('closed', () => {
+      App.windows = App.windows.filter((w) => w !== window);
+      forgetWindow(window.id);
+      if (App.mainWindow === window) {
+        // Promote another open window to "main", if any are left.
+        App.mainWindow = App.windows[0] ?? null;
+      }
     });
 
-    // When the renderer crashes, destroy the stale window and open a fresh one
-    // so the app recovers cleanly instead of showing a blank screen.
-    App.mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    // When the renderer crashes, destroy the stale window. If it was the
+    // main window, open a fresh one so the app recovers cleanly instead of
+    // being left with no windows and no way to get one back.
+    window.webContents.on('render-process-gone', (_event, details) => {
       console.error('Renderer process gone:', details.reason);
-      App.mainWindow?.destroy();
-      App.mainWindow = null;
-      App.initWindow();
+      const wasMainWindow = App.mainWindow === window;
+      window.destroy();
+      App.windows = App.windows.filter((w) => w !== window);
+      if (wasMainWindow) {
+        App.mainWindow = App.windows[0] ?? null;
+        if (!App.mainWindow) {
+          App.initWindow();
+        }
+      }
     });
+
+    return window;
+  }
+
+  private static initMainWindow() {
+    App.setTheme('system');
+    App.mainWindow = App.createWindow();
+
+    App.mainWindow.once('ready-to-show', () => {
+      const isDevMode =
+        App.isDevelopmentMode() ||
+        this.application.getVersion().includes('beta');
+      Menu.setApplicationMenu(getMenu(isDevMode));
+    });
+  }
+
+  /**
+   * Opens an additional, independent window running the same renderer app.
+   * Used by the "New Window" menu item, and by the workspace switcher when
+   * the user chooses to open a workspace in a new window — `workspaceId`
+   * is passed through the initial URL so the renderer boots directly into
+   * that workspace instead of its last-active one.
+   */
+  static openNewWindow(workspaceId?: string) {
+    const window = App.createWindow();
+    App.loadWindow(window, workspaceId);
   }
 
   static setTheme(source: 'system' | 'dark' | 'light') {
@@ -354,14 +395,27 @@ export default class App {
   }
 
   private static loadMainWindow() {
+    if (App.mainWindow) {
+      App.loadWindow(App.mainWindow);
+    }
+  }
+
+  private static loadWindow(
+    window: Electron.BrowserWindow,
+    workspaceId?: string,
+  ) {
+    const query = workspaceId
+      ? `?openWorkspaceId=${encodeURIComponent(workspaceId)}`
+      : '';
+
     // extensions do not work correctly with custom schemes
     // if we run locally, we need to use the http scheme
     if (!App.application.isPackaged) {
-      App.mainWindow?.loadURL(`http://localhost:${rendererAppPort}`);
+      window.loadURL(`http://localhost:${rendererAppPort}${query}`);
       return;
     }
 
-    App.mainWindow?.loadURL(`app://localhost`);
+    window.loadURL(`app://localhost${query}`);
   }
 
   private static saveSetting<T>(key: string, value: T) {

@@ -6,6 +6,14 @@ contextBridge.exposeInMainWorld('electron', {
   onFullScreenChanged: (callback: (fullscreen: boolean) => void) =>
     ipcRenderer.on('fullscreen-changed', (_, full) => callback(full)),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  reportActiveWorkspace: (workspaceId: string) =>
+    ipcRenderer.send('workspace-window:report-active', workspaceId),
+  focusWorkspaceWindowIfOpen: (
+    workspaceId: string,
+  ): Promise<{ found: boolean; sameWindow?: boolean }> =>
+    ipcRenderer.invoke('workspace-window:focus-if-open', workspaceId),
+  openWorkspaceInNewWindow: (workspaceId: string): Promise<void> =>
+    ipcRenderer.invoke('workspace-window:open-in-new-window', workspaceId),
 });
 
 contextBridge.exposeInMainWorld('backendApi', {
