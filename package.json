@@ -127,12 +127,6 @@
     "preinstall": "npx only-allow pnpm",
     "patch-files": "node scripts/patch-files.js"
   },
-  "overrides": {
-    "@ngrx/store": {
-      "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core"
-    }
-  },
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
