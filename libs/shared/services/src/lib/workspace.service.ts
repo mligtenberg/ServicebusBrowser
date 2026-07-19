@@ -78,21 +78,25 @@ export class WorkspaceService {
   }
 
   /**
-   * Picks the active workspace from the available list. Reads the last-active
-   * id from localStorage; if it's missing or no longer present in the list
-   * (e.g. that workspace was deleted on another machine, or this is first
-   * boot), falls back to the first workspace and writes it back.
+   * Picks the active workspace from the available list. `preferredId` (e.g.
+   * from this window's `?openWorkspaceId=` boot param) wins over the
+   * last-active id in localStorage, which is otherwise used; if neither is
+   * present in the list (e.g. that workspace was deleted on another machine,
+   * or this is first boot), falls back to the first workspace and writes it
+   * back.
    */
-  initialize(workspaces: Workspace[]): Workspace {
+  initialize(workspaces: Workspace[], preferredId?: UUID): Workspace {
     if (workspaces.length === 0) {
       throw new Error('Cannot initialize WorkspaceService with empty workspace list');
     }
 
     this._availableWorkspaces.set(workspaces);
 
-    const storedId = localStorage.getItem(
-      WorkspaceService.ACTIVE_WORKSPACE_ID_KEY,
-    ) as UUID | null;
+    const storedId =
+      preferredId ??
+      (localStorage.getItem(
+        WorkspaceService.ACTIVE_WORKSPACE_ID_KEY,
+      ) as UUID | null);
 
     const active =
       (storedId && workspaces.find((w) => w.id === storedId)) ?? workspaces[0];
