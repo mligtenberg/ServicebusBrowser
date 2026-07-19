@@ -19,6 +19,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 - [Storybook Component Workbench](./storybook.md): Single Storybook host (`storybook-host`, Vite builder) for the presentational UI layer — addressable story URLs, theming, and the `build-storybook` type/AOT gate.
 - [Workspace Lifecycle and NgRx Effects Timing](./workspace-lifecycle-and-ngrx-effects.md): Why effects register before app initializers finish, the `workspaceActivated` action pattern for workspace-dependent startup work, and how tab (page) order persistence works.
+- [Multi-Window Workspace Routing](./multi-window-workspace-routing.md): How opening a Workspace checks the main-process window↔workspace registry, focuses an existing window instead of duplicating it, and boots a new window straight into a Workspace via `?openWorkspaceId=`.
 
 ## Architecture Decision Records
 
