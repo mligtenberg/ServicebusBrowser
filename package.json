@@ -1,6 +1,6 @@
 {
   "name": "@service-bus-browser/source",
-  "productName": "Servicebus Browser",
+  "productName": "Service Bus Browser",
   "desktopName": "digital.ligtenberg.servicebusbrowser",
   "version": "0.0.1",
   "license": "MIT",

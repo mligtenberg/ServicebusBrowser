@@ -1,12 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, filter, from, map, of, switchMap } from 'rxjs';
+import { catchError, filter, from, map, of, switchMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 
 import { TopologyActions } from '@service-bus-browser/topology-store';
+import { TasksActions } from '@service-bus-browser/tasks-store';
 import { messagePagesActions, messagesActions } from './messages.actions';
 import { LoadMessagesUtil } from './load-messages-util';
 import { messagePagesEffectActions, messagesEffectActions } from './messages.effect-actions';
+import * as messagesSelectors from './messages.selectors';
+import { UUID } from '@service-bus-browser/shared-contracts';
 import { ResendMessagesUtil } from './resend-messages-util';
 import { MessagesFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { ExportMessagesUtil } from './export-messages-util';
@@ -31,6 +34,26 @@ export class MessagesEffects {
         }),
       ),
     { dispatch: false },
+  );
+
+  // Unblocks a receive page as soon as its task is cancelled, instead of waiting
+  // for the in-progress LoadMessagesUtil.loadMessages loop to notice on its next iteration.
+  // LoadMessagesUtil reuses the task id as the page id, so a matching blocked page
+  // identifies this as a receive task (other cancelable tasks, e.g. clearing, have no page).
+  cancelLoadMessages$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(TasksActions.cancelTask),
+      withLatestFrom(this.store.select(messagesSelectors.selectPages)),
+      filter(([{ id }, pages]) =>
+        pages.some((page) => page.id === id && page.blocked),
+      ),
+      map(([{ id }]) =>
+        messagePagesEffectActions.pageLoadCancelled({
+          pageId: id as UUID,
+          endpoint: null,
+        }),
+      ),
+    ),
   );
 
   clearMessages$ = createEffect(

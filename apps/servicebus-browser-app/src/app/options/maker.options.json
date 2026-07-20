@@ -1,9 +1,9 @@
 {
   "$schema": "../../../../../node_modules/nx-electron/src/validation/maker.schema.json",
   "appId": "digital.ligtenberg.servicebusbrowser",
-  "artifactName": "Servicebus browser.${ext}",
+  "artifactName": "Service Bus Browser.${ext}",
   "copyright": "Copyright © 2024 Martin Ligtenberg",
-  "productName": "Servicebus Browser",
+  "productName": "Service Bus Browser",
   "executableName": "servicebus-browser",
   "icon": "assets/icon.png",
   "linux": {

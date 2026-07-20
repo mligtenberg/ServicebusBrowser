@@ -48,81 +48,95 @@ export class LoadMessagesUtil {
     );
     this.logger.info(`Loading messages from ${endpoint.longDisplayName}`);
 
-    let continuationToken: string | undefined = undefined;
-    const pageId = crypto.randomUUID();
+    // Reused as the page id so that cancelling the task can unblock its page
+    // immediately, see MessagesEffects.cancelLoadMessages$
+    const pageId = taskId;
 
-    await repository.addPage({
-      id: pageId,
-      name: endpoint.longDisplayName,
-      retrievedAt: new Date(),
-      workspaceId: getActiveWorkspaceId(),
-    });
+    try {
+      let continuationToken: string | undefined = undefined;
 
-    this.store.dispatch(
-      messagePagesEffectActions.pageCreated({
-        pageId,
-        pageName: endpoint.longDisplayName,
-        disabled: true,
-      }),
-    );
-
-    // Some message providers might return 0 messages if the time between the sent of messages is large
-    // To avoid loading half pages, we will retry loading messages if we get 0 messages for 3 consecutive times
-    let zeroMessagesLoadedCount = 0;
-
-    do {
-      const result = await this.messagesClient.retrieveMessages(
-        endpoint,
-        options,
-        continuationToken,
-      );
-
-      continuationToken = result.continuationToken;
-
-      if (await this.isTaskCanceled(taskId)) {
-        await this.handleTaskCancelled(pageId, endpoint);
-        if (continuationToken) {
-          await this.messagesClient
-            .cancelSession(endpoint, continuationToken)
-            .catch(() => undefined);
-        }
-        return;
-      }
-
-      await repository.addMessages(pageId, result.messages);
-      loadedAmount += result.messages.length;
+      await repository.addPage({
+        id: pageId,
+        name: endpoint.longDisplayName,
+        retrievedAt: new Date(),
+        workspaceId: getActiveWorkspaceId(),
+      });
 
       this.store.dispatch(
-        TasksActions.setProgress({
-          id: taskId,
-          statusDescription: `${loadedAmount}/${maxAmount!}`,
-          progress: (loadedAmount / maxAmount!) * 100,
+        messagePagesEffectActions.pageCreated({
+          pageId,
+          pageName: endpoint.longDisplayName,
+          disabled: true,
         }),
       );
 
-      if (result.messages.length === 0) {
-        zeroMessagesLoadedCount++;
-      }
+      // Some message providers might return 0 messages if the time between the sent of messages is large
+      // To avoid loading half pages, we will retry loading messages if we get 0 messages for 3 consecutive times
+      let zeroMessagesLoadedCount = 0;
 
-      if (zeroMessagesLoadedCount === 3) {
-        this.logger.warn(
-          `Could not retrieve more messages for ${endpoint.displayName}.`,
-          {
-            pageId,
-            endpoint,
-            continuationToken,
-            result,
-          },
+      do {
+        const result = await this.messagesClient.retrieveMessages(
+          endpoint,
+          options,
+          continuationToken,
         );
-        break;
-      }
-    } while (continuationToken);
 
-    this.store.dispatch(TasksActions.completeTask({ id: taskId }));
-    this.store.dispatch(
-      messagePagesEffectActions.pageLoaded({ pageId, endpoint }),
-    );
-    this.logger.info(`Loaded messages from ${endpoint.longDisplayName}`);
+        continuationToken = result.continuationToken;
+
+        if (await this.isTaskCanceled(taskId)) {
+          await this.handleTaskCancelled(pageId, endpoint);
+          if (continuationToken) {
+            await this.messagesClient
+              .cancelSession(endpoint, continuationToken)
+              .catch(() => undefined);
+          }
+          return;
+        }
+
+        await repository.addMessages(pageId, result.messages);
+        loadedAmount += result.messages.length;
+
+        this.store.dispatch(
+          TasksActions.setProgress({
+            id: taskId,
+            statusDescription: `${loadedAmount}/${maxAmount!}`,
+            progress: (loadedAmount / maxAmount!) * 100,
+          }),
+        );
+
+        if (result.messages.length === 0) {
+          zeroMessagesLoadedCount++;
+        }
+
+        if (zeroMessagesLoadedCount === 3) {
+          this.logger.warn(
+            `Could not retrieve more messages for ${endpoint.displayName}.`,
+            {
+              pageId,
+              endpoint,
+              continuationToken,
+              result,
+            },
+          );
+          break;
+        }
+      } while (continuationToken);
+
+      this.store.dispatch(TasksActions.completeTask({ id: taskId }));
+      this.store.dispatch(
+        messagePagesEffectActions.pageLoaded({ pageId, endpoint }),
+      );
+      this.logger.info(`Loaded messages from ${endpoint.longDisplayName}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to load messages from ${endpoint.longDisplayName}`,
+        { error },
+      );
+      this.store.dispatch(TasksActions.completeTask({ id: taskId }));
+      this.store.dispatch(
+        messagePagesEffectActions.pageLoadCancelled({ pageId, endpoint }),
+      );
+    }
   }
 
   async clearMessages(endpoint: ReceiveEndpoint) {

@@ -35,7 +35,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
     } = { receiveMode: 'peek' },
     continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
-    const receiveClient = this.getReceiver(
+    const { client, receiver: receiveClient } = this.getReceiver(
       receiveEndpoint,
       options.receiveMode === 'peek' ? 'peekLock' : 'receiveAndDelete',
     );
@@ -74,6 +74,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
 
     messages = messages.filter((message) => message.body !== undefined);
     await receiveClient.close();
+    await client.close();
 
     const mappedMessages = messages.map((message) =>
       this.mapReceivedMessage(message),
@@ -145,11 +146,12 @@ export class ServiceBusMessagesReader implements MessagesReader {
         )
       : ({ zeroMessagesReceivedCounter: 0 } as DeleteContinuationTokenBody);
 
-    const receiver = this.getReceiver(endpoint, 'receiveAndDelete');
+    const { client, receiver } = this.getReceiver(endpoint, 'receiveAndDelete');
     const messages = await receiver.receiveMessages(250, {
       maxWaitTimeInMs: 300,
     });
     await receiver.close();
+    await client.close();
 
     if (messages.length === 0) {
       zeroMessagesReceivedCounter++;
@@ -246,7 +248,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
   private getReceiver(
     endpoint: ReceiveEndpoint,
     receiveMode: 'peekLock' | 'receiveAndDelete',
-  ): ServiceBusReceiver {
+  ): { client: ServiceBusClient; receiver: ServiceBusReceiver } {
     if (endpoint.target !== 'serviceBus') {
       throw new Error('Invalid Service Bus receive endpoint');
     }
@@ -255,21 +257,27 @@ export class ServiceBusMessagesReader implements MessagesReader {
     const client = new ServiceBusClient(auth.hostName, auth.credential);
 
     if ('queueName' in endpoint) {
-      return client.createReceiver(endpoint.queueName, {
-        receiveMode,
-        subQueueType: endpoint.channel,
-        skipParsingBodyAsJson: true,
-      });
+      return {
+        client,
+        receiver: client.createReceiver(endpoint.queueName, {
+          receiveMode,
+          subQueueType: endpoint.channel,
+          skipParsingBodyAsJson: true,
+        }),
+      };
     }
 
-    return client.createReceiver(
-      endpoint.topicName,
-      endpoint.subscriptionName,
-      {
-        receiveMode: receiveMode,
-        subQueueType: endpoint.channel,
-        skipParsingBodyAsJson: true,
-      },
-    );
+    return {
+      client,
+      receiver: client.createReceiver(
+        endpoint.topicName,
+        endpoint.subscriptionName,
+        {
+          receiveMode: receiveMode,
+          subQueueType: endpoint.channel,
+          skipParsingBodyAsJson: true,
+        },
+      ),
+    };
   }
 }
