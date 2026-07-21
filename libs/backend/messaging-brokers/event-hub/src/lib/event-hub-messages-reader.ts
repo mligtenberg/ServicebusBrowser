@@ -15,6 +15,7 @@ import {
 } from '@azure/event-hubs';
 import { getCredential } from './internal/credential-helper';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
+import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
 
 type ContinuationTokenBody = {
   partitionOffsets: Record<string, string>;
@@ -47,81 +48,96 @@ export class EventHubMessagesReader implements MessagesReader {
     }
 
     const auth = getCredential(this.connection);
-    const client = new EventHubConsumerClient(
-      receiveEndpoint.consumerGroup,
-      auth.hostName,
-      receiveEndpoint.eventHubName,
-      auth.credential,
-    );
 
-    try {
-      const partitionIds = await client.getPartitionIds();
-      const activePartitionIds = partitionIds.filter(
-        (id) => !tokenBody.exhaustedPartitions.includes(id),
-      );
-      const perPartitionMax = Math.max(
-        1,
-        Math.ceil(remainingMessages / Math.max(1, activePartitionIds.length)),
-      );
+    return withAmqpWebSocketFallback(
+      (useWebSocket) =>
+        new EventHubConsumerClient(
+          receiveEndpoint.consumerGroup,
+          auth.hostName,
+          receiveEndpoint.eventHubName,
+          auth.credential,
+          useWebSocket
+            ? { webSocketOptions: { webSocket: WebSocket } }
+            : undefined,
+        ),
+      async (client) => {
+        try {
+          const partitionIds = await client.getPartitionIds();
+          const activePartitionIds = partitionIds.filter(
+            (id) => !tokenBody.exhaustedPartitions.includes(id),
+          );
+          const perPartitionMax = Math.max(
+            1,
+            Math.ceil(
+              remainingMessages / Math.max(1, activePartitionIds.length),
+            ),
+          );
 
-      const allMessages: ReceivedMessage[] = [];
+          const allMessages: ReceivedMessage[] = [];
 
-      for (const partitionId of activePartitionIds) {
-        const remainingForCurrentRead = remainingMessages - allMessages.length;
-        if (remainingForCurrentRead <= 0) {
-          break;
-        }
+          for (const partitionId of activePartitionIds) {
+            const remainingForCurrentRead =
+              remainingMessages - allMessages.length;
+            if (remainingForCurrentRead <= 0) {
+              break;
+            }
 
-        const requestedCount = Math.min(perPartitionMax, remainingForCurrentRead);
-        const startingPosition = this.resolveStartingPosition(
-          partitionId,
-          tokenBody,
-          fromSequenceNumber,
-        );
+            const requestedCount = Math.min(
+              perPartitionMax,
+              remainingForCurrentRead,
+            );
+            const startingPosition = this.resolveStartingPosition(
+              partitionId,
+              tokenBody,
+              fromSequenceNumber,
+            );
 
-        const events = await this.readFromPartition(
-          client,
-          partitionId,
-          requestedCount,
-          startingPosition,
-        );
+            const events = await this.readFromPartition(
+              client,
+              partitionId,
+              requestedCount,
+              startingPosition,
+            );
 
-        for (const event of events) {
-          allMessages.push(this.mapReceivedEvent(event, partitionId));
-          tokenBody.partitionOffsets[partitionId] = event.offset;
-        }
+            for (const event of events) {
+              allMessages.push(this.mapReceivedEvent(event, partitionId));
+              tokenBody.partitionOffsets[partitionId] = event.offset;
+            }
 
-        if (events.length === 0) {
-          const zeroCount = (tokenBody.partitionZeroCount[partitionId] ?? 0) + 1;
-          tokenBody.partitionZeroCount[partitionId] = zeroCount;
-          if (zeroCount >= 3) {
-            tokenBody.exhaustedPartitions.push(partitionId);
+            if (events.length === 0) {
+              const zeroCount =
+                (tokenBody.partitionZeroCount[partitionId] ?? 0) + 1;
+              tokenBody.partitionZeroCount[partitionId] = zeroCount;
+              if (zeroCount >= 3) {
+                tokenBody.exhaustedPartitions.push(partitionId);
+              }
+            } else {
+              tokenBody.partitionZeroCount[partitionId] = 0;
+            }
           }
-        } else {
-          tokenBody.partitionZeroCount[partitionId] = 0;
+
+          tokenBody.alreadyLoadedAmountOfMessages += allMessages.length;
+
+          const allPartitionsExhausted = partitionIds.every((id) =>
+            tokenBody.exhaustedPartitions.includes(id),
+          );
+          const shouldReturnContinuationToken =
+            allMessages.length > 0 &&
+            tokenBody.alreadyLoadedAmountOfMessages < maxMessages &&
+            !allPartitionsExhausted;
+          const newContinuationToken = shouldReturnContinuationToken
+            ? this.makeContinuationToken(tokenBody)
+            : undefined;
+
+          return {
+            messages: allMessages,
+            continuationToken: newContinuationToken,
+          };
+        } finally {
+          await client.close();
         }
-      }
-
-      tokenBody.alreadyLoadedAmountOfMessages += allMessages.length;
-
-      const allPartitionsExhausted = partitionIds.every((id) =>
-        tokenBody.exhaustedPartitions.includes(id),
-      );
-      const shouldReturnContinuationToken =
-        allMessages.length > 0 &&
-        tokenBody.alreadyLoadedAmountOfMessages < maxMessages &&
-        !allPartitionsExhausted;
-      const newContinuationToken = shouldReturnContinuationToken
-        ? this.makeContinuationToken(tokenBody)
-        : undefined;
-
-      return {
-        messages: allMessages,
-        continuationToken: newContinuationToken,
-      };
-    } finally {
-      await client.close();
-    }
+      },
+    );
   }
 
   async cancelSession(

@@ -8,36 +8,46 @@ import { ServiceBusClient, ServiceBusSender } from '@azure/service-bus';
 import { AmqpAnnotatedMessage } from '@azure/core-amqp';
 import { Duration } from 'luxon';
 import { getCredential } from './internal/credential-helper';
+import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
 
 export class ServiceBusMessagesSender implements MessagesSender {
   constructor(private connection: ServiceBusConnection) {}
 
   async send(endpoint: SendEndpoint, message: Message): Promise<void> {
-    const sender = this.getSender(endpoint);
-    await sender.sendMessages(this.mapMessage(message));
-    await sender.close();
+    await withAmqpWebSocketFallback(
+      (useWebSocket) => this.getSender(endpoint, useWebSocket),
+      async (sender) => {
+        await sender.sendMessages(this.mapMessage(message));
+        await sender.close();
+      },
+    );
   }
 
   async sendBatch(endpoint: SendEndpoint, messages: Message[]): Promise<void> {
-    const sender = this.getSender(endpoint);
-    let batch = await sender.createMessageBatch();
+    await withAmqpWebSocketFallback(
+      (useWebSocket) => this.getSender(endpoint, useWebSocket),
+      async (sender) => {
+        const pending = [...messages];
+        let batch = await sender.createMessageBatch();
 
-    while (messages.length > 0) {
-      const message = messages.shift();
-      if (!message) {
-        continue;
-      }
+        while (pending.length > 0) {
+          const message = pending.shift();
+          if (!message) {
+            continue;
+          }
 
-      if (!batch.tryAddMessage(this.mapMessage(message))) {
+          if (!batch.tryAddMessage(this.mapMessage(message))) {
+            await sender.sendMessages(batch);
+            batch = await sender.createMessageBatch();
+            batch.tryAddMessage(this.mapMessage(message));
+          }
+        }
+
         await sender.sendMessages(batch);
-        batch = await sender.createMessageBatch();
-        batch.tryAddMessage(this.mapMessage(message));
-      }
-    }
 
-    await sender.sendMessages(batch);
-
-    await sender.close();
+        await sender.close();
+      },
+    );
   }
 
   mapMessage(message: Message): AmqpAnnotatedMessage {
@@ -103,13 +113,20 @@ export class ServiceBusMessagesSender implements MessagesSender {
     return value ? value.getTime() : undefined;
   }
 
-  private getSender(endpoint: SendEndpoint): ServiceBusSender {
+  private getSender(
+    endpoint: SendEndpoint,
+    useWebSocket: boolean,
+  ): ServiceBusSender {
     if (endpoint.target !== 'serviceBus') {
       throw new Error("Endpoint target must be 'serviceBus'");
     }
 
     const auth = getCredential(this.connection);
-    const client = new ServiceBusClient(auth.hostName, auth.credential);
+    const client = new ServiceBusClient(
+      auth.hostName,
+      auth.credential,
+      useWebSocket ? { webSocketOptions: { webSocket: WebSocket } } : undefined,
+    );
 
     if (endpoint.type === 'queue') {
       return client.createSender(endpoint.queueName);

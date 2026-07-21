@@ -6,6 +6,7 @@ import {
 } from '@service-bus-browser/api-contracts';
 import { EventHubProducerClient, EventData } from '@azure/event-hubs';
 import { getCredential } from './internal/credential-helper';
+import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
 
 export class EventHubMessagesSender implements MessagesSender {
   constructor(private connection: EventHubConnection) {}
@@ -16,21 +17,29 @@ export class EventHubMessagesSender implements MessagesSender {
     }
 
     const auth = getCredential(this.connection);
-    const producer = new EventHubProducerClient(
-      auth.hostName,
-      endpoint.eventHubName,
-      auth.credential,
-    );
 
-    try {
-      const eventData = this.mapMessage(message);
-      const partitionKey = message.messageAnnotations?.['partitionKey'] as string | undefined;
-      const batch = await producer.createBatch(partitionKey ? { partitionKey } : {});
-      batch.tryAdd(eventData);
-      await producer.sendBatch(batch);
-    } finally {
-      await producer.close();
-    }
+    await withAmqpWebSocketFallback(
+      (useWebSocket) =>
+        new EventHubProducerClient(
+          auth.hostName,
+          endpoint.eventHubName,
+          auth.credential,
+          useWebSocket
+            ? { webSocketOptions: { webSocket: WebSocket } }
+            : undefined,
+        ),
+      async (producer) => {
+        try {
+          const eventData = this.mapMessage(message);
+          const partitionKey = message.messageAnnotations?.['partitionKey'] as string | undefined;
+          const batch = await producer.createBatch(partitionKey ? { partitionKey } : {});
+          batch.tryAdd(eventData);
+          await producer.sendBatch(batch);
+        } finally {
+          await producer.close();
+        }
+      },
+    );
   }
 
   async sendBatch(endpoint: SendEndpoint, messages: Message[]): Promise<void> {
@@ -39,37 +48,45 @@ export class EventHubMessagesSender implements MessagesSender {
     }
 
     const auth = getCredential(this.connection);
-    const producer = new EventHubProducerClient(
-      auth.hostName,
-      endpoint.eventHubName,
-      auth.credential,
-    );
 
-    try {
-      const remaining = [...messages];
+    await withAmqpWebSocketFallback(
+      (useWebSocket) =>
+        new EventHubProducerClient(
+          auth.hostName,
+          endpoint.eventHubName,
+          auth.credential,
+          useWebSocket
+            ? { webSocketOptions: { webSocket: WebSocket } }
+            : undefined,
+        ),
+      async (producer) => {
+        try {
+          const remaining = [...messages];
 
-      while (remaining.length > 0) {
-        const firstMessage = remaining[0];
-        const partitionKey = firstMessage.messageAnnotations?.['partitionKey'] as
-          | string
-          | undefined;
+          while (remaining.length > 0) {
+            const firstMessage = remaining[0];
+            const partitionKey = firstMessage.messageAnnotations?.['partitionKey'] as
+              | string
+              | undefined;
 
-        const batch = await producer.createBatch(partitionKey ? { partitionKey } : {});
+            const batch = await producer.createBatch(partitionKey ? { partitionKey } : {});
 
-        while (remaining.length > 0) {
-          const message = remaining[0];
-          const eventData = this.mapMessage(message);
-          if (!batch.tryAdd(eventData)) {
-            break;
+            while (remaining.length > 0) {
+              const message = remaining[0];
+              const eventData = this.mapMessage(message);
+              if (!batch.tryAdd(eventData)) {
+                break;
+              }
+              remaining.shift();
+            }
+
+            await producer.sendBatch(batch);
           }
-          remaining.shift();
+        } finally {
+          await producer.close();
         }
-
-        await producer.sendBatch(batch);
-      }
-    } finally {
-      await producer.close();
-    }
+      },
+    );
   }
 
   private mapMessage(message: Message): EventData {

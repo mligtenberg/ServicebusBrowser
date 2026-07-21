@@ -13,6 +13,7 @@ import {
 } from '@azure/service-bus';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 import { getCredential } from './internal/credential-helper';
+import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
 
 type ContinuationTokenBody = {
   lastLoadedSequenceNumber: string;
@@ -35,10 +36,8 @@ export class ServiceBusMessagesReader implements MessagesReader {
     } = { receiveMode: 'peek' },
     continuationToken?: string,
   ): Promise<{ messages: ReceivedMessage[]; continuationToken?: string }> {
-    const { client, receiver: receiveClient } = this.getReceiver(
-      receiveEndpoint,
-      options.receiveMode === 'peek' ? 'peekLock' : 'receiveAndDelete',
-    );
+    const receiveMode =
+      options.receiveMode === 'peek' ? 'peekLock' : 'receiveAndDelete';
     const maxAmountOfMessagesToReceive =
       options.maxAmountOfMessagesToReceive ?? 1;
     const tokenBody = continuationToken
@@ -62,19 +61,26 @@ export class ServiceBusMessagesReader implements MessagesReader {
     const currentMaxAmountOfMessagesToReceive =
       maxAmountOfMessagesToReceive - tokenBody.alreadyLoadedAmountOfMessages;
 
-    let messages =
-      options.receiveMode === 'peek'
-        ? await receiveClient.peekMessages(maxAmountOfMessagesToReceive, {
-            fromSequenceNumber: currentFromSequenceNumber,
-          })
-        : await receiveClient.receiveMessages(
-            currentMaxAmountOfMessagesToReceive,
-            { maxWaitTimeInMs: 100 },
-          );
+    let messages = await withAmqpWebSocketFallback(
+      (useWebSocket) => this.getReceiver(receiveEndpoint, receiveMode, useWebSocket),
+      async ({ client, receiver: receiveClient }) => {
+        const received =
+          options.receiveMode === 'peek'
+            ? await receiveClient.peekMessages(maxAmountOfMessagesToReceive, {
+                fromSequenceNumber: currentFromSequenceNumber,
+              })
+            : await receiveClient.receiveMessages(
+                currentMaxAmountOfMessagesToReceive,
+                { maxWaitTimeInMs: 100 },
+              );
+
+        await receiveClient.close();
+        await client.close();
+        return received;
+      },
+    );
 
     messages = messages.filter((message) => message.body !== undefined);
-    await receiveClient.close();
-    await client.close();
 
     const mappedMessages = messages.map((message) =>
       this.mapReceivedMessage(message),
@@ -146,12 +152,17 @@ export class ServiceBusMessagesReader implements MessagesReader {
         )
       : ({ zeroMessagesReceivedCounter: 0 } as DeleteContinuationTokenBody);
 
-    const { client, receiver } = this.getReceiver(endpoint, 'receiveAndDelete');
-    const messages = await receiver.receiveMessages(250, {
-      maxWaitTimeInMs: 300,
-    });
-    await receiver.close();
-    await client.close();
+    const messages = await withAmqpWebSocketFallback(
+      (useWebSocket) => this.getReceiver(endpoint, 'receiveAndDelete', useWebSocket),
+      async ({ client, receiver }) => {
+        const received = await receiver.receiveMessages(250, {
+          maxWaitTimeInMs: 300,
+        });
+        await receiver.close();
+        await client.close();
+        return received;
+      },
+    );
 
     if (messages.length === 0) {
       zeroMessagesReceivedCounter++;
@@ -248,13 +259,18 @@ export class ServiceBusMessagesReader implements MessagesReader {
   private getReceiver(
     endpoint: ReceiveEndpoint,
     receiveMode: 'peekLock' | 'receiveAndDelete',
+    useWebSocket: boolean,
   ): { client: ServiceBusClient; receiver: ServiceBusReceiver } {
     if (endpoint.target !== 'serviceBus') {
       throw new Error('Invalid Service Bus receive endpoint');
     }
 
     const auth = getCredential(this.connection);
-    const client = new ServiceBusClient(auth.hostName, auth.credential);
+    const client = new ServiceBusClient(
+      auth.hostName,
+      auth.credential,
+      useWebSocket ? { webSocketOptions: { webSocket: WebSocket } } : undefined,
+    );
 
     if ('queueName' in endpoint) {
       return {
