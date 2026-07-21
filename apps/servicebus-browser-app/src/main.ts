@@ -7,6 +7,12 @@ import WorkspaceEvents from './app/events/workspace.events';
 import UpdateEvents from './app/events/update.events';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { electronAppInternalName } from './app/constants';
+
+// Must run before anything else touches the app lifecycle: this pins the
+// userData folder and safeStorage Keychain identity to a name that never
+// changes, decoupled from the user-facing electronAppName. See constants.ts.
+app.setName(electronAppInternalName);
 
 if (App.isDevelopmentMode()) {
   // Prevent GPU process crashes in dev/sandbox environments (exit_code=15)

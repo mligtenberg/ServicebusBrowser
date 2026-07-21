@@ -1,11 +1,11 @@
 import {
-  app,
   Menu,
   MenuItemConstructorOptions,
   MenuItem,
   nativeTheme
 } from 'electron'
 import App from './app';
+import { electronAppName } from './constants';
 
 export function getMenu(isDev: boolean) {
   const isMac = process.platform === 'darwin';
@@ -13,10 +13,10 @@ export function getMenu(isDev: boolean) {
   const macTemplate: Array<MenuItemConstructorOptions | MenuItem> = [
     // { role: 'appMenu' }
     {
-      label: app.name,
+      label: electronAppName,
       submenu: [
         {
-          label: 'Quit ' + app.name,
+          label: 'Quit ' + electronAppName,
           role: 'quit'
         }
       ]
@@ -49,7 +49,7 @@ export function getMenu(isDev: boolean) {
           click: () => App.openNewWindow()
         },
         {
-          label: 'About ' + app.name,
+          label: 'About ' + electronAppName,
           role: 'about'
         },
         { role: 'quit' }

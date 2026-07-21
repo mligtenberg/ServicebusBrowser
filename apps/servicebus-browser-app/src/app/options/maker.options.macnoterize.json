@@ -16,6 +16,7 @@
     "target": ["nsis"]
   },
   "mac": {
+    "executableName": "Service Bus Browser",
     "category": "public.app-category.developer-tools",
     "hardenedRuntime" : true,
     "gatekeeperAssess": false,
