@@ -151,10 +151,10 @@ jobs:
       - name: prepare resource folder
         run: |
             mkdir -p release
-            cp "windows/Servicebus browser.exe" "release/servicebus-browser-windows.exe"
-            cp "linux/Servicebus browser.AppImage" "release/servicebus-browser-linux.AppImage"
-            cp "mac/Servicebus browser.dmg" "release/servicebus-browser-mac-arm64.dmg"
-            cp "mac/Servicebus browser.zip" "release/servicebus-browser-mac-arm64.zip"
+            cp "windows/Service Bus Browser..exe" "release/servicebus-browser-windows.exe"
+            cp "linux/Service Bus Browser.AppImage" "release/servicebus-browser-linux.AppImage"
+            cp "mac/Service Bus Browser.dmg" "release/servicebus-browser-mac-arm64.dmg"
+            cp "mac/Service Bus Browser.zip" "release/servicebus-browser-mac-arm64.zip"
 
       - uses: ncipollo/release-action@v1
         with:
