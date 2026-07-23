@@ -3,6 +3,7 @@ import { AboutComponent } from '@service-bus-browser/main-ui';
 import { AutoLoginPartialRoutesGuard } from 'angular-auth-oidc-client';
 import { OidcCallback } from './oidc-callback/oidc-callback';
 import {
+  popupWorkspaceActivationGuard,
   rootWorkspaceRedirectGuard,
   workspaceActivationGuard,
 } from './workspace-route.guard';
@@ -10,7 +11,7 @@ import {
 export const appRoutes: Route[] = [
   {
     path: 'popups',
-    canActivate: [AutoLoginPartialRoutesGuard],
+    canActivate: [AutoLoginPartialRoutesGuard, popupWorkspaceActivationGuard],
     loadComponent: () =>
       import('./dialog-shell/dialog-shell').then((m) => m.DialogShell),
     children: [

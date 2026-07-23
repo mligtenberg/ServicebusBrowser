@@ -30,19 +30,26 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 /**
  * A blocked AMQP port (5671) makes the SDK hang instead of failing fast. If `useClient`
  * doesn't settle within `timeoutMs`, retry once over AMQP-over-WebSockets (port 443).
+ *
+ * Pass `forceWebSocket: true` (e.g. because a prior call already fell back, as recorded in a
+ * continuation token) to skip the doomed AMQP attempt and connect over WebSockets directly.
  */
 export async function withAmqpWebSocketFallback<TClient, TResult>(
   createClient: (useWebSocket: boolean) => TClient,
-  useClient: (client: TClient) => Promise<TResult>,
-  timeoutMs = DEFAULT_CONNECT_TIMEOUT_MS,
+  useClient: (client: TClient, useWebSocket: boolean) => Promise<TResult>,
+  options?: { timeoutMs?: number; forceWebSocket?: boolean },
 ): Promise<TResult> {
-  try {
-    return await withTimeout(useClient(createClient(false)), timeoutMs);
-  } catch (error) {
-    if (!(error instanceof AmqpConnectionTimeoutError)) {
-      throw error;
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_CONNECT_TIMEOUT_MS;
+
+  if (!options?.forceWebSocket) {
+    try {
+      return await withTimeout(useClient(createClient(false), false), timeoutMs);
+    } catch (error) {
+      if (!(error instanceof AmqpConnectionTimeoutError)) {
+        throw error;
+      }
     }
   }
 
-  return useClient(createClient(true));
+  return useClient(createClient(true), true);
 }

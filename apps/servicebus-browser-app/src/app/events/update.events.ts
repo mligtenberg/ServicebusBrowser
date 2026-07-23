@@ -23,7 +23,6 @@ export default class UpdateEvents {
       url: `${updateServerUrl}/mligtenberg/ServicebusBrowser/${platform_arch}/${currentVersion}`,
     };
 
-
     console.log('Initializing auto update service...');
     autoUpdater.setFeedURL(feed);
 

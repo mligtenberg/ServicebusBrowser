@@ -12,7 +12,9 @@ import { electronAppInternalName } from './app/constants';
 // Must run before anything else touches the app lifecycle: this pins the
 // userData folder and safeStorage Keychain identity to a name that never
 // changes, decoupled from the user-facing electronAppName. See constants.ts.
-app.setName(electronAppInternalName);
+if (!App.isDevelopmentMode()) {
+  app.setName(electronAppInternalName);
+}
 
 if (App.isDevelopmentMode()) {
   // Prevent GPU process crashes in dev/sandbox environments (exit_code=15)
@@ -38,6 +40,18 @@ protocol.registerSchemesAsPrivileged([
 
 export default class Main {
   static initialize() {
+    // Must happen before requestSingleInstanceLock(): the lock is scoped to
+    // the current userData path, so dev needs its own path *before* locking,
+    // otherwise it collides with an already-running packaged install and
+    // quits immediately (no window, no error).
+    if (App.isDevelopmentMode()) {
+      const appDataPath = app.getPath('appData');
+      app.setPath(
+        'userData',
+        path.join(appDataPath, 'servicebus-browser-app-dev'),
+      );
+    }
+
     const gotSingleInstanceLock = app.requestSingleInstanceLock();
     if (!gotSingleInstanceLock) {
       app.quit();
@@ -52,14 +66,6 @@ export default class Main {
         App.mainWindow.focus();
       }
     });
-
-    if (App.isDevelopmentMode()) {
-      const appDataPath = app.getPath('appData');
-      app.setPath(
-        'userData',
-        path.join(appDataPath, 'servicebus-browser-app-dev'),
-      );
-    }
 
     if (SquirrelEvents.handleEvents()) {
       // squirrel event handled (except first run event) and app will exit in 1000ms, so don't do anything else
@@ -132,6 +138,7 @@ async function initExtensions() {
 // bootstrap app
 Main.bootstrapApp();
 Main.bootstrapAppEvents();
+
 
 if (App.isDevelopmentMode()) {
   App.application

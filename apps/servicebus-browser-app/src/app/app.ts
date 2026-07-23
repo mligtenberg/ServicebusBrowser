@@ -293,6 +293,7 @@ export default class App {
     });
 
     window.once('ready-to-show', () => {
+      console.log("ready to show");
       window.show();
     });
 

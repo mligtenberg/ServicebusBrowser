@@ -44,3 +44,31 @@ export const rootWorkspaceRedirectGuard: CanActivateFn = async () => {
   const fallback = workspaceService.resolveFallback();
   return router.parseUrl(workspaceService.workspaceUrl('/', fallback.id));
 };
+
+/**
+ * Guards the unprefixed `popups` route tree. Popups don't carry a
+ * `:workspaceId` segment (ADR-0009), but a fresh popup window still needs its
+ * messages-db repository initialized before anything can read message data —
+ * previously handled by a boot-time APP_INITIALIZER that ran for every
+ * window regardless of route, removed when workspace activation moved onto
+ * the `:workspaceId` guard. Reads the opener-supplied `workspaceId` query
+ * param so the popup shows the same workspace's data as its opener, falling
+ * back like the root guard when it's missing or stale.
+ */
+export const popupWorkspaceActivationGuard: CanActivateFn = async (
+  route: ActivatedRouteSnapshot,
+) => {
+  const workspaceService = inject(WorkspaceService);
+  const switchService = inject(WorkspaceSwitchService);
+
+  const workspaces = await workspaceService.ensureWorkspacesLoaded();
+  const requestedId = route.queryParamMap.get('workspaceId') as UUID | null;
+  const workspace =
+    workspaces.find((w) => w.id === requestedId) ?? workspaceService.resolveFallback();
+
+  if (workspaceService.activeWorkspace()?.id !== workspace.id) {
+    await switchService.activate(workspace, { persist: false });
+  }
+
+  return true;
+};

@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { AboutComponent, HomeComponent } from '@service-bus-browser/main-ui';
 import {
+  popupWorkspaceActivationGuard,
   rootWorkspaceRedirectGuard,
   workspaceActivationGuard,
 } from './workspace-route.guard';
@@ -8,6 +9,7 @@ import {
 export const appRoutes: Route[] = [
   {
     path: 'popups',
+    canActivate: [popupWorkspaceActivationGuard],
     loadComponent: () =>
       import('./dialog-shell/dialog-shell').then((m) => m.DialogShell),
     children: [

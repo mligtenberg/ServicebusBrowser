@@ -119,11 +119,6 @@
     "webpack-dev-server": "^5.2.6",
     "zone.js": "^0.16.2"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@swc/core"
-    ]
-  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "patch-files": "node scripts/patch-files.js"

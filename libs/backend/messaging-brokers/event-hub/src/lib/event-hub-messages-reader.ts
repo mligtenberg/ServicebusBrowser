@@ -22,6 +22,7 @@ type ContinuationTokenBody = {
   exhaustedPartitions: string[];
   partitionZeroCount: Record<string, number>;
   alreadyLoadedAmountOfMessages: number;
+  usedWebSocket?: boolean;
 };
 
 export class EventHubMessagesReader implements MessagesReader {
@@ -40,7 +41,7 @@ export class EventHubMessagesReader implements MessagesReader {
     const fromSequenceNumber = options['fromSequenceNumber'] as string | undefined;
     const tokenBody = continuationToken
       ? this.decodeContinuationToken<ContinuationTokenBody>(continuationToken)
-      : ({ partitionOffsets: {}, exhaustedPartitions: [], partitionZeroCount: {}, alreadyLoadedAmountOfMessages: 0 } as ContinuationTokenBody);
+      : ({ partitionOffsets: {}, exhaustedPartitions: [], partitionZeroCount: {}, alreadyLoadedAmountOfMessages: 0, usedWebSocket: false } as ContinuationTokenBody);
 
     const remainingMessages = maxMessages - tokenBody.alreadyLoadedAmountOfMessages;
     if (remainingMessages <= 0) {
@@ -60,8 +61,9 @@ export class EventHubMessagesReader implements MessagesReader {
             ? { webSocketOptions: { webSocket: WebSocket } }
             : undefined,
         ),
-      async (client) => {
+      async (client, useWebSocket) => {
         try {
+          tokenBody.usedWebSocket = useWebSocket;
           const partitionIds = await client.getPartitionIds();
           const activePartitionIds = partitionIds.filter(
             (id) => !tokenBody.exhaustedPartitions.includes(id),
@@ -137,6 +139,7 @@ export class EventHubMessagesReader implements MessagesReader {
           await client.close();
         }
       },
+      { forceWebSocket: tokenBody.usedWebSocket },
     );
   }
 

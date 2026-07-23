@@ -5,7 +5,11 @@ import {
   MessageModificationEngine,
 } from '@service-bus-browser/message-modification-engine';
 import { ClearNonResendableProperties } from '@service-bus-browser/api-contracts';
-import { ColorThemeService, MessagePreferencesService } from '@service-bus-browser/services';
+import {
+  ColorThemeService,
+  MessagePreferencesService,
+  WorkspaceService,
+} from '@service-bus-browser/services';
 import {
   SbbButton,
   SbbFloatLabel,
@@ -50,6 +54,7 @@ import { Location } from '@angular/common';
 export class BodyViewer {
   colorThemeService = inject(ColorThemeService);
   private messagePreferences = inject(MessagePreferencesService);
+  private workspaceService = inject(WorkspaceService);
   private route = inject(ActivatedRoute, { optional: true });
   private router = inject(Router);
   private location = inject(Location);
@@ -122,6 +127,7 @@ export class BodyViewer {
     if (!messageKey) {
       return;
     }
+    const activeWorkspaceId = this.workspaceService.activeWorkspace()?.id;
     const urlTree = this.router.createUrlTree(
       ['/popups/messages/body-viewer', this.pageId(), messageKey],
       {
@@ -129,6 +135,10 @@ export class BodyViewer {
           view: this.showPrettyBody(),
           csv: this.csvDelimiter(),
           ...(this.sessionActionsKey() ? { applyActionList: this.sessionActionsKey() } : {}),
+          // The popup route sits outside the `:workspaceId` segment (ADR-0009),
+          // so it can't infer which workspace's messages-db to open — pass the
+          // opener's active workspace along explicitly.
+          ...(activeWorkspaceId ? { workspaceId: activeWorkspaceId } : {}),
         },
       },
     );

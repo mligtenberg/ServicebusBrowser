@@ -18,10 +18,12 @@ import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
 type ContinuationTokenBody = {
   lastLoadedSequenceNumber: string;
   alreadyLoadedAmountOfMessages: number;
+  usedWebSocket?: boolean;
 };
 
 type DeleteContinuationTokenBody = {
   zeroMessagesReceivedCounter: number;
+  usedWebSocket?: boolean;
 };
 
 export class ServiceBusMessagesReader implements MessagesReader {
@@ -61,9 +63,11 @@ export class ServiceBusMessagesReader implements MessagesReader {
     const currentMaxAmountOfMessagesToReceive =
       maxAmountOfMessagesToReceive - tokenBody.alreadyLoadedAmountOfMessages;
 
+    let usedWebSocket = tokenBody.usedWebSocket ?? false;
+
     let messages = await withAmqpWebSocketFallback(
       (useWebSocket) => this.getReceiver(receiveEndpoint, receiveMode, useWebSocket),
-      async ({ client, receiver: receiveClient }) => {
+      async ({ client, receiver: receiveClient }, useWebSocket) => {
         const received =
           options.receiveMode === 'peek'
             ? await receiveClient.peekMessages(maxAmountOfMessagesToReceive, {
@@ -76,8 +80,10 @@ export class ServiceBusMessagesReader implements MessagesReader {
 
         await receiveClient.close();
         await client.close();
+        usedWebSocket = useWebSocket;
         return received;
       },
+      { forceWebSocket: tokenBody.usedWebSocket },
     );
 
     messages = messages.filter((message) => message.body !== undefined);
@@ -96,6 +102,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
         ? this.makeContinuationToken({
             alreadyLoadedAmountOfMessages: alreadyLoadedAmountOfMessages,
             lastLoadedSequenceNumber: lastLoadedSequenceNumber,
+            usedWebSocket,
           })
         : undefined;
 
@@ -146,22 +153,26 @@ export class ServiceBusMessagesReader implements MessagesReader {
     if (!endpoint) {
       throw new Error('endpoints is required for clearing messages');
     }
-    let { zeroMessagesReceivedCounter } = continuationToken
+    const decodedToken = continuationToken
       ? this.decodeContinuationToken<DeleteContinuationTokenBody>(
           continuationToken,
         )
       : ({ zeroMessagesReceivedCounter: 0 } as DeleteContinuationTokenBody);
+    let { zeroMessagesReceivedCounter } = decodedToken;
+    let usedWebSocket = decodedToken.usedWebSocket ?? false;
 
     const messages = await withAmqpWebSocketFallback(
       (useWebSocket) => this.getReceiver(endpoint, 'receiveAndDelete', useWebSocket),
-      async ({ client, receiver }) => {
+      async ({ client, receiver }, useWebSocket) => {
         const received = await receiver.receiveMessages(250, {
           maxWaitTimeInMs: 300,
         });
         await receiver.close();
         await client.close();
+        usedWebSocket = useWebSocket;
         return received;
       },
+      { forceWebSocket: decodedToken.usedWebSocket },
     );
 
     if (messages.length === 0) {
@@ -174,6 +185,7 @@ export class ServiceBusMessagesReader implements MessagesReader {
 
     const newToken = this.makeContinuationToken({
       zeroMessagesReceivedCounter,
+      usedWebSocket,
     });
     return { continuationToken: newToken };
   }
