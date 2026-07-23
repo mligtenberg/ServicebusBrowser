@@ -13,7 +13,11 @@ import {
   ReceiverEvents,
   ReceiverOptions,
 } from 'rhea-promise';
-import { getConnectionOptions } from './internal/rabbitmq-connection-options';
+import {
+  getConnectionOptions,
+  RabbitMqTransport,
+} from './internal/rabbitmq-connection-options';
+import { withRabbitMqTransportFallback } from './internal/websocket-fallback';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 import { RabbitMqManagementClient } from './rabbitmq-management-client';
 
@@ -22,6 +26,7 @@ type ContinuationTokenBody = {
   streamOffset?: number;
   peekTempQueueName?: string;
   peekTempExchangeName?: string;
+  usedTransport?: RabbitMqTransport;
 };
 
 export class RabbitMqMessagesReader implements MessagesReader {
@@ -167,9 +172,10 @@ export class RabbitMqMessagesReader implements MessagesReader {
         return { messages: [] };
       }
 
-      const messages = await this.readFromEndpoint(
+      const { messages, usedTransport } = await this.readFromEndpoint(
         tempEndpoint,
         currentMaxAmountOfMessagesToReceive,
+        tokenBody.usedTransport,
       );
 
       const mappedMessages = messages.map((message) =>
@@ -202,6 +208,7 @@ export class RabbitMqMessagesReader implements MessagesReader {
           alreadyLoadedAmountOfMessages,
           peekTempQueueName: tempQueueName,
           peekTempExchangeName: tempExchangeName,
+          usedTransport,
         }),
       };
     } catch (err) {
@@ -234,25 +241,37 @@ export class RabbitMqMessagesReader implements MessagesReader {
   private async readFromEndpoint(
     endpoint: RabbitMqQueueReceiveEndpoint,
     maxAmount: number,
-  ): Promise<EventContext[]> {
-    const client = new Connection(
-      getConnectionOptions(this.connection, endpoint.vhostName),
-    );
-    try {
-      await client.open();
-      const receiver = await client.createReceiver({
-        ...this.getReceiverOptions(endpoint, {}),
-        autoaccept: false,
-        credit_window: 0,
-      });
+    forceTransport?: RabbitMqTransport,
+  ): Promise<{ messages: EventContext[]; usedTransport: RabbitMqTransport }> {
+    let usedTransport: RabbitMqTransport = forceTransport ?? 'amqp';
 
-      const messages = await this.collectMessages(receiver, maxAmount, 150);
-      await Promise.all(messages.map((m) => m.delivery?.accept()));
-      await receiver.close();
-      return messages;
-    } finally {
-      await client.close().catch(() => undefined);
-    }
+    const messages = await withRabbitMqTransportFallback(
+      (transport) =>
+        new Connection(
+          getConnectionOptions(this.connection, endpoint.vhostName, transport),
+        ),
+      async (client, transport) => {
+        try {
+          await client.open();
+          const receiver = await client.createReceiver({
+            ...this.getReceiverOptions(endpoint, {}),
+            autoaccept: false,
+            credit_window: 0,
+          });
+
+          const collected = await this.collectMessages(receiver, maxAmount, 150);
+          await Promise.all(collected.map((m) => m.delivery?.accept()));
+          await receiver.close();
+          usedTransport = transport;
+          return collected;
+        } finally {
+          await client.close().catch(() => undefined);
+        }
+      },
+      { forceTransport },
+    );
+
+    return { messages, usedTransport };
   }
 
   private async receiveMessagesInternal(
@@ -283,74 +302,85 @@ export class RabbitMqMessagesReader implements MessagesReader {
     }
 
     const waitTimeInMs = this.isStreamEndpoint(receiveEndpoint) ? 1000 : 150;
-    const client = new Connection(
-      getConnectionOptions(
-        this.connection,
-        receiveEndpoint.target === 'rabbitmq'
-          ? receiveEndpoint.vhostName
-          : undefined,
+    let usedTransport: RabbitMqTransport = tokenBody.usedTransport ?? 'amqp';
+
+    const messages = await withRabbitMqTransportFallback(
+      (transport) =>
+        new Connection(
+          getConnectionOptions(
+            this.connection,
+            receiveEndpoint.target === 'rabbitmq'
+              ? receiveEndpoint.vhostName
+              : undefined,
+            transport,
+          ),
+        ),
+      async (client, transport) => {
+        try {
+          await client.open();
+          const receiver = await client.createReceiver({
+            ...this.getReceiverOptions(receiveEndpoint, {
+              streamOffset: tokenBody.streamOffset,
+            }),
+            autoaccept: false,
+            credit_window: 0,
+          });
+
+          const collected = await this.collectMessages(
+            receiver,
+            currentMaxAmountOfMessagesToReceive,
+            waitTimeInMs,
+          );
+          if (
+            options.receiveMode !== 'peek' &&
+            !this.isStreamEndpoint(receiveEndpoint)
+          ) {
+            await Promise.all(
+              collected.map((message) => message.delivery?.accept()),
+            );
+          } else {
+            await Promise.all(
+              collected.map((message) => message.delivery?.release()),
+            );
+          }
+
+          await receiver.close();
+          usedTransport = transport;
+          return collected;
+        } finally {
+          await client.close().catch(() => undefined);
+        }
+      },
+      { forceTransport: tokenBody.usedTransport },
+    );
+
+    const mappedMessages = messages.map((message) =>
+      this.mapReceivedMessage(
+        message,
+        tokenBody.alreadyLoadedAmountOfMessages,
       ),
     );
 
-    try {
-      await client.open();
-      const receiver = await client.createReceiver({
-        ...this.getReceiverOptions(receiveEndpoint, {
-          streamOffset: tokenBody.streamOffset,
-        }),
-        autoaccept: false,
-        credit_window: 0,
-      });
+    const alreadyLoadedAmountOfMessages =
+      tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
 
-      const messages = await this.collectMessages(
-        receiver,
-        currentMaxAmountOfMessagesToReceive,
-        waitTimeInMs,
-      );
-      if (
-        options.receiveMode !== 'peek' &&
-        !this.isStreamEndpoint(receiveEndpoint)
-      ) {
-        await Promise.all(
-          messages.map((message) => message.delivery?.accept()),
-        );
-      } else {
-        await Promise.all(
-          messages.map((message) => message.delivery?.release()),
-        );
-      }
+    const reachedBatchLimit =
+      mappedMessages.length === currentMaxAmountOfMessagesToReceive;
+    const shouldReturnContinuationToken =
+      reachedBatchLimit && maxAmount > alreadyLoadedAmountOfMessages;
+    const newContinuationToken = shouldReturnContinuationToken
+      ? this.makeContinuationToken({
+          alreadyLoadedAmountOfMessages,
+          streamOffset:
+            this.getNextStreamOffset(messages) ?? tokenBody.streamOffset,
+          usedTransport,
+        })
+      : undefined;
 
-      await receiver.close();
-
-      const mappedMessages = messages.map((message) =>
-        this.mapReceivedMessage(
-          message,
-          tokenBody.alreadyLoadedAmountOfMessages,
-        ),
-      );
-
-      const alreadyLoadedAmountOfMessages =
-        tokenBody.alreadyLoadedAmountOfMessages + mappedMessages.length;
-
-      const reachedBatchLimit =
-        mappedMessages.length === currentMaxAmountOfMessagesToReceive;
-      const shouldReturnContinuationToken =
-        reachedBatchLimit && maxAmount > alreadyLoadedAmountOfMessages;
-      const newContinuationToken = shouldReturnContinuationToken
-        ? this.makeContinuationToken({
-            alreadyLoadedAmountOfMessages,
-            streamOffset:
-              this.getNextStreamOffset(messages) ?? tokenBody.streamOffset,
-          })
-        : undefined;
-
-      return {
-        messages: mappedMessages,
-        continuationToken: newContinuationToken,
-      };
-    } finally {
-      await client.close().catch(() => undefined);
-    }
+    return {
+      messages: mappedMessages,
+      continuationToken: newContinuationToken,
+    };
   }
 
   private collectMessages(

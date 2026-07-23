@@ -6,46 +6,62 @@ import {
 } from '@service-bus-browser/api-contracts';
 import { Connection, Message as RheaMessage, Sender } from 'rhea-promise';
 import { getConnectionOptions } from './internal/rabbitmq-connection-options';
+import { withRabbitMqTransportFallback } from './internal/websocket-fallback';
 
 export class RabbitMqMessagesSender implements MessagesSender {
   constructor(private readonly connection: RabbitMqConnection) {}
 
   async send(endpoint: SendEndpoint, message: Message): Promise<void> {
-    const client = new Connection(
-      getConnectionOptions(
-        this.connection,
-        endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
-      ),
-    );
-    try {
-      await client.open();
-      const sender = await client.createSender({
-        target: { address: this.getAddress(endpoint) },
-      });
-      await this.doSend(message, sender);
+    await withRabbitMqTransportFallback(
+      (transport) =>
+        new Connection(
+          getConnectionOptions(
+            this.connection,
+            endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
+            transport,
+          ),
+        ),
+      async (client) => {
+        try {
+          await client.open();
+          const sender = await client.createSender({
+            target: { address: this.getAddress(endpoint) },
+          });
+          await this.doSend(message, sender);
 
-      await sender.close();
-    } finally {
-      await client.close().catch(() => undefined);
-    }
+          await sender.close();
+        } finally {
+          await client.close().catch(() => undefined);
+        }
+      },
+    );
   }
 
   async sendBatch(endpoint: SendEndpoint, messages: Message[]): Promise<void> {
-    const client = new Connection(
-      getConnectionOptions(
-        this.connection,
-        endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
-      ),
+    await withRabbitMqTransportFallback(
+      (transport) =>
+        new Connection(
+          getConnectionOptions(
+            this.connection,
+            endpoint.target === 'rabbitmq' ? endpoint.vhostName : undefined,
+            transport,
+          ),
+        ),
+      async (client) => {
+        try {
+          await client.open();
+          const sender = await client.createSender({
+            target: { address: this.getAddress(endpoint) },
+          });
+          for (const message of messages) {
+            await this.doSend(message, sender);
+          }
+          await sender.close();
+        } finally {
+          await client.close().catch(() => undefined);
+        }
+      },
     );
-    await client.open();
-    const sender = await client.createSender({
-      target: { address: this.getAddress(endpoint) },
-    });
-    for (const message of messages) {
-      await this.doSend(message, sender);
-    }
-    await sender.close();
-    await client.close();
   }
 
   private getAddress(endpoint: SendEndpoint): string {
