@@ -5,6 +5,7 @@ import * as internalActions from './connections.internal-actions';
 import { ManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
 import { catchError, from, map, switchMap } from 'rxjs';
 import { TopologyActions } from '@service-bus-browser/topology-store';
+import { WorkspaceService } from '@service-bus-browser/services';
 
 @Injectable({
   providedIn: 'root',
@@ -12,12 +13,18 @@ import { TopologyActions } from '@service-bus-browser/topology-store';
 export class ConnectionsEffects {
   actions$ = inject(Actions);
   serviceBusClient = inject(ManagementFrontendClient);
+  workspaceService = inject(WorkspaceService);
 
   addConnection$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.addConnection),
-      switchMap(({ connection }) =>
-        from(this.serviceBusClient.addConnection(connection)).pipe(
+      switchMap(({ connection }) => {
+        const connectionToAdd = {
+          ...connection,
+          workspaceId:
+            connection.workspaceId ?? this.workspaceService.activeWorkspace()?.id,
+        };
+        return from(this.serviceBusClient.addConnection(connectionToAdd)).pipe(
           map(() =>
             internalActions.connectionAdded({ connectionId: connection.id })
           ),
@@ -30,8 +37,8 @@ export class ConnectionsEffects {
               },
             }),
           ])
-        )
-      )
+        );
+      })
     )
   );
 

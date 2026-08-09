@@ -20,18 +20,25 @@ export class SecureConnectionStorage implements ConnectionStore {
   }
 
   addConnection(connection: Connection): void {
-    const activeWorkspaceId = this.workspaceStorage?.getActiveWorkspaceId();
+    const targetWorkspaceId =
+      connection.workspaceId ?? this.workspaceStorage?.getActiveWorkspaceId();
     const connections = this.readCurrentConnections();
-    connections[connection.id] = activeWorkspaceId
-      ? { ...connection, workspaceId: activeWorkspaceId }
+    connections[connection.id] = targetWorkspaceId
+      ? { ...connection, workspaceId: targetWorkspaceId }
       : connection;
     this.writeConnections(connections);
   }
 
-  renameConnection(connectionId: UUID, name: string): void {
-    // Only rename connections visible in the active workspace to prevent
+  renameConnection(connectionId: UUID, name: string, workspaceId?: UUID): void {
+    const targetWorkspaceId =
+      workspaceId ?? this.workspaceStorage?.getActiveWorkspaceId();
+    if (!targetWorkspaceId) {
+      return;
+    }
+
+    // Only rename connections visible in the caller's workspace to prevent
     // renaming connections that belong to another workspace.
-    const isInActiveWorkspace = this.listConnections().some(
+    const isInActiveWorkspace = this.listConnections(targetWorkspaceId).some(
       (connection) => connection.connectionId === connectionId,
     );
     if (!isInActiveWorkspace) {
@@ -47,20 +54,32 @@ export class SecureConnectionStorage implements ConnectionStore {
     this.writeConnections(connections);
   }
 
-  removeConnection(connectionId: UUID): void {
+  removeConnection(connectionId: UUID, workspaceId?: UUID): void {
+    const targetWorkspaceId =
+      workspaceId ?? this.workspaceStorage?.getActiveWorkspaceId();
+    if (!targetWorkspaceId) {
+      return;
+    }
+
+    // Only remove connections visible in the caller's workspace to prevent
+    // removing connections that belong to another workspace.
+    const isInActiveWorkspace = this.listConnections(targetWorkspaceId).some(
+      (connection) => connection.connectionId === connectionId,
+    );
+    if (!isInActiveWorkspace) {
+      return;
+    }
+
     const connections = this.readCurrentConnections();
     delete connections[connectionId];
     this.writeConnections(connections);
   }
 
-  listConnections(): Array<{ connectionId: UUID; connectionName: string }> {
+  listConnections(workspaceId: UUID): Array<{ connectionId: UUID; connectionName: string }> {
     const connections = this.readCurrentConnections();
-    const activeWorkspaceId = this.workspaceStorage?.getActiveWorkspaceId();
     return Object.entries(connections)
       .filter(([_, connection]) =>
-        !activeWorkspaceId ||
-        !connection.workspaceId ||
-        connection.workspaceId === activeWorkspaceId,
+        !connection.workspaceId || connection.workspaceId === workspaceId,
       )
       .map(([connectionId, connection]) => ({
         connectionId: connectionId as UUID,

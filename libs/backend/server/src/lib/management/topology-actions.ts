@@ -51,10 +51,10 @@ const injectConnectionMutationActions = (
 });
 
 const listTopologies = async (
-  body: unknown,
+  body: { workspaceId: UUID },
   connectionManager: ConnectionManager,
 ) => {
-  const connections = connectionManager.listConnections();
+  const connections = connectionManager.listConnections(body.workspaceId);
   const topologies = await Promise.all(
     connections.map(async ({ connectionId, connectionName }) => {
       let node: TopologyNode | undefined;
@@ -93,7 +93,7 @@ const listTopologies = async (
 };
 
 const refreshTopology = async (
-  body: { path: string },
+  body: { path: string; workspaceId: UUID },
   connectionManager: ConnectionManager,
 ) => {
   if (body.path === '/') {
@@ -113,7 +113,7 @@ const refreshTopology = async (
   }
 
   if (topology?.type === 'connection') {
-    const connectionRef = connectionManager.listConnections()
+    const connectionRef = connectionManager.listConnections(body.workspaceId)
       .find((c) => c.connectionId === connectionId);
     const connectionName = connectionRef?.connectionName ?? topology.name;
     topology = injectConnectionMutationActions(topology, connectionId, connectionName);

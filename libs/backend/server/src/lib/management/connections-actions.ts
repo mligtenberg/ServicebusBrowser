@@ -12,26 +12,26 @@ const addConnection = (
 };
 
 const renameConnection = (
-  body: { connectionId: UUID; name: string },
+  body: { connectionId: UUID; name: string; workspaceId?: UUID },
   connectionManager: ConnectionManager,
 ) => {
-  connectionManager.renameConnection(body.connectionId, body.name);
+  connectionManager.renameConnection(body.connectionId, body.name, body.workspaceId);
   return Promise.resolve();
 };
 
 const removeConnection = (
-  body: { connectionId: UUID },
+  body: { connectionId: UUID; workspaceId?: UUID },
   connectionManager: ConnectionManager,
 ) => {
-  connectionManager.removeConnection(body.connectionId);
+  connectionManager.removeConnection(body.connectionId, body.workspaceId);
   return Promise.resolve();
 };
 
 const listConnections = async (
-  body: void,
+  body: { workspaceId: UUID },
   connectionManager: ConnectionManager,
 ) => {
-  return Promise.resolve(connectionManager.listConnections());
+  return Promise.resolve(connectionManager.listConnections(body.workspaceId));
 };
 
 const checkConnection = async (

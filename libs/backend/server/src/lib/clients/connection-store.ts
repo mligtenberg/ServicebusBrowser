@@ -8,9 +8,9 @@ export interface ConnectionStore {
    */
   isReadonly?: boolean;
   addConnection(connection: Connection): void;
-  renameConnection(connectionId: UUID, name: string): void;
-  removeConnection(connectionId: UUID): void;
-  listConnections(): Array<{
+  renameConnection(connectionId: UUID, name: string, workspaceId?: UUID): void;
+  removeConnection(connectionId: UUID, workspaceId?: UUID): void;
+  listConnections(workspaceId: UUID): Array<{
     connectionId: UUID;
     connectionName: string;
   }>;

@@ -19,14 +19,14 @@ export class ConnectionManager {
     this.connectionStore.addConnection(connection);
   }
 
-  renameConnection(connectionId: UUID, name: string) {
-    this.connectionStore.renameConnection(connectionId, name);
+  renameConnection(connectionId: UUID, name: string, workspaceId?: UUID) {
+    this.connectionStore.renameConnection(connectionId, name, workspaceId);
     // Drop any cached client so it is rebuilt with the updated connection.
     this.connectionClients.delete(connectionId);
   }
 
-  removeConnection(connectionId: UUID) {
-    this.connectionStore.removeConnection(connectionId);
+  removeConnection(connectionId: UUID, workspaceId?: UUID) {
+    this.connectionStore.removeConnection(connectionId, workspaceId);
     this.connectionClients.delete(connectionId);
   }
 
@@ -56,7 +56,7 @@ export class ConnectionManager {
     return client;
   }
 
-  listConnections(): { connectionId: UUID; connectionName: string }[] {
-    return this.connectionStore.listConnections();
+  listConnections(workspaceId: UUID): { connectionId: UUID; connectionName: string }[] {
+    return this.connectionStore.listConnections(workspaceId);
   }
 }

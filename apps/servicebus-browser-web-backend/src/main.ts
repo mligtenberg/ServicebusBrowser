@@ -19,7 +19,7 @@ const config = loadConfig(configPath);
 
 const activeWorkspaceHolder = { id: config.workspaces[0].id as UUID };
 
-const connectionStorage = new ReadonlyConfigFileConnectionStorage(config, activeWorkspaceHolder);
+const connectionStorage = new ReadonlyConfigFileConnectionStorage(config);
 const workspaceStore = new ConfigFileWorkspaceStore(config, activeWorkspaceHolder);
 
 const serviceBusBrowserServer = new Server(connectionStorage);

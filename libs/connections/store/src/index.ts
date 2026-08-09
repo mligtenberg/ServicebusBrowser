@@ -13,6 +13,7 @@ import { ManagementFrontendClient } from '@service-bus-browser/service-bus-front
 import { Logger } from '@service-bus-browser/logs-services';
 import { UUID } from '@service-bus-browser/shared-contracts';
 import { TopologyActions } from '@service-bus-browser/topology-store';
+import { WorkspaceService } from '@service-bus-browser/services';
 
 export * as ConnectionsActions from './lib/connections.actions';
 export * as ConnectionsSelectors from './lib/connections.selectors';
@@ -31,6 +32,7 @@ export function provideConnectionsState(): (
 provideActionHandler('connection:rename', async (action) => {
   const promptService = inject(PromptService);
   const managementService = inject(ManagementFrontendClient);
+  const workspaceService = inject(WorkspaceService);
   const logger = inject(Logger);
   const store = inject(Store);
 
@@ -53,7 +55,11 @@ provideActionHandler('connection:rename', async (action) => {
     return;
   }
 
-  await managementService.renameConnection(connectionId as UUID, newName);
+  await managementService.renameConnection(
+    connectionId as UUID,
+    newName,
+    workspaceService.activeWorkspace()?.id,
+  );
   logger.info(`Connection "${currentName}" has been renamed to "${newName}"`);
 
   store.dispatch(TopologyActions.loadTopologyRootNodes());
@@ -62,6 +68,7 @@ provideActionHandler('connection:rename', async (action) => {
 provideActionHandler('connection:delete', async (action) => {
   const confirmService = inject(ConfirmationService);
   const managementService = inject(ManagementFrontendClient);
+  const workspaceService = inject(WorkspaceService);
   const logger = inject(Logger);
   const store = inject(Store);
 
@@ -81,7 +88,10 @@ provideActionHandler('connection:delete', async (action) => {
     return;
   }
 
-  await managementService.removeConnection(connectionId as UUID);
+  await managementService.removeConnection(
+    connectionId as UUID,
+    workspaceService.activeWorkspace()?.id,
+  );
   logger.info(`Connection ${connectionName} has been removed`);
 
   store.dispatch(TopologyActions.loadTopologyRootNodes());

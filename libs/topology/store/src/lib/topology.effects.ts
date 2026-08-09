@@ -8,6 +8,7 @@ import {
 } from './topology.actions';
 import { catchError, from, map, switchMap } from 'rxjs';
 import { ManagementFrontendClient } from '@service-bus-browser/service-bus-frontend-clients';
+import { WorkspaceService } from '@service-bus-browser/services';
 import {
   topologyRefreshed,
   topologyRefreshFailed,
@@ -20,12 +21,23 @@ import {
 export class TopologyEffects {
   actions$ = inject(Actions);
   serviceBusClient = inject(ManagementFrontendClient);
+  workspaceService = inject(WorkspaceService);
+
+  private requireActiveWorkspaceId() {
+    const workspaceId = this.workspaceService.activeWorkspace()?.id;
+    if (!workspaceId) {
+      throw new Error('Cannot load topology without an active workspace');
+    }
+    return workspaceId;
+  }
 
   loadTopology$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadTopologyRootNodes),
       switchMap(() => {
-        return from(this.serviceBusClient.listTopologies()).pipe(
+        return from(
+          this.serviceBusClient.listTopologies(this.requireActiveWorkspaceId()),
+        ).pipe(
           map((topologies) => topologyRootNodesLoaded({ nodes: topologies })),
         );
       }),
@@ -36,7 +48,9 @@ export class TopologyEffects {
     this.actions$.pipe(
       ofType(refreshTopology),
       switchMap(({ path }) => {
-        return from(this.serviceBusClient.refreshTopology(path)).pipe(
+        return from(
+          this.serviceBusClient.refreshTopology(path, this.requireActiveWorkspaceId()),
+        ).pipe(
           map((topology) =>
             topologyRefreshed({
               path: path,
