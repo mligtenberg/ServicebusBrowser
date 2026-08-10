@@ -4,10 +4,18 @@ import App from '../app';
 import { WorkspaceStorage } from './secure-storage/workspace-storage';
 import {
   findWindowForWorkspace,
+  setActivePageForWindow,
   setActiveWorkspaceForWindow,
 } from './workspace-window-registry';
 
 let server: WorkspacesServer | undefined;
+
+export function getWorkspacesServer(): WorkspacesServer {
+  if (!server) {
+    throw new Error('Workspaces server not initialized');
+  }
+  return server;
+}
 
 export default class WorkspaceEvents {
   static bootstrapWorkspaceEvents(): void {
@@ -35,6 +43,19 @@ ipcMain.on(
     const window = BrowserWindow.fromWebContents(event.sender);
     if (window) {
       setActiveWorkspaceForWindow(window.id, workspaceId);
+    }
+  },
+);
+
+// The renderer reports its active Message Page (or null) on every
+// navigation, mirroring report-active above — this is what backs the
+// get_active_page MCP tool without a live query round trip to the window.
+ipcMain.on(
+  'workspace-window:report-active-page',
+  (event, page: { pageId: string; pageName: string } | null) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window) {
+      setActivePageForWindow(window.id, page);
     }
   },
 );

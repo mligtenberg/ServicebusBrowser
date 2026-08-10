@@ -44,6 +44,7 @@ jobs:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
       - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-headless:build:production
       - run: pnpm exec nx run servicebus-browser-app:build:production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -77,6 +78,7 @@ jobs:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
       - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-headless:build:production
       - run: pnpm exec nx run servicebus-browser-app:build:production
       - run: pnpm exec nx run servicebus-browser-app:make --extraMetadata.version=${{ github.event.inputs.tagVersion }}
       - name: Publish release as artifect
@@ -109,6 +111,7 @@ jobs:
           TAG_VERSION: ${{ github.event.inputs.tagVersion }}
         run: pnpm run patch-files
       - run: pnpm exec nx run servicebus-browser-frontend:build:production
+      - run: pnpm exec nx run servicebus-browser-headless:build:production
       - run: pnpm exec nx run servicebus-browser-app:build:production
       - name: Build executable
         env:

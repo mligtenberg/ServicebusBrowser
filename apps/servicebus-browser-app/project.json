@@ -47,6 +47,7 @@
       "options": {
         "name": "servicebus-browser-app",
         "frontendProject": "servicebus-browser-frontend",
+        "extraProjects": ["servicebus-browser-headless/browser"],
         "sourcePath": "dist/apps",
         "outputPath": "dist/packages",
         "prepackageOnly": true
@@ -57,6 +58,7 @@
       "options": {
         "name": "servicebus-browser-app",
         "frontendProject": "servicebus-browser-frontend",
+        "extraProjects": ["servicebus-browser-headless/browser"],
         "sourcePath": "dist/apps",
         "outputPath": "dist/executables"
       },

@@ -1,17 +1,20 @@
 import { Component, computed, DestroyRef, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { MainUiComponent } from '@service-bus-browser/main-ui';
+import { MainUiComponent, selectActivePage } from '@service-bus-browser/main-ui';
 import {
   ColorThemeService,
   MessagePreferencesService,
   openAddConnectionPopup,
+  openMcpSettingsPopup,
   WorkspaceService,
 } from '@service-bus-browser/services';
 import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
 import { messagesActions } from '@service-bus-browser/messages-store';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { Store } from '@ngrx/store';
+import { distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
 import { WorkspaceSwitchService } from '../workspace-switch.service';
@@ -26,6 +29,8 @@ interface ElectronWindow {
     platform?: string;
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
     checkForUpdates?: () => Promise<void>;
+    onNavigateToTopologyPath?: (callback: (path: string) => void) => void;
+    reportActivePage?: (page: { pageId: string; pageName: string } | null) => void;
   };
 }
 
@@ -150,6 +155,11 @@ export class MainShell {
             onSelect: () => this.electron?.checkForUpdates?.(),
           },
           {
+            label: 'MCP Server',
+            icon: 'fa-solid fa-plug',
+            onSelect: () => openMcpSettingsPopup(this.router, this.location),
+          },
+          {
             label: 'About',
             icon: 'fa-solid fa-circle-info',
             onSelect: () => this.router.navigateByUrl('/about'),
@@ -163,6 +173,37 @@ export class MainShell {
     this.electron?.onFullScreenChanged?.((full) => {
       this.fullscreen.set(full);
     });
+
+    // MCP's navigate_to_topology_node tool (ADR-0010) only opens the
+    // management page today — there's no in-tree "select and expand to this
+    // path" state to hook into yet, so we surface the requested path via a
+    // toast instead of pretending to focus a specific node.
+    this.electron?.onNavigateToTopologyPath?.((path) => {
+      this.router.navigateByUrl(
+        this.workspaceService.workspaceUrl('/manage-service-bus'),
+      );
+      this.toasts.show({
+        severity: 'info',
+        summary: 'Opened topology',
+        detail: path,
+      });
+    });
+
+    // Backs the MCP get_active_page tool: main has no way to observe a
+    // window's live Angular Router state on its own, so push it whenever
+    // the active Message Page changes — the same pattern
+    // workspace-window:report-active already uses for the active workspace.
+    this.store
+      .select(selectActivePage)
+      .pipe(
+        distinctUntilChanged((a, b) => a?.id === b?.id),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((page) => {
+        this.electron?.reportActivePage?.(
+          page ? { pageId: page.id, pageName: page.name } : null,
+        );
+      });
 
     const channel = new BroadcastChannel('connections');
     channel.addEventListener('message', (event) => {

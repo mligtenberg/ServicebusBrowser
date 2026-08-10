@@ -5,8 +5,14 @@ import {
   Menu,
   nativeTheme,
   protocol,
+  Tray,
+  nativeImage,
 } from 'electron';
-import { rendererAppName, rendererAppPort } from './constants';
+import {
+  headlessRendererAppName,
+  rendererAppName,
+  rendererAppPort,
+} from './constants';
 import { environment } from '../environments/environment';
 import path, { join } from 'path';
 import { getMenu } from './menu';
@@ -24,6 +30,12 @@ export default class App {
   static application: Electron.App;
   static BrowserWindow: typeof BrowserWindow | null = null;
 
+  // Set only while the MCP server (ADR-0010/0011) is enabled — its presence
+  // is what keeps the app running (and shows a tray icon) after the last
+  // window closes, since a hidden query window may still need to exist.
+  private static tray: Electron.Tray | null = null;
+  private static mcpEnabled = false;
+
   public static isDevelopmentMode() {
     const isEnvironmentSet: boolean = 'ELECTRON_IS_DEV' in process.env;
     const getFromEnvironment: boolean =
@@ -33,9 +45,64 @@ export default class App {
   }
 
   private static onWindowAllClosed() {
+    if (App.mcpEnabled) {
+      // A hidden query window (ADR-0011) may still need to exist, and the
+      // tray icon is the only way back in — don't quit like normal.
+      return;
+    }
     if (process.platform !== 'darwin') {
       App.application.quit();
     }
+  }
+
+  /**
+   * Called whenever the MCP enabled setting changes (including at boot).
+   * Shows/hides the tray icon that keeps the app reachable when every
+   * window is closed while MCP is enabled.
+   */
+  static setMcpEnabled(enabled: boolean, onRegenerateToken: () => void): void {
+    App.mcpEnabled = enabled;
+
+    if (!enabled) {
+      App.tray?.destroy();
+      App.tray = null;
+      return;
+    }
+
+    if (App.tray) {
+      return;
+    }
+
+    // macOS menu-bar icons must be "template" images (solid black + alpha)
+    // so the OS can recolor them for the light/dark menu bar; Windows/Linux
+    // tray icons render as-is, so they get a colored dot instead. Electron
+    // auto-picks up the sibling "@2x" file for retina displays as long as
+    // it sits next to the base filename.
+    const iconFile =
+      process.platform === 'darwin' ? 'tray-iconTemplate.png' : 'tray-icon.png';
+    const iconPath = join(__dirname, 'assets', 'tray', iconFile);
+    const trayIcon = nativeImage.createFromPath(iconPath);
+    trayIcon.setTemplateImage(process.platform === 'darwin');
+    App.tray = new Tray(trayIcon);
+    App.tray.setToolTip(`${App.application.name} (MCP server running)`);
+    App.tray.setContextMenu(
+      Menu.buildFromTemplate([
+        {
+          label: 'Open',
+          click: () => {
+            if (App.mainWindow) {
+              if (App.mainWindow.isMinimized()) App.mainWindow.restore();
+              App.mainWindow.focus();
+            } else {
+              App.initWindow();
+            }
+          },
+        },
+        { label: 'Regenerate MCP Token', click: onRegenerateToken },
+        { type: 'separator' },
+        { label: 'Quit', click: () => App.application.quit() },
+      ]),
+    );
   }
 
   private static onClose() {
@@ -145,7 +212,20 @@ export default class App {
         );
         return await this.loadFromDevServer(externalRequest);
       } else {
-        return await this.loadFromDisk(request);
+        // The headless per-Workspace renderer (ADR-0011) is served from the
+        // same `app://` origin as the main renderer under a `/headless`
+        // path prefix, not a scheme of its own — OPFS is origin-scoped, so
+        // the two renderers must share an origin or the headless one would
+        // see an empty OPFS. Route by path instead.
+        const { pathname, search } = new URL(request.url);
+        if (pathname === '/headless' || pathname.startsWith('/headless/')) {
+          const strippedRequest = new Request(
+            `app://localhost${pathname.slice('/headless'.length) || '/'}${search}`,
+            request,
+          );
+          return await this.loadFromDisk(strippedRequest, headlessRendererAppName);
+        }
+        return await this.loadFromDisk(request, rendererAppName);
       }
     });
   }
@@ -154,8 +234,8 @@ export default class App {
     return fetch(request);
   }
 
-  private static async loadFromDisk(request: Request) {
-    const rendererRoot = join(__dirname, '..', rendererAppName);
+  private static async loadFromDisk(request: Request, rendererAppRoot: string) {
+    const rendererRoot = join(__dirname, '..', rendererAppRoot);
     const requestUrl = new URL(request.url);
     const rawPath = decodeURIComponent(requestUrl.pathname);
     const normalizedPath = path.normalize(rawPath).replace(/^([/\\])+/, '');

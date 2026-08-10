@@ -1,0 +1,73 @@
+{
+  "name": "servicebus-browser-headless",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/servicebus-browser-headless/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/servicebus-browser-headless",
+        "index": "apps/servicebus-browser-headless/src/index.html",
+        "browser": "apps/servicebus-browser-headless/src/main.ts",
+        "polyfills": [],
+        "tsConfig": "apps/servicebus-browser-headless/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
+            "output": ""
+          },
+          {
+            "glob": "**/*",
+            "input": "sqlite",
+            "output": ""
+          }
+        ],
+        "styles": ["apps/servicebus-browser-headless/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "servicebus-browser-headless:build:production"
+        },
+        "development": {
+          "buildTarget": "servicebus-browser-headless:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4202,
+        "servePath": "/headless/",
+        "prebundle": {
+          "exclude": ["@sqlite.org/sqlite-wasm"]
+        },
+        "headers": {
+          "Cross-Origin-Opener-Policy": "same-origin",
+          "Cross-Origin-Embedder-Policy": "require-corp"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

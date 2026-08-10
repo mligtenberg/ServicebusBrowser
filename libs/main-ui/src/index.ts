@@ -10,6 +10,7 @@ export * from './lib/main-ui/main-ui';
 export * from './lib/about/about.component';
 export * from './lib/home/home.component';
 export { pagesActions } from './lib/ngrx/route.actions';
+export { selectActivePage } from './lib/ngrx/route.selectors';
 export { recentPagesActions } from './lib/ngrx/recent-pages.actions';
 export { selectRecentPages } from './lib/ngrx/recent-pages.selectors';
 export type { RecentPageItem } from './lib/ngrx/recent-pages.model';

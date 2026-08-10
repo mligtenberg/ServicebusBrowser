@@ -6,6 +6,14 @@ import { registerIntegratedAuth } from './integrated-auth';
 import App from '../app';
 
 let server: Server | undefined = undefined;
+
+export function getServer(): Server {
+  if (!server) {
+    throw new Error('Server not initialized');
+  }
+  return server;
+}
+
 export default class ServiceBusEvents {
   static bootstrapServiceBusEvents(): Electron.IpcMain {
     const userDataPath = App.application.getPath('userData');

@@ -3,6 +3,12 @@ import { MessagesRepository } from './lib/messages-repository';
 import { getPagesDb, initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles, switchDatabaseWorkspace } from './lib/get-database';
 
 export { initializeWorkspace, getActiveWorkspaceId, migrateOpfsFiles };
+export { MessagesRepository } from './lib/messages-repository';
+export { queryMessagePageReadOnly } from './lib/readonly-query';
+export type { RawMessagePageQueryResult } from './lib/readonly-query';
+export { describeMessagePage } from './lib/describe-message-page';
+export type { MessagePageSchema } from './lib/describe-message-page';
+export type { Page } from './lib/models/page';
 
 let repositoryPromise: Promise<MessagesRepository> | undefined;
 

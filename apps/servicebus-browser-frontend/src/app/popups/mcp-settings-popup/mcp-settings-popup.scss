@@ -1,0 +1,33 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.heading {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: normal;
+  margin: 0 0 0.5rem 0;
+  color: var(--sbb-primary-text);
+}
+
+section {
+  margin: 0 0 1rem 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.snippet {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin: 1rem 0 0 0;
+}

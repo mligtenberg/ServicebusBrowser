@@ -50,6 +50,17 @@ Build the Angular frontend project with production optimizations. This generates
 pnpm exec nx run servicebus-browser-frontend:build:production
 ```
 
+#### Step B.1: Build the Headless Renderer
+
+Build the hidden per-Workspace renderer (ADR-0011) that backs the MCP Message
+Page query tools (ADR-0012). `servicebus-browser-app:package`/`make` copy its
+output in via the `extraProjects` option — skipping this step leaves the
+`app://localhost/headless` path with nothing to serve in a packaged build.
+
+```bash
+pnpm exec nx run servicebus-browser-headless:build:production
+```
+
 #### Step C: Build the Electron App
 
 Compile the Electron main process and prepare the application structure.

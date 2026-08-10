@@ -44,6 +44,14 @@ export const appRoutes: Route[] = [
           },
         ],
       },
+      {
+        path: 'mcp-settings',
+        loadComponent: () =>
+          import('./popups/mcp-settings-popup/mcp-settings-popup').then(
+            (m) => m.McpSettingsPopupComponent,
+          ),
+        data: { popup: true },
+      },
     ],
   },
   {

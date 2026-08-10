@@ -5,6 +5,7 @@ import App from './app/app';
 import ServiceBusEvents from './app/events/service-bus.events';
 import WorkspaceEvents from './app/events/workspace.events';
 import UpdateEvents from './app/events/update.events';
+import McpEvents from './app/events/mcp.events';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { electronAppInternalName } from './app/constants';
@@ -84,6 +85,17 @@ export default class Main {
 
     // initialize auto updater service
     UpdateEvents.initAutoUpdateService();
+
+    // Starts the MCP server (ADR-0010) if it was left enabled in settings.
+    // Must wait for 'ready': when MCP was already enabled in a previous
+    // session, applySettings() -> App.setMcpEnabled() creates a Tray icon,
+    // and Electron throws if a Tray is created before the app is ready.
+    // bootstrapAppEvents() runs synchronously at module load, well before
+    // 'ready' fires, so that throw used to abort applySettings() before it
+    // ever reached mcpServerHost.start() — MCP looked enabled in settings,
+    // but nothing was actually listening until the user re-toggled it from
+    // the running (and by then definitely ready) app.
+    void app.whenReady().then(() => McpEvents.bootstrapMcpEvents());
   }
 }
 

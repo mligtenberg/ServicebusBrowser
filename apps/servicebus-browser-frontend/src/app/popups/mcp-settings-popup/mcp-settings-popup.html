@@ -1,0 +1,46 @@
+<main class="page-container">
+  <h2 class="page-title">MCP Server</h2>
+
+  @if (!loading()) {
+    <div role="form">
+      <section class="enable-row">
+        <sbb-checkbox
+          label="Enable MCP server"
+          [ngModel]="enabled()"
+          [disabled]="busy()"
+          (ngModelChange)="toggleEnabled($event)"
+        />
+      </section>
+
+      <section class="port">
+        <label for="mcpPort" class="heading">Port (127.0.0.1)</label>
+        <sbb-input-number
+          inputId="mcpPort"
+          [disabled]="busy()"
+          [ngModel]="port()"
+          (ngModelChange)="savePort($event)"
+        />
+      </section>
+
+      @if (enabled()) {
+        <section class="snippet">
+          <label for="mcpSnippet" class="heading">MCP client config</label>
+          <sbb-textarea inputId="mcpSnippet" class="full-width" [rows]="10" [ngModel]="snippet()" />
+          <sbb-button severity="secondary" type="button" (click)="copySnippet()">
+            {{ copied() ? 'Copied!' : 'Copy' }}
+          </sbb-button>
+        </section>
+
+        <section class="token">
+          <sbb-button severity="secondary" type="button" [disabled]="busy()" (click)="regenerateToken()">
+            Regenerate token
+          </sbb-button>
+        </section>
+      }
+
+      <section class="actions">
+        <sbb-button severity="secondary" type="button" (click)="close()">Close</sbb-button>
+      </section>
+    </div>
+  }
+</main>
