@@ -16,4 +16,6 @@ export type MessagesReader = {
     receiveEndpoint: ReceiveEndpoint,
     continuationToken: string,
   ): Promise<void>;
+  /** Closes any connections cached for later reuse, e.g. when the underlying connection config changes. */
+  dispose?(): Promise<void>;
 };

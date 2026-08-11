@@ -20,6 +20,7 @@ import {
 import { withRabbitMqTransportFallback } from './internal/websocket-fallback';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 import { RabbitMqManagementClient } from './rabbitmq-management-client';
+import { IdleTimeoutConnectionCache } from '@service-bus-browser/backend-connection-cache';
 
 type ContinuationTokenBody = {
   alreadyLoadedAmountOfMessages: number;
@@ -29,8 +30,48 @@ type ContinuationTokenBody = {
   usedTransport?: RabbitMqTransport;
 };
 
+// Keeps the underlying AMQP connection warm between pages so paging through a
+// queue doesn't pay the connection-setup cost on every request. Idle timer
+// resets on every use, so a connection is only closed after a minute of
+// inactivity.
+const CONNECTION_IDLE_TIMEOUT_MS = 60_000;
+
 export class RabbitMqMessagesReader implements MessagesReader {
+  private readonly connectionCache = new IdleTimeoutConnectionCache<
+    string,
+    Connection
+  >({
+    idleTimeoutMs: CONNECTION_IDLE_TIMEOUT_MS,
+    createConnection: (key) => this.createConnection(key),
+    disposeConnection: (connection) => connection.close(),
+  });
+
   constructor(private readonly connection: RabbitMqConnection) {}
+
+  /** Closes any cached connection immediately, e.g. when the connection config changes. */
+  async dispose(): Promise<void> {
+    await this.connectionCache.clear();
+  }
+
+  private cacheKey(vhostName: string | undefined, transport: RabbitMqTransport): string {
+    return `${vhostName ?? ''} ${transport}`;
+  }
+
+  private async createConnection(cacheKey: string): Promise<Connection> {
+    const [vhostName, transport] = cacheKey.split(' ') as [
+      string,
+      RabbitMqTransport,
+    ];
+    const client = new Connection(
+      getConnectionOptions(
+        this.connection,
+        vhostName === '' ? undefined : vhostName,
+        transport,
+      ),
+    );
+    await client.open();
+    return client;
+  }
 
   async receiveMessages(
     receiveEndpoint: ReceiveEndpoint,
@@ -247,26 +288,20 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
     const messages = await withRabbitMqTransportFallback(
       (transport) =>
-        new Connection(
-          getConnectionOptions(this.connection, endpoint.vhostName, transport),
-        ),
-      async (client, transport) => {
-        try {
-          await client.open();
-          const receiver = await client.createReceiver({
-            ...this.getReceiverOptions(endpoint, {}),
-            autoaccept: false,
-            credit_window: 0,
-          });
+        this.connectionCache.get(this.cacheKey(endpoint.vhostName, transport)),
+      async (clientPromise, transport) => {
+        const client = await clientPromise;
+        const receiver = await client.createReceiver({
+          ...this.getReceiverOptions(endpoint, {}),
+          autoaccept: false,
+          credit_window: 0,
+        });
 
-          const collected = await this.collectMessages(receiver, maxAmount, 150);
-          await Promise.all(collected.map((m) => m.delivery?.accept()));
-          await receiver.close();
-          usedTransport = transport;
-          return collected;
-        } finally {
-          await client.close().catch(() => undefined);
-        }
+        const collected = await this.collectMessages(receiver, maxAmount, 150);
+        await Promise.all(collected.map((m) => m.delivery?.accept()));
+        await receiver.close();
+        usedTransport = transport;
+        return collected;
       },
       { forceTransport },
     );
@@ -306,50 +341,45 @@ export class RabbitMqMessagesReader implements MessagesReader {
 
     const messages = await withRabbitMqTransportFallback(
       (transport) =>
-        new Connection(
-          getConnectionOptions(
-            this.connection,
+        this.connectionCache.get(
+          this.cacheKey(
             receiveEndpoint.target === 'rabbitmq'
               ? receiveEndpoint.vhostName
               : undefined,
             transport,
           ),
         ),
-      async (client, transport) => {
-        try {
-          await client.open();
-          const receiver = await client.createReceiver({
-            ...this.getReceiverOptions(receiveEndpoint, {
-              streamOffset: tokenBody.streamOffset,
-            }),
-            autoaccept: false,
-            credit_window: 0,
-          });
+      async (clientPromise, transport) => {
+        const client = await clientPromise;
+        const receiver = await client.createReceiver({
+          ...this.getReceiverOptions(receiveEndpoint, {
+            streamOffset: tokenBody.streamOffset,
+          }),
+          autoaccept: false,
+          credit_window: 0,
+        });
 
-          const collected = await this.collectMessages(
-            receiver,
-            currentMaxAmountOfMessagesToReceive,
-            waitTimeInMs,
+        const collected = await this.collectMessages(
+          receiver,
+          currentMaxAmountOfMessagesToReceive,
+          waitTimeInMs,
+        );
+        if (
+          options.receiveMode !== 'peek' &&
+          !this.isStreamEndpoint(receiveEndpoint)
+        ) {
+          await Promise.all(
+            collected.map((message) => message.delivery?.accept()),
           );
-          if (
-            options.receiveMode !== 'peek' &&
-            !this.isStreamEndpoint(receiveEndpoint)
-          ) {
-            await Promise.all(
-              collected.map((message) => message.delivery?.accept()),
-            );
-          } else {
-            await Promise.all(
-              collected.map((message) => message.delivery?.release()),
-            );
-          }
-
-          await receiver.close();
-          usedTransport = transport;
-          return collected;
-        } finally {
-          await client.close().catch(() => undefined);
+        } else {
+          await Promise.all(
+            collected.map((message) => message.delivery?.release()),
+          );
         }
+
+        await receiver.close();
+        usedTransport = transport;
+        return collected;
       },
       { forceTransport: tokenBody.usedTransport },
     );

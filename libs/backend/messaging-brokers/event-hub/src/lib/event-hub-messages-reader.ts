@@ -16,6 +16,7 @@ import {
 import { getCredential } from './internal/credential-helper';
 import { sequenceNumberToKey } from './internal/sequence-number-to-key';
 import { withAmqpWebSocketFallback } from './internal/websocket-fallback';
+import { IdleTimeoutConnectionCache } from '@service-bus-browser/backend-connection-cache';
 
 type ContinuationTokenBody = {
   partitionOffsets: Record<string, string>;
@@ -25,8 +26,51 @@ type ContinuationTokenBody = {
   usedWebSocket?: boolean;
 };
 
+// Keeps the underlying AMQP connection warm between pages so paging through a
+// partition doesn't pay the connection-setup cost on every request. Idle timer
+// resets on every use, so a connection is only closed after a minute of
+// inactivity.
+const CONNECTION_IDLE_TIMEOUT_MS = 60_000;
+
 export class EventHubMessagesReader implements MessagesReader {
+  private readonly clientCache = new IdleTimeoutConnectionCache<
+    string,
+    EventHubConsumerClient
+  >({
+    idleTimeoutMs: CONNECTION_IDLE_TIMEOUT_MS,
+    createConnection: (key) => this.createClient(key),
+    disposeConnection: (client) => client.close(),
+  });
+
   constructor(private connection: EventHubConnection) {}
+
+  /** Closes any cached connection immediately, e.g. when the connection config changes. */
+  async dispose(): Promise<void> {
+    await this.clientCache.clear();
+  }
+
+  private cacheKey(
+    consumerGroup: string,
+    eventHubName: string,
+    useWebSocket: boolean,
+  ): string {
+    return `${consumerGroup} ${eventHubName} ${useWebSocket}`;
+  }
+
+  private createClient(cacheKey: string): EventHubConsumerClient {
+    const [consumerGroup, eventHubName, useWebSocketFlag] =
+      cacheKey.split(' ');
+    const auth = getCredential(this.connection);
+    return new EventHubConsumerClient(
+      consumerGroup,
+      auth.hostName,
+      eventHubName,
+      auth.credential,
+      useWebSocketFlag === 'true'
+        ? { webSocketOptions: { webSocket: WebSocket } }
+        : undefined,
+    );
+  }
 
   async receiveMessages(
     receiveEndpoint: ReceiveEndpoint,
@@ -48,96 +92,89 @@ export class EventHubMessagesReader implements MessagesReader {
       return { messages: [] };
     }
 
-    const auth = getCredential(this.connection);
-
     return withAmqpWebSocketFallback(
       (useWebSocket) =>
-        new EventHubConsumerClient(
-          receiveEndpoint.consumerGroup,
-          auth.hostName,
-          receiveEndpoint.eventHubName,
-          auth.credential,
-          useWebSocket
-            ? { webSocketOptions: { webSocket: WebSocket } }
-            : undefined,
+        this.clientCache.get(
+          this.cacheKey(
+            receiveEndpoint.consumerGroup,
+            receiveEndpoint.eventHubName,
+            useWebSocket,
+          ),
         ),
-      async (client, useWebSocket) => {
-        try {
-          tokenBody.usedWebSocket = useWebSocket;
-          const partitionIds = await client.getPartitionIds();
-          const activePartitionIds = partitionIds.filter(
-            (id) => !tokenBody.exhaustedPartitions.includes(id),
-          );
-          const perPartitionMax = Math.max(
-            1,
-            Math.ceil(
-              remainingMessages / Math.max(1, activePartitionIds.length),
-            ),
-          );
+      async (clientPromise, useWebSocket) => {
+        const client = await clientPromise;
+        tokenBody.usedWebSocket = useWebSocket;
+        const partitionIds = await client.getPartitionIds();
+        const activePartitionIds = partitionIds.filter(
+          (id) => !tokenBody.exhaustedPartitions.includes(id),
+        );
+        const perPartitionMax = Math.max(
+          1,
+          Math.ceil(
+            remainingMessages / Math.max(1, activePartitionIds.length),
+          ),
+        );
 
-          const allMessages: ReceivedMessage[] = [];
+        const allMessages: ReceivedMessage[] = [];
 
-          for (const partitionId of activePartitionIds) {
-            const remainingForCurrentRead =
-              remainingMessages - allMessages.length;
-            if (remainingForCurrentRead <= 0) {
-              break;
-            }
-
-            const requestedCount = Math.min(
-              perPartitionMax,
-              remainingForCurrentRead,
-            );
-            const startingPosition = this.resolveStartingPosition(
-              partitionId,
-              tokenBody,
-              fromSequenceNumber,
-            );
-
-            const events = await this.readFromPartition(
-              client,
-              partitionId,
-              requestedCount,
-              startingPosition,
-            );
-
-            for (const event of events) {
-              allMessages.push(this.mapReceivedEvent(event, partitionId));
-              tokenBody.partitionOffsets[partitionId] = event.offset;
-            }
-
-            if (events.length === 0) {
-              const zeroCount =
-                (tokenBody.partitionZeroCount[partitionId] ?? 0) + 1;
-              tokenBody.partitionZeroCount[partitionId] = zeroCount;
-              if (zeroCount >= 3) {
-                tokenBody.exhaustedPartitions.push(partitionId);
-              }
-            } else {
-              tokenBody.partitionZeroCount[partitionId] = 0;
-            }
+        for (const partitionId of activePartitionIds) {
+          const remainingForCurrentRead =
+            remainingMessages - allMessages.length;
+          if (remainingForCurrentRead <= 0) {
+            break;
           }
 
-          tokenBody.alreadyLoadedAmountOfMessages += allMessages.length;
-
-          const allPartitionsExhausted = partitionIds.every((id) =>
-            tokenBody.exhaustedPartitions.includes(id),
+          const requestedCount = Math.min(
+            perPartitionMax,
+            remainingForCurrentRead,
           );
-          const shouldReturnContinuationToken =
-            allMessages.length > 0 &&
-            tokenBody.alreadyLoadedAmountOfMessages < maxMessages &&
-            !allPartitionsExhausted;
-          const newContinuationToken = shouldReturnContinuationToken
-            ? this.makeContinuationToken(tokenBody)
-            : undefined;
+          const startingPosition = this.resolveStartingPosition(
+            partitionId,
+            tokenBody,
+            fromSequenceNumber,
+          );
 
-          return {
-            messages: allMessages,
-            continuationToken: newContinuationToken,
-          };
-        } finally {
-          await client.close();
+          const events = await this.readFromPartition(
+            client,
+            partitionId,
+            requestedCount,
+            startingPosition,
+          );
+
+          for (const event of events) {
+            allMessages.push(this.mapReceivedEvent(event, partitionId));
+            tokenBody.partitionOffsets[partitionId] = event.offset;
+          }
+
+          if (events.length === 0) {
+            const zeroCount =
+              (tokenBody.partitionZeroCount[partitionId] ?? 0) + 1;
+            tokenBody.partitionZeroCount[partitionId] = zeroCount;
+            if (zeroCount >= 3) {
+              tokenBody.exhaustedPartitions.push(partitionId);
+            }
+          } else {
+            tokenBody.partitionZeroCount[partitionId] = 0;
+          }
         }
+
+        tokenBody.alreadyLoadedAmountOfMessages += allMessages.length;
+
+        const allPartitionsExhausted = partitionIds.every((id) =>
+          tokenBody.exhaustedPartitions.includes(id),
+        );
+        const shouldReturnContinuationToken =
+          allMessages.length > 0 &&
+          tokenBody.alreadyLoadedAmountOfMessages < maxMessages &&
+          !allPartitionsExhausted;
+        const newContinuationToken = shouldReturnContinuationToken
+          ? this.makeContinuationToken(tokenBody)
+          : undefined;
+
+        return {
+          messages: allMessages,
+          continuationToken: newContinuationToken,
+        };
       },
       { forceWebSocket: tokenBody.usedWebSocket },
     );

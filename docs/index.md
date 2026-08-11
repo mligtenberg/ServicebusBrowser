@@ -16,6 +16,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Event Hub Namespace REST Authentication](./event-hub-namespace-rest-auth.md): SAS token generation and API versioning for Event Hub namespace management calls.
 - [Integrated Authentication](./integrated-authentication.md): Interactive Azure sign-in (popup) for Service Bus/Event Hub in the desktop app, using the Azure CLI client id with per-email MSAL token-cache reuse.
 - [Messages Reader Continuation Token Behavior](./messages-reader-continuation-token-behavior.md): Cross-broker continuation-token rules to stop message loading exactly at requested limits.
+- [Broker Connection Caching](./broker-connection-caching.md): `IdleTimeoutConnectionCache` keeps each broker's connection warm across paged reads for 60s of inactivity instead of reconnecting per page.
 - [Web Backend Config Format](./web-config-format.md): Versioned workspace+connection config file consumed by the web backend, legacy auto-migration, and validation rules.
 - [Storybook Component Workbench](./storybook.md): Single Storybook host (`storybook-host`, Vite builder) for the presentational UI layer — addressable story URLs, theming, and the `build-storybook` type/AOT gate.
 - [Workspace Lifecycle and NgRx Effects Timing](./workspace-lifecycle-and-ngrx-effects.md): Why effects register before app initializers finish, the `workspaceActivated` action pattern for workspace-dependent startup work, and how tab (page) order persistence works.

@@ -16,6 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@service-bus-browser/backend-connection-cache": [
+        "libs/backend/util/connection-cache/src/index.ts"
+      ],
       "@service-bus-browser/connections-flow": [
         "libs/connections/flow/src/index.ts"
       ],

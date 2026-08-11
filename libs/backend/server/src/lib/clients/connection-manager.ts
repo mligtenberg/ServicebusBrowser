@@ -22,12 +22,18 @@ export class ConnectionManager {
   renameConnection(connectionId: UUID, name: string, workspaceId?: UUID) {
     this.connectionStore.renameConnection(connectionId, name, workspaceId);
     // Drop any cached client so it is rebuilt with the updated connection.
-    this.connectionClients.delete(connectionId);
+    this.disposeConnectionClient(connectionId);
   }
 
   removeConnection(connectionId: UUID, workspaceId?: UUID) {
     this.connectionStore.removeConnection(connectionId, workspaceId);
+    this.disposeConnectionClient(connectionId);
+  }
+
+  private disposeConnectionClient(connectionId: UUID) {
+    const client = this.connectionClients.get(connectionId);
     this.connectionClients.delete(connectionId);
+    void client?.dispose();
   }
 
   getConnection(options: { id: UUID }) {

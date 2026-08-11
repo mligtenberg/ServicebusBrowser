@@ -50,6 +50,11 @@ export class ConnectionClient {
     return this.connectionValidator;
   }
 
+  /** Closes any connections cached by this client's readers, e.g. before it is evicted. */
+  async dispose(): Promise<void> {
+    await this.messagesReader?.dispose?.();
+  }
+
   private _getTopologyClient(): TopologyProvider | undefined {
     if (this.connection.target === 'serviceBus') {
       return new ServiceBusTopologyProvider(this.connection);
