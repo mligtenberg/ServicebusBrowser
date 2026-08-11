@@ -15,6 +15,14 @@ const workspaceByWindowId = new Map<number, string>();
  */
 const activePageByWindowId = new Map<number, { pageId: string; pageName: string } | null>();
 
+/**
+ * Tracks the message key currently selected in each open app window's
+ * Message Page grid, if any — reported by the renderer on every selection
+ * change (same push pattern as `activePageByWindowId`). Backs the
+ * `get_selected_message` MCP tool.
+ */
+const selectedMessageKeyByWindowId = new Map<number, string | null>();
+
 export function setActiveWorkspaceForWindow(
   windowId: number,
   workspaceId: string,
@@ -39,9 +47,23 @@ export function getActivePageForWindow(
   return activePageByWindowId.get(windowId) ?? null;
 }
 
+export function setSelectedMessageKeyForWindow(
+  windowId: number,
+  messageKey: string | null,
+): void {
+  selectedMessageKeyByWindowId.set(windowId, messageKey);
+}
+
+export function getSelectedMessageKeyForWindow(
+  windowId: number,
+): string | null {
+  return selectedMessageKeyByWindowId.get(windowId) ?? null;
+}
+
 export function forgetWindow(windowId: number): void {
   workspaceByWindowId.delete(windowId);
   activePageByWindowId.delete(windowId);
+  selectedMessageKeyByWindowId.delete(windowId);
 }
 
 export function findWindowForWorkspace(

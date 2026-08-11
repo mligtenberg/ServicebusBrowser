@@ -1,5 +1,9 @@
 import App from '../app';
-import { getActivePageForWindow, getWorkspaceForWindow } from '../events/workspace-window-registry';
+import {
+  getActivePageForWindow,
+  getSelectedMessageKeyForWindow,
+  getWorkspaceForWindow,
+} from '../events/workspace-window-registry';
 
 export interface ActivePage {
   workspaceId: string;
@@ -31,4 +35,36 @@ export function getActivePage(): ActivePage | null {
   }
 
   return { workspaceId, pageId: page.pageId, pageName: page.pageName };
+}
+
+export interface SelectedMessageRef {
+  workspaceId: string;
+  pageId: string;
+  pageName: string;
+  messageKey: string;
+}
+
+/**
+ * The message currently selected in the active Message Page (see
+ * `getActivePage`) of the last-opened app window, if any — reported by the
+ * renderer on every selection change (`workspace-window:report-selected-message`),
+ * the same push pattern `getActivePage` relies on. Returns null if no window
+ * is open, the open window isn't viewing a Message Page, or nothing is
+ * currently selected in its grid.
+ */
+export function getSelectedMessageRef(): SelectedMessageRef | null {
+  const candidates = App.windows.filter((window) => !window.isDestroyed());
+  const window = candidates[candidates.length - 1];
+  if (!window) {
+    return null;
+  }
+
+  const workspaceId = getWorkspaceForWindow(window.id);
+  const page = getActivePageForWindow(window.id);
+  const messageKey = getSelectedMessageKeyForWindow(window.id);
+  if (!workspaceId || !page || !messageKey) {
+    return null;
+  }
+
+  return { workspaceId, pageId: page.pageId, pageName: page.pageName, messageKey };
 }

@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   input,
   linkedSignal,
@@ -50,7 +51,11 @@ import {
   faEllipsisVertical,
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
-import { ColorThemeService, WorkspaceService } from '@service-bus-browser/services';
+import {
+  ColorThemeService,
+  SelectedMessageBridgeService,
+  WorkspaceService,
+} from '@service-bus-browser/services';
 import { BASE_ROUTE } from '../const';
 import { EndpointSelectorTreeInputComponent } from '@service-bus-browser/topology-components';
 import {
@@ -102,6 +107,7 @@ export class MessagesPageComponent {
   router = inject(Router);
   baseRoute = inject(BASE_ROUTE);
   workspaceService = inject(WorkspaceService);
+  selectedMessageBridge = inject(SelectedMessageBridgeService);
   actions = inject(Actions);
   appRef = inject(ApplicationRef);
 
@@ -554,6 +560,15 @@ export class MessagesPageComponent {
     this.destroyRef.onDestroy(() => {
       this.document.removeEventListener('contextmenu', onContextMenu, true);
       this.removeFilterPopoverAnchor();
+      this.selectedMessageBridge.reportSelectedMessage(null);
+    });
+
+    // Backs the MCP get_selected_message tool: main has no way to observe a
+    // window's live grid selection on its own, so push it whenever this
+    // page's selection changes — the same pattern reportActivePage uses for
+    // the active Message Page.
+    effect(() => {
+      this.selectedMessageBridge.reportSelectedMessage(this.selection()?.[0] ?? null);
     });
 
     this.activatedRoute.params

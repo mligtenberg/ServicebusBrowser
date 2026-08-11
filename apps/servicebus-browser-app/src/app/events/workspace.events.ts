@@ -6,6 +6,7 @@ import {
   findWindowForWorkspace,
   setActivePageForWindow,
   setActiveWorkspaceForWindow,
+  setSelectedMessageKeyForWindow,
 } from './workspace-window-registry';
 
 let server: WorkspacesServer | undefined;
@@ -56,6 +57,19 @@ ipcMain.on(
     const window = BrowserWindow.fromWebContents(event.sender);
     if (window) {
       setActivePageForWindow(window.id, page);
+    }
+  },
+);
+
+// The renderer reports the message key selected in its Message Page grid
+// (or null) on every selection change, mirroring report-active-page above —
+// this is what backs the get_selected_message MCP tool.
+ipcMain.on(
+  'workspace-window:report-selected-message',
+  (event, messageKey: string | null) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window) {
+      setSelectedMessageKeyForWindow(window.id, messageKey);
     }
   },
 );

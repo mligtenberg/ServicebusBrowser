@@ -5,7 +5,11 @@ import App from '../app';
 
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 
-type HeadlessChannel = 'headless:list-pages' | 'headless:describe-page' | 'headless:run-query';
+type HeadlessChannel =
+  | 'headless:list-pages'
+  | 'headless:describe-page'
+  | 'headless:run-query'
+  | 'headless:get-message';
 
 interface HeadlessEntry {
   window: BrowserWindow;

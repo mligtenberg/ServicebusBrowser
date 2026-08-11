@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('mcp:navigate-to-topology-path', (_, path) => callback(path)),
   reportActivePage: (page: { pageId: string; pageName: string } | null) =>
     ipcRenderer.send('workspace-window:report-active-page', page),
+  reportSelectedMessage: (messageKey: string | null) =>
+    ipcRenderer.send('workspace-window:report-selected-message', messageKey),
 });
 
 contextBridge.exposeInMainWorld('mcpApi', {
@@ -39,6 +41,9 @@ contextBridge.exposeInMainWorld('headlessApi', {
   onRunQuery: (
     callback: (request: { requestId: string; pageId: string; sql: string }) => void,
   ) => ipcRenderer.on('headless:run-query', (_, request) => callback(request)),
+  onGetMessage: (
+    callback: (request: { requestId: string; pageId: string; messageKey: string }) => void,
+  ) => ipcRenderer.on('headless:get-message', (_, request) => callback(request)),
   respond: (requestId: string, result: { data?: unknown; error?: string }) =>
     ipcRenderer.send(`headless:response:${requestId}`, result),
   notifyReady: () => ipcRenderer.send('headless:ready'),

@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { TopologyNode } from '@service-bus-browser/api-contracts';
 import App from '../app';
 import { getServer } from '../events/service-bus.events';
 import { getWorkspacesServer } from '../events/workspace.events';
 import { findWindowForWorkspace } from '../events/workspace-window-registry';
 import { runHeadlessRequest } from './headless-window-manager';
-import { getActivePage } from './active-page';
+import { getActivePage, getSelectedMessageRef } from './active-page';
 
 function json(data: unknown) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
@@ -13,6 +14,22 @@ function json(data: unknown) {
 
 function error(message: string) {
   return { content: [{ type: 'text' as const, text: message }], isError: true };
+}
+
+/**
+ * `TopologyNode.icon` carries a full FontAwesome/custom icon definition
+ * (raw SVG path data, not just a name) for the UI's tree to render — useful
+ * there, pure noise for an LLM reading list_topology, and it repeats on
+ * every node in the tree. Strip it (recursively, since nodes nest via
+ * `children`) rather than the app's own `managementExecute('listTopologies')`
+ * result, which the UI still needs unmodified.
+ */
+function stripIcons(node: TopologyNode): Omit<TopologyNode, 'icon'> {
+  const { icon: _icon, children, ...rest } = node;
+  return {
+    ...rest,
+    ...(children ? { children: children.map(stripIcons) } : {}),
+  };
 }
 
 /**
@@ -111,10 +128,10 @@ export function registerTools(server: McpServer): void {
       inputSchema: { workspaceId: z.string().describe('The Workspace id') },
     },
     async ({ workspaceId }) => {
-      const topologies = await getServer().managementExecute('listTopologies', {
+      const topologies = (await getServer().managementExecute('listTopologies', {
         workspaceId,
-      });
-      return json(topologies);
+      })) as TopologyNode[];
+      return json(topologies.map(stripIcons));
     },
   );
 
@@ -126,6 +143,36 @@ export function registerTools(server: McpServer): void {
         'Get the Message Page currently shown in the last-opened app window, along with its Workspace id. Returns null if no window is open, or the open window is not currently viewing a Message Page.',
     },
     async () => json(getActivePage()),
+  );
+
+  server.registerTool(
+    'get_selected_message',
+    {
+      title: 'Get Selected Message',
+      description:
+        "Get the full message (headers, properties, annotations, application properties, body) currently selected in the Message Page grid of the last-opened app window, along with its Workspace and Message Page id. Returns null if no window is open, the open window isn't viewing a Message Page, or nothing is selected in its grid.",
+    },
+    async () => {
+      const ref = getSelectedMessageRef();
+      if (!ref) {
+        return json(null);
+      }
+
+      try {
+        const message = await runHeadlessRequest(ref.workspaceId, 'headless:get-message', {
+          pageId: ref.pageId,
+          messageKey: ref.messageKey,
+        });
+        return json({
+          workspaceId: ref.workspaceId,
+          pageId: ref.pageId,
+          pageName: ref.pageName,
+          message,
+        });
+      } catch (err) {
+        return error(err instanceof Error ? err.message : String(err));
+      }
+    },
   );
 
   server.registerTool(

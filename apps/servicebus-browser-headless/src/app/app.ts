@@ -13,6 +13,7 @@ interface HeadlessRequest {
   requestId: string;
   pageId?: string;
   sql?: string;
+  messageKey?: string;
 }
 
 interface HeadlessResponse {
@@ -24,6 +25,7 @@ interface HeadlessBridge {
   onListPages: (callback: (request: HeadlessRequest) => void) => void;
   onDescribePage: (callback: (request: HeadlessRequest) => void) => void;
   onRunQuery: (callback: (request: HeadlessRequest) => void) => void;
+  onGetMessage: (callback: (request: HeadlessRequest) => void) => void;
   respond: (requestId: string, result: HeadlessResponse) => void;
   notifyReady: () => void;
 }
@@ -167,6 +169,12 @@ export class App {
           request.pageId as UUID,
           request.sql as string,
         ),
+      ),
+    );
+
+    bridge.onGetMessage((request) =>
+      this.respond(bridge, 'headless:get-message', request, () =>
+        repository.getMessage(request.pageId as UUID, request.messageKey as string),
       ),
     );
 
