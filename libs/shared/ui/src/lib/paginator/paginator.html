@@ -1,0 +1,53 @@
+<nav class="sbb-paginator" [attr.aria-label]="label()">
+  <span class="sbb-paginator__range" aria-live="polite">
+    {{ firstRecordIndex() + 1 | number }}&ndash;{{ lastRecordIndex() | number }}
+    of {{ totalRecords() | number }}
+  </span>
+
+  <span class="sbb-paginator__pages">
+    Page {{ clampedPage() + 1 | number }} of {{ pageCount() | number }}
+  </span>
+
+  <span class="sbb-paginator__actions">
+    <sbb-button
+      severity="secondary"
+      variant="text"
+      size="small"
+      [icon]="faAnglesLeft"
+      [iconOnly]="true"
+      aria-label="First page"
+      [disabled]="isFirstPage()"
+      (click)="first()"
+    />
+    <sbb-button
+      severity="secondary"
+      variant="text"
+      size="small"
+      [icon]="faAngleLeft"
+      [iconOnly]="true"
+      aria-label="Previous page"
+      [disabled]="isFirstPage()"
+      (click)="previous()"
+    />
+    <sbb-button
+      severity="secondary"
+      variant="text"
+      size="small"
+      [icon]="faAngleRight"
+      [iconOnly]="true"
+      aria-label="Next page"
+      [disabled]="isLastPage()"
+      (click)="next()"
+    />
+    <sbb-button
+      severity="secondary"
+      variant="text"
+      size="small"
+      [icon]="faAnglesRight"
+      [iconOnly]="true"
+      aria-label="Last page"
+      [disabled]="isLastPage()"
+      (click)="last()"
+    />
+  </span>
+</nav>

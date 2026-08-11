@@ -8,6 +8,7 @@ import {
   ElementRef,
   inject,
   input,
+  linkedSignal,
   model,
   OnDestroy,
   output,
@@ -38,6 +39,7 @@ import {
   SbbDataGrid,
   SbbLazyLoadEvent,
   SbbMenuItem,
+  SbbPaginator,
   SbbPopover,
   SbbReorderableList,
   SbbReorderableListHandle,
@@ -74,6 +76,7 @@ export interface MessagesLazyLoad {
     BodyViewer,
     SbbDataGrid,
     SbbContextMenu,
+    SbbPaginator,
     SbbSplitter,
     SbbSplitterPanel,
     SbbScrollPanel,
@@ -126,6 +129,14 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   messageAnnotationsContextMenu = input<SbbMenuItem<PropertyRow>[]>([]);
 
   messages = input.required<ReceivedMessage[]>();
+
+  /**
+   * Rows per chunk once {@link usePagination} kicks in, and the threshold that
+   * turns it on. See the pagination block below for why a single viewport can't
+   * carry an arbitrarily long list.
+   */
+  maxMessagesPerPage = input<number>(100_000);
+
   bodyContextActions = input<EditorContextAction[]>([]);
   bodyModificationActions = input<MessageModificationAction[]>([]);
   sessionActionsKey = input<string | undefined>(undefined);
@@ -180,6 +191,59 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       return [];
     }
     return Array.isArray(selection) ? selection : [selection];
+  });
+
+  // ---------------------------------------------------------------------------
+  // Pagination
+  //
+  // A single virtual-scroll viewport cannot usefully carry a multi-hundred-
+  // thousand-row list: the spacer that gives the scrollbar its extent is a real
+  // element of `rowHeight * length` px (29.4M px at 700k x 42, close to
+  // Chrome's ~33.5M px layout ceiling and past Firefox's), and the scrollbar
+  // thumb degenerates — one pixel of thumb travel jumps ~875 rows, so no
+  // position in the list can be reached deliberately. Above
+  // `maxMessagesPerPage` rows the viewer therefore hands the grid one chunk at a
+  // time. Grid row indices are then chunk-relative and must be shifted by
+  // `pageOffset` to become the absolute indices the rest of this component —
+  // and `lazyLoadTriggered` — deals in.
+  // ---------------------------------------------------------------------------
+
+  protected usePagination = computed(
+    () => this.messages().length > this.maxMessagesPerPage(),
+  );
+
+  protected pageCount = computed(() =>
+    Math.max(1, Math.ceil(this.messages().length / this.maxMessagesPerPage())),
+  );
+
+  /**
+   * Current chunk. Resets to the first chunk when the message page changes, and
+   * otherwise clamps into range so a shrinking result set (a newly applied
+   * filter) cannot leave the viewer parked past the end.
+   */
+  protected currentPageIndex = linkedSignal<
+    { pageId: UUID; pageCount: number },
+    number
+  >({
+    source: () => ({ pageId: this.pageId(), pageCount: this.pageCount() }),
+    computation: (source, previous) =>
+      previous && previous.source.pageId === source.pageId
+        ? Math.min(previous.value, source.pageCount - 1)
+        : 0,
+  });
+
+  /** Absolute index of the first row of the current chunk. */
+  protected pageOffset = computed(() =>
+    this.usePagination() ? this.currentPageIndex() * this.maxMessagesPerPage() : 0,
+  );
+
+  /** The slice of {@link messages} the grid actually renders. */
+  protected currentPageMessages = computed(() => {
+    if (!this.usePagination()) {
+      return this.messages();
+    }
+    const offset = this.pageOffset();
+    return this.messages().slice(offset, offset + this.maxMessagesPerPage());
   });
 
   showMessageContextMenu = computed(
@@ -440,6 +504,17 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
       });
     });
 
+    // Switching chunk means the grid is showing an entirely different window of
+    // rows: its lazy-load bookkeeping and scroll position both belong to the
+    // chunk we just left.
+    effect(() => {
+      this.currentPageIndex();
+      untracked(() => {
+        this.messagesGrid()?.resetLazyState();
+        this.messagesGrid()?.scrollToIndex(0);
+      });
+    });
+
     // Finalize a pending range selection once the table data has been
     // updated and every row in the range is loaded.
     effect(() => {
@@ -476,6 +551,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   }
 
   reset() {
+    this.currentPageIndex.set(0);
     this.messagesGrid()?.resetLazyState();
     this.messagesGrid()?.scrollToIndex(0);
   }
@@ -510,7 +586,7 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
     }
 
     const { event, row, index } = payload;
-    const absoluteIndex = index;
+    const absoluteIndex = this.pageOffset() + index;
 
     if (event.shiftKey && this.rangeAnchorIndex !== null) {
       event.preventDefault();
@@ -599,9 +675,10 @@ class MessagesViewer implements AfterViewInit, OnDestroy {
   }
 
   protected onGridLazyLoad($event: SbbLazyLoadEvent) {
+    const offset = this.pageOffset();
     this.lazyLoadTriggered.emit({
-      first: $event.first,
-      last: $event.last,
+      first: offset + $event.first,
+      last: offset + $event.last,
       rows: $event.rows,
     });
   }

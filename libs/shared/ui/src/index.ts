@@ -42,3 +42,4 @@ export * from './lib/date-picker';
 export * from './lib/popup-menu';
 export * from './lib/menubar';
 export * from './lib/virtual-scroller';
+export * from './lib/paginator';

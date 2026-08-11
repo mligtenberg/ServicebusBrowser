@@ -120,7 +120,7 @@
       #messagesGrid
       class="messages-grid"
       [columns]="gridColumns()"
-      [data]="messages()"
+      [data]="currentPageMessages()"
       [rowHeight]="42"
       [lazy]="lazy()"
       [loading]="showTableLoading()"
@@ -135,6 +135,15 @@
       (rowMouseDown)="onGridRowMouseDown($event)"
       (lazyLoad)="onGridLazyLoad($event)"
     />
+    @if (usePagination()) {
+      <sbb-paginator
+        class="messages-paginator"
+        label="Message pages"
+        [totalRecords]="messages().length"
+        [pageSize]="maxMessagesPerPage()"
+        [(page)]="currentPageIndex"
+      />
+    }
   </div>
 </ng-template>
 

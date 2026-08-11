@@ -57,10 +57,44 @@ that row height matches `rowHeight`. It runs in real Chromium via
 `nx run storybook-host:test` — layout-dependent, so it cannot live in the jsdom
 Jest suite (which also has no `ResizeObserver`; `syncViewportSize` no-ops there).
 
-## Related limits
+## Why one viewport still isn't enough (pagination)
 
-The spacer that gives the scrollbar its extent is a real element of
-`itemSize * length` px — 29.4M px for 700k × 42. That is still under Chrome's
-~33.5M px layout ceiling, but a larger `rowHeight` or dataset would cross it and
-truncate the list in a way no amount of re-measuring fixes. Firefox's ceiling is
-about half that.
+Fixing both invariants makes every row *reachable*, but two limits are inherent
+to putting a 700k-row list behind a single scrollbar:
+
+- **The spacer is a real element** of `itemSize * length` px — 29.4M px at
+  700k × 42. Chrome's layout ceiling is ~33.5M px and Firefox's is about half
+  that, so a larger `rowHeight` or dataset silently truncates the list.
+- **The scrollbar thumb degenerates.** With 29.4M px of extent over an ~800px
+  track, one pixel of thumb travel moves ~875 rows. No position in the list can
+  be reached deliberately; the scrollbar becomes a coarse jump control.
+
+So above `maxMessagesPerPage` (default 100.000) rows, `MessagesViewer` hands the
+grid **one chunk at a time** and shows an
+[`SbbPaginator`](../libs/shared/ui/src/lib/paginator/paginator.ts) beneath it.
+This restores the pagination that existed before the PrimeNG migration (commit
+`801c1f68`, which used `p-paginator`), at the same threshold and page size.
+
+At 100k the spacer is 4.2M px and a thumb pixel is ~125 rows — still coarse, but
+inside a range where filtering is the intended tool for narrowing further.
+
+### The index contract
+
+Chunking splits the index space in two, and mixing them up silently loads or
+selects the wrong messages:
+
+| Index space   | Who speaks it                                                            |
+| ------------- | ------------------------------------------------------------------------ |
+| Chunk-relative | `SbbDataGrid` — its `data`, `rowClick.index`, and `lazyLoad.first/last`  |
+| Absolute       | `messages`/`virtualMessages`, `lazyLoadTriggered`, range selection, and `MessagesPageComponent.loadRows()` |
+
+`MessagesViewer.pageOffset()` is the only bridge. Everything arriving from the
+grid gets it added (`onGridLazyLoad`, `onGridRowClick`); everything indexing into
+`messages()` stays absolute. Selection is keyed by message key rather than by
+index, so it survives a chunk change untouched.
+
+Changing chunk resets the grid's lazy bookkeeping and scroll position — that
+state belongs to the chunk being left. `currentPageIndex` is a `linkedSignal`
+that returns to the first chunk when the message page changes and otherwise
+clamps into range, so a newly applied filter cannot leave the viewer parked past
+the end of a shorter result set.

@@ -1,0 +1,32 @@
+// SbbPaginator styles — consumes the shared `--sbb-*` tokens
+// (libs/shared/ui/src/lib/styles/_tokens.scss).
+
+:host {
+  display: block;
+}
+
+.sbb-paginator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--sbb-text-muted, #5c6a7e);
+
+  &__range {
+    // Tabular figures keep the label from twitching as digits change.
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__pages {
+    font-variant-numeric: tabular-nums;
+    // Push the buttons to the trailing edge.
+    margin-inline-end: auto;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+}
