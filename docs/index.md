@@ -22,6 +22,7 @@ Welcome to the documentation for Servicebus Browser. This repository contains in
 - [Workspace Lifecycle and NgRx Effects Timing](./workspace-lifecycle-and-ngrx-effects.md): Why effects register before app initializers finish, the `workspaceActivated` action pattern for workspace-dependent startup work, and how tab (page) order persistence works.
 - [Multi-Window Workspace Routing](./multi-window-workspace-routing.md): The `:workspaceId` route segment, its activation guards and fallback chain, and (desktop) the main-process window↔workspace registry that focuses an existing window instead of duplicating it.
 - [Virtual Scroll Geometry (CDK)](./virtual-scroll-geometry.md): The two invariants the CDK fixed-size strategy silently depends on — a viewport size that is re-measured on element-level resizes, and a row whose outer height equals `itemSize` — and why breaking them makes the last rows of a huge list unreachable.
+- [Filtered Paging (the filter index)](./filtered-paging.md): Why `LIMIT/OFFSET` collapses on a *filtered* message page (linear in the offset, so rows past ~30k never rendered) and the materialized `filterIndex` temp table that turns any-position page reads into constant-time seeks.
 - [MCP Server (Desktop)](./mcp-server.md): Implementation of ADR-0010's in-process MCP server — settings storage, the HTTP host, the tool set (including the ADR-0011/0012 headless-renderer Message Page query tools), tray icon lifecycle, and what's still deferred.
 
 ## Architecture Decision Records

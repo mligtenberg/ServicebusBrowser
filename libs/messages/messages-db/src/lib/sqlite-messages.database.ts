@@ -6,10 +6,25 @@ import { getWhereClause } from './filter-to-where-clause';
 import { ReceivedMessage } from '@service-bus-browser/api-contracts';
 import { BSON } from 'bson';
 import { MessageFilter } from '@service-bus-browser/filtering';
+import {
+  buildFilterIndexCountQuery,
+  buildFilterIndexPageQuery,
+  buildFilterIndexStatements,
+  filterIndexSignature,
+} from './filter-index-sql';
 
 export class SqliteMessagesDatabase implements MessagesDatabase {
   private readonly database: Database;
   private initializePromise?: Promise<void>;
+
+  /** Signature of the filter index currently materialized on this connection. */
+  private filterIndexSignature?: string;
+  /** Row count of that index, i.e. the filtered message count. */
+  private filterIndexCount = 0;
+  /** Serializes builds and reads — there is only one index table. */
+  private filterIndexQueue: Promise<void> = Promise.resolve();
+  /** Bumped on every write, to invalidate the filter index. */
+  private messagesVersion = 0;
 
   constructor(pageId: UUID, workspaceId: UUID) {
     this.database = new Database(`${workspaceId}/${pageId}`);
@@ -28,6 +43,10 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   private async doInitialize(): Promise<void> {
     await this.database.initialize();
     await ensureMessagesDbCreated(this.database);
+
+    // The filter index lives in temp storage; keep it in memory so it never
+    // needs a temp *file*, which the OPFS VFS has no place to put.
+    await this.database.exec('PRAGMA temp_store = MEMORY');
   }
 
   async addMessages(messages: ReceivedMessage[]): Promise<void> {
@@ -166,6 +185,7 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       }
 
       await this.database.exec('COMMIT');
+      this.messagesVersion++;
     } catch (error) {
       await this.database.exec('ROLLBACK');
       throw error;
@@ -178,12 +198,21 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
   ): Promise<number> {
     const whereClause = getWhereClause(filter, selectionKeys);
 
-    const result = await this.selectRows<{ count: number }>(
-      `SELECT COUNT(*) as count FROM messages ${whereClause.clause}`,
-      whereClause.args ?? [],
-    );
+    if (!whereClause.clause) {
+      const result = await this.selectRows<{ count: number }>(
+        `SELECT COUNT(*) as count FROM messages`,
+      );
+      return Number(result[0] ?? 0);
+    }
 
-    return Number(result[0] ?? 0);
+    // Counting a filtered set costs a full scan either way, so pay it once by
+    // building the index the paged reads then seek into.
+    return await this.withFilterIndex(
+      whereClause,
+      filter,
+      selectionKeys,
+      async (total) => total,
+    );
   }
 
   async deleteDatabase(): Promise<void> {
@@ -353,6 +382,31 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
     }
 
     const whereClause = getWhereClause(filter, selectionKeys);
+
+    // Random access into a *filtered* result set cannot use LIMIT/OFFSET:
+    // SQLite has to re-evaluate the predicate over every skipped row, so the
+    // cost grows with the offset — seconds per page beyond ~30k rows on a
+    // 700k-message page, which left the grid's rows blank. Seek into the
+    // materialized filter index instead. See docs/filtered-paging.md.
+    if (whereClause.clause && !fromKey) {
+      return await this.withFilterIndex(
+        whereClause,
+        filter,
+        selectionKeys,
+        async (total) => {
+          const pageQuery = buildFilterIndexPageQuery({
+            skip,
+            take,
+            ascending,
+            total,
+          });
+          return this.decodeMessages(
+            await this.selectRows<[Uint8Array]>(pageQuery.sql, pageQuery.args),
+          );
+        },
+      );
+    }
+
     let sql = `SELECT message FROM messages`;
 
     let args: unknown[] = [];
@@ -380,8 +434,12 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
       sql += ` OFFSET ${skip}`;
     }
 
-    const rows = await this.selectRows<[Uint8Array]>(sql, args);
+    return this.decodeMessages(
+      await this.selectRows<[Uint8Array]>(sql, args),
+    );
+  }
 
+  private decodeMessages(rows: Array<[Uint8Array]>): ReceivedMessage[] {
     if (!rows.length) {
       return [];
     }
@@ -401,6 +459,55 @@ export class SqliteMessagesDatabase implements MessagesDatabase {
         ...message,
         body: message.body.buffer as any as Uint8Array,
       }));
+  }
+
+  /**
+   * Materializes (or reuses) the ordered id list for `whereClause` and returns
+   * its row count. Concurrent callers — the count query and the grid's page
+   * reads land together on every filter change — share one build rather than
+   * each paying for a full scan.
+   */
+  private withFilterIndex<T>(
+    whereClause: ReturnType<typeof getWhereClause>,
+    filter: MessageFilter | undefined,
+    selectionKeys: string[] | undefined,
+    read: (total: number) => Promise<T>,
+  ): Promise<T> {
+    const signature = filterIndexSignature({
+      filter,
+      selectionKeys,
+      messagesVersion: this.messagesVersion,
+    });
+
+    // Serialized: only one filter's index exists at a time, so neither a build
+    // nor a read against it may interleave with another filter's build.
+    return this.enqueueFilterIndexWork(async () => {
+      if (this.filterIndexSignature !== signature) {
+        this.filterIndexSignature = undefined;
+        for (const statement of buildFilterIndexStatements(whereClause)) {
+          await this.database.exec(statement.sql, statement.args);
+        }
+        // Counted once per build: the index cannot change while its signature
+        // holds, and a COUNT(*) over it is O(matches) — not something to repeat
+        // for every 100-row window the grid asks for.
+        const counted = await this.selectRows<[number]>(
+          buildFilterIndexCountQuery(),
+        );
+        this.filterIndexCount = Number(counted[0] ?? 0);
+        this.filterIndexSignature = signature;
+      }
+
+      return await read(this.filterIndexCount);
+    });
+  }
+
+  private enqueueFilterIndexWork<T>(work: () => Promise<T>): Promise<T> {
+    const result = this.filterIndexQueue.then(work, work);
+    this.filterIndexQueue = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
   }
 
   private getPropertyType(value: unknown): string {
