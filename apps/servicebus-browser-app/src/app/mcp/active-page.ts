@@ -1,6 +1,7 @@
 import App from '../app';
 import {
   getActivePageForWindow,
+  getActiveWindow,
   getSelectedMessageKeyForWindow,
   getWorkspaceForWindow,
 } from '../events/workspace-window-registry';
@@ -12,18 +13,41 @@ export interface ActivePage {
 }
 
 /**
- * The Message Page currently shown by the last-opened app window, along
- * with its Workspace id — a synchronous read of state the renderer already
- * pushes to main on every navigation (`workspace-window:report-active-page`,
+ * The active app window — the last-focused one, or the most recently opened
+ * one if none has been focused yet (see `getActiveWindow`). Shared by every
+ * MCP tool that acts on "the" window rather than an explicit `workspaceId`.
+ */
+function activeWindow() {
+  return getActiveWindow(App.windows);
+}
+
+/**
+ * The Workspace id currently shown by the active app window (see
+ * `activeWindow`). Returns null if no window is open. Backs the
+ * `get_active_workspace` MCP tool — the entry point for discovering which
+ * `workspaceId` to pass to `list_message_pages` etc. when the caller doesn't
+ * already know it.
+ */
+export function getActiveWorkspaceId(): string | null {
+  const window = activeWindow();
+  if (!window) {
+    return null;
+  }
+  return getWorkspaceForWindow(window.id) ?? null;
+}
+
+/**
+ * The Message Page currently shown by the active app window, along with its
+ * Workspace id — a synchronous read of state the renderer already pushes to
+ * main on every navigation (`workspace-window:report-active-page`,
  * mirroring the existing `report-active` workspace push), rather than a
  * live query round trip: the MCP server runs in the main process, which has
  * no other way to observe a window's current Angular Router state. Returns
- * null if no window is open, or the open window isn't currently viewing a
+ * null if no window is open, or the active window isn't currently viewing a
  * Message Page.
  */
 export function getActivePage(): ActivePage | null {
-  const candidates = App.windows.filter((window) => !window.isDestroyed());
-  const window = candidates[candidates.length - 1];
+  const window = activeWindow();
   if (!window) {
     return null;
   }
@@ -46,15 +70,14 @@ export interface SelectedMessageRef {
 
 /**
  * The message currently selected in the active Message Page (see
- * `getActivePage`) of the last-opened app window, if any — reported by the
+ * `getActivePage`) of the active app window, if any — reported by the
  * renderer on every selection change (`workspace-window:report-selected-message`),
  * the same push pattern `getActivePage` relies on. Returns null if no window
- * is open, the open window isn't viewing a Message Page, or nothing is
+ * is open, the active window isn't viewing a Message Page, or nothing is
  * currently selected in its grid.
  */
 export function getSelectedMessageRef(): SelectedMessageRef | null {
-  const candidates = App.windows.filter((window) => !window.isDestroyed());
-  const window = candidates[candidates.length - 1];
+  const window = activeWindow();
   if (!window) {
     return null;
   }

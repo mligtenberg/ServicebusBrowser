@@ -1,4 +1,13 @@
-import { Component, computed, DestroyRef, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  viewChild,
+  ChangeDetectionStrategy,
+  input,
+} from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MainUiComponent, selectActivePage } from '@service-bus-browser/main-ui';
@@ -30,6 +39,9 @@ interface ElectronWindow {
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
     checkForUpdates?: () => Promise<void>;
     onNavigateToTopologyPath?: (callback: (path: string) => void) => void;
+    onOpenMessagePage?: (
+      callback: (request: { workspaceId: string; pageId: string }) => void,
+    ) => void;
     reportActivePage?: (page: { pageId: string; pageName: string } | null) => void;
   };
 }
@@ -52,6 +64,8 @@ export class MainShell {
   private readonly workspaceService = inject(WorkspaceService);
   private readonly workspaceSwitchService = inject(WorkspaceSwitchService);
   store = inject(Store);
+
+  workspaceId = input.required<string>();
 
   fullscreen = signal<boolean>(false);
   windowControlSpacing = computed(() => this.isMac && !this.fullscreen());
@@ -162,7 +176,7 @@ export class MainShell {
           {
             label: 'About',
             icon: 'fa-solid fa-circle-info',
-            onSelect: () => this.router.navigateByUrl('/about'),
+            onSelect: () => this.router.navigateByUrl(`${this.workspaceId()}/about`),
           },
         ],
       },
@@ -187,6 +201,18 @@ export class MainShell {
         summary: 'Opened topology',
         detail: path,
       });
+    });
+
+    // MCP's open_message_page tool: navigate this window straight to a
+    // given Workspace's Message Page. A plain router navigation is enough
+    // even when workspaceId differs from what this window is currently
+    // showing — workspaceActivationGuard reruns on every :workspaceId
+    // change and switches the window over (see
+    // docs/multi-window-workspace-routing.md).
+    this.electron?.onOpenMessagePage?.(({ workspaceId, pageId }) => {
+      this.router.navigateByUrl(
+        this.workspaceService.workspaceUrl(`/messages/page/${pageId}`, workspaceId as UUID),
+      );
     });
 
     // Backs the MCP get_active_page tool: main has no way to observe a

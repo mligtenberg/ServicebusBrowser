@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('workspace-window:open-in-new-window', workspaceId),
   onNavigateToTopologyPath: (callback: (path: string) => void) =>
     ipcRenderer.on('mcp:navigate-to-topology-path', (_, path) => callback(path)),
+  onOpenMessagePage: (
+    callback: (request: { workspaceId: string; pageId: string }) => void,
+  ) => ipcRenderer.on('mcp:open-message-page', (_, request) => callback(request)),
   reportActivePage: (page: { pageId: string; pageName: string } | null) =>
     ipcRenderer.send('workspace-window:report-active-page', page),
   reportSelectedMessage: (messageKey: string | null) =>

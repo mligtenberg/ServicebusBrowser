@@ -1,4 +1,11 @@
-import { Component, computed, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  viewChild,
+  ChangeDetectionStrategy,
+  input,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MainUiComponent } from '@service-bus-browser/main-ui';
@@ -33,6 +40,7 @@ export class MainApp {
     read: WorkspaceSwitcherComponent,
   });
 
+  workspaceId = input.required<string>();
   userData = toSignal(
     this.oidcSecurityService.userData$.pipe(map((r) => r.userData)),
   );
@@ -66,7 +74,10 @@ export class MainApp {
           {
             label: 'Send',
             icon: 'fa-solid fa-paper-plane',
-            command: () => this.router.navigateByUrl(this.workspaceService.workspaceUrl('/messages/send')),
+            command: () =>
+              this.router.navigateByUrl(
+                this.workspaceService.workspaceUrl('/messages/send'),
+              ),
           },
           {
             label: 'Import',
@@ -85,17 +96,26 @@ export class MainApp {
             icon: 'fa-solid fa-desktop',
             items: [
               {
-                ...selectionMarks(() => this.themeService.preference() === 'sync', 'Sync with OS'),
+                ...selectionMarks(
+                  () => this.themeService.preference() === 'sync',
+                  'Sync with OS',
+                ),
                 icon: 'fa-solid fa-desktop',
                 command: () => this.themeService.setPreference('sync'),
               },
               {
-                ...selectionMarks(() => this.themeService.preference() === 'light', 'Light theme'),
+                ...selectionMarks(
+                  () => this.themeService.preference() === 'light',
+                  'Light theme',
+                ),
                 icon: 'fa-solid fa-sun',
                 command: () => this.themeService.setPreference('light'),
               },
               {
-                ...selectionMarks(() => this.themeService.preference() === 'dark', 'Dark theme'),
+                ...selectionMarks(
+                  () => this.themeService.preference() === 'dark',
+                  'Dark theme',
+                ),
                 icon: 'fa-solid fa-moon',
                 command: () => this.themeService.setPreference('dark'),
               },
@@ -106,21 +126,29 @@ export class MainApp {
             icon: 'fa-solid fa-eye',
             items: [
               {
-                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'raw', 'Raw'),
+                ...selectionMarks(
+                  () => this.messagePreferences.defaultBodyView() === 'raw',
+                  'Raw',
+                ),
                 icon: 'fa-solid fa-file',
-                command: () => this.messagePreferences.setDefaultBodyView('raw'),
+                command: () =>
+                  this.messagePreferences.setDefaultBodyView('raw'),
               },
               {
-                ...selectionMarks(() => this.messagePreferences.defaultBodyView() === 'pretty', 'Pretty'),
+                ...selectionMarks(
+                  () => this.messagePreferences.defaultBodyView() === 'pretty',
+                  'Pretty',
+                ),
                 icon: 'fa-solid fa-wand-magic-sparkles',
-                command: () => this.messagePreferences.setDefaultBodyView('pretty'),
+                command: () =>
+                  this.messagePreferences.setDefaultBodyView('pretty'),
               },
             ],
           },
           {
             label: 'About',
             icon: 'fa-solid fa-circle-info',
-            command: () => this.router.navigateByUrl('/about'),
+            command: () => this.router.navigateByUrl(`/${this.workspaceId()}/about`),
           },
         ],
       },

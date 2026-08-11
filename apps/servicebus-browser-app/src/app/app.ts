@@ -18,7 +18,7 @@ import path, { join } from 'path';
 import { getMenu } from './menu';
 import * as fs from 'fs';
 import { runMigration } from './events/migration';
-import { forgetWindow } from './events/workspace-window-registry';
+import { forgetWindow, setLastFocusedWindow } from './events/workspace-window-registry';
 
 export default class App {
   // Keep a global reference of the window object, if you don't, the window will
@@ -363,6 +363,13 @@ export default class App {
     window.center();
 
     App.windows.push(window);
+
+    // Backs the MCP "active window" tools (get_active_workspace,
+    // open_message_page): distinct from creation order (App.windows), since
+    // the user may switch focus back to an older window.
+    window.on('focus', () => {
+      setLastFocusedWindow(window.id);
+    });
 
     window.on('enter-full-screen', () => {
       window.webContents.send('fullscreen-changed', true);

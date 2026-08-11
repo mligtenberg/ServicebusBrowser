@@ -55,7 +55,9 @@ export const appRoutes: Route[] = [
     ],
   },
   {
-    path: '',
+    path: ':workspaceId',
+    canActivate: [workspaceActivationGuard],
+    runGuardsAndResolvers: 'paramsChange',
     loadComponent: () =>
       import('./main-shell/main-shell').then((m) => m.MainShell),
     children: [
@@ -65,32 +67,25 @@ export const appRoutes: Route[] = [
         data: { title: 'About' },
       },
       {
-        path: ':workspaceId',
-        canActivate: [workspaceActivationGuard],
-        runGuardsAndResolvers: 'paramsChange',
-        children: [
-          {
-            path: 'manage-service-bus',
-            loadChildren: () =>
-              import('@service-bus-browser/service-bus-management-flow').then(
-                (m) => m.routes,
-              ),
-          },
-          {
-            path: 'messages',
-            loadChildren: () =>
-              import('@service-bus-browser/messages-flow').then((m) =>
-                m.routes({
-                  baseRoute: 'messages',
-                }),
-              ),
-          },
-          {
-            path: '',
-            component: HomeComponent,
-            pathMatch: 'full',
-          },
-        ],
+        path: 'manage-service-bus',
+        loadChildren: () =>
+          import('@service-bus-browser/service-bus-management-flow').then(
+            (m) => m.routes,
+          ),
+      },
+      {
+        path: 'messages',
+        loadChildren: () =>
+          import('@service-bus-browser/messages-flow').then((m) =>
+            m.routes({
+              baseRoute: 'messages',
+            }),
+          ),
+      },
+      {
+        path: '',
+        component: HomeComponent,
+        pathMatch: 'full',
       },
       {
         path: '',

@@ -4,9 +4,13 @@ import { TopologyNode } from '@service-bus-browser/api-contracts';
 import App from '../app';
 import { getServer } from '../events/service-bus.events';
 import { getWorkspacesServer } from '../events/workspace.events';
-import { findWindowForWorkspace } from '../events/workspace-window-registry';
+import {
+  findWindowForWorkspace,
+  getActiveWindow,
+  getOpenWorkspaceIds,
+} from '../events/workspace-window-registry';
 import { runHeadlessRequest } from './headless-window-manager';
-import { getActivePage, getSelectedMessageRef } from './active-page';
+import { getActivePage, getActiveWorkspaceId, getSelectedMessageRef } from './active-page';
 
 function json(data: unknown) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }] };
@@ -43,14 +47,18 @@ export function registerTools(server: McpServer): void {
     'list_workspaces',
     {
       title: 'List Workspaces',
-      description: 'List all Workspaces known to the app, with their ids and names.',
+      description:
+        'List all Workspaces known to the app, with their ids and names, plus openWorkspaceIds: the subset of those ids that currently have an open app window — the ones focus_workspace_window can bring to the front, or navigate_to_topology_node can target.',
     },
     async () => {
       const workspaces = await getWorkspacesServer().workspacesExecute(
         'listWorkspaces',
         {},
       );
-      return json(workspaces);
+      return json({
+        workspaces,
+        openWorkspaceIds: getOpenWorkspaceIds(App.windows),
+      });
     },
   );
 
@@ -101,6 +109,41 @@ export function registerTools(server: McpServer): void {
       }
       window.focus();
       return json({ opened: true, workspaceId, path });
+    },
+  );
+
+  server.registerTool(
+    'get_active_workspace',
+    {
+      title: 'Get Active Workspace',
+      description:
+        "Get the Workspace id currently shown by the active app window — the last-focused window, or the most recently opened one if none has been focused yet. Returns null if no window is open. Use this to discover which workspaceId to pass to list_connections/list_topology/list_message_pages/open_message_page when the caller doesn't already know it.",
+    },
+    async () => json(getActiveWorkspaceId()),
+  );
+
+  server.registerTool(
+    'open_message_page',
+    {
+      title: 'Open Message Page',
+      description:
+        "Open a Message Page (as returned by list_message_pages) in the active app window — the last-focused window, or the most recently opened one if none has been focused yet. If that window isn't currently showing the given Workspace, it switches over to it first. Fails if no app window is open at all.",
+      inputSchema: {
+        workspaceId: z.string().describe('The Workspace id'),
+        pageId: z.string().describe('The Message Page id, as returned by list_message_pages'),
+      },
+    },
+    async ({ workspaceId, pageId }) => {
+      const window = getActiveWindow(App.windows);
+      if (!window) {
+        return error('No app window is currently open.');
+      }
+      window.webContents.send('mcp:open-message-page', { workspaceId, pageId });
+      if (window.isMinimized()) {
+        window.restore();
+      }
+      window.focus();
+      return json({ opened: true, workspaceId, pageId });
     },
   );
 

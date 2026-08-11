@@ -25,17 +25,18 @@ export const appRoutes: Route[] = [
   {
     path: '',
     canActivate: [AutoLoginPartialRoutesGuard],
-    loadComponent: () => import('./main-app/main-app').then((m) => m.MainApp),
     children: [
-      {
-        path: 'about',
-        component: AboutComponent,
-      },
       {
         path: ':workspaceId',
         canActivate: [workspaceActivationGuard],
+        loadComponent: () =>
+          import('./main-app/main-app').then((m) => m.MainApp),
         runGuardsAndResolvers: 'paramsChange',
         children: [
+          {
+            path: 'about',
+            component: AboutComponent,
+          },
           {
             path: 'manage-service-bus',
             loadChildren: () =>

@@ -29,7 +29,11 @@ Electron main process, off by default, enabled from the "MCP Server" popup
 
 ## v1 tools
 
-- `list_workspaces` — via the existing `WorkspacesServer`.
+- `list_workspaces` — via the existing `WorkspacesServer`, plus
+  `openWorkspaceIds`: the subset of those ids with an open app window
+  (`workspace-window-registry`'s `getOpenWorkspaceIds`), so a client can tell
+  up front which ones `focus_workspace_window`/`navigate_to_topology_node`
+  (both require an already-open window) can actually target.
 - `focus_workspace_window` — via `workspace-window-registry`'s
   `findWindowForWorkspace`; fails (does not open a window) if none is open.
 - `navigate_to_topology_node` — focuses the Workspace's window and sends it
@@ -43,7 +47,7 @@ Electron main process, off by default, enabled from the "MCP Server" popup
 - `list_connections` / `list_topology` — thin wrappers over
   `Server.managementExecute('listConnections'|'listTopologies', {workspaceId})`,
   the same actions the renderer's IPC channel already calls.
-- `get_active_page` — the Message Page currently shown by the last-opened
+- `get_active_page` — the Message Page currently shown by the active
   window's route, plus its Workspace id. A synchronous read of
   `workspace-window-registry`'s `activePageByWindowId` map, kept current by
   a push from `main-shell.ts` (`workspace-window:report-active-page`,
@@ -52,6 +56,34 @@ Electron main process, off by default, enabled from the "MCP Server" popup
   process has no other way to observe a window's live Angular Router state,
   and every IPC channel in the app is fire-and-forget push, never a pull
   query with a response round trip.
+- `get_active_workspace` — the Workspace id shown by the active window, with
+  no Message Page requirement (unlike `get_active_page`). The entry point
+  for an MCP client that doesn't already know a `workspaceId`: call this
+  first, then feed the result into `list_connections`/`list_topology`/
+  `list_message_pages`/`open_message_page`.
+- `open_message_page` — opens a Message Page (by `workspaceId`/`pageId`, as
+  returned by `list_message_pages`) in the active window, switching that
+  window to the given Workspace first if it isn't already showing it. Sends
+  it `mcp:open-message-page` (wired in `main.preload.ts`, consumed in
+  `main-shell.ts`), which just does `router.navigateByUrl` to
+  `/<workspaceId>/messages/page/<pageId>` — `selectActivePage` derives from
+  matching the current route, and a `:workspaceId` change alone is enough to
+  trigger `workspaceActivationGuard`'s switch (see
+  [Multi-Window Workspace Routing](./multi-window-workspace-routing.md)), so
+  no separate action dispatch is needed. Unlike `focus_workspace_window`/
+  `navigate_to_topology_node`, this does not require a window already open
+  for that Workspace — it repurposes whichever window is active. Fails only
+  if no app window is open at all.
+
+**"The active window"**: `workspace-window-registry`'s `getActiveWindow()`
+is the last-focused window (tracked via a `focus` listener registered on
+every window in `app.ts`'s `createWindow()`), falling back to the most
+recently *opened* one if nothing has been focused yet — e.g. the app was
+driven entirely over MCP with its window backgrounded the whole time. This
+replaced an earlier, cruder "last-opened window" heuristic that
+`get_active_page`/`get_selected_message` used before `open_message_page`/
+`get_active_workspace` needed real focus tracking to make "open in the
+window the user is looking at" true.
 - `list_message_pages` / `describe_message_page` / `query_message_page` —
   see "Message Page query tools" below.
 
