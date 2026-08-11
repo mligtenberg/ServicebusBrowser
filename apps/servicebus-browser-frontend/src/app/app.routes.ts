@@ -88,11 +88,15 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
       },
       {
-        path: '',
-        pathMatch: 'full',
-        canActivate: [rootWorkspaceRedirectGuard],
-        children: [],
+        path: '*',
+        redirectTo: '/'
       },
     ],
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [rootWorkspaceRedirectGuard],
+    children: [],
   },
 ];
