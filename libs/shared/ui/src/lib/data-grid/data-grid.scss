@@ -63,6 +63,12 @@
   &__row {
     display: flex;
     align-items: center;
+    // `rowHeight` is what the virtual-scroll strategy uses to place every row,
+    // so the row's OUTER height must equal it exactly. Without border-box the
+    // 1px bottom border makes each row 1px taller than the strategy believes,
+    // and the error accumulates across the rendered window until the bottom
+    // rows are pushed out of sight.
+    box-sizing: border-box;
     border-bottom: 1px solid var(--sbb-border, #e2e8f0);
     cursor: default;
     // Reserved on every row (transparent by default) via `outline` rather

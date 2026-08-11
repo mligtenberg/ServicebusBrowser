@@ -24,6 +24,7 @@ import {
 } from './data-grid.models';
 import { SbbContextMenu } from '../context-menu';
 import { SbbMenuItem } from '../menu';
+import { syncViewportSize } from '../virtual-scroller/viewport-size-sync';
 
 /**
  * Headless, virtualized, selectable data-grid built on Angular CDK.
@@ -158,6 +159,10 @@ export class SbbDataGrid<T = unknown> {
   private lastEmittedLazyLast = -1;
 
   constructor() {
+    // The grid is routinely resized without a window resize (splitter drags,
+    // collapsing panes), which CDK does not notice on its own.
+    syncViewportSize(this.viewport);
+
     // Keep the SelectionModel in sync with the two-way `selection` input,
     // without echoing our own writes back (guarded by `syncingFromModel`).
     effect(() => {

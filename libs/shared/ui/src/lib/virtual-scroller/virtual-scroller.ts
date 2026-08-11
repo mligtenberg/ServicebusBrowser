@@ -1,6 +1,7 @@
-import { Component, input, contentChild, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { Component, input, contentChild, TemplateRef, ChangeDetectionStrategy, viewChild } from '@angular/core';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
+import { syncViewportSize } from './viewport-size-sync';
 
 @Component({
   selector: 'sbb-virtual-scroller',
@@ -33,4 +34,12 @@ export class SbbVirtualScroller<T> {
   appendOnly = input<boolean>(false);
   
   itemTemplate = contentChild(TemplateRef);
+
+  private viewport = viewChild(CdkVirtualScrollViewport);
+
+  constructor() {
+    // Host containers resize without a window resize (splitter drags,
+    // collapsing panes), which CDK does not notice on its own.
+    syncViewportSize(this.viewport);
+  }
 }
