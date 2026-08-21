@@ -19,10 +19,11 @@ import {
   WorkspaceService,
 } from '@service-bus-browser/services';
 import { SbbMenuItem, SbbToastService } from '@service-bus-browser/shared-ui';
-import { messagesActions } from '@service-bus-browser/messages-store';
+import { messagesActions, messagePagesActions } from '@service-bus-browser/messages-store';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import { TopologyActions } from '@service-bus-browser/topology-store';
 import { Store } from '@ngrx/store';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UUID, Workspace } from '@service-bus-browser/shared-contracts';
 import { WorkspaceSwitcherComponent } from './workspace-switcher/workspace-switcher';
@@ -33,16 +34,25 @@ type WorkspaceBroadcastMessage =
   | { type: 'workspace-added'; workspace: Workspace }
   | { type: 'workspace-updated'; id: UUID; name: string; primaryColor: string };
 
+/**
+ * Every command an MCP tool can ask this window to act on, sent over a
+ * single `mcp:command` IPC channel (see `tools.ts`'s `McpCommand`/
+ * `sendCommand` on the main-process side) — one bridge method and one
+ * listener below instead of a new pair per tool.
+ */
+type McpCommand =
+  | { type: 'navigate-to-topology-path'; path: string }
+  | { type: 'open-message-page'; workspaceId: string; pageId: string }
+  | { type: 'set-active-page-filter'; filter: MessageFilter };
+
 interface ElectronWindow {
   electron?: {
     platform?: string;
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
     checkForUpdates?: () => Promise<void>;
-    onNavigateToTopologyPath?: (callback: (path: string) => void) => void;
-    onOpenMessagePage?: (
-      callback: (request: { workspaceId: string; pageId: string }) => void,
-    ) => void;
+    onMcpCommand?: (callback: (command: McpCommand) => void) => void;
     reportActivePage?: (page: { pageId: string; pageName: string } | null) => void;
+    reportActivePageFilter?: (filter: MessageFilter | null) => void;
   };
 }
 
@@ -188,31 +198,62 @@ export class MainShell {
       this.fullscreen.set(full);
     });
 
-    // MCP's navigate_to_topology_node tool (ADR-0010) only opens the
-    // management page today — there's no in-tree "select and expand to this
-    // path" state to hook into yet, so we surface the requested path via a
-    // toast instead of pretending to focus a specific node.
-    this.electron?.onNavigateToTopologyPath?.((path) => {
-      this.router.navigateByUrl(
-        this.workspaceService.workspaceUrl('/manage-service-bus'),
-      );
-      this.toasts.show({
-        severity: 'info',
-        summary: 'Opened topology',
-        detail: path,
-      });
-    });
+    // Single dispatch point for every MCP-triggered command (see
+    // `McpCommand` above and `tools.ts`'s matching union on the main-process
+    // side) — one IPC listener instead of one per tool.
+    this.electron?.onMcpCommand?.((command) => {
+      switch (command.type) {
+        case 'navigate-to-topology-path':
+          // MCP's navigate_to_topology_node tool (ADR-0010) only opens the
+          // management page today — there's no in-tree "select and expand
+          // to this path" state to hook into yet, so we surface the
+          // requested path via a toast instead of pretending to focus a
+          // specific node.
+          this.router.navigateByUrl(
+            this.workspaceService.workspaceUrl('/manage-service-bus'),
+          );
+          this.toasts.show({
+            severity: 'info',
+            summary: 'Opened topology',
+            detail: command.path,
+          });
+          break;
 
-    // MCP's open_message_page tool: navigate this window straight to a
-    // given Workspace's Message Page. A plain router navigation is enough
-    // even when workspaceId differs from what this window is currently
-    // showing — workspaceActivationGuard reruns on every :workspaceId
-    // change and switches the window over (see
-    // docs/multi-window-workspace-routing.md).
-    this.electron?.onOpenMessagePage?.(({ workspaceId, pageId }) => {
-      this.router.navigateByUrl(
-        this.workspaceService.workspaceUrl(`/messages/page/${pageId}`, workspaceId as UUID),
-      );
+        case 'open-message-page':
+          // MCP's open_message_page tool: navigate this window straight to
+          // a given Workspace's Message Page. A plain router navigation is
+          // enough even when workspaceId differs from what this window is
+          // currently showing — workspaceActivationGuard reruns on every
+          // :workspaceId change and switches the window over (see
+          // docs/multi-window-workspace-routing.md).
+          this.router.navigateByUrl(
+            this.workspaceService.workspaceUrl(
+              `/messages/page/${command.pageId}`,
+              command.workspaceId as UUID,
+            ),
+          );
+          break;
+
+        case 'set-active-page-filter':
+          // MCP's set_active_page_filter tool: apply a filter to whichever
+          // Message Page this window's route is currently showing. Read
+          // selectActivePage fresh (rather than reusing the id last pushed
+          // to main via reportActivePage) so this always targets the page
+          // the window is actually displaying at the moment the tool call
+          // arrives.
+          this.store
+            .select(selectActivePage)
+            .pipe(take(1))
+            .subscribe((page) => {
+              if (!page) {
+                return;
+              }
+              this.store.dispatch(
+                messagePagesActions.setPageFilter({ pageId: page.id, filter: command.filter }),
+              );
+            });
+          break;
+      }
     });
 
     // Backs the MCP get_active_page tool: main has no way to observe a
