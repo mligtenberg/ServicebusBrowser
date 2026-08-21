@@ -1,3 +1,18 @@
+// Node's console.* writes to stdout/stderr synchronously and rethrows
+// uncaught if the stream has no 'error' listener — so a reader going away
+// (a piped dev-server log truncated, a closed terminal) turns an ordinary
+// EPIPE into a crash of the entire app the moment anything next logs.
+// Must run before any other import, since those can log during their own
+// module init. Anything other than EPIPE is a real problem, so it's
+// rethrown rather than swallowed.
+for (const stream of [process.stdout, process.stderr]) {
+  stream.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code !== 'EPIPE') {
+      throw err;
+    }
+  });
+}
+
 import SquirrelEvents from './app/events/squirrel.events';
 import ElectronEvents from './app/events/electron.events';
 import { app, BrowserWindow, protocol, session } from 'electron';
