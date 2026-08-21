@@ -272,6 +272,22 @@ export class MainShell {
         );
       });
 
+    // Backs get_page_messages' "no filter given, use the page's current
+    // filter" default: main has no other way to observe this window's live
+    // filter state (it lives only in this store), so push it whenever the
+    // active page's filter changes — same pattern as reportActivePage
+    // above, deduped on content rather than just page id since the filter
+    // can change without the active page itself changing.
+    this.store
+      .select(selectActivePage)
+      .pipe(
+        distinctUntilChanged((a, b) => JSON.stringify(a?.filter) === JSON.stringify(b?.filter)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((page) => {
+        this.electron?.reportActivePageFilter?.(page?.filter ?? null);
+      });
+
     const channel = new BroadcastChannel('connections');
     channel.addEventListener('message', (event) => {
       const message = event.data as ConnectionsBroadcastMessage;
