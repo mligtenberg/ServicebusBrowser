@@ -38,6 +38,9 @@ A modern, cross-platform desktop tool for managing Azure Service Bus resources. 
 - **Cross-Platform**
   - Native installers for Windows, Linux, and macOS
   - Manual build and development environment support
+- **MCP Server (Desktop)**
+  - Optional, off-by-default MCP server hosted in the desktop app (Settings menu → MCP Server) that lets AI agents inspect and drive your workspaces — browse topology, read and filter Message Page data, and navigate the app
+  - See [docs/mcp-server.md](docs/mcp-server.md) for details
 
 ## Installation
 
