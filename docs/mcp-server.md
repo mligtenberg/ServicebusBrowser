@@ -18,6 +18,18 @@ Electron main process, off by default, enabled from the "MCP Server" popup
 - `apps/servicebus-browser-app/src/app/mcp/tools.ts` — `registerTools()`:
   the v1 tool set. Every tool takes an explicit `workspaceId` (never an
   ambient "current" workspace).
+- Renderer-mutating tools (`navigate_to_topology_node`, `open_message_page`,
+  `set_active_page_filter`) all go through one bridge instead of one IPC
+  channel/preload method/listener per tool: `tools.ts`'s `sendCommand()`
+  sends an `McpCommand` (a discriminated union on `type`) over a single
+  `mcp:command` channel; `main.preload.ts` exposes it as one
+  `onMcpCommand(callback)`; `main-shell.ts` has one listener with a
+  `switch (command.type)`. Adding another renderer-mutating tool means
+  adding one variant to `McpCommand` (defined independently, but kept
+  structurally identical, on both the main-process and renderer side —
+  Electron's process boundary means there's no single shared type to
+  import) and one `case` in the switch, not a new channel/method/listener
+  trio.
 - `apps/servicebus-browser-app/src/app/events/mcp.events.ts` — IPC handlers
   (`mcp:get-status`/`set-enabled`/`set-port`/`regenerate-token`) that the
   settings popup calls, and `applySettings()` which starts/stops
@@ -37,16 +49,27 @@ Electron main process, off by default, enabled from the "MCP Server" popup
 - `focus_workspace_window` — via `workspace-window-registry`'s
   `findWindowForWorkspace`; fails (does not open a window) if none is open.
 - `navigate_to_topology_node` — focuses the Workspace's window and sends it
-  an IPC event (`mcp:navigate-to-topology-path`, wired in `main.preload.ts`
-  and consumed in `main-shell.ts`) that opens the management page. **v1
-  limitation**: there is no in-tree "select/expand to this node" state
+  a `navigate-to-topology-path` command (see the shared `mcp:command`
+  bridge above) that opens the management page. **v1 limitation**: there is
+  no in-tree "select/expand to this node" state
   anywhere in the app (`libs/topology/components`'s tree selection is
   component-local signals with no path-driven API), so this only opens the
   page and shows the requested path in a toast — it does not highlight the
   specific node yet.
 - `list_connections` / `list_topology` — thin wrappers over
   `Server.managementExecute('listConnections'|'listTopologies', {workspaceId})`,
-  the same actions the renderer's IPC channel already calls.
+  the same actions the renderer's IPC channel already calls. `list_topology`
+  additionally maps every node through `simplifyTopologyNode()`
+  (`tools.ts`), recursively (nodes nest via `children`) reducing each
+  `TopologyNode` to just `type`/`path`/`name`/`sendEndpoint`/
+  `receiveEndpoints`/`children` — dropping `icon` (a full FontAwesome/custom
+  icon definition), `actions`/`defaultAction` (the tree's right-click/
+  toolbar menu — UI dispatch only, not something an MCP caller can invoke),
+  and the tree component's own rendering/loading-state flags
+  (`selectable`/`refreshable`/`availableMessageCounts`/`errored`/
+  `errorMessage`). None of it is useful to an LLM and all of it repeats on
+  every node; the app's own `managementExecute` result (what the UI itself
+  renders from) is untouched.
 - `get_active_page` — the Message Page currently shown by the active
   window's route, plus its Workspace id. A synchronous read of
   `workspace-window-registry`'s `activePageByWindowId` map, kept current by
@@ -64,8 +87,8 @@ Electron main process, off by default, enabled from the "MCP Server" popup
 - `open_message_page` — opens a Message Page (by `workspaceId`/`pageId`, as
   returned by `list_message_pages`) in the active window, switching that
   window to the given Workspace first if it isn't already showing it. Sends
-  it `mcp:open-message-page` (wired in `main.preload.ts`, consumed in
-  `main-shell.ts`), which just does `router.navigateByUrl` to
+  an `open-message-page` command (see the shared `mcp:command` bridge
+  above), which just does `router.navigateByUrl` to
   `/<workspaceId>/messages/page/<pageId>` — `selectActivePage` derives from
   matching the current route, and a `:workspaceId` change alone is enough to
   trigger `workspaceActivationGuard`'s switch (see
@@ -84,14 +107,54 @@ replaced an earlier, cruder "last-opened window" heuristic that
 `get_active_page`/`get_selected_message` used before `open_message_page`/
 `get_active_workspace` needed real focus tracking to make "open in the
 window the user is looking at" true.
-- `list_message_pages` / `describe_message_page` / `query_message_page` —
-  see "Message Page query tools" below.
+- `list_message_pages` / `describe_message_page` / `query_message_page` /
+  `get_page_messages` — see "Message Page query tools" below.
+- `set_active_page_filter` — applies a `MessageFilter` (the same shape
+  `libs/messages/filtering`'s `MessageFilter` model and the UI's filter
+  builder use, validated with a zod schema mirroring that interface) to
+  whichever Message Page the active window's route is currently showing.
+  Sends a `set-active-page-filter` command (see the shared `mcp:command`
+  bridge above) with just the filter payload; `main-shell.ts` resolves the
+  target `pageId` itself from a fresh `selectActivePage` read (rather than
+  reusing `get_active_page`'s
+  possibly-stale main-process cache) and dispatches the existing
+  `messagePagesActions.setPageFilter({ pageId, filter })` NgRx action
+  (`libs/messages/store`) — the same action `messages-page.component.ts`'s
+  filter-builder UI dispatches. Fails if no window is open, or the active
+  window isn't currently viewing a Message Page.
+  - **Field-name validation**: `headers`/`deliveryAnnotations`/
+    `messageAnnotations`/`properties`/`applicationProperties` each filter
+    one EAV property table by a `fieldName` that must be one of that
+    table's real labels (the same tables `describe_message_page`'s
+    `propertyTables` reports labels for) — a `fieldName` from the wrong
+    table used to silently match zero messages instead of failing. The
+    handler now re-fetches the page's schema via
+    `headless:describe-page` and calls `findUnknownFieldNames()`
+    (`tools.ts`) before sending the command, erroring out with the table
+    the label actually belongs to if it's misplaced.
+  - **`body` is a real filter target**: it matches each message's raw body
+    text directly (no `fieldName`, since there's one body per message) via
+    `contains`/`regex`/etc. — an earlier session hallucinated that body
+    filtering wasn't supported (it's right there in the schema, just easy
+    to miss in a flattened JSON Schema blob) and fell back to
+    `query_message_page` + a chat-listed result instead of actually
+    filtering the page. Every array's zod schema now carries an explicit
+    `.describe()` spelling out its table/labels/body semantics, and the
+    tool's own description states the `describe_message_page`-first
+    workflow and nudges callers to prefer this tool over
+    `query_message_page` whenever the ask is "filter/show messages
+    matching X" rather than "analyze/count/summarize in chat".
+  - **Not filterable here**: fixed SQL columns outside the five EAV
+    tables and `body` — e.g. `messages.contentType` — have no filter
+    target in `MessageFilter` at all (the UI's filter builder can't
+    express them either); `query_message_page` is the only way to filter
+    on those.
 
 ## Message Page query tools (ADR-0011/0012)
 
 Message Page data (already-retrieved messages) lives in per-page SQLite
 files inside OPFS — a browser API, unreachable from the main process. These
-three tools go through a hidden renderer instead:
+tools go through a hidden renderer instead:
 
 - `apps/servicebus-browser-headless` — a new, minimal Nx Angular app,
   distinct from `servicebus-browser-frontend`. Its only component
@@ -170,6 +233,38 @@ three tools go through a hidden renderer instead:
   `extraProjects: ["servicebus-browser-headless/browser"]` so the headless
   build ships alongside the main renderer — see
   [Desktop Build Process](./desktop-build-process.md).
+- `get_page_messages` — a fourth query tool, reading actual hydrated
+  messages (body, headers, properties, annotations) rather than SQL rows or
+  a filter push. Adds `headless:get-messages` (`headless-window-manager.ts`'s
+  `HeadlessChannel` union, `app.ts`'s bridge handler) calling
+  `MessagesRepository.getMessages(pageId, filter, skip, take)`
+  (`libs/messages/messages-db`) — the same paginated/filtered load the
+  visible grid itself uses. Capped at 20 messages per call
+  (`limit`/`offset` in the zod `inputSchema`); each `ReceivedMessage`'s
+  `body` (a `Uint8Array`) is decoded with `TextDecoder` before being
+  JSON-returned (`toMcpMessage()`), since every body this app deals with is
+  text and a typed array serializes uselessly via `JSON.stringify`
+  (`{"0":1,"1":2,...}`).
+  - **Filter defaulting**: `filter` is optional and reuses
+    `messageFilterSchema`/`findUnknownFieldNames` exactly like
+    `set_active_page_filter`. If omitted, the tool falls back to whatever
+    filter is currently applied to that page in the app — but that filter
+    value lives only in a renderer's NgRx store (`libs/messages/store`),
+    which main has no way to read on demand. So `main-shell.ts` now also
+    pushes it proactively: a second `selectActivePage`-based subscription
+    (deduped on the filter's JSON, not just page id — the same page can get
+    a new filter without its id changing) calls a new
+    `reportActivePageFilter` bridge method
+    (`workspace-window:report-active-page-filter` →
+    `setActivePageFilterForWindow`/`getActivePageFilterForWindow` in
+    `workspace-window-registry.ts`, mirroring `reportActivePage`'s existing
+    pattern exactly). `active-page.ts`'s `getActivePageFilterFor(workspaceId,
+    pageId)` only returns that cached filter when the given ids match the
+    active window's *actual* active page — for any other `pageId`, main has
+    no way to know its filter, so the tool falls back to unfiltered rather
+    than guessing. The response's `usedFilter` field always states which
+    filter (if any) was actually applied, so the caller isn't left guessing
+    either.
 
 ## Deferred (not yet built)
 
