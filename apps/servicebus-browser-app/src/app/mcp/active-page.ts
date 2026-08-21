@@ -1,5 +1,7 @@
+import { MessageFilter } from '@service-bus-browser/filtering';
 import App from '../app';
 import {
+  getActivePageFilterForWindow,
   getActivePageForWindow,
   getActiveWindow,
   getSelectedMessageKeyForWindow,
@@ -59,6 +61,35 @@ export function getActivePage(): ActivePage | null {
   }
 
   return { workspaceId, pageId: page.pageId, pageName: page.pageName };
+}
+
+/**
+ * The filter currently applied to a given Message Page, if that page
+ * happens to be the one the active app window's route is currently
+ * showing — the only case main can know it (see
+ * `activePageFilterByWindowId` in `workspace-window-registry.ts`), since the
+ * filter itself lives only in that renderer's NgRx store. Returns null both
+ * when the page isn't the active one (unknown, not "no filter") and when it
+ * is but genuinely has no filter applied — callers that need to
+ * distinguish those should check `getActivePage()` first. Backs
+ * `get_page_messages`' "no filter given" default.
+ */
+export function getActivePageFilterFor(
+  workspaceId: string,
+  pageId: string,
+): MessageFilter | null {
+  const window = activeWindow();
+  if (!window) {
+    return null;
+  }
+
+  const activeWorkspaceId = getWorkspaceForWindow(window.id);
+  const activePage = getActivePageForWindow(window.id);
+  if (activeWorkspaceId !== workspaceId || activePage?.pageId !== pageId) {
+    return null;
+  }
+
+  return getActivePageFilterForWindow(window.id);
 }
 
 export interface SelectedMessageRef {
