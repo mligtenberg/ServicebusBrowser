@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { UUID } from '@service-bus-browser/shared-contracts';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import {
   describeMessagePage,
   getMessagesRepository,
@@ -14,6 +15,9 @@ interface HeadlessRequest {
   pageId?: string;
   sql?: string;
   messageKey?: string;
+  filter?: MessageFilter;
+  skip?: number;
+  take?: number;
 }
 
 interface HeadlessResponse {
@@ -26,6 +30,7 @@ interface HeadlessBridge {
   onDescribePage: (callback: (request: HeadlessRequest) => void) => void;
   onRunQuery: (callback: (request: HeadlessRequest) => void) => void;
   onGetMessage: (callback: (request: HeadlessRequest) => void) => void;
+  onGetMessages: (callback: (request: HeadlessRequest) => void) => void;
   respond: (requestId: string, result: HeadlessResponse) => void;
   notifyReady: () => void;
 }
@@ -175,6 +180,17 @@ export class App {
     bridge.onGetMessage((request) =>
       this.respond(bridge, 'headless:get-message', request, () =>
         repository.getMessage(request.pageId as UUID, request.messageKey as string),
+      ),
+    );
+
+    bridge.onGetMessages((request) =>
+      this.respond(bridge, 'headless:get-messages', request, () =>
+        repository.getMessages(
+          request.pageId as UUID,
+          request.filter,
+          request.skip,
+          request.take,
+        ),
       ),
     );
 
