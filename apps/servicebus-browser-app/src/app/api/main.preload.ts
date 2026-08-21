@@ -14,15 +14,14 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('workspace-window:focus-if-open', workspaceId),
   openWorkspaceInNewWindow: (workspaceId: string): Promise<void> =>
     ipcRenderer.invoke('workspace-window:open-in-new-window', workspaceId),
-  onNavigateToTopologyPath: (callback: (path: string) => void) =>
-    ipcRenderer.on('mcp:navigate-to-topology-path', (_, path) => callback(path)),
-  onOpenMessagePage: (
-    callback: (request: { workspaceId: string; pageId: string }) => void,
-  ) => ipcRenderer.on('mcp:open-message-page', (_, request) => callback(request)),
+  onMcpCommand: (callback: (command: unknown) => void) =>
+    ipcRenderer.on('mcp:command', (_, command) => callback(command)),
   reportActivePage: (page: { pageId: string; pageName: string } | null) =>
     ipcRenderer.send('workspace-window:report-active-page', page),
   reportSelectedMessage: (messageKey: string | null) =>
     ipcRenderer.send('workspace-window:report-selected-message', messageKey),
+  reportActivePageFilter: (filter: unknown | null) =>
+    ipcRenderer.send('workspace-window:report-active-page-filter', filter),
 });
 
 contextBridge.exposeInMainWorld('mcpApi', {
@@ -47,6 +46,15 @@ contextBridge.exposeInMainWorld('headlessApi', {
   onGetMessage: (
     callback: (request: { requestId: string; pageId: string; messageKey: string }) => void,
   ) => ipcRenderer.on('headless:get-message', (_, request) => callback(request)),
+  onGetMessages: (
+    callback: (request: {
+      requestId: string;
+      pageId: string;
+      filter?: unknown;
+      skip?: number;
+      take?: number;
+    }) => void,
+  ) => ipcRenderer.on('headless:get-messages', (_, request) => callback(request)),
   respond: (requestId: string, result: { data?: unknown; error?: string }) =>
     ipcRenderer.send(`headless:response:${requestId}`, result),
   notifyReady: () => ipcRenderer.send('headless:ready'),
