@@ -7,6 +7,7 @@ import {
   protocol,
   Tray,
   nativeImage,
+  ipcMain,
 } from 'electron';
 import {
   headlessRendererAppName,
@@ -60,10 +61,13 @@ export default class App {
    * Shows/hides the tray icon that keeps the app reachable when every
    * window is closed while MCP is enabled.
    */
-  static setMcpEnabled(enabled: boolean, onRegenerateToken: () => void): void {
+  static setMcpEnabled(enabled: boolean): void {
     App.mcpEnabled = enabled;
 
     if (!enabled) {
+      if (process.platform !== 'darwin') {
+        nativeTheme.off('updated', App.updateTrayIcon);
+      }
       App.tray?.destroy();
       App.tray = null;
       return;
@@ -73,18 +77,11 @@ export default class App {
       return;
     }
 
-    // macOS menu-bar icons must be "template" images (solid black + alpha)
-    // so the OS can recolor them for the light/dark menu bar; Windows/Linux
-    // tray icons render as-is, so they get a colored dot instead. Electron
-    // auto-picks up the sibling "@2x" file for retina displays as long as
-    // it sits next to the base filename.
-    const iconFile =
-      process.platform === 'darwin' ? 'tray-iconTemplate.png' : 'tray-icon.png';
-    const iconPath = join(__dirname, 'assets', 'tray', iconFile);
-    const trayIcon = nativeImage.createFromPath(iconPath);
-    trayIcon.setTemplateImage(process.platform === 'darwin');
-    App.tray = new Tray(trayIcon);
+    App.tray = new Tray(App.getTrayIcon());
     App.tray.setToolTip(`${App.application.name} (MCP server running)`);
+    if (process.platform !== 'darwin') {
+      nativeTheme.on('updated', App.updateTrayIcon);
+    }
     App.tray.setContextMenu(
       Menu.buildFromTemplate([
         {
@@ -98,12 +95,77 @@ export default class App {
             }
           },
         },
-        { label: 'Regenerate MCP Token', click: onRegenerateToken },
+        { label: 'Open MCP Menu', click: () => App.openMcpSettings() },
         { type: 'separator' },
         { label: 'Quit', click: () => App.application.quit() },
       ]),
     );
   }
+
+  /**
+   * Focuses/creates the main window, then asks it to open the MCP settings
+   * popup over the `mcp:command` channel (see `main-shell.ts`'s
+   * `open-mcp-settings` case). A freshly created window's `did-finish-load`
+   * only means the HTML/JS finished loading, not that Angular has
+   * bootstrapped and `main-shell.ts`'s listener is attached yet, so we
+   * instead wait for that component's `mcp:command-listener-ready` ping,
+   * sent right after it registers the listener.
+   */
+  private static openMcpSettings(): void {
+    const sendOpenCommand = (window: Electron.BrowserWindow) => {
+      window.webContents.send('mcp:command', { type: 'open-mcp-settings' });
+    };
+
+    if (App.mainWindow) {
+      if (App.mainWindow.isMinimized()) App.mainWindow.restore();
+      App.mainWindow.focus();
+      sendOpenCommand(App.mainWindow);
+      return;
+    }
+
+    App.initWindow();
+    const window = App.mainWindow;
+    if (!window) {
+      return;
+    }
+    const onListenerReady = (event: Electron.IpcMainEvent) => {
+      if (event.sender === window.webContents) {
+        ipcMain.off('mcp:command-listener-ready', onListenerReady);
+        sendOpenCommand(window);
+      }
+    };
+    ipcMain.on('mcp:command-listener-ready', onListenerReady);
+    window.once('closed', () => {
+      ipcMain.off('mcp:command-listener-ready', onListenerReady);
+    });
+  }
+
+  // Electron auto-picks up the sibling "@2x" file for retina displays as
+  // long as it sits next to the base filename.
+  private static getTrayIcon(): Electron.NativeImage {
+    if (process.platform === 'darwin') {
+      // A template image (black + alpha, no fill) is recolored by macOS to
+      // match the real menu-bar background, which can differ from the
+      // app's light/dark setting (e.g. a translucent bar over the desktop
+      // picture) — so this is more reliable than tracking nativeTheme.
+      const icon = nativeImage.createFromPath(
+        join(__dirname, 'assets', 'tray', 'tray-icon.png'),
+      );
+      icon.setTemplateImage(true);
+      return icon;
+    }
+
+    const iconFile = nativeTheme.shouldUseDarkColors
+      ? 'tray-icon-dark.png'
+      : 'tray-icon.png';
+    return nativeImage.createFromPath(
+      join(__dirname, 'assets', 'tray', iconFile),
+    );
+  }
+
+  private static updateTrayIcon = (): void => {
+    App.tray?.setImage(App.getTrayIcon());
+  };
 
   private static onClose() {
     // Dereference the window object, usually you would store windows

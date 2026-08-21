@@ -6,9 +6,7 @@ import { mcpServerHost } from '../mcp/mcp-server';
 let storage: McpSettingsStorage | undefined;
 
 async function applySettings(settings: McpSettings): Promise<void> {
-  App.setMcpEnabled(settings.enabled, () => {
-    void regenerateToken();
-  });
+  App.setMcpEnabled(settings.enabled);
 
   if (settings.enabled) {
     await mcpServerHost.start(settings);

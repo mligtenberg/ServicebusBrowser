@@ -43,7 +43,8 @@ type WorkspaceBroadcastMessage =
 type McpCommand =
   | { type: 'navigate-to-topology-path'; path: string }
   | { type: 'open-message-page'; workspaceId: string; pageId: string }
-  | { type: 'set-active-page-filter'; filter: MessageFilter };
+  | { type: 'set-active-page-filter'; filter: MessageFilter }
+  | { type: 'open-mcp-settings' };
 
 interface ElectronWindow {
   electron?: {
@@ -51,6 +52,7 @@ interface ElectronWindow {
     onFullScreenChanged?: (callback: (fullscreen: boolean) => void) => void;
     checkForUpdates?: () => Promise<void>;
     onMcpCommand?: (callback: (command: McpCommand) => void) => void;
+    reportMcpCommandListenerReady?: () => void;
     reportActivePage?: (page: { pageId: string; pageName: string } | null) => void;
     reportActivePageFilter?: (filter: MessageFilter | null) => void;
   };
@@ -253,8 +255,21 @@ export class MainShell {
               );
             });
           break;
+
+        case 'open-mcp-settings':
+          // Sent by the tray's "Open MCP Menu" item so it can reuse this
+          // window's popup instead of the main process needing its own
+          // route/popup machinery.
+          openMcpSettingsPopup(this.router, this.location);
+          break;
       }
     });
+
+    // Tells main it's now safe to send `mcp:command`s at this window — a
+    // freshly opened window's `did-finish-load` fires before Angular has
+    // bootstrapped this component, so the tray's "Open MCP Menu" waits for
+    // this ping instead of guessing when the listener above is attached.
+    this.electron?.reportMcpCommandListenerReady?.();
 
     // Backs the MCP get_active_page tool: main has no way to observe a
     // window's live Angular Router state on its own, so push it whenever

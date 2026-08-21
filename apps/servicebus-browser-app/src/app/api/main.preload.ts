@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('workspace-window:open-in-new-window', workspaceId),
   onMcpCommand: (callback: (command: unknown) => void) =>
     ipcRenderer.on('mcp:command', (_, command) => callback(command)),
+  reportMcpCommandListenerReady: () =>
+    ipcRenderer.send('mcp:command-listener-ready'),
   reportActivePage: (page: { pageId: string; pageName: string } | null) =>
     ipcRenderer.send('workspace-window:report-active-page', page),
   reportSelectedMessage: (messageKey: string | null) =>
