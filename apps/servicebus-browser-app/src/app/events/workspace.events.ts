@@ -1,9 +1,11 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { WorkspacesServer } from '@service-bus-browser/service-bus-server';
+import { MessageFilter } from '@service-bus-browser/filtering';
 import App from '../app';
 import { WorkspaceStorage } from './secure-storage/workspace-storage';
 import {
   findWindowForWorkspace,
+  setActivePageFilterForWindow,
   setActivePageForWindow,
   setActiveWorkspaceForWindow,
   setSelectedMessageKeyForWindow,
@@ -70,6 +72,21 @@ ipcMain.on(
     const window = BrowserWindow.fromWebContents(event.sender);
     if (window) {
       setSelectedMessageKeyForWindow(window.id, messageKey);
+    }
+  },
+);
+
+// The renderer reports the filter currently applied to its active Message
+// Page (or null) whenever it changes, mirroring report-active-page above —
+// this is what backs get_page_messages' "no filter given, use the page's
+// current filter" default, since main has no other way to observe that
+// renderer's NgRx filter state.
+ipcMain.on(
+  'workspace-window:report-active-page-filter',
+  (event, filter: MessageFilter | null) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window) {
+      setActivePageFilterForWindow(window.id, filter);
     }
   },
 );
