@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import { MessageFilter } from '@service-bus-browser/filtering';
 
 /**
  * Tracks which workspace each open app window is currently showing, reported
@@ -33,6 +34,16 @@ const activePageByWindowId = new Map<number, { pageId: string; pageName: string 
  * `get_selected_message` MCP tool.
  */
 const selectedMessageKeyByWindowId = new Map<number, string | null>();
+
+/**
+ * Tracks the filter currently applied to each open app window's active
+ * Message Page, if any — reported by the renderer whenever it changes (same
+ * push pattern as `activePageByWindowId`). Backs `get_page_messages`'
+ * "no filter given, use the page's current filter" default; there's no other
+ * way to learn this, since the filter itself lives only in that renderer's
+ * NgRx store (see docs/mcp-server.md).
+ */
+const activePageFilterByWindowId = new Map<number, MessageFilter | null>();
 
 export function setActiveWorkspaceForWindow(
   windowId: number,
@@ -71,10 +82,24 @@ export function getSelectedMessageKeyForWindow(
   return selectedMessageKeyByWindowId.get(windowId) ?? null;
 }
 
+export function setActivePageFilterForWindow(
+  windowId: number,
+  filter: MessageFilter | null,
+): void {
+  activePageFilterByWindowId.set(windowId, filter);
+}
+
+export function getActivePageFilterForWindow(
+  windowId: number,
+): MessageFilter | null {
+  return activePageFilterByWindowId.get(windowId) ?? null;
+}
+
 export function forgetWindow(windowId: number): void {
   workspaceByWindowId.delete(windowId);
   activePageByWindowId.delete(windowId);
   selectedMessageKeyByWindowId.delete(windowId);
+  activePageFilterByWindowId.delete(windowId);
   if (lastFocusedWindowId === windowId) {
     lastFocusedWindowId = undefined;
   }
