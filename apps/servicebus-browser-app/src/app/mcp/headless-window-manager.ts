@@ -9,7 +9,8 @@ type HeadlessChannel =
   | 'headless:list-pages'
   | 'headless:describe-page'
   | 'headless:run-query'
-  | 'headless:get-message';
+  | 'headless:get-message'
+  | 'headless:get-messages';
 
 interface HeadlessEntry {
   window: BrowserWindow;
@@ -115,6 +116,17 @@ function rpc<T>(
   payload: Record<string, unknown>,
 ): Promise<T> {
   return new Promise((resolve, reject) => {
+    // `getEntry()`'s destroyed-check happens before `await entry.ready`,
+    // leaving a window for the idle-teardown timer (or the user closing a
+    // dev-mode headless window) to destroy it before this actually sends —
+    // `.send()` on a destroyed `webContents` doesn't reject this promise,
+    // it logs via an internal `console.error` that can itself crash the
+    // process if stdout/stderr has no reader (see `main.ts`'s EPIPE guard).
+    if (window.isDestroyed()) {
+      reject(new Error('Headless renderer window was closed before this request could be sent.'));
+      return;
+    }
+
     const requestId = `${channel}:${window.webContents.id}:${++requestCounter}`;
     const responseChannel = `headless:response:${requestId}`;
 
