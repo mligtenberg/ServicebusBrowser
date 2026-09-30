@@ -95,7 +95,7 @@
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
     "angular-eslint": "22.1.0",
-    "electron": "^43.1.1",
+    "electron": "^43.5.0",
     "electron-builder": "^26.15.3",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "10.1.5",
