@@ -16,7 +16,7 @@
     "@angular/core": "22.0.7",
     "@angular/platform-browser": "22.0.7",
     "@angular/platform-browser-dynamic": "22.0.7",
-    "@angular/router": "22.0.7",
+    "@angular/router": "22.2.0",
     "@azure/core-amqp": "^4.5.0",
     "@azure/core-auth": "^1.11.0",
     "@azure/event-hubs": "^6.0.4",
