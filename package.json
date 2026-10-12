@@ -30,7 +30,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.3.1",
     "@fortawesome/free-regular-svg-icons": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
-    "@modelcontextprotocol/sdk": "1.29.0",
+    "@modelcontextprotocol/sdk": "1.31.0",
     "@ngrx/effects": "21.0.1",
     "@ngrx/router-store": "21.0.1",
     "@ngrx/store": "21.0.1",
