@@ -40,7 +40,7 @@
     "@types/luxon": "^3.7.2",
     "@zip.js/zip.js": "^2.8.31",
     "angular-auth-oidc-client": "^21.0.2",
-    "body-parser": "^2.3.0",
+    "body-parser": "^2.4.0",
     "bson": "^7.3.1",
     "express": "^4.22.2",
     "fast-xml-parser": "^5.10.1",
